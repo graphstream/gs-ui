@@ -48,8 +48,8 @@ object FontCache {
 	 */
 	def getFont( name:String, style:TextStyle, size:Int ):Font = {
 		cache.get( name ) match {
-		  case None             => { val slot = new FontSlot( name, style, size ); cache.put( name, slot ); slot.getFont( style, size ) }
-		  case x:Some[FontSlot] => { x.get.getFont( style, size ) }
+		  case None      => { val slot = new FontSlot( name, style, size ); cache.put( name, slot ); slot.getFont( style, size ) }
+		  case x:Some[_] => { x.get.getFont( style, size ) }
 		}
 	}
  
@@ -105,7 +105,7 @@ class FontSlot( val name:String, style:TextStyle, size:Int ) {
 				map.put( size, font )
 				font
 		  	}
-			case x:Some[Font] => {
+			case x:Some[_] => {
 				x.get
 			} 
 		}
@@ -115,8 +115,8 @@ class FontSlot( val name:String, style:TextStyle, size:Int ) {
 		val map = mapFromStyle( style )
 		
 		map.get( size ) match {
-		  case None         => insert( map, toJavaStyle( style ), size )
-		  case x:Some[Font] => x.get
+		  case None      => insert( map, toJavaStyle( style ), size )
+		  case x:Some[_] => x.get
 		}
 	}
 }

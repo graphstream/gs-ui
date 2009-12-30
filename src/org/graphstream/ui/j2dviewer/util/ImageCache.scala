@@ -90,7 +90,7 @@ object ImageCache {
     
 				new Some[BufferedImage]( image )
 			} 
-			case (x:Some[BufferedImage]) => {
+			case (x:Some[_]) => {
 				if( x.get == dummy && forceTryReload ) {
 					imageCache -= fileNameOrUrl
 					loadImage( fileNameOrUrl )

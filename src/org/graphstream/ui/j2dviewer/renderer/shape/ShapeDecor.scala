@@ -90,8 +90,8 @@ object IconAndText {
 		
 		if( style.getIconMode != IconMode.NONE ) {
 			icon = ImageCache.loadImage( style.getIcon ) match {
-				case x:Some[BufferedImage] => x.get
-				case _                     => null
+				case x:Some[_] => x.get
+				case _         => null
 			}
 		}
   
