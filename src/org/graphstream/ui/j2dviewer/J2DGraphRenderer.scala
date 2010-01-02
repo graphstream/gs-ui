@@ -1,6 +1,6 @@
 package org.graphstream.ui.j2dviewer
   
-import java.awt.{Container, Graphics2D}
+import java.awt.{Container, Graphics2D, RenderingHints}
 import java.util.ArrayList
 
 import org.graphstream.ui.geom.Point3
@@ -33,7 +33,7 @@ import org.graphstream.ScalaGS._
  * </p>
  * 
  * <p>
- * This class also handles a "selection" object that represent the current selection
+ * This class also handles a "selection" object that represents the current selection
  * and renders it.
  * </p>
  */
@@ -150,19 +150,18 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 // Commands -- Rendering
   
   	def render( g:Graphics2D, width:Int, height:Int ) {
-printf( "render( g=%s w=%d h=%d )%n", graph.getId, width, height )
 		val sgs = graph.getStyleGroups
 	
+		setupGraphics( g )
 		graph.computeBounds
 		camera.setBounds( graph )
 		camera.setViewport( width, height );
 
 		getStyleRenderer(graph).render( g, camera, width, height )
   
-printf( "  rendering pass : %n" )
+		camera.pushView( g, graph )
 		sgs.shadows.foreach { group =>
 		  	val renderer = getStyleRenderer( group )
-		  	printf( "    shadow %s%n", group.getId )
 		  	renderer.renderShadow( g, camera )
 		}
   
@@ -170,12 +169,35 @@ printf( "  rendering pass : %n" )
 		  	groups.foreach { group =>
 		  	  	if( group.getType != Selector.Type.GRAPH ) {
 		  	  		val renderer = getStyleRenderer( group )
-		  	  		printf( "    group %s%n", group.getId )
 		  	  		renderer.render( g, camera )
 		  	  	}
 		  	}
 		}
+		camera.popView( g )
   	}
+   
+   protected def setupGraphics( g:Graphics2D ) {
+	   g.setRenderingHint( RenderingHints.KEY_STROKE_CONTROL,      RenderingHints.VALUE_STROKE_PURE );
+//	   g.setRenderingHint( RenderingHints.KEY_RENDERING,           RenderingHints.VALUE_RENDER_SPEED );
+	   
+	   if( graph.hasAttribute( "ui.antialias" ) ) {
+		   g.setRenderingHint( RenderingHints.KEY_TEXT_ANTIALIASING,   RenderingHints.VALUE_TEXT_ANTIALIAS_ON );
+		   g.setRenderingHint( RenderingHints.KEY_ANTIALIASING,        RenderingHints.VALUE_ANTIALIAS_ON );
+	   } else {
+		   g.setRenderingHint( RenderingHints.KEY_TEXT_ANTIALIASING,   RenderingHints.VALUE_TEXT_ANTIALIAS_OFF );
+		   g.setRenderingHint( RenderingHints.KEY_ANTIALIASING,        RenderingHints.VALUE_ANTIALIAS_OFF );
+	     
+	   }
+/*  
+ 		g.setRenderingHint( RenderingHints.KEY_INTERPOLATION,       RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR );
+		g.setRenderingHint( RenderingHints.KEY_COLOR_RENDERING,     RenderingHints.VALUE_COLOR_RENDER_SPEED );
+		g.setRenderingHint( RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED );
+ * 
+    	g.setRenderingHint( RenderingHints.KEY_INTERPOLATION,       RenderingHints.VALUE_INTERPOLATION_BICUBIC );
+		g.setRenderingHint( RenderingHints.KEY_COLOR_RENDERING,     RenderingHints.VALUE_COLOR_RENDER_QUALITY );
+		g.setRenderingHint( RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY );
+*/
+   }
   
 // Commands -- Style group listener
   

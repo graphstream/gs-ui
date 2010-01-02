@@ -32,10 +32,15 @@ private class Test extends ViewerListener {
 		val C = graph.addNode( "C" )
 		graph.addEdges( "A", "B", "C", "A" )
 		graph.addAttribute( "ui.stylesheet", styleSheet )
+		graph.addAttribute( "ui.antialias" )
   
 		A("xyz") = ( -1, 0, 0 )
 		B("xyz") = (  1, 0, 0 )
 		C("xyz") = (  0, 1, 0 )
+  
+		A("label") = "A"
+		B("label") = "B"
+		C("label") = "C"
  
 		while( loop ) {
 			pipeIn.pump
@@ -59,8 +64,31 @@ private class Test extends ViewerListener {
 // Data
    
 	private val styleSheet:String = """
-			graph { fill-mode: gradient-radial; fill-color: white, gray; } 
-			node { fill-color:red; stroke-color:blue; shadow-mode:plain; }
-			edge { fill-color:green; shadow-mode:plain; }
+			graph {
+ 				fill-mode: gradient-radial;
+ 				fill-color: white, gray;
+ 				padding: 40px;
+ 			} 
+			node {
+				size: 60px, 25px;
+				fill-mode: gradient-vertical;
+				fill-color: white, rgb(200,200,200);
+				stroke-mode: plain; 
+				stroke-color: rgba(255,255,0,255);
+				stroke-width: 2px;
+				shadow-mode: plain;
+				shadow-width: 0px;
+				shadow-offset: 3px, -3px;
+				shadow-color: rgba(0,0,0,100);
+				icon-mode: at-left;
+				icon: url('file:///home/antoine/GSLogo11d24.png');
+			}
+			node:selected {
+				stroke-color: blue;
+			}
+			edge {
+				fill-color:green;
+				shadow-mode:plain;
+			}
 		""";
 }

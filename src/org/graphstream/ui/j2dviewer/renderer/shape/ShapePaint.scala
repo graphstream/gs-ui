@@ -3,7 +3,7 @@ package org.graphstream.ui.j2dviewer.renderer.shape
 import java.awt.{Paint, Color, GradientPaint, LinearGradientPaint, RadialGradientPaint, MultipleGradientPaint}
 import java.awt.geom.RectangularShape
 
-import org.graphstream.ui2.graphicGraph.stylesheet.Style
+import org.graphstream.ui2.graphicGraph.stylesheet.{Style, Colors}
 import org.graphstream.ScalaGS._
 
 abstract class ShapePaint {
@@ -11,9 +11,11 @@ abstract class ShapePaint {
 
 abstract class ShapeAreaPaint extends ShapePaint with Area {
 	def paint( xFrom:Float, yFrom:Float, xTo:Float, yTo:Float ):Paint
-	def paint( shape:RectangularShape ):Paint = {
-		paint( shape.getMinX.toFloat, shape.getMinY.toFloat,
-		       shape.getMaxX.toFloat, shape.getMaxY.toFloat )
+	def paint( shape:java.awt.Shape ):Paint = {
+		val s = shape.getBounds2D
+		
+		paint( s.getMinX.toFloat, s.getMinY.toFloat,
+		       s.getMaxX.toFloat, s.getMaxY.toFloat )
 	}
 }
 
@@ -28,23 +30,23 @@ object ShapePaint {
 		if( forShadow ) {
 			import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.ShadowMode._
 			style.getShadowMode match {
-				case GRADIENT_VERTICAL   => new ShapeVerticalGradientPaint(   createColors( style ), createFractions( style ) )
-				case GRADIENT_HORIZONTAL => new ShapeHorizontalGradientPaint( createColors( style ), createFractions( style ) )
-				case GRADIENT_DIAGONAL1  => new ShapeDiagonal1GradientPaint(  createColors( style ), createFractions( style ) )
-				case GRADIENT_DIAGONAL2  => new ShapeDiagonal2GradientPaint(  createColors( style ), createFractions( style ) )
-				case GRADIENT_RADIAL     => new ShapeRadialGradientPaint(     createColors( style ), createFractions( style ) )
-				case PLAIN               => new ShapePlainColorPaint(         style.getFillColor( 0 ) )
+				case GRADIENT_VERTICAL   => new ShapeVerticalGradientPaint(   createColors( style, true ), createFractions( style, true ) )
+				case GRADIENT_HORIZONTAL => new ShapeHorizontalGradientPaint( createColors( style, true ), createFractions( style, true ) )
+				case GRADIENT_DIAGONAL1  => new ShapeDiagonal1GradientPaint(  createColors( style, true ), createFractions( style, true ) )
+				case GRADIENT_DIAGONAL2  => new ShapeDiagonal2GradientPaint(  createColors( style, true ), createFractions( style, true ) )
+				case GRADIENT_RADIAL     => new ShapeRadialGradientPaint(     createColors( style, true ), createFractions( style, true ) )
+				case PLAIN               => new ShapePlainColorPaint(         style.getShadowColor( 0 ) )
 				case _                   => null
 			}
 		} else {
 			import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.FillMode._
 			style.getFillMode match {
-				case GRADIENT_VERTICAL   => new ShapeVerticalGradientPaint(   createColors( style ), createFractions( style ) )
-				case GRADIENT_HORIZONTAL => new ShapeHorizontalGradientPaint( createColors( style ), createFractions( style ) )
-				case GRADIENT_DIAGONAL1  => new ShapeDiagonal1GradientPaint(  createColors( style ), createFractions( style ) )
-				case GRADIENT_DIAGONAL2  => new ShapeDiagonal2GradientPaint(  createColors( style ), createFractions( style ) )
-				case GRADIENT_RADIAL     => new ShapeRadialGradientPaint(     createColors( style ), createFractions( style ) )
-				case DYN_PLAIN           => new ShapeDynPlainColorPaint(      createColors( style ) )
+				case GRADIENT_VERTICAL   => new ShapeVerticalGradientPaint(   createColors( style, false ), createFractions( style, false ) )
+				case GRADIENT_HORIZONTAL => new ShapeHorizontalGradientPaint( createColors( style, false ), createFractions( style, false ) )
+				case GRADIENT_DIAGONAL1  => new ShapeDiagonal1GradientPaint(  createColors( style, false ), createFractions( style, false ) )
+				case GRADIENT_DIAGONAL2  => new ShapeDiagonal2GradientPaint(  createColors( style, false ), createFractions( style, false ) )
+				case GRADIENT_RADIAL     => new ShapeRadialGradientPaint(     createColors( style, false ), createFractions( style, false ) )
+				case DYN_PLAIN           => new ShapeDynPlainColorPaint(      createColors( style, false) )
 				case PLAIN               => new ShapePlainColorPaint(         style.getFillColor( 0 ) )
 				case IMAGE_TILED         => null
 				case IMAGE_SCALED        => null
@@ -61,9 +63,13 @@ object ShapePaint {
      * style fill-color count.
      * @param style The style to use.
 	 */
-	protected def createFractions( style:Style ):Array[Float] = {
-		val n = style.getFillColorCount
-
+	protected def createFractions( style:Style, forShadow:Boolean ):Array[Float] = {
+		if( forShadow )
+		     createFractions( style, style.getShadowColorCount )
+		else createFractions( style, style.getFillColorCount )
+	}
+ 
+	protected def createFractions( style:Style, n:Int ):Array[Float] = {
 		if( n < predefFractions.length ) {
 			predefFractions(n)
 		} else {
@@ -84,18 +90,24 @@ object ShapePaint {
      * The array of colors in the fill-color property of the style.
      * @param style The style to use.
      */
-	protected def createColors( style:Style ):Array[Color] = {
-		val colors = new Array[Color]( style.getFillColorCount )
+	protected def createColors( style:Style, forShadow:Boolean ):Array[Color] = {
+		if( forShadow )
+		     createColors( style, style.getShadowColorCount, style.getShadowColors )
+		else createColors( style, style.getFillColorCount,   style.getFillColors )
+	}
+ 
+	protected def createColors( style:Style, n:Int, theColors:Colors ):Array[Color] = {
+		val colors = new Array[Color]( n )
 		var i      = 0
 
-		style.getFillColors.foreach { color =>
+		theColors.foreach { color =>
 			colors(i) = color
 			i += 1
 		}
   
 		colors
 	}
-
+ 
 	private[this] val predefFractions  = new Array[Array[Float]]( 11 )
 	private[this] val predefFractions2 = Array( 0f, 1f )
 	private[this] val predefFractions3 = Array( 0f, 0.5f, 1f)
@@ -185,7 +197,7 @@ object ShapePaint {
 			val cx = x0 + w
 			val cy = y0 + h
 			if( version16 )
-			     new RadialGradientPaint( cx, cy, if( w > h ) w else h, cx, cy, fractions, colors, MultipleGradientPaint.CycleMethod.REFLECT )
+			     new RadialGradientPaint( cx, cy, if( w > h ) w else h, cx, cy, fractions, colors, MultipleGradientPaint.CycleMethod.NO_CYCLE )
 			else new GradientPaint( x0, y0, colors(0), x1, y1, colors(1) )
 		}
 	}

@@ -5,7 +5,7 @@ import java.awt.geom.{AffineTransform, Rectangle2D}
 import java.awt.font.TextLayout
 import java.awt.image.BufferedImage
 
-import org.graphstream.ui.j2dviewer.util.{FontCache, ImageCache}
+import org.graphstream.ui.j2dviewer.util.{FontCache, ImageCache, GraphMetrics, Camera}
 
 import org.graphstream.ui2.graphicGraph.stylesheet.Style
 import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants._
@@ -14,7 +14,7 @@ import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants._
  * Representation of the icon and text that can decorate any "decorated" shape.
  */
 abstract class ShapeDecor {
-	def render( g:Graphics2D, text:String, x0:Float, y0:Float, x1:Float, y1:Float )
+	def render( g:Graphics2D, camera:Camera, text:String, x0:Float, y0:Float, x1:Float, y1:Float )
 }
 
 /**
@@ -46,17 +46,34 @@ object ShapeDecor {
 	}
 	
 	class EmptyShapeDecor extends ShapeDecor {
-		def render( g:Graphics2D, text:String, x0:Float, y0:Float, x1:Float, y1:Float ) {}
+		def render( g:Graphics2D, camera:Camera, text:String, x0:Float, y0:Float, x1:Float, y1:Float ) {}
     }
  
 	class CenteredShapeDecor( val iconAndText:IconAndText ) extends ShapeDecor {
-		def render( g:Graphics2D, text:String, x0:Float, y0:Float, x1:Float, y1:Float ) {
+		def render( g:Graphics2D, camera:Camera, text:String, x0:Float, y0:Float, x1:Float, y1:Float ) {
 			val cx = x0 + (x1 - x0) / 2
 			val cy = y0 + (y1 - y0) / 2
-			val w2 = iconAndText.width / 2
-			val h2 = iconAndText.height / 2
-   
-			iconAndText.render( g, text, cx-w2, cy-h2 )
+
+			renderGu2Px( g, camera, text, cx, cy )
+		}
+  
+		/* We choose here to replace the transform (GU->PX) into a the identity to draw
+		 * The text and icon. Is this the best way ? Maybe should we merely scale the 
+		 * font size to render the text at the correct size ? How to handle the icon in
+		 * this case ? 
+		 */
+		def renderGu2Px( g:Graphics2D, camera:Camera, text:String, x:Float, y:Float ) {
+			val p  = camera.transform( x, y )
+			val Tx = g.getTransform
+			
+			g.setTransform( new AffineTransform )
+			iconAndText.setText( g, text )
+
+			var tx = p.x - ( iconAndText.width / 2 )
+			var ty = p.y + ( iconAndText.height / 2 )
+			
+			iconAndText.render( g, camera, tx, ty )
+			g.setTransform( Tx )
 		}
 	}
 }
@@ -69,10 +86,13 @@ object ShapeDecor {
  * and specified only at construction.
  * </p>
  */
-abstract class IconAndText {
-	def render( g:Graphics2D, text:String, xLeft:Float, yBottom:Float )
+abstract class IconAndText( val text:TextBox ) {
+	def setText( g:Graphics2D, text:String )
+	def render( g:Graphics2D, camera:Camera, xLeft:Float, yBottom:Float )
 	def width:Float
 	def height:Float
+	def descent:Float = text.descent
+	def ascent:Float = text.ascent
 }
 
 /**
@@ -108,23 +128,23 @@ object IconAndText {
 		}
 	}
  
-	class IconAndTextOnlyText( val text:TextBox ) extends IconAndText {
-		def render( g:Graphics2D, text:String, xLeft:Float, yBottom:Float ) {
-			this.text.setText( text, g )
-			this.text.render( g, xLeft, yBottom )
+	class IconAndTextOnlyText( text:TextBox ) extends IconAndText( text ) {
+		def setText( g:Graphics2D, text:String ) { this.text.setText( text, g ) }
+		def render( g:Graphics2D, camera:Camera, xLeft:Float, yBottom:Float ) {
+			this.text.render( g, xLeft, yBottom - descent )
 		}
 		def width:Float = text.width
-		def height:Float = text.height
+		def height:Float = text.ascent + text.descent
 	}
  
-	class IconAtLeftAndText( val icon:BufferedImage, val text:TextBox ) extends IconAndText {
-		def render( g:Graphics2D, text:String, xLeft:Float, yBottom:Float ) {
-			this.text.setText( text, g )
-			g.drawImage( icon, new AffineTransform( 1f, 0f, 0f, 1f, xLeft, yBottom ), null )
-			this.text.render( g, xLeft, yBottom )
+	class IconAtLeftAndText( val icon:BufferedImage, text:TextBox ) extends IconAndText( text ) {
+		def setText( g:Graphics2D, text:String ) { this.text.setText( text, g ) }
+		def render( g:Graphics2D, camera:Camera, xLeft:Float, yBottom:Float ) {
+			g.drawImage( icon, new AffineTransform( 1f, 0f, 0f, 1f, xLeft, (yBottom-(height/2))-(icon.getHeight/2) ), null )
+			this.text.render( g, xLeft + icon.getWidth + 5, yBottom - descent )
 		}
 		def width:Float = text.width + icon.getWidth(null) + 5
-		def height:Float = Math.max( text.height, icon.getHeight(null) )
+		def height:Float = text.ascent + text.descent
 	}
 }
 
@@ -133,17 +153,27 @@ object IconAndText {
  */
 class TextBox( val font:Font, val textColor:Color ) {
 	var text:TextLayout = null
-	var bounds:Rectangle2D = null
+	var bounds:Rectangle2D = new Rectangle2D.Float( 0, 0, 0, 0 )
 	def setText( text:String, g:Graphics2D ) {
-	  	if( this.text != null && this.text != text ) {
-	  		this.text = new TextLayout( text, font, g.getFontRenderContext )
-	  		this.bounds = this.text.getBounds
+	  	if( text != null ) {
+	  		if( this.text != text ) {
+	  			this.text = new TextLayout( text, font, g.getFontRenderContext )
+	  			this.bounds = this.text.getBounds
+	  	  	}
+	  	} else {
+	  		this.text = null
+	  		this.bounds = new Rectangle2D.Float( 0, 0, 0, 0 )
 	  	}
 	}
- 	def width:Float = bounds.getWidth.toFloat
- 	def height:Float = bounds.getHeight.toFloat
+ 	def width:Float   = if( bounds != null ) bounds.getWidth.toFloat else 0
+ 	def height:Float  = if( bounds != null ) bounds.getHeight.toFloat else 0
+ 	def descent:Float = if( text != null ) text.getDescent else 0
+ 	def ascent:Float  = if( text != null ) text.getAscent else 0
  	def render( g:Graphics2D, xLeft:Float, yBottom:Float ) {
-	  	text.draw( g, xLeft, yBottom )
+		if( text != null ) {
+			g.setColor( textColor )
+			text.draw( g, xLeft, yBottom )
+		}
  	}
 }
 

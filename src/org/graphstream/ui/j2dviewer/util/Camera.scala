@@ -242,13 +242,14 @@ class Camera {
   	def pushView( g2:Graphics2D, graph:GraphicGraph ) {
   		 if( oldTx == null ) {
   			 oldTx = g2.getTransform
+  			 
+  			 setPadding( graph )
 			
   			 if( autoFit )
-  				 Tx = autoFitView( g2, Tx )
+  			      Tx = autoFitView( g2, Tx )
   			 else Tx = userView( g2, Tx )
 			
   			 g2.setTransform( Tx )
-  			 setPadding( graph )
   			 checkVisibility( graph )
   		 }
   	}
