@@ -7,7 +7,9 @@ import org.graphstream.ui.geom.Point3
  */
 class Selection {
 	var active = false
- 
+	
+	var renderer:org.graphstream.ui.j2dviewer.renderer.SelectionRenderer = null
+
 	private[this] val lo:Point3 = new Point3
 	private[this] val hi:Point3 = new Point3
 	

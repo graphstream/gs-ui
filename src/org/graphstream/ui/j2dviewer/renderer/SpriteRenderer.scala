@@ -31,7 +31,7 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 }
 
 object SpriteRenderer {
-	def apply( style:StyleGroup ):SpriteRenderer = {
+	def apply( style:StyleGroup, mainRenderer:J2DGraphRenderer ):StyleRenderer = {
 		new SpriteRenderer( style )
 	}
 }

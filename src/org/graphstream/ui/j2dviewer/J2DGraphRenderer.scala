@@ -87,7 +87,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   	/**
   	 * The rendering surface this renderer uses.
   	 */
-   	def renderdingSurface:Container = surface
+   	def renderingSurface:Container = surface
 	
     protected def getStyleRenderer( graph:GraphicGraph ):GraphBackgroundRenderer = {
   		if( graph.getStyle.getRenderer( "dr" ) == null )
@@ -98,7 +98,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
     
     protected def getStyleRenderer( style:StyleGroup ):StyleRenderer = {
   		if( style.getRenderer( "dr" ) == null )
-  			style.addRenderer( "dr", StyleRenderer( style ) )
+  			style.addRenderer( "dr", StyleRenderer( style, this ) )
     
   		style.getRenderer( "dr" ).asInstanceOf[StyleRenderer]
     }
@@ -174,6 +174,9 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 		  	}
 		}
 		camera.popView( g )
+  
+		if( selection.renderer == null ) selection.renderer = new SelectionRenderer( selection )
+		selection.renderer.render( g, camera, width, height )
   	}
    
    protected def setupGraphics( g:Graphics2D ) {
@@ -203,7 +206,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   
     def elementStyleChanged( element:Element, oldStyle:StyleGroup, style:StyleGroup ) {
     	// XXX The element renderer should be the listener, not this. ... XXX
-    /*	
+
     	if( oldStyle == null ) {
     		
     	} else if( oldStyle != null ) {
@@ -212,8 +215,6 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 	    	if( renderer != null && renderer.isInstanceOf[JComponentRenderer] )
 	    		renderer.asInstanceOf[JComponentRenderer].unequipElement( element.asInstanceOf[GraphicElement] )
     	}
-                                                                                       
-    */
     }
 }
 

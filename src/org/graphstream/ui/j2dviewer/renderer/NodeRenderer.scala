@@ -26,7 +26,6 @@ class NodeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 	}
 	
 	protected def renderElement( g:Graphics2D, camera:Camera, element:GraphicElement ) {
-Console.err.printf( "Render element %s (%s):%n", element.getId, element.label )
 		shape.text = element.label
 		shape.position( element.getX, element.getY )
 		shape.render( g, camera )
@@ -43,7 +42,9 @@ Console.err.printf( "Render element %s (%s):%n", element.getId, element.label )
 }
 
 object NodeRenderer {
-	def apply( style:StyleGroup ):NodeRenderer = {
-		new NodeRenderer( style )
+	def apply( style:StyleGroup, mainRenderer:J2DGraphRenderer ):StyleRenderer = {
+		if( style.getShape == org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.Shape.JCOMPONENT )
+		     new JComponentRenderer( style, mainRenderer )
+		else new NodeRenderer( style )
 	}
 }

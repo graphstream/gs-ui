@@ -31,7 +31,7 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 }
 
 object EdgeRenderer {
-	def apply( style:StyleGroup ):EdgeRenderer = {
+	def apply( style:StyleGroup, mainRenderer:J2DGraphRenderer ):StyleRenderer = {
 		new EdgeRenderer( style )
 	}
 }

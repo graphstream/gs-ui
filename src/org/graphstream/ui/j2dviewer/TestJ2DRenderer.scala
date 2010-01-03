@@ -73,7 +73,7 @@ private class Test extends ViewerListener {
 			graph {
  				fill-mode: gradient-radial;
  				fill-color: white, gray;
- 				padding: 40px;
+ 				padding: 60px;
  			} 
 			node {
 				size: 60px, 25px;
@@ -92,6 +92,19 @@ private class Test extends ViewerListener {
 			node:clicked {
 				stroke-mode: plain;
 				stroke-color: red;
+			}
+			node:selected {
+				stroke-mode: plain;
+				stroke-width: 4px;
+				stroke-color: blue;
+			}
+			node#A {
+				stroke-mode: plain;
+				stroke-width: 2px;
+				stroke-color: yellow;
+				size: 80px, 30px;
+				shape: jcomponent;
+				jcomponent: button;
 			}
 			edge {
 				fill-color:green;

@@ -191,7 +191,6 @@ trait Decorable {
  	def decor( g:Graphics2D, camera:Camera, shape:java.awt.Shape ) {
  	  	if( theDecor != null ) {
  	  		val bounds = shape.getBounds2D
-Console.err.printf( "rendering text %s :%n", text )
  	  		theDecor.render( g, camera, text, bounds.getMinX.toFloat, bounds.getMinY.toFloat, bounds.getMaxX.toFloat, bounds.getMaxY.toFloat )
  	  	}
  	}

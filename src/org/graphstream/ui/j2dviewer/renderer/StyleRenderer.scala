@@ -162,11 +162,11 @@ abstract class StyleRenderer( val group:StyleGroup ) extends GraphicElement.Swin
  */
 object StyleRenderer {
 	import org.graphstream.ui2.graphicGraph.stylesheet.Selector.Type._
-	def apply( style:StyleGroup ):StyleRenderer = {
+	def apply( style:StyleGroup, mainRenderer:J2DGraphRenderer ):StyleRenderer = {
 		style.getType match {
-		  case NODE   => NodeRenderer( style ) 
-		  case EDGE   => EdgeRenderer( style )
-		  case SPRITE => SpriteRenderer( style)
+		  case NODE   => NodeRenderer( style, mainRenderer ) 
+		  case EDGE   => EdgeRenderer( style, mainRenderer )
+		  case SPRITE => SpriteRenderer( style, mainRenderer )
 		  case GRAPH  => printf( "we got a graph%n" ); null
 		  case _      => throw new RuntimeException( "WTF?" )
 		}
