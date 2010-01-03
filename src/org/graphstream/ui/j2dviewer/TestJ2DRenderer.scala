@@ -31,16 +31,22 @@ private class Test extends ViewerListener {
 		val B = graph.addNode( "B" )
 		val C = graph.addNode( "C" )
 		graph.addEdges( "A", "B", "C", "A" )
+		val D = graph.addNode( "D" )
+		val E = graph.addNode( "E" )
 		graph.addAttribute( "ui.stylesheet", styleSheet )
 		graph.addAttribute( "ui.antialias" )
   
 		A("xyz") = ( -1, 0, 0 )
 		B("xyz") = (  1, 0, 0 )
 		C("xyz") = (  0, 1, 0 )
+		D("xyz") = (  0,0.5,0 )
+		E("xyz") = (0.5, 0, 0 )
   
 		A("label") = "A"
 		B("label") = "B"
 		C("label") = "C"
+		D("label") = "D"
+		E("label") = "E"
  
 		while( loop ) {
 			pipeIn.pump
@@ -83,8 +89,9 @@ private class Test extends ViewerListener {
 				icon-mode: at-left;
 				icon: url('file:///home/antoine/GSLogo11d24.png');
 			}
-			node:selected {
-				stroke-color: blue;
+			node:clicked {
+				stroke-mode: plain;
+				stroke-color: red;
 			}
 			edge {
 				fill-color:green;

@@ -7,7 +7,9 @@ import org.graphstream.ui.j2dviewer.renderer.shape._
 
 class NodeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) {
 	var shape = new RoundedSquareShape
-  
+//	var shape = new CircleShape
+// 	var shape = new SquareShape
+ 
 	protected def setupRenderingPass( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
 	}
 	

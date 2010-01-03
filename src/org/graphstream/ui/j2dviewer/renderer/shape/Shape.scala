@@ -102,7 +102,7 @@ trait Fillable {
 
     /** Configure all static parts needed to fill the shape. */
   	protected def configureFillable( style:Style, camera:Camera ) {
- 		if( fillPaint == null ) fillPaint = ShapePaint( style )
+ 		/*if( fillPaint == null )*/ fillPaint = ShapePaint( style )
   	}
 }
 
@@ -131,9 +131,8 @@ trait Strokable {
  	/** Configure all the static parts needed to stroke the shape. */
  	protected def configureStrokable( style:Style, camera:Camera ) {
 		strokeWidth = camera.metrics.lengthToGu( style.getStrokeWidth )
-
-		if( strokeColor == null ) strokeColor = ShapeStroke.strokeColor( style )
-		if( theStroke   == null ) theStroke   = ShapeStroke.strokeForArea( style )
+		/*if( strokeColor == null )*/ strokeColor = ShapeStroke.strokeColor( style )
+		/*if( theStroke   == null )*/ theStroke   = ShapeStroke.strokeForArea( style )
  	}
 }
 
@@ -175,7 +174,7 @@ trait Shadowable {
  		theShadowOff.x   = camera.metrics.lengthToGu( style.getShadowOffset, 0 )
  		theShadowOff.y   = if( style.getShadowOffset.size > 1 ) camera.metrics.lengthToGu( style.getShadowOffset, 1 ) else theShadowOff.x
  	  
-  	  	if( shadowPaint == null ) shadowPaint = ShapePaint( style, true )
+  	  	/*if( shadowPaint == null )*/ shadowPaint = ShapePaint( style, true )
  	}
 }
 
@@ -199,6 +198,6 @@ Console.err.printf( "rendering text %s :%n", text )
   
   	/** Configure all the static parts needed to decor the shape. */
   	protected def configureDecorable( style:Style, camera:Camera ) {
-		if( theDecor == null ) theDecor = ShapeDecor( style )
+		/*if( theDecor == null )*/ theDecor = ShapeDecor( style )
   	}
 }
