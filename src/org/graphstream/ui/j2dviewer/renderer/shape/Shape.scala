@@ -66,6 +66,9 @@ trait Area {
 trait Connector {
 	val from = new Point2
 	val to = new Point2
+	var theSize:Float = 0
+	def size( width:Float ) { theSize = width }
+	def size( style:Style, camera:Camera ) { theSize = camera.metrics.lengthToGu( style.getSize, 0 ) }
 	def position( xFrom:Float, yFrom:Float, xTo:Float, yTo:Float ) {
 		from.set( xFrom, yFrom )
 		to.set( xTo, yTo )

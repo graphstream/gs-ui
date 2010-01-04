@@ -96,18 +96,36 @@ class LineShape extends ConnectorShape {
 // Command
  
  	def configure( g:Graphics2D, style:Style, camera:Camera ) {
- 	  
+ 	  	configureFillable( style, camera )
+ 	  	configureShadowable( style, camera )
+ 	  	configureStrokable( style, camera )
+ 	  	configureDecorable( style, camera )
  	}
   
 	protected def make( forShadow:Boolean, camera:Camera ) {
-	  
+		var x0 = from.x
+		var y0 = from.y
+		var x1 = to.x
+		var y1 = to.y
+		
+		if( forShadow ) {
+			x0 += theShadowOff.x; x1 += theShadowOff.x
+			y0 += theShadowOff.y; y1 += theShadowOff.y
+            theSize += theShadowWidth.x
+		}
+  
+		theShape.setLine( from.x, from.y, to.x, to.y )
 	}
  
 	def renderShadow( g:Graphics2D, camera:Camera ) {
-	  
+ 		make( true, camera )
+ 		cast( g, theShape )
 	}
  
 	def render( g:Graphics2D, camera:Camera ) {
-	  
+ 		make( false, camera )
+ 		fill( g, theShape )
+ 		stroke( g, theShape )
+ 		decor( g, camera, theShape )
 	}
 }

@@ -30,9 +30,10 @@ private class Test extends ViewerListener {
 		val A = graph.addNode( "A" )
 		val B = graph.addNode( "B" )
 		val C = graph.addNode( "C" )
-		graph.addEdges( "A", "B", "C", "A" )
 		val D = graph.addNode( "D" )
 		val E = graph.addNode( "E" )
+		graph.addEdges( "A", "B", "C", "A" )
+		graph.addEdges( "D", "E", "A", "D" )
 		graph.addAttribute( "ui.stylesheet", styleSheet )
 		graph.addAttribute( "ui.antialias" )
   
@@ -107,7 +108,11 @@ private class Test extends ViewerListener {
 				jcomponent: button;
 			}
 			edge {
-				fill-color:green;
+				size: 5px;
+				stroke-color:blue;
+				fill-color: green;
+				fill-mode: plain;
+				stroke-mode: plain;
 				shadow-mode:plain;
 			}
 		""";

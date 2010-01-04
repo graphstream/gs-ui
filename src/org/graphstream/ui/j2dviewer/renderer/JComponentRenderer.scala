@@ -162,7 +162,7 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 			
 			if( group.getStrokeMode != StyleConstants.StrokeMode.NONE && group.getStrokeWidth().value > 0 )
 				borderWidth = camera.metrics.lengthToPx( group.getStrokeWidth ).toInt
-			
+
 			jComponent.setBounds( borderWidth, borderWidth, width-(borderWidth*2), height-(borderWidth*2) )
 		}
 	
@@ -224,9 +224,7 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 		protected def createBorder( camera:Camera ):Border = {
 			import StyleConstants.StrokeMode._
 
-			val metrics = camera.metrics
-
-			val width:Int = metrics.lengthToPx( group.getStrokeWidth ).toInt
+			val width:Int = camera.metrics.lengthToPx( group.getStrokeWidth ).toInt
 			
 			group.getStrokeMode match {
 				case PLAIN  => BorderFactory.createLineBorder( group.getStrokeColor( 0 ), width )

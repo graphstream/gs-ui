@@ -20,9 +20,7 @@ class NodeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 	}
 	
 	protected def pushDynStyle( g:Graphics2D, camera:Camera, element:GraphicElement ) {
-		val size = group.getSize
-		shape.configure( g, group, camera )
-		shape.size( group, camera )
+		pushStyle( g, camera, false )
 	}
 	
 	protected def renderElement( g:Graphics2D, camera:Camera, element:GraphicElement ) {
