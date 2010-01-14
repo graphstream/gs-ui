@@ -85,7 +85,7 @@ class GraphBackgroundRenderer( val graph:GraphicGraph, val style:StyleGroup ) ex
 		} else {
 			val w = metrics.viewport.data(0).toInt 
 			val h = metrics.viewport.data(1).toInt
-   printf( "viewport = %s%n", metrics.viewport )
+//   printf( "viewport = %s%n", metrics.viewport )
 			
 			g.setPaint( GradientFactory.gradientInArea( 0, 0, w, h, style ) )
 			g.fillRect( 0, 0, w, h )

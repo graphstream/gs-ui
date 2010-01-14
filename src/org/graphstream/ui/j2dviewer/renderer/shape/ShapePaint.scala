@@ -151,6 +151,9 @@ object ShapePaint {
                             
             if( x0 > x1 ) { val tmp = x0; x0 = x1; x1 = tmp }
             if( y0 > y1 ) { val tmp = y0; y0 = y1; y1 = tmp }
+            if( x0 == x1 ) { x1 = x0 + 0.001f }
+            if( y0 == y1 ) { y1 = y0 + 0.001f }
+            
             
             realPaint( x0, y0, x1, y1 )
 		}

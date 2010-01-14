@@ -1,7 +1,7 @@
 package org.graphstream.ui.j2dviewer.renderer.shape
 
 import java.awt.{Image, Color, Graphics2D}
-import java.awt.geom.{Ellipse2D, Line2D, Rectangle2D, RoundRectangle2D, RectangularShape}
+import java.awt.geom.{Ellipse2D, Line2D, Path2D, CubicCurve2D, Rectangle2D, RoundRectangle2D, RectangularShape}
 import org.graphstream.ui.geom.Point2
 import org.graphstream.ui2.graphicGraph.stylesheet.Style
 import org.graphstream.ui.j2dviewer.util.{GraphMetrics, Camera}
@@ -10,14 +10,38 @@ import org.graphstream.ui.j2dviewer.util.{GraphMetrics, Camera}
 /**
  * Base for shapes centered around one point.
  */
-trait AreaShape extends Shape with Area with Fillable with Strokable with Shadowable with Decorable {
-}
+trait AreaShape
+	extends Shape
+	with Area
+	with Fillable 
+	with Strokable 
+	with Shadowable 
+	with Decorable
 
+trait OrientedAreaShape
+	extends Shape
+	with OrientedArea
+	with Fillable
+	with Strokable
+	with Shadowable
+ 
+trait AreaOnConnectorShape
+	extends Shape
+	with AreaOnConnector
+	with Fillable
+	with Strokable
+	with Shadowable
+ 
 /**
  * Base for shapes rendered between two points.
  */
-trait ConnectorShape extends Shape with Connector with Fillable with Strokable with Shadowable with Decorable {
-}
+trait ConnectorShape
+	extends Shape
+	with Connector
+	with FillableConnector
+	with StrokableConnector
+	with ShadowableConnector
+	with Decorable
 
 
 trait RectangularAreaShape extends AreaShape {
@@ -30,29 +54,29 @@ trait RectangularAreaShape extends AreaShape {
  	  	configureDecorable( style, camera )
  	}
  
- 	protected def make( forShadow:Boolean, camera:Camera ) {
-		var x = theCenter.x
-		var y = theCenter.y
-		var w = theSize.x
-		var h = theSize.y
+ 	protected def make( camera:Camera ) {
+		val w = theSize.x
+		val h = theSize.y
 		
-		if( forShadow ) {
-			x += theShadowOff.x
-			y += theShadowOff.y
-			w += theShadowWidth.x * 2
-			h += theShadowWidth.y * 2
-		}
- 	  	
+		theShape.setFrame( theCenter.x-w/2, theCenter.y-h/2, w, h )
+ 	}
+ 
+ 	protected def makeShadow( camera:Camera ) {
+		val x = theCenter.x + theShadowOff.x
+		val y = theCenter.y + theShadowOff.y
+		val w = theSize.x + theShadowWidth.x * 2
+		val h = theSize.y + theShadowWidth.y * 2
+		
 		theShape.setFrame( x-w/2, y-h/2, w, h )
  	}
   
  	def renderShadow( g:Graphics2D, camera:Camera ) {
- 		make( true, camera )
+ 		makeShadow( camera )
  		cast( g, theShape )
  	}
   
  	def render( g:Graphics2D, camera:Camera ) {
- 		make( false, camera )
+ 		make( camera )
  		fill( g, theShape )
  		stroke( g, theShape )
  		decor( g, camera, theShape )
@@ -70,62 +94,78 @@ class SquareShape extends RectangularAreaShape {
 class RoundedSquareShape extends RectangularAreaShape {
 	val theShape = new RoundRectangle2D.Float
  
-	override def make( forShadow:Boolean, camera:Camera ) {
-		var x = theCenter.x
-		var y = theCenter.y
+	override def make( camera:Camera ) {
 		var w = theSize.x
 		var h = theSize.y
-		
-		if( forShadow ) {
-			x += theShadowOff.x
-			y += theShadowOff.y
-			w += theShadowWidth.x * 2
-			h += theShadowWidth.y * 2
-		}
- 
+		var r = if( h/8 > w/8 ) w/8 else h/8 
+  
+		theShape.setRoundRect( theCenter.x-w/2, theCenter.y-h/2, w, h, r, r )
+	}
+	override def makeShadow( camera:Camera ) {
+		var x = theCenter.x + theShadowOff.x
+		var y = theCenter.y + theShadowOff.y
+		var w = theSize.x + theShadowWidth.x * 2
+		var h = theSize.y + theShadowWidth.y * 2
 		var r = if( h/8 > w/8 ) w/8 else h/8 
 		
-  
 		theShape.setRoundRect( x-w/2, y-h/2, w, h, r, r )
 	}
 }
 
 class LineShape extends ConnectorShape {
-	protected var theShape = new Line2D.Float
+	protected var theShape:java.awt.Shape = new Line2D.Float
  
 // Command
  
  	def configure( g:Graphics2D, style:Style, camera:Camera ) {
- 	  	configureFillable( style, camera )
- 	  	configureShadowable( style, camera )
- 	  	configureStrokable( style, camera )
+ 	  	configureFillableConnector( style, camera )
+ 	  	configureShadowableConnector( style, camera )
+ 	  	configureStrokableConnector( style, camera )
  	  	configureDecorable( style, camera )
  	}
   
-	protected def make( forShadow:Boolean, camera:Camera ) {
-		var x0 = from.x
-		var y0 = from.y
-		var x1 = to.x
-		var y1 = to.y
+	protected def make( camera:Camera ) {
+		if( isCurve ) {
+			val curve = new CubicCurve2D.Float
+			theShape = curve
+			curve.setCurve( from.x, from.y, ctrl1.x, ctrl1.y, ctrl2.x, ctrl2.y, to.x, to.y )
+		} else {
+			val line = new Line2D.Float
+			theShape = line
+			line.setLine( from.x, from.y, to.x, to.y )
+		} 
+	}
+	protected def makeShadow( camera:Camera ) {
+		var x0 = from.x + theShadowOff.x
+		var y0 = from.y + theShadowOff.y
+		var x1 = to.x + theShadowOff.x
+		var y1 = to.y + theShadowOff.y
 		
-		if( forShadow ) {
-			x0 += theShadowOff.x; x1 += theShadowOff.x
-			y0 += theShadowOff.y; y1 += theShadowOff.y
-            theSize += theShadowWidth.x
-		}
-  
-		theShape.setLine( from.x, from.y, to.x, to.y )
+		if( isCurve ) {
+			var ctrlx0 = ctrl1.x + theShadowOff.x
+			var ctrly0 = ctrl1.y + theShadowOff.y
+			var ctrlx1 = ctrl2.x + theShadowOff.x
+			var ctrly1 = ctrl2.y + theShadowOff.y
+			
+			val curve = new CubicCurve2D.Float
+			theShape = curve
+			curve.setCurve( x0, y0, ctrlx0, ctrly0, ctrlx1, ctrly1, x1, y1 )
+		} else {
+			val line = new Line2D.Float
+			theShape = line
+			line.setLine( x0, y0, x1, y1 )
+		} 
 	}
  
 	def renderShadow( g:Graphics2D, camera:Camera ) {
- 		make( true, camera )
+ 		makeShadow( camera )
  		cast( g, theShape )
 	}
  
 	def render( g:Graphics2D, camera:Camera ) {
- 		make( false, camera )
- 		fill( g, theShape )
+ 		make( camera )
  		stroke( g, theShape )
+ 		fill( g, theSize, theShape )
  		decor( g, camera, theShape )
 	}
 }

@@ -4,17 +4,20 @@ import org.graphstream.graph.Graph
 import org.graphstream.scalags.graph.MultiGraph
 
 import org.graphstream.ui2.swingViewer.{Viewer, DefaultView, ViewerPipe, ViewerListener}
+import org.graphstream.ui2.layout.Layout;
+import org.graphstream.ui2.layout.springbox.SpringBox;
+
+import org.graphstream.algorithm.generator.{DorogovtsevMendesGenerator, Generator}
 
 import org.graphstream.ScalaGS._
 
-object TestJ2DRenderer {
+object Test2 {
 	def main( args:Array[String] ) {
-		val test = new Test
+		val test = new ATest
 		test.run( args )
 	}
-}
-
-private class Test extends ViewerListener {
+	
+private class ATest extends ViewerListener {
 	private[this] var loop = true
   
 	def run( args:Array[String] ) {
@@ -22,42 +25,30 @@ private class Test extends ViewerListener {
 		val viewer = new Viewer( graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD )
 		val pipeIn = viewer.newViewerPipe
 		val view   = viewer.addView( "view1", new J2DGraphRenderer )
+		val layout = new SpringBox( false )
+		val gen    = new DorogovtsevMendesGenerator
   
 		pipeIn.addAttributeSink( graph )
 		pipeIn.addViewerListener( this )
 		pipeIn.pump
   
-		val A = graph.addNode( "A" )
-		val B = graph.addNode( "B" )
-		val C = graph.addNode( "C" )
-		val D = graph.addNode( "D" )
-		val E = graph.addNode( "E" )
-		graph.addEdges( "A", "B", "C", "A" )
-		graph.addEdges( "D", "E", "A", "D" )
-		graph.addEdge( "BD", "B", "D", true )
-		graph.addAttribute( "ui.stylesheet", styleSheet )
+  		graph.addSink( layout )
+		layout.addAttributeSink( graph )
 		graph.addAttribute( "ui.antialias" )
-  
-		graph.addEdge( "CC", "C", "C" )
-		graph.addEdge( "CC2", "C", "C", true )
-		graph.addEdge( "CB2", "C", "B" )
-		graph.addEdge( "AB2", "A", "B", true )
-		graph.addEdge( "AB3", "A", "B", true )  
-  
-		A("xyz") = (  0,   0,   0 )
-		B("xyz") = ( -0.2, 1,   0 )
-		C("xyz") = (  0.7, 0.5, 0 )
-		D("xyz") = ( -1,  -1,   0 )
-		E("xyz") = (  1,  -1,   0 )
-  
-		A("label") = "A"
-		B("label") = "B"
-		C("label") = "C"
-		D("label") = "D"
-		E("label") = "E"
- 
+		graph.addAttribute( "ui.stylesheet", styleSheet )
+		
+		gen.addSink( graph )
+		gen.begin
+		var i = 0
+		while ( i < 1000 ) {
+			gen.nextElement
+			i += 1
+		}
+		gen.end
+
 		while( loop ) {
 			pipeIn.pump
+			layout.compute
 			sleep( 10 )
 		}
 		
@@ -71,7 +62,7 @@ private class Test extends ViewerListener {
  
 	def viewClosed( id:String ) { loop = false }
  
- 	def buttonPushed( id:String ) { printf( "button %s pushed%n" ) }
+ 	def buttonPushed( id:String ) {}
   
  	def buttonReleased( id:String ) {} 
  
@@ -85,7 +76,7 @@ private class Test extends ViewerListener {
  			} 
 			node {
 				shape: box;
-				size: 60px, 25px;
+				size: 10px, 10px;
 				fill-mode: gradient-vertical;
 				fill-color: white, rgb(200,200,200);
 				stroke-mode: plain; 
@@ -95,8 +86,8 @@ private class Test extends ViewerListener {
 				shadow-width: 0px;
 				shadow-offset: 3px, -3px;
 				shadow-color: rgba(0,0,0,100);
-				icon-mode: at-left;
-				icon: url('file:///home/antoine/GSLogo11d24.png');
+				//icon-mode: at-left;
+				//icon: url('file:///home/antoine/GSLogo11d24.png');
 			}
 			node:clicked {
 				stroke-mode: plain;
@@ -130,4 +121,5 @@ private class Test extends ViewerListener {
 				arrow-size: 20px, 6px;
 			}
 		""";
+}
 }

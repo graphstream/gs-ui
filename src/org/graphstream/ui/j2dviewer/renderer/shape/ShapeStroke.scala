@@ -19,7 +19,12 @@ object ShapeStroke {
 	}
  
 	def strokeForConnectorFill( style:Style ):ShapeStroke = {
-		throw new RuntimeException( "TODO" )
+		import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.FillMode._
+		style.getFillMode match {
+			case PLAIN     => new PlainShapeStroke
+			case DYN_PLAIN => new PlainShapeStroke
+			case _         => new PlainShapeStroke
+		}
 	}
  
 	def strokeForConnectorStroke( style:Style ):ShapeStroke = {
@@ -40,9 +45,10 @@ object ShapeStroke {
 		
 		def stroke( width:Float ):Stroke = {
 			if( width == oldWidth ) {
+				if( oldStroke == null ) oldStroke = new BasicStroke( width )	// WTF ??
 				oldStroke
 			} else {
-				oldWidth  = width;
+				oldWidth  = width
 				oldStroke = new BasicStroke( width )
 				oldStroke
 			}

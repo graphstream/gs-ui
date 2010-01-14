@@ -15,6 +15,8 @@ import org.graphstream.ui2.graphicGraph.{GraphicEdge, GraphicElement, GraphicGra
 import org.graphstream.ui2.graphicGraph.stylesheet.{Style, Values}
 import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants._
 
+import org.graphstream.ui.geom.Point2
+
 import org.graphstream.ScalaGS._
 
 //import org.graphstream.ui.j2dviewer.util.GraphMetrics
@@ -667,4 +669,135 @@ class Camera {
 
   		pos
   	}
+   
+// Utility
+  	
+  	/**
+	 * Try to evaluate the "radius" of the edge target node shape along the edge. In other words
+	 * this method computes the intersection point between the edge and the node shape contour.
+	 * The returned length is the length of a line going from the centre of the shape toward
+	 * the point of intersection between the target node shape contour and the edge.
+	 * @param edge The edge (it contains its target node).
+	 * @return The radius.
+	 */
+ 	def evalTargetRadius( edge:GraphicEdge ):Float = evalTargetRadius( edge.to.getStyle, new Point2( edge.from.x, edge.from.y ), new Point2( edge.to.x, edge.to.y ) )
+ 
+   	def evalTargetRadius( style:Style, p0:Point2, p3:Point2 ):Float = evalTargetRadius( style, p0, null, null, p3 )
+  
+  	def evalTargetRadius( style:Style, p0:Point2, p1:Point2, p2:Point2, p3:Point2 ):Float = { 
+		import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.StrokeMode
+		import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.Shape._
+ 	  	
+  	  	val w = metrics.lengthToGu( style.getSize, 0 )
+  	  	val h = if( style.getSize.size > 1 ) metrics.lengthToGu( style.getSize, 1 ) else w
+  	  	val s = if( style.getStrokeMode != StrokeMode.NONE ) metrics.lengthToGu( style.getStrokeWidth ) else 0f
+
+		// FIXME: The curve edges are still badly computed for box and ellipse radii.
+		// This is quite difficult to compute however.
+		
+		style.getShape match {
+			case CIRCLE       => evalEllipseRadius( p0, p1, p2, p3, w, h, s )
+			case DIAMOND      => evalEllipseRadius( p0, p1, p2, p3, w, h, s )
+			case CROSS        => evalEllipseRadius( p0, p1, p2, p3, w, h, s )
+			case TRIANGLE     => evalEllipseRadius( p0, p1, p2, p3, w, h, s )
+			case TEXT_ELLIPSE => evalEllipseRadius( p0, p1, p2, p3, w, h, s )
+			case TEXT_DIAMOND => evalEllipseRadius( p0, p1, p2, p3, w, h, s )
+			case BOX          => evalBoxRadius( p0, p1, p2, p3, w/2+s, h/2+s )
+			case TEXT_BOX     => evalBoxRadius( p0, p1, p2, p3, w/2+s, h/2+s )
+			case JCOMPONENT   => evalBoxRadius( p0, p1, p2, p3, w/2+s, h/2+s )
+			case _            => 0
+		}
+	}
+  
+  	protected def evalEllipseRadius( p0:Point2, p1:Point2, p2:Point2, p3:Point2, w:Float, h:Float, s:Float ):Float = {
+  	  	if( w == h )
+  	  	     w / 2 + s	// Welcome simplification for circles ...
+  	  	else evalEllipseRadius( p0, p1, p2, p3, w/2 + s, h/2 + s )
+  	}
+
+	/**
+	 * Compute the length of a vector along the edge from the ellipse centre that match the
+	 * ellipse radius.
+	 * @param edge The edge representing the vector.
+	 * @param w The ellipse first radius (width/2).
+	 * @param h The ellipse second radius (height/2).
+	 * @return The length of the radius along the edge vector.
+	 */
+	protected def evalEllipseRadius( p0:Point2, p1:Point2, p2:Point2, p3:Point2, w:Float, h:Float ):Float = {
+		// Vector of the entering edge.
+
+		var dx = 0f
+		var dy = 0f
+
+		if( p1 != null && p2 != null ) {
+			dx = p3.x - p2.x //( p2.x + ((p1.x-p2.x)/4) )	// Use the line going from the last control-point to target
+			dy = p3.y - p2.y //( p2.y + ((p1.y-p2.y)/4) )	// center as the entering edge.
+		} else {
+			dx = p3.x - p0.x
+			dy = p3.y - p0.y
+		}
+		
+		// The entering edge must be deformed by the ellipse ratio to find the correct angle.
+
+		dy *= ( w / h )	// I searched a lot to find this line was missing ! Tsu !
+
+		// Find the angle of the entering vector with (1,0).
+
+		val d  = Math.sqrt( dx*dx + dy*dy ).toFloat
+		var a  = dx / d
+
+		// Compute the coordinates at which the entering vector and the ellipse cross.
+
+		a  = Math.acos( a ).toFloat
+		dx = ( Math.cos( a ) * w ).toFloat
+		dy = ( Math.sin( a ) * h ).toFloat
+
+		// The distance from the ellipse centre to the crossing point of the ellipse and
+		// vector. Yo !
+
+		Math.sqrt( dx*dx + dy*dy ).toFloat
+	}
+
+ 	/**
+	 * Compute the length of a vector along the edge from the box centre that match the box
+	 * "radius".
+	 * @param edge The edge representing the vector.
+	 * @param w The box first radius (width/2).
+	 * @param h The box second radius (height/2).
+	 * @return The length of the radius along the edge vector.
+	 */
+	protected def evalBoxRadius( p0:Point2, p1:Point2, p2:Point2, p3:Point2, w:Float, h:Float ):Float = {
+		// Pythagora : Angle at which we compute the intersection with the height or the width.
+	
+		var da = w / ( Math.sqrt( w*w + h*h ).toFloat )
+		
+		da = if( da < 0 ) -da else da
+		
+		// Angle of the incident vector.
+		var dx = 0f
+		var dy = 0f
+
+		if( p1 != null && p2 != null ) {
+			dx = p3.x - p2.x // ( p2.x + ((p1.x-p2.x)/4) )	// Use the line going from the last control-point to target
+			dy = p3.y - p2.y //( p2.y + ((p1.y-p2.y)/4) )	// center as the entering edge.
+		} else {
+			dx = p3.x - p0.x
+			dy = p3.y - p0.y
+		}
+  
+		val d = Math.sqrt( dx*dx + dy*dy ).toFloat
+		var a = dx/d
+		
+		a = if( a < 0 ) -a else a
+	
+		// Choose the side of the rectangle the incident edge vector crosses.
+		
+		if( da < a ) {
+			w / a
+		} else {
+			a = dy/d
+			a = if( a < 0 ) -a else a
+            h / a
+		}
+	}
 }
