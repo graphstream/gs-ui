@@ -377,6 +377,17 @@ trait Connector {
 			ctrl2.y -= ( vy2 - oy )		  
 		}
 	}
+ 
+	def setEdgeCtrlPoints( edge:GraphicEdge ) {
+		if( ctrl1 != null && ctrl2 != null ) {
+			if( edge.ctrl == null ) edge.ctrl = new Array[Float]( 4 )
+			
+			edge.ctrl(0) = ctrl1.x
+			edge.ctrl(1) = ctrl1.y
+			edge.ctrl(2) = ctrl2.x
+			edge.ctrl(3) = ctrl2.y
+		}
+	}
 }
 
 /**
@@ -411,7 +422,10 @@ trait OrientedArea extends Area {
 
 trait AreaOnConnector extends Area {
 	protected var theConnector:Connector = null
-	
+	protected var theEdge:GraphicEdge = null
+
+	def connector( edge:GraphicEdge ) { theEdge = edge }
+ 
 	def direction( connector:Connector ) { theConnector = connector }
  
 	def sizeForEdgeArrow( style:Style, camera:Camera ) {

@@ -10,7 +10,6 @@ import org.graphstream.ui.j2dviewer.util.{GraphMetrics, Camera, CubicCurve}
 
 class ArrowOnEdge extends AreaOnConnectorShape {
 	val theShape = new Path2D.Float()
-	var theEdge:GraphicEdge = null
  
 // Command
  

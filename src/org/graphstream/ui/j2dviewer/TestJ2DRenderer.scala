@@ -4,6 +4,8 @@ import org.graphstream.graph.Graph
 import org.graphstream.scalags.graph.MultiGraph
 
 import org.graphstream.ui2.swingViewer.{Viewer, DefaultView, ViewerPipe, ViewerListener}
+import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants
+import org.graphstream.ui2.spriteManager._
 
 import org.graphstream.ScalaGS._
 
@@ -37,13 +39,14 @@ private class Test extends ViewerListener {
 		graph.addEdge( "BD", "B", "D", true )
 		graph.addAttribute( "ui.stylesheet", styleSheet )
 		graph.addAttribute( "ui.antialias" )
+		graph.addAttribute( "ui.quality" )
   
 		graph.addEdge( "CC", "C", "C" )
 		graph.addEdge( "CC2", "C", "C", true )
-		graph.addEdge( "CB2", "C", "B" )
+		graph.addEdge( "BC2", "B", "C" )
 		graph.addEdge( "AB2", "A", "B", true )
 		graph.addEdge( "AB3", "A", "B", true )  
-  
+
 		A("xyz") = (  0,   0,   0 )
 		B("xyz") = ( -0.2, 1,   0 )
 		C("xyz") = (  0.7, 0.5, 0 )
@@ -55,8 +58,32 @@ private class Test extends ViewerListener {
 		C("label") = "C"
 		D("label") = "D"
 		E("label") = "E"
- 
+  
+		val sman = new SpriteManager( graph )
+  
+		val s1 = sman.addSprite( "S1" )
+		val s2 = sman.addSprite( "S2" )
+		val s3 = sman.addSprite( "S3" )
+  
+		s1.attachToNode( "A" )
+		s2.attachToEdge( "BC" )
+  
+		s1.setPosition( StyleConstants.Units.GU, 0.2f, 45f, 45f )
+		s2.setPosition( 0f )
+		s3.setPosition( StyleConstants.Units.PX, 40, 15, 0 )
+		s3.addAttribute( "label", "quit" )
+
+		var p = 0f
+		var dir = 0.005f
+  
 		while( loop ) {
+//			p += dir
+//   
+//			if( p > 1f ) { dir = - dir; p = 1f; s2.attachToEdge( "BC2" ) }
+//			if( p < 0f ) { dir = - dir; p = 0f; s2.attachToEdge( "BC" ) }
+   
+//			s2.setPosition( p )
+		  
 			pipeIn.pump
 			sleep( 10 )
 		}
@@ -84,7 +111,7 @@ private class Test extends ViewerListener {
  				padding: 60px;
  			} 
 			node {
-				shape: box;
+				shape: circle;
 				size: 60px, 25px;
 				fill-mode: gradient-vertical;
 				fill-color: white, rgb(200,200,200);
@@ -128,6 +155,20 @@ private class Test extends ViewerListener {
 				shadow-width: 0px;
 				arrow-shape: arrow;
 				arrow-size: 20px, 6px;
+			}
+			sprite {
+				size: 8px;
+				shape: circle;
+				fill-mode: gradient-radial;
+				fill-color: red, white;
+				stroke-mode: plain;
+				stroke-color: rgb(100,100,100);
+				stroke-width: 1px;
+			}
+			sprite#S3 {
+				shape: jcomponent;
+				jcomponent: button;
+				size: 80px, 30px;
 			}
 		""";
 }

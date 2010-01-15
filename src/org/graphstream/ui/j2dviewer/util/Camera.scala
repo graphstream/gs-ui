@@ -17,6 +17,8 @@ import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants._
 
 import org.graphstream.ui.geom.Point2
 
+import org.graphstream.ui.j2dviewer.geom.Vector2
+
 import org.graphstream.ScalaGS._
 
 //import org.graphstream.ui.j2dviewer.util.GraphMetrics
@@ -516,9 +518,7 @@ class Camera {
   			val size = sprite.getStyle.getSize
   			val w2   = metrics.lengthToPx( size, 0 ) / 2
   			val h2   = if( size.size > 1 ) metrics.lengthToPx( size, 1 )/2 else w2
-  			val src  = new Point2D.Float( sprite.getX, sprite.getY )
-	
-  			Tx.transform( src, src )
+  			val src  = spritePositionPx( sprite )
 	
   			val x1 = src.x - w2
   			val x2 = src.x + w2
@@ -530,6 +530,14 @@ class Camera {
   			else if( x1 > X2 ) false
   			else if( y1 > Y2 ) false
   			else               true 
+  		}
+  	}
+   
+  	protected def spritePositionPx( sprite:GraphicSprite ):Point2D.Float = {
+  		sprite.getUnits match {
+  			case Units.PX       => { new Point2D.Float( sprite.getX, sprite.getY ) }
+  			case Units.GU       => { val pos = new Point2D.Float( sprite.getX, sprite.getY ); Tx.transform( pos, pos ).asInstanceOf[Point2D.Float] }
+  			case Units.PERCENTS => { new Point2D.Float( (sprite.getX/100f)*metrics.viewport.data(0), (sprite.getY/100f)*metrics.viewport.data(1) ) }
   		}
   	}
 
@@ -570,7 +578,7 @@ class Camera {
   	 */
   	protected def getSpritePositionFree( sprite:GraphicSprite, position:Point2D.Float, units:Units ):Point2D.Float = {
   		var pos = position
-    
+printf( "getSpritePositionFree(%s, %s, %s)%n", sprite, position, units )  
   		if( pos == null )
   			pos = new Point2D.Float
 		
@@ -580,16 +588,21 @@ class Camera {
   		} else if( units == Units.GU && sprite.getUnits == Units.PX ) {
   			pos.x = sprite.getX
   			pos.y = sprite.getY
-			
   			xT.transform( pos, pos )
   		} else if( units == Units.PX && sprite.getUnits == Units.GU ) {
   			pos.x = sprite.getX
   			pos.y = sprite.getY
-		
   			Tx.transform( pos, pos )
+  		} else if( units == Units.GU && sprite.getUnits == Units.PERCENTS ) {
+  			pos.x = metrics.lo.x + (sprite.getX/100f) * metrics.graphWidthGU
+  			pos.y = metrics.lo.y + (sprite.getY/100f) * metrics.graphHeightGU
+  		} else if( units == Units.PX && sprite.getUnits == Units.PERCENTS ) {
+  			pos.x = (sprite.getX/100f) * metrics.viewport.data(0)
+  			pos.y = (sprite.getY/100f) * metrics.viewport.data(1)
   		} else {
-  			throw new RuntimeException( "Unhandled yet sprite positioning." );
+  			throw new RuntimeException( "Unhandled yet sprite positioning convertion %s to %s.".format( sprite.getUnits, units ) );
   		}
+printf( "=> pos=%s%n", pos )
 		
   		pos
   	}
@@ -603,7 +616,7 @@ class Camera {
      */
     protected def getSpritePositionNode( sprite:GraphicSprite, position:Point2D.Float, units:Units):Point2D.Float = {
     	var pos = position
-      
+//printf( "getSpritePositionNode(%s, %s, %s)%n", sprite, position, units )
     	if( pos == null )
     		pos = new Point2D.Float
 		
@@ -629,21 +642,29 @@ class Camera {
   	 */
   	protected def getSpritePositionEdge( sprite:GraphicSprite, position:Point2D.Float, units:Units ):Point2D.Float = {
   		var pos = position
-	
+//printf( "getSpritePositionEdge(%s, %s, %s)%n", sprite, position, units )
   		if( pos == null )
   			pos = new Point2D.Float
 		
-  		val edge = sprite.getEdgeAttachment
+  		val edge = sprite.getEdgeAttachment.asInstanceOf[GraphicEdge]
 		
   		if( edge.isCurve ) {
-  			// renderSpriteAttachedToCubicEdge( ce, sprite, camera );
-  			// TODO XXX
-  			throw new RuntimeException( "Edge on curve not yet supported." );
+  			val p0   = new Point2( edge.from.x, edge.from.y )
+  			val p1   = new Point2( edge.ctrl(0), edge.ctrl(1) )
+  			val p2   = new Point2( edge.ctrl(2), edge.ctrl(3) )
+  			val p3   = new Point2( edge.to.x, edge.to.y )
+  			val perp = new Vector2( p3.y - p0.y, -( p3.x - p0.x ) )
+     
+  			perp.normalize
+  			perp.scalarMult( sprite.getY )
+     
+  			pos.x = CubicCurve.eval( p0.x, p1.x, p2.x, p3.x, sprite.getX ) + perp(0)
+  			pos.y = CubicCurve.eval( p0.y, p1.y, p2.y, p3.y, sprite.getX ) + perp(1)
   		} else {
-  			var x  = edge.getSourceNode.asInstanceOf[GraphicNode].x
-  			var y  = edge.getSourceNode.asInstanceOf[GraphicNode].y
-  			var dx = edge.getTargetNode.asInstanceOf[GraphicNode].x - x
-  			var dy = edge.getTargetNode.asInstanceOf[GraphicNode].y - y
+  			var x  = edge.from.x
+  			var y  = edge.from.y
+  			var dx = edge.to.x - x
+  			var dy = edge.to.y - y
   			var d  = sprite.getX						// Percent on the edge.
   			val o  = sprite.getY						// Offset from the position given by percent, perpendicular to the edge.
 			
@@ -662,10 +683,10 @@ class Camera {
 			
   			pos.x = x
   			pos.y = y
-			
-  			if( units == Units.PX )
-  				Tx.transform( pos, pos )
   		}
+			
+  		if( units == Units.PX )
+  			Tx.transform( pos, pos )
 
   		pos
   	}
@@ -700,7 +721,7 @@ class Camera {
 			case DIAMOND      => evalEllipseRadius( p0, p1, p2, p3, w, h, s )
 			case CROSS        => evalEllipseRadius( p0, p1, p2, p3, w, h, s )
 			case TRIANGLE     => evalEllipseRadius( p0, p1, p2, p3, w, h, s )
-			case TEXT_ELLIPSE => evalEllipseRadius( p0, p1, p2, p3, w, h, s )
+			case TEXT_CIRCLE  => evalEllipseRadius( p0, p1, p2, p3, w, h, s )
 			case TEXT_DIAMOND => evalEllipseRadius( p0, p1, p2, p3, w, h, s )
 			case BOX          => evalBoxRadius( p0, p1, p2, p3, w/2+s, h/2+s )
 			case TEXT_BOX     => evalBoxRadius( p0, p1, p2, p3, w/2+s, h/2+s )

@@ -1,6 +1,6 @@
 package org.graphstream.ui.j2dviewer.renderer
 
-import java.awt.{Graphics, Graphics2D, Font}
+import java.awt.{Graphics, Graphics2D, Font, Color}
 import java.awt.event.{ActionListener, ActionEvent}
 import java.awt.geom.{Point2D}
 import javax.swing.{JComponent, JPanel, BorderFactory, JTextField, JButton, SwingConstants, ImageIcon}
@@ -9,6 +9,7 @@ import org.graphstream.ui2.graphicGraph.{GraphicElement, GraphicNode, GraphicSpr
 import org.graphstream.ui2.graphicGraph.stylesheet.{Values, StyleConstants}
 import org.graphstream.ui.j2dviewer.J2DGraphRenderer
 import org.graphstream.ui.j2dviewer.util.{Camera, FontCache, ImageCache}
+import org.graphstream.ui.j2dviewer.renderer.shape._
 
 /**
  * Renderer for nodes and sprites represented as Swing components.
@@ -28,6 +29,9 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 	/** Association between Swing components and graph elements. */
 	protected val compToElement = new scala.collection.mutable.HashMap[JComponent,ComponentElement]
 
+	/** The potential shadow. */
+	protected var shadow:SquareShape = null
+ 
 // Command
   
 	protected def setupRenderingPass( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
@@ -36,9 +40,17 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 		size   = group.getSize
 		width  = metrics.lengthToPx( size, 0 ).toInt
 		height = if( size.size() > 1 ) metrics.lengthToPx( size, 1 ).toInt else width
+  
+		if( group.getShadowMode != StyleConstants.ShadowMode.NONE )
+		     shadow = new SquareShape
+		else shadow = null
 	}
 	
 	protected def pushStyle( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
+		if( shadow != null ) {
+		  	shadow.configure( g, group, camera )
+		  	shadow.size( group, camera )
+		}
 	}
 	
 	protected def pushDynStyle( g:Graphics2D, camera:Camera, element:GraphicElement ) {
@@ -59,7 +71,10 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 	}												// and therefore must change the style.
 													
 	protected def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
-		// TODO
+		if( shadow != null ) {
+			shadow.position( element.getX, element.getY )
+			shadow.renderShadow( g, camera )
+		}
 	}
  
 	protected def elementInvisible( g:Graphics2D, camera:Camera, element:GraphicElement ) {
@@ -142,6 +157,8 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 	
 		/** Set of reset the fill mode and colour for the Swing component. */
 		def setFill() {
+			setBackground( group.getFillColor( 0 ) )
+//			setOpaque( true )
 			if( group.getFillMode == StyleConstants.FillMode.PLAIN )
 				jComponent.setBackground( group.getFillColor( 0 ) )
 		}
@@ -190,7 +207,7 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 	// Custom painting
 	
 		override def paint( g:Graphics ) {
-			// Avoid any unnecessary painting.
+			paintComponent( g )	// XXX Remove this ??? XXX
 			paintBorder( g )
 			paintChildren( g )
 		}
