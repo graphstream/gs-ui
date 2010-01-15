@@ -28,7 +28,6 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 		val sprite = element.asInstanceOf[GraphicSprite]
 		val pos    = camera.getSpritePosition( sprite, new Point2D.Float, StyleConstants.Units.GU )
 
-Console.err.printf( "rendering sprite %s%n", sprite.getId )
 		shape.text = element.label
 		shape.position( pos.x, pos.y )
 		shape.render( g, camera )
@@ -43,7 +42,6 @@ Console.err.printf( "rendering sprite %s%n", sprite.getId )
 	}
  
 	protected def elementInvisible( g:Graphics2D, camera:Camera, element:GraphicElement ) {
-Console.err.printf( "invisiible sprite %s%n", element.getId )
 	}
  
 	protected def chooseShape():AreaShape = {

@@ -63,26 +63,31 @@ private class Test extends ViewerListener {
   
 		val s1 = sman.addSprite( "S1" )
 		val s2 = sman.addSprite( "S2" )
-		val s3 = sman.addSprite( "S3" )
+		val quit = sman.addSprite( "quit" )
   
 		s1.attachToNode( "A" )
 		s2.attachToEdge( "BC" )
   
 		s1.setPosition( StyleConstants.Units.GU, 0.2f, 45f, 45f )
 		s2.setPosition( 0f )
-		s3.setPosition( StyleConstants.Units.PX, 40, 15, 0 )
-		s3.addAttribute( "label", "quit" )
+		quit.setPosition( StyleConstants.Units.PX, 40, 15, 0 )
+		quit.addAttribute( "label", "quit" )
 
 		var p = 0f
 		var dir = 0.005f
+		var a = 0f
+		var ang = 0.01f
   
 		while( loop ) {
-//			p += dir
-//   
-//			if( p > 1f ) { dir = - dir; p = 1f; s2.attachToEdge( "BC2" ) }
-//			if( p < 0f ) { dir = - dir; p = 0f; s2.attachToEdge( "BC" ) }
+			p += dir
+			a += ang
    
-//			s2.setPosition( p )
+			if( p > 1f ) { dir = - dir; p = 1f; s2.attachToEdge( "BC2" ) }
+			if( p < 0f ) { dir = - dir; p = 0f; s2.attachToEdge( "BC" ) }
+			if( a > 360 ) { a = 0f; }
+   
+			s1.setPosition( StyleConstants.Units.GU, 0.2f, 0f, a )
+			s2.setPosition( p )
 		  
 			pipeIn.pump
 			sleep( 10 )
@@ -98,7 +103,12 @@ private class Test extends ViewerListener {
  
 	def viewClosed( id:String ) { loop = false }
  
- 	def buttonPushed( id:String ) { printf( "button %s pushed%n" ) }
+ 	def buttonPushed( id:String ) {
+ 		if( id == "quit" )
+ 			loop = false
+ 		else if( id == "A" )
+ 			print( "Button A pushed%n".format() )
+ 	}
   
  	def buttonReleased( id:String ) {} 
  
@@ -165,7 +175,7 @@ private class Test extends ViewerListener {
 				stroke-color: rgb(100,100,100);
 				stroke-width: 1px;
 			}
-			sprite#S3 {
+			sprite#quit {
 				shape: jcomponent;
 				jcomponent: button;
 				size: 80px, 30px;

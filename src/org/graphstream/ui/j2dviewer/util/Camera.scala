@@ -578,7 +578,7 @@ class Camera {
   	 */
   	protected def getSpritePositionFree( sprite:GraphicSprite, position:Point2D.Float, units:Units ):Point2D.Float = {
   		var pos = position
-printf( "getSpritePositionFree(%s, %s, %s)%n", sprite, position, units )  
+  
   		if( pos == null )
   			pos = new Point2D.Float
 		
@@ -602,7 +602,6 @@ printf( "getSpritePositionFree(%s, %s, %s)%n", sprite, position, units )
   		} else {
   			throw new RuntimeException( "Unhandled yet sprite positioning convertion %s to %s.".format( sprite.getUnits, units ) );
   		}
-printf( "=> pos=%s%n", pos )
 		
   		pos
   	}

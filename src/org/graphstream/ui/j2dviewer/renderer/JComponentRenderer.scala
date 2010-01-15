@@ -339,6 +339,7 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 			element.label = component.getText
 			element.setAttribute( "ui.label", element.label )
 			element.setAttribute( "ui.clicked" )
+			element.myGraph.setAttribute( "ui.clicked", element.getId )
 	    }
 	
 		override def jComponent:JComponent = component
