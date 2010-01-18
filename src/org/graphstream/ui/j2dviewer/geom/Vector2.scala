@@ -13,6 +13,10 @@ class Vector2( x:Float, y:Float ) extends org.graphstream.ui.geom.Vector2( x, y 
 	def apply( component:Int ):Float = data( component )
 
 	def update( component:Int, value:Float ) { data(component) = value }
+ 
+	def x:Float = data(0)
+	
+	def y:Float = data(1)
 }
 
 object Vector2 {

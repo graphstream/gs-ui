@@ -8,8 +8,6 @@ import org.graphstream.ui.j2dviewer.renderer.shape._
 class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) {
 	var shape:ConnectorShape = null
 	var arrow:AreaOnConnectorShape = null
-//	var shape = new LineShape
-//	var arrow = new ArrowOnEdge
   
 	protected def setupRenderingPass( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
 		shape = chooseShape
@@ -32,7 +30,7 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 		val edge = element.asInstanceOf[GraphicEdge]
 		shape.text = element.label
 
-		shape.targetNodeSize( edge.to.getStyle, camera )
+		shape.endPoints( edge.from.getStyle, edge.to.getStyle, edge.isDirected, camera )
 		shape.position( edge.from.getX, edge.from.getY, edge.to.getX, edge.to.getY, edge.multi, edge.getGroup )
 		shape.setEdgeCtrlPoints( edge )// XXX HORROR, TERROR XXX
 		shape.render( g, camera )
@@ -48,7 +46,7 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 	protected def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		val edge = element.asInstanceOf[GraphicEdge]
 
-		shape.targetNodeSize( edge.to.getStyle, camera )
+		shape.endPoints( edge.from.getStyle, edge.to.getStyle, edge.isDirected, camera )
 		shape.position( edge.from.getX, edge.from.getY, edge.to.getX, edge.to.getY, edge.multi, edge.getGroup )
 		shape.setEdgeCtrlPoints( edge )// XXX HORROR, TERROR XXX
 		shape.renderShadow( g, camera )
@@ -72,7 +70,7 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 		  	case ANGLE       => Console.err.printf( "** Sorry angle edge shape is not yet implemented **%n" ); new LineShape
 		  	case CUBIC_CURVE => Console.err.printf( "** Sorry cubic edge shape is not yet implemented **%n" ); new LineShape
     		case POLYLINE    => Console.err.printf( "** Sorry poly edge shape is not yet implemented **%n" );  new LineShape
-    		case BLOB        => Console.err.printf( "** Sorry blob edge shape is not yet implemented **%n" );  new LineShape
+    		case BLOB        => new BlobShape
 		    case x           => throw new RuntimeException( "%s shape cannot be set for edges".format( x.toString ) )
 		}
 	}

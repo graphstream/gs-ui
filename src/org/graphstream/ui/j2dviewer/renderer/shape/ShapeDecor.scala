@@ -1,7 +1,7 @@
 package org.graphstream.ui.j2dviewer.renderer.shape
 
 import java.awt.{Graphics2D, Color, Font}
-import java.awt.geom.{AffineTransform, Rectangle2D}
+import java.awt.geom.{AffineTransform, Rectangle2D, Point2D}
 import java.awt.font.TextLayout
 import java.awt.image.BufferedImage
 
@@ -29,15 +29,14 @@ object ShapeDecor {
 			new EmptyShapeDecor
 		} else {
 			val iconAndText = IconAndText( style )
-   
 			style.getTextAlignment match {
 				case CENTER   => new CenteredShapeDecor( iconAndText )
-				case LEFT     => new CenteredShapeDecor( iconAndText )
-				case RIGHT    => new CenteredShapeDecor( iconAndText )
-				case AT_LEFT  => new CenteredShapeDecor( iconAndText )
-				case AT_RIGHT => new CenteredShapeDecor( iconAndText )
-				case UNDER    => new CenteredShapeDecor( iconAndText )
-			  	case ABOVE    => new CenteredShapeDecor( iconAndText )
+				case LEFT     => new LeftShapeDecor( iconAndText )
+				case RIGHT    => new RightShapeDecor( iconAndText )
+				case AT_LEFT  => new AtLeftShapeDecor( iconAndText )
+				case AT_RIGHT => new AtRightShapeDecor( iconAndText )
+				case UNDER    => new UnderShapeDecor( iconAndText )
+			  	case ABOVE    => new AboveShapeDecor( iconAndText )
 			  	case JUSTIFY  => new CenteredShapeDecor( iconAndText )
 			  	case ALONG    => new CenteredShapeDecor( iconAndText )
 			  	case _        => null
@@ -49,31 +48,123 @@ object ShapeDecor {
 		def render( g:Graphics2D, camera:Camera, text:String, x0:Float, y0:Float, x1:Float, y1:Float ) {}
     }
  
-	class CenteredShapeDecor( val iconAndText:IconAndText ) extends ShapeDecor {
+	abstract class PxShapeDecor( val iconAndText:IconAndText ) extends ShapeDecor {
+		/* We choose here to replace the transform (GU->PX) into a the identity to draw
+		 * The text and icon. Is this the best way ? Maybe should we merely scale the 
+		 * font size to render the text at the correct size ? How to handle the icon in
+		 * this case ? 
+		 */
+		protected def renderGu2Px( g:Graphics2D, camera:Camera, text:String, x:Float, y:Float )(  ) {
+			var p  = camera.transform( x, y )
+			val Tx = g.getTransform
+			
+			g.setTransform( new AffineTransform )
+			iconAndText.setText( g, text )
+		
+			p = positionTextAndIconPx( p )
+   
+			iconAndText.render( g, camera, p.x, p.y )
+			g.setTransform( Tx )
+		}
+  
+		protected def positionTextAndIconPx( p:Point2D.Float ):Point2D.Float
+	}
+ 
+	class CenteredShapeDecor( iconAndText:IconAndText ) extends PxShapeDecor( iconAndText ) {
 		def render( g:Graphics2D, camera:Camera, text:String, x0:Float, y0:Float, x1:Float, y1:Float ) {
 			val cx = x0 + (x1 - x0) / 2
 			val cy = y0 + (y1 - y0) / 2
 
 			renderGu2Px( g, camera, text, cx, cy )
 		}
-  
-		/* We choose here to replace the transform (GU->PX) into a the identity to draw
-		 * The text and icon. Is this the best way ? Maybe should we merely scale the 
-		 * font size to render the text at the correct size ? How to handle the icon in
-		 * this case ? 
-		 */
-		def renderGu2Px( g:Graphics2D, camera:Camera, text:String, x:Float, y:Float ) {
-			val p  = camera.transform( x, y )
-			val Tx = g.getTransform
-			
-			g.setTransform( new AffineTransform )
-			iconAndText.setText( g, text )
+		protected def positionTextAndIconPx( p:Point2D.Float ):Point2D.Float = {
+			p.x = p.x - ( iconAndText.width / 2 + 1 )
+			p.y = p.y + ( iconAndText.height / 2 )
+			p
+		}
+	}
+ 
+ 	class AtLeftShapeDecor( iconAndText:IconAndText ) extends PxShapeDecor( iconAndText ) {
+		def render( g:Graphics2D, camera:Camera, text:String, x0:Float, y0:Float, x1:Float, y1:Float ) {
+			val cx = x1
+			val cy = y0 + ( y1 - y0 ) / 2
 
-			var tx = p.x - ( iconAndText.width / 2 )
-			var ty = p.y + ( iconAndText.height / 2 )
-			
-			iconAndText.render( g, camera, tx, ty )
-			g.setTransform( Tx )
+			renderGu2Px( g, camera, text, cx, cy )
+		}
+		protected def positionTextAndIconPx( p:Point2D.Float ):Point2D.Float = {
+			p.x = p.x
+			p.y = p.y + ( iconAndText.height / 2 )
+			p
+		}
+	}
+ 
+ 	class LeftShapeDecor( iconAndText:IconAndText ) extends PxShapeDecor( iconAndText ) {
+		def render( g:Graphics2D, camera:Camera, text:String, x0:Float, y0:Float, x1:Float, y1:Float ) {
+			val cx = x0 + ( x1 - x0 ) / 2
+			val cy = y0 + ( y1 - y0 ) / 2
+
+			renderGu2Px( g, camera, text, cx, cy )
+		}
+		protected def positionTextAndIconPx( p:Point2D.Float ):Point2D.Float = {
+			p.x = p.x
+			p.y = p.y + ( iconAndText.height / 2 )
+			p
+		}
+	}
+ 
+ 	class AtRightShapeDecor( iconAndText:IconAndText ) extends PxShapeDecor( iconAndText ) {
+		def render( g:Graphics2D, camera:Camera, text:String, x0:Float, y0:Float, x1:Float, y1:Float ) {
+			val cx = x0
+			val cy = y0 + ( y1 - y0 ) / 2
+
+			renderGu2Px( g, camera, text, cx, cy )
+		}
+		protected def positionTextAndIconPx( p:Point2D.Float ):Point2D.Float = {
+			p.x = p.x - ( iconAndText.width + 5 )
+			p.y = p.y + ( iconAndText.height / 2 )
+			p
+		}
+	}
+ 
+ 	class RightShapeDecor( iconAndText:IconAndText ) extends PxShapeDecor( iconAndText ) {
+		def render( g:Graphics2D, camera:Camera, text:String, x0:Float, y0:Float, x1:Float, y1:Float ) {
+			val cx = x0 + ( x1 - x0 ) / 2
+			val cy = y0 + ( y1 - y0 ) / 2
+
+			renderGu2Px( g, camera, text, cx, cy )
+		}
+		protected def positionTextAndIconPx( p:Point2D.Float ):Point2D.Float = {
+			p.x = p.x - ( iconAndText.width + 2 )
+			p.y = p.y + ( iconAndText.height / 2 )
+			p
+		}
+	}
+ 
+ 	class UnderShapeDecor( iconAndText:IconAndText ) extends PxShapeDecor( iconAndText ) {
+		def render( g:Graphics2D, camera:Camera, text:String, x0:Float, y0:Float, x1:Float, y1:Float ) {
+			val cx = x0 + ( x1 - x0 ) / 2
+			val cy = y0
+
+			renderGu2Px( g, camera, text, cx, cy )
+		}
+		protected def positionTextAndIconPx( p:Point2D.Float ):Point2D.Float = {
+			p.x = p.x - ( iconAndText.width / 2 + 1 )
+			p.y = p.y + ( iconAndText.height )
+			p
+		}
+	}
+ 
+ 	class AboveShapeDecor( iconAndText:IconAndText ) extends PxShapeDecor( iconAndText ) {
+		def render( g:Graphics2D, camera:Camera, text:String, x0:Float, y0:Float, x1:Float, y1:Float ) {
+			val cx = x0 + ( x1 - x0 ) / 2
+			val cy = y1
+
+			renderGu2Px( g, camera, text, cx, cy )
+		}
+		protected def positionTextAndIconPx( p:Point2D.Float ):Point2D.Float = {
+			p.x = p.x - ( iconAndText.width / 2 + 1 )
+			p.y = p.y
+			p
 		}
 	}
 }

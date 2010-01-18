@@ -1,6 +1,6 @@
 package org.graphstream.ui.j2dviewer.renderer
 
-import java.awt.{Graphics, Graphics2D, Font, Color}
+import java.awt.{Graphics, Graphics2D, Font, Color, RenderingHints}
 import java.awt.event.{ActionListener, ActionEvent}
 import java.awt.geom.{Point2D}
 import javax.swing.{JComponent, JPanel, BorderFactory, JTextField, JButton, SwingConstants, ImageIcon}
@@ -32,6 +32,8 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 	/** The potential shadow. */
 	protected var shadow:SquareShape = null
  
+	protected var antialiasSetting:AnyRef = null
+
 // Command
   
 	protected def setupRenderingPass( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
@@ -44,7 +46,14 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 		if( group.getShadowMode != StyleConstants.ShadowMode.NONE )
 		     shadow = new SquareShape
 		else shadow = null
+		
+		antialiasSetting = g.getRenderingHint( RenderingHints.KEY_ANTIALIASING )
+		g.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF )
 	}
+ 
+	override protected def endRenderingPass( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
+		g.setRenderingHint( RenderingHints.KEY_ANTIALIASING, antialiasSetting )
+	} 
 	
 	protected def pushStyle( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
 		if( shadow != null ) {
@@ -157,10 +166,10 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 	
 		/** Set of reset the fill mode and colour for the Swing component. */
 		def setFill() {
-			setBackground( group.getFillColor( 0 ) )
+//			setBackground( group.getFillColor( 0 ) )
 //			setOpaque( true )
-			if( group.getFillMode == StyleConstants.FillMode.PLAIN )
-				jComponent.setBackground( group.getFillColor( 0 ) )
+//			if( group.getFillMode == StyleConstants.FillMode.PLAIN )
+//				jComponent.setBackground( group.getFillColor( 0 ) )
 		}
 	
 		/** Set or reset the text alignment for the Swing component. */
@@ -362,7 +371,7 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 	
 		override def setTextFont() {
 			val font = if( ! group.getTextFont().equals( "default" ) )
-				FontCache.getFont( group.getTextFont, group.getTextStyle, group.getTextSize.value.toInt )
+			     FontCache.getFont( group.getTextFont, group.getTextStyle, group.getTextSize.value.toInt )
 			else FontCache.getDefaultFont( group.getTextStyle, group.getTextSize().value.toInt )
 			
 			component.setFont( font )

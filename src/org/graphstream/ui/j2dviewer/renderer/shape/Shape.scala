@@ -84,7 +84,7 @@ trait Fillable {
 /**
  * Shape that cannot be filled, but must be stroked.
  */
-trait FillableConnector {
+trait FillableLine {
 	var fillColor:Color = null
 	var fillStroke:ShapeStroke = null
   
@@ -136,7 +136,7 @@ trait Strokable {
  	}
 }
 
-trait StrokableConnector extends Strokable {
+trait StrokableLine extends Strokable {
  	protected override def configureStrokable( style:Style, camera:Camera ) {
 		strokeWidth = camera.metrics.lengthToGu( style.getStrokeWidth ) + camera.metrics.lengthToGu( style.getSize, 0 )
 		strokeColor = ShapeStroke.strokeColor( style )
@@ -187,7 +187,7 @@ trait Shadowable {
  	}
 }
 
-trait ShadowableConnector {
+trait ShadowableLine {
 	/** The shadow paint. */
 	var shadowStroke:ShapeStroke = null
 
@@ -276,7 +276,9 @@ trait Connector {
 	protected var ctrl1:Point2 = null
 	protected var ctrl2:Point2 = null
 	protected var theSize:Float = 0
-	protected var theTargetNodeSize:Float = 0
+	protected var theTargetSize:Float = 0
+	protected var theSourceSize:Float = 0
+	var isDirected = false
 	var isCurve = false
 	var isLoop  = false
 	def fromPos:Point2 = from
@@ -285,14 +287,19 @@ trait Connector {
 	def toPos:Point2 = to
 	def size( width:Float ) { theSize = width }
 	def size( style:Style, camera:Camera ) { size( camera.metrics.lengthToGu( style.getSize, 0 ) ) }
-	def targetNodeSize( width:Float ) { theTargetNodeSize = width }
-	def targetNodeSize( nodeStyle:Style, camera:Camera ) {
-		var s = camera.metrics.lengthToGu( nodeStyle.getSize, 0 )
-		if( nodeStyle.getSize.size > 1 ) {
-			s += camera.metrics.lengthToGu( nodeStyle.getSize, 1 )
-			s /= 2
+	def endPoints( sourceWidth:Float, targetWidth:Float, directed:Boolean ) { theSourceSize = sourceWidth; theTargetSize = targetWidth; isDirected = directed }
+	def endPoints( sourceStyle:Style, targetStyle:Style, directed:Boolean, camera:Camera ) {
+		var src = camera.metrics.lengthToGu( sourceStyle.getSize, 0 )
+		if( sourceStyle.getSize.size > 1 ) {
+			val src2 = camera.metrics.lengthToGu( sourceStyle.getSize, 1 )
+			src = if( src2 < src ) src2 else src
 		}
-		targetNodeSize( s )
+		var trg = camera.metrics.lengthToGu( targetStyle.getSize, 0 )
+		if( targetStyle.getSize.size > 1 ) {
+			val trg2 = camera.metrics.lengthToGu( targetStyle.getSize, 1 )
+			trg = if( trg2 < trg ) trg2 else trg
+		}
+		endPoints( src, trg, directed )
 	}
 	def position( xFrom:Float, yFrom:Float, xTo:Float, yTo:Float ) { position( xFrom, yFrom, xTo, yTo, 0, null ) }
 	def position( xFrom:Float, yFrom:Float, xTo:Float, yTo:Float, multi:Int, group:GraphicEdge#EdgeGroup ) {
@@ -326,7 +333,7 @@ trait Connector {
 	}
 	protected def positionEdgeLoop( x:Float, y:Float, multi:Int ) {
 		var m = 1f + multi * 0.2f
-		var d = theTargetNodeSize/2*m + 4*theTargetNodeSize*m
+		var d = theTargetSize/2*m + 4*theTargetSize*m
 
 		ctrl1.set( x + d, y )
 		ctrl2.set( x, y + d )

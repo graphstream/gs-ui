@@ -175,7 +175,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 		}
 		camera.popView( g )
   
-		if( selection.renderer == null ) selection.renderer = new SelectionRenderer( selection )
+		if( selection.renderer == null ) selection.renderer = new SelectionRenderer( selection, graph )
 		selection.renderer.render( g, camera, width, height )
   	}
    

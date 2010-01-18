@@ -38,11 +38,19 @@ trait AreaOnConnectorShape
 trait ConnectorShape
 	extends Shape
 	with Connector
-	with FillableConnector
-	with StrokableConnector
-	with ShadowableConnector
 	with Decorable
+ 
+trait LineConnectorShape
+	extends ConnectorShape
+	with FillableLine
+	with StrokableLine
+	with ShadowableLine
 
+trait AreaConnectorShape
+	extends ConnectorShape
+	with Fillable
+	with Strokable
+	with Shadowable
 
 trait RectangularAreaShape extends AreaShape {
 	val theShape:RectangularShape
@@ -112,7 +120,7 @@ class RoundedSquareShape extends RectangularAreaShape {
 	}
 }
 
-class LineShape extends ConnectorShape {
+class LineShape extends LineConnectorShape {
 	protected var theShape:java.awt.Shape = new Line2D.Float
  
 // Command

@@ -34,6 +34,7 @@ private class Test extends ViewerListener {
 		val C = graph.addNode( "C" )
 		val D = graph.addNode( "D" )
 		val E = graph.addNode( "E" )
+
 		graph.addEdges( "A", "B", "C", "A" )
 		graph.addEdges( "D", "E", "A", "D" )
 		graph.addEdge( "BD", "B", "D", true )
@@ -73,21 +74,21 @@ private class Test extends ViewerListener {
 		quit.setPosition( StyleConstants.Units.PX, 40, 15, 0 )
 		quit.addAttribute( "label", "quit" )
 
-		var p = 0f
+		var p   = 0f
 		var dir = 0.005f
-		var a = 0f
+		var a   = 0f
 		var ang = 0.01f
   
 		while( loop ) {
-			p += dir
-			a += ang
-   
-			if( p > 1f ) { dir = - dir; p = 1f; s2.attachToEdge( "BC2" ) }
-			if( p < 0f ) { dir = - dir; p = 0f; s2.attachToEdge( "BC" ) }
-			if( a > 360 ) { a = 0f; }
-   
-			s1.setPosition( StyleConstants.Units.GU, 0.2f, 0f, a )
-			s2.setPosition( p )
+//			p += dir
+//			a += ang
+//   
+//			if( p > 1f ) { dir = - dir; p = 1f; s2.attachToEdge( "BC2" ) }
+//			if( p < 0f ) { dir = - dir; p = 0f; s2.attachToEdge( "BC" ) }
+//			if( a > 360 ) { a = 0f; }
+//   
+//			s1.setPosition( StyleConstants.Units.GU, 0.2f, 0f, a )
+//			s2.setPosition( p )
 		  
 			pipeIn.pump
 			sleep( 10 )
@@ -122,12 +123,12 @@ private class Test extends ViewerListener {
  			} 
 			node {
 				shape: circle;
-				size: 60px, 25px;
+				size: 60px, 60px;
 				fill-mode: gradient-vertical;
 				fill-color: white, rgb(200,200,200);
 				stroke-mode: plain; 
-				stroke-color: rgba(255,255,0,255);
-				stroke-width: 2px;
+				stroke-color: rgba(100,100,100,255);
+				stroke-width: 3px;
 				shadow-mode: plain;
 				shadow-width: 0px;
 				shadow-offset: 3px, -3px;
@@ -135,13 +136,16 @@ private class Test extends ViewerListener {
 				icon-mode: at-left;
 				icon: url('file:///home/antoine/GSLogo11d24.png');
 			}
+			node#E {
+				size: 90px, 90px;
+			}
 			node:clicked {
 				stroke-mode: plain;
 				stroke-color: red;
 			}
 			node:selected {
 				stroke-mode: plain;
-				stroke-width: 4px;
+				stroke-width: 6px;
 				stroke-color: blue;
 			}
 			node#A {
@@ -153,16 +157,18 @@ private class Test extends ViewerListener {
 				jcomponent: button;
 			}
 			edge {
-				size: 2px;
-				fill-color: rgb(128,128,128);
+				shape: blob;
+				size: 3px;
+				//fill-color: rgb(128,128,128);
+				fill-color: rgba(100,100,100,255);
 				fill-mode: plain;
-				stroke-mode: plain;
-				stroke-color: rgb(80,80,80);
-				stroke-width: 2px;
-				shadow-mode: plain;
-				shadow-color: rgba(0,0,0,50);
-				shadow-offset: 3px, -3px;
-				shadow-width: 0px;
+				//stroke-mode: plain;
+				//stroke-color: rgb(80,80,80);
+				//stroke-width: 2px;
+				//shadow-mode: plain;
+				//shadow-color: rgba(0,0,0,50);
+				//shadow-offset: 3px, -3px;
+				//shadow-width: 0px;
 				arrow-shape: arrow;
 				arrow-size: 20px, 6px;
 			}

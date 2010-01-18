@@ -102,6 +102,8 @@ abstract class StyleRenderer( val group:StyleGroup ) extends GraphicElement.Swin
 		{
 			hadEvents = false;
 		}
+  
+		endRenderingPass( g, camera, shadow )
     }
 
 // Methods to implement in each renderer
@@ -155,6 +157,15 @@ abstract class StyleRenderer( val group:StyleGroup ) extends GraphicElement.Swin
 	 * @param element The element to render.
 	 */
 	protected def elementInvisible( g:Graphics2D, camera:Camera, element:GraphicElement )
+ 
+	/**
+	 * Called at the end of the rendering pass. 
+	 * @param g The Swing graphics.
+	 * @param camera The camera.
+     */
+	protected def endRenderingPass( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
+		// NOP by default.
+	}
 }
 
 /**

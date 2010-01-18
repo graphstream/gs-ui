@@ -657,8 +657,8 @@ class Camera {
   			perp.normalize
   			perp.scalarMult( sprite.getY )
      
-  			pos.x = CubicCurve.eval( p0.x, p1.x, p2.x, p3.x, sprite.getX ) + perp(0)
-  			pos.y = CubicCurve.eval( p0.y, p1.y, p2.y, p3.y, sprite.getX ) + perp(1)
+  			pos.x = CubicCurve.eval( p0.x, p1.x, p2.x, p3.x, sprite.getX ) + perp.x
+  			pos.y = CubicCurve.eval( p0.y, p1.y, p2.y, p3.y, sprite.getX ) + perp.y
   		} else {
   			var x  = edge.from.x
   			var y  = edge.from.y
@@ -759,7 +759,7 @@ class Camera {
 		
 		// The entering edge must be deformed by the ellipse ratio to find the correct angle.
 
-		dy *= ( w / h )	// I searched a lot to find this line was missing ! Tsu !
+		dy *= ( w / h )
 
 		// Find the angle of the entering vector with (1,0).
 

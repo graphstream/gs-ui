@@ -1,0 +1,27 @@
+Roadmap
+=======
+
+Il reste à faire :
+
+	* Un Jar utilisable dans GS Java.
+
+	* Respecter complètement le CSS
+		* Formes des n½uds
+		* Formes des arcs
+		* Formes des sprites
+
+	* Complèter le support des événements par le ViewerPipe.
+	
+	* Tester le viewer dans le thread Swing, sans proxy.
+		
+Améliorations :
+	
+	* Les contour des flêches ne passent pas au dessus de l'arc ?
+	* Le positionnement des flêches au contact des n½euds (surtout sur les courbe cubiques).
+	* Un CSS pour la zone de sélection.
+	* Un type d'arc avec image mappée sur la longueur de l'arc.
+		
+Bugs :
+
+	* Problème de repaint des bordures des JComponent si anti-alias est activé ?
+	* En mode "blob" les arcs "loop" ne sonts pas corrects.
