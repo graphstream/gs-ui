@@ -34,6 +34,7 @@ private class Test extends ViewerListener {
 		val C = graph.addNode( "C" )
 		val D = graph.addNode( "D" )
 		val E = graph.addNode( "E" )
+		val F = graph.addNode( "F" )
 
 		graph.addEdges( "A", "B", "C", "A" )
 		graph.addEdges( "D", "E", "A", "D" )
@@ -46,13 +47,18 @@ private class Test extends ViewerListener {
 		graph.addEdge( "CC2", "C", "C", true )
 		graph.addEdge( "BC2", "B", "C" )
 		graph.addEdge( "AB2", "A", "B", true )
-		graph.addEdge( "AB3", "A", "B", true )  
+		graph.addEdge( "AB3", "A", "B", true )
+		graph.addEdge( "AF0", "A", "F" )
+		graph.addEdge( "AF1", "A", "F" )
+		graph.addEdge( "AF2", "A", "F" )
+		graph.addEdge( "AF3", "A", "F" )
 
 		A("xyz") = (  0,   0,   0 )
 		B("xyz") = ( -0.2, 1,   0 )
 		C("xyz") = (  0.7, 0.5, 0 )
 		D("xyz") = ( -1,  -1,   0 )
 		E("xyz") = (  1,  -1,   0 )
+		F("xyz") = (  1,   0,   0 )
   
 		A("label") = "A"
 		B("label") = "B"
@@ -155,6 +161,10 @@ private class Test extends ViewerListener {
 				size: 80px, 30px;
 				shape: jcomponent;
 				jcomponent: button;
+			}
+			node#F {
+				size: 20px, 20px;
+				icon-mode: none;
 			}
 			edge {
 				shape: blob;

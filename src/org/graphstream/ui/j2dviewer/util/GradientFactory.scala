@@ -96,7 +96,7 @@ import org.graphstream.ScalaGS._
 				val fractions = createFractions( style )
 				val colors    = createColors( style )
 				paint         = new RadialGradientPaint( cx, cy, radius, fx, fy, fractions, colors,
-						MultipleGradientPaint.CycleMethod.REFLECT )
+						MultipleGradientPaint.CycleMethod.NO_CYCLE )
 			}
 		}
 		
