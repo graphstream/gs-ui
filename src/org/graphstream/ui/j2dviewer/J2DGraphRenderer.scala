@@ -7,9 +7,9 @@ import org.graphstream.ui.geom.Point3
 
 import org.graphstream.graph.Element
 
-import org.graphstream.ui2.swingViewer.GraphRenderer
-import org.graphstream.ui2.graphicGraph.{GraphicGraph, GraphicElement, StyleGroup, StyleGroupListener}
-import org.graphstream.ui2.graphicGraph.stylesheet.Selector
+import org.graphstream.ui.swingViewer.GraphRenderer
+import org.graphstream.ui.graphicGraph.{GraphicGraph, GraphicElement, StyleGroup, StyleGroupListener}
+import org.graphstream.ui.graphicGraph.stylesheet.Selector
 
 import org.graphstream.ui.j2dviewer.util.{Camera, Selection}
 

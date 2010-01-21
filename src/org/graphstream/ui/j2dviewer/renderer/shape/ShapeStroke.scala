@@ -1,7 +1,7 @@
 package org.graphstream.ui.j2dviewer.renderer.shape
 
 import java.awt.{Stroke, BasicStroke, Color}
-import org.graphstream.ui2.graphicGraph.stylesheet.Style
+import org.graphstream.ui.graphicGraph.stylesheet.Style
 
 abstract class ShapeStroke {
 	def stroke( width:Float ):Stroke
@@ -9,7 +9,7 @@ abstract class ShapeStroke {
 
 object ShapeStroke {
 	def strokeForArea( style:Style ):ShapeStroke = {
-		import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.StrokeMode._
+		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.StrokeMode._
 		style.getStrokeMode match {
 			case PLAIN  => new PlainShapeStroke
 			case DOTS   => new PlainShapeStroke //DotsShapeStroke
@@ -19,7 +19,7 @@ object ShapeStroke {
 	}
  
 	def strokeForConnectorFill( style:Style ):ShapeStroke = {
-		import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.FillMode._
+		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.FillMode._
 		style.getFillMode match {
 			case PLAIN     => new PlainShapeStroke
 			case DYN_PLAIN => new PlainShapeStroke
@@ -32,7 +32,7 @@ object ShapeStroke {
 	}
  
 	def strokeColor( style:Style ):Color = {
-		if( style.getStrokeMode != org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.StrokeMode.NONE ) {
+		if( style.getStrokeMode != org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.StrokeMode.NONE ) {
 			style.getStrokeColor( 0 )
 		} else {
 			null

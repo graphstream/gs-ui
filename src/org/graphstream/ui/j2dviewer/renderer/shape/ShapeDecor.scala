@@ -7,8 +7,8 @@ import java.awt.image.BufferedImage
 
 import org.graphstream.ui.j2dviewer.util.{FontCache, ImageCache, GraphMetrics, Camera}
 
-import org.graphstream.ui2.graphicGraph.stylesheet.Style
-import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants._
+import org.graphstream.ui.graphicGraph.stylesheet.Style
+import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 
 /**
  * Representation of the icon and text that can decorate any "decorated" shape.
@@ -22,8 +22,8 @@ abstract class ShapeDecor {
  */
 object ShapeDecor {
 	def apply( style:Style ):ShapeDecor = {
-		import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.TextMode._
-		import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.TextAlignment._
+		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.TextMode._
+		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.TextAlignment._
 
 		if( style.getTextMode == HIDDEN ) {
 			new EmptyShapeDecor
@@ -195,7 +195,7 @@ abstract class IconAndText( val text:TextBox ) {
  */
 object IconAndText {
 	def apply( style:Style ):IconAndText = {
-		import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.IconMode._
+		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.IconMode._
 		var icon:BufferedImage = null
 		val text = TextBox( style )
 		

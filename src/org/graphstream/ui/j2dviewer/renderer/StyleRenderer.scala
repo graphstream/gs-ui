@@ -3,9 +3,9 @@ package org.graphstream.ui.j2dviewer.renderer
 import java.awt.Graphics2D
 
 import org.graphstream.graph.Element
-import org.graphstream.ui2.graphicGraph.{GraphicElement, GraphicNode, GraphicEdge, GraphicSprite, GraphicGraph, StyleGroup}
-import org.graphstream.ui2.graphicGraph.GraphicElement.SwingElementRenderer
-import org.graphstream.ui2.graphicGraph.StyleGroup.ElementEvents
+import org.graphstream.ui.graphicGraph.{GraphicElement, GraphicNode, GraphicEdge, GraphicSprite, GraphicGraph, StyleGroup}
+import org.graphstream.ui.graphicGraph.GraphicElement.SwingElementRenderer
+import org.graphstream.ui.graphicGraph.StyleGroup.ElementEvents
 
 import org.graphstream.ui.j2dviewer.util.Camera
 import org.graphstream.ScalaGS._
@@ -172,7 +172,7 @@ abstract class StyleRenderer( val group:StyleGroup ) extends GraphicElement.Swin
  * Style renderer companion object, acts as a factory for renderers. 
  */
 object StyleRenderer {
-	import org.graphstream.ui2.graphicGraph.stylesheet.Selector.Type._
+	import org.graphstream.ui.graphicGraph.stylesheet.Selector.Type._
 	def apply( style:StyleGroup, mainRenderer:J2DGraphRenderer ):StyleRenderer = {
 		style.getType match {
 		  case NODE   => NodeRenderer( style, mainRenderer ) 

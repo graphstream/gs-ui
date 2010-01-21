@@ -3,9 +3,9 @@ package org.graphstream.ui.j2dviewer
 import org.graphstream.graph.Graph
 import org.graphstream.scalags.graph.MultiGraph
 
-import org.graphstream.ui2.swingViewer.{Viewer, DefaultView, ViewerPipe, ViewerListener}
-import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants
-import org.graphstream.ui2.spriteManager._
+import org.graphstream.ui.swingViewer.{Viewer, DefaultView, ViewerPipe, ViewerListener}
+import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
+import org.graphstream.ui.spriteManager._
 
 import org.graphstream.ScalaGS._
 

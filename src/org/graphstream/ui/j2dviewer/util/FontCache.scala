@@ -4,9 +4,9 @@ import java.awt.Font
 
 import scala.collection.mutable.{Map, HashMap}
 
-import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants
-import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.TextStyle
-import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.TextStyle._
+import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
+import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.TextStyle
+import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.TextStyle._
 
 /**
  * A cache for fonts.

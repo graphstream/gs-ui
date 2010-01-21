@@ -2,8 +2,8 @@ package org.graphstream.ui.j2dviewer.renderer
 
 import java.awt.{Graphics2D, Color, BasicStroke}
 
-import org.graphstream.ui2.graphicGraph.{StyleGroup, GraphicGraph, GraphicElement}
-import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants
+import org.graphstream.ui.graphicGraph.{StyleGroup, GraphicGraph, GraphicElement}
+import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
 import org.graphstream.ui.j2dviewer.util.{Camera, GradientFactory}
 
 /**
@@ -49,7 +49,7 @@ class GraphBackgroundRenderer( val graph:GraphicGraph, val style:StyleGroup ) ex
 	}
 
 	protected def renderGraphBackground( g:Graphics2D, camera:Camera ) {
-		import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.FillMode._
+		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.FillMode._
 
 		graph.getStyle.getFillMode match {
 			case NONE                => {}

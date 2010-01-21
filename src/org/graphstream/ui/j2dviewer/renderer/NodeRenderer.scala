@@ -1,7 +1,7 @@
 package org.graphstream.ui.j2dviewer.renderer
 
 import java.awt.Graphics2D
-import org.graphstream.ui2.graphicGraph.{GraphicElement, StyleGroup}
+import org.graphstream.ui.graphicGraph.{GraphicElement, StyleGroup}
 import org.graphstream.ui.j2dviewer.util.Camera
 import org.graphstream.ui.j2dviewer.renderer.shape._
 
@@ -40,7 +40,7 @@ class NodeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 	}
  
 	protected def chooseShape():AreaShape = {
-		import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.Shape._
+		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Shape._
 		group.getShape match {
 			case CIRCLE         => new CircleShape 
 		  	case BOX            => new SquareShape
@@ -65,7 +65,7 @@ class NodeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 
 object NodeRenderer {
 	def apply( style:StyleGroup, mainRenderer:J2DGraphRenderer ):StyleRenderer = {
-		if( style.getShape == org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.Shape.JCOMPONENT )
+		if( style.getShape == org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Shape.JCOMPONENT )
 		     new JComponentRenderer( style, mainRenderer )
 		else new NodeRenderer( style )
 	}

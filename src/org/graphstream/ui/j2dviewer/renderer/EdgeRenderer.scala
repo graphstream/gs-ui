@@ -1,7 +1,7 @@
 package org.graphstream.ui.j2dviewer.renderer
 
 import java.awt.Graphics2D
-import org.graphstream.ui2.graphicGraph.{GraphicElement, StyleGroup, GraphicEdge}
+import org.graphstream.ui.graphicGraph.{GraphicElement, StyleGroup, GraphicEdge}
 import org.graphstream.ui.j2dviewer.util.Camera
 import org.graphstream.ui.j2dviewer.renderer.shape._
 
@@ -68,7 +68,7 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 	}
 
  	protected def chooseShape():ConnectorShape = {
-		import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.Shape._
+		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Shape._
 		group.getShape match {
 			case LINE        => new LineShape
 		  	case ANGLE       => Console.err.printf( "** Sorry angle edge shape is not yet implemented **%n" ); new LineShape
@@ -80,7 +80,7 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 	}
   
  	protected def chooseArrowShape():AreaOnConnectorShape = {
- 		import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.ArrowShape._
+ 		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.ArrowShape._
 		group.getArrowShape match {
 			case NONE    => null
 			case ARROW   => new ArrowOnEdge

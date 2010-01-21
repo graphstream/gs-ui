@@ -3,7 +3,7 @@ package org.graphstream.ui.j2dviewer.renderer.shape
 import java.awt.{Paint, Color, GradientPaint, LinearGradientPaint, RadialGradientPaint, MultipleGradientPaint}
 import java.awt.geom.RectangularShape
 
-import org.graphstream.ui2.graphicGraph.stylesheet.{Style, Colors}
+import org.graphstream.ui.graphicGraph.stylesheet.{Style, Colors}
 import org.graphstream.ScalaGS._
 
 abstract class ShapePaint {
@@ -28,7 +28,7 @@ object ShapePaint {
 
 	def apply( style:Style, forShadow:Boolean ):ShapePaint = {
 		if( forShadow ) {
-			import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.ShadowMode._
+			import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.ShadowMode._
 			style.getShadowMode match {
 				case GRADIENT_VERTICAL   => new ShapeVerticalGradientPaint(   createColors( style, true ), createFractions( style, true ) )
 				case GRADIENT_HORIZONTAL => new ShapeHorizontalGradientPaint( createColors( style, true ), createFractions( style, true ) )
@@ -39,7 +39,7 @@ object ShapePaint {
 				case _                   => null
 			}
 		} else {
-			import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.FillMode._
+			import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.FillMode._
 			style.getFillMode match {
 				case GRADIENT_VERTICAL   => new ShapeVerticalGradientPaint(   createColors( style, false ), createFractions( style, false ) )
 				case GRADIENT_HORIZONTAL => new ShapeHorizontalGradientPaint( createColors( style, false ), createFractions( style, false ) )

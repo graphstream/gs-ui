@@ -2,7 +2,7 @@ package org.graphstream.ui.j2dviewer.renderer
 
 import java.awt.{Graphics2D, Color}
 import java.awt.geom.Rectangle2D
-import org.graphstream.ui2.graphicGraph.GraphicGraph
+import org.graphstream.ui.graphicGraph.GraphicGraph
 import org.graphstream.ui.j2dviewer.util.{Selection, Camera}
 
 class SelectionRenderer( val selection:Selection, val graph:GraphicGraph ) {

@@ -7,9 +7,9 @@ import java.awt.MultipleGradientPaint
 import java.awt.Paint
 import java.awt.RadialGradientPaint
 
-import org.graphstream.ui2.graphicGraph.stylesheet.Style
-import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.FillMode
-import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.FillMode._
+import org.graphstream.ui.graphicGraph.stylesheet.Style
+import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.FillMode
+import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.FillMode._
 
 import org.graphstream.ScalaGS._
 

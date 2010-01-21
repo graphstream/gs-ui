@@ -3,8 +3,8 @@ package org.graphstream.ui.j2dviewer.renderer.shape
 import java.awt.{Image, Color, Graphics2D}
 import java.awt.geom.{Ellipse2D, Line2D, Path2D, CubicCurve2D, Rectangle2D, RoundRectangle2D, RectangularShape}
 import org.graphstream.ui.geom.Point2
-import org.graphstream.ui2.graphicGraph.GraphicElement
-import org.graphstream.ui2.graphicGraph.stylesheet.Style
+import org.graphstream.ui.graphicGraph.GraphicElement
+import org.graphstream.ui.graphicGraph.stylesheet.Style
 import org.graphstream.ui.j2dviewer.util.{GraphMetrics, Camera}
 
 

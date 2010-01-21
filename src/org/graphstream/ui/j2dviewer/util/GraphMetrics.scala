@@ -1,8 +1,8 @@
 package org.graphstream.ui.j2dviewer.util
 
 import org.graphstream.ui.geom.{Point3, Vector3}
-import org.graphstream.ui2.graphicGraph.stylesheet.{StyleConstants, Value, Values}
-import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.Units
+import org.graphstream.ui.graphicGraph.stylesheet.{StyleConstants, Value, Values}
+import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Units
 
 /**
  * Various geometric informations on the graphic graph.

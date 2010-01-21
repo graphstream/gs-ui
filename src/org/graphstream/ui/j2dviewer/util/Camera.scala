@@ -9,11 +9,11 @@ import java.util.ArrayList
 import scala.collection.mutable.HashSet
 
 import org.graphstream.graph.Node
-import org.graphstream.ui2.graphicGraph.stylesheet.Selector.Type._
+import org.graphstream.ui.graphicGraph.stylesheet.Selector.Type._
 
-import org.graphstream.ui2.graphicGraph.{GraphicEdge, GraphicElement, GraphicGraph, GraphicNode, GraphicSprite}
-import org.graphstream.ui2.graphicGraph.stylesheet.{Style, Values}
-import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants._
+import org.graphstream.ui.graphicGraph.{GraphicEdge, GraphicElement, GraphicGraph, GraphicNode, GraphicSprite}
+import org.graphstream.ui.graphicGraph.stylesheet.{Style, Values}
+import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 
 import org.graphstream.ui.geom.Point2
 
@@ -705,8 +705,8 @@ class Camera {
    	def evalTargetRadius( style:Style, p0:Point2, p3:Point2 ):Float = evalTargetRadius( style, p0, null, null, p3 )
   
   	def evalTargetRadius( style:Style, p0:Point2, p1:Point2, p2:Point2, p3:Point2 ):Float = { 
-		import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.StrokeMode
-		import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants.Shape._
+		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.StrokeMode
+		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Shape._
  	  	
   	  	val w = metrics.lengthToGu( style.getSize, 0 )
   	  	val h = if( style.getSize.size > 1 ) metrics.lengthToGu( style.getSize, 1 ) else w

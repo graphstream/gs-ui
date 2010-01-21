@@ -6,8 +6,8 @@ import java.awt.geom.RectangularShape
 import org.graphstream.ui.j2dviewer.util.{GraphMetrics, Camera}
 import org.graphstream.ui.geom.Point2
 import org.graphstream.ui.j2dviewer.geom.Vector2
-import org.graphstream.ui2.graphicGraph.{GraphicElement, GraphicEdge}
-import org.graphstream.ui2.graphicGraph.stylesheet.{Style, StyleConstants}
+import org.graphstream.ui.graphicGraph.{GraphicElement, GraphicEdge}
+import org.graphstream.ui.graphicGraph.stylesheet.{Style, StyleConstants}
 
 /**
  * Base for all shapes.

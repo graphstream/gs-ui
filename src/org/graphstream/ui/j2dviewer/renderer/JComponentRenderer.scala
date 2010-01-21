@@ -5,8 +5,8 @@ import java.awt.event.{ActionListener, ActionEvent}
 import java.awt.geom.{Point2D}
 import javax.swing.{JComponent, JPanel, BorderFactory, JTextField, JButton, SwingConstants, ImageIcon}
 import javax.swing.border.Border
-import org.graphstream.ui2.graphicGraph.{GraphicElement, GraphicNode, GraphicSprite, StyleGroup}
-import org.graphstream.ui2.graphicGraph.stylesheet.{Values, StyleConstants}
+import org.graphstream.ui.graphicGraph.{GraphicElement, GraphicNode, GraphicSprite, StyleGroup}
+import org.graphstream.ui.graphicGraph.stylesheet.{Values, StyleConstants}
 import org.graphstream.ui.j2dviewer.J2DGraphRenderer
 import org.graphstream.ui.j2dviewer.util.{Camera, FontCache, ImageCache}
 import org.graphstream.ui.j2dviewer.renderer.shape._
