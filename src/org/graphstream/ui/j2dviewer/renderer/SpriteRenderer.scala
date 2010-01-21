@@ -16,12 +16,14 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 	
 	protected def pushStyle( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
 		val size = group.getSize
-		shape.configure( g, group, camera )
+		shape.configure( g, group, camera, null )
 		shape.size( group, camera )
 	}
 	
 	protected def pushDynStyle( g:Graphics2D, camera:Camera, element:GraphicElement ) {
-		pushStyle( g, camera, false )
+		val size = group.getSize
+		shape.configure( g, group, camera, element )
+		shape.size( group, camera )
 	}
 	
 	protected def renderElement( g:Graphics2D, camera:Camera, element:GraphicElement ) {

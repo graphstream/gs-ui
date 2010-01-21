@@ -233,7 +233,7 @@ object ShapePaint {
 					
 				c = new Color( red, green, blue, alpha )
 			}
-				
+ 
 			c
 		}
 	}

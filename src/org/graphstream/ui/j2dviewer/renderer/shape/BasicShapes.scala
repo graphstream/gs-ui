@@ -3,6 +3,7 @@ package org.graphstream.ui.j2dviewer.renderer.shape
 import java.awt.{Image, Color, Graphics2D}
 import java.awt.geom.{Ellipse2D, Line2D, Path2D, CubicCurve2D, Rectangle2D, RoundRectangle2D, RectangularShape}
 import org.graphstream.ui.geom.Point2
+import org.graphstream.ui2.graphicGraph.GraphicElement
 import org.graphstream.ui2.graphicGraph.stylesheet.Style
 import org.graphstream.ui.j2dviewer.util.{GraphMetrics, Camera}
 
@@ -54,9 +55,9 @@ trait AreaConnectorShape
 
 trait RectangularAreaShape extends AreaShape {
 	val theShape:RectangularShape
-  
- 	def configure( g:Graphics2D, style:Style, camera:Camera ) {
- 	  	configureFillable( style, camera )
+ 
+ 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
+ 	  	configureFillable( style, camera, element )
  	  	configureShadowable( style, camera )
  	  	configureStrokable( style, camera )
  	  	configureDecorable( style, camera )
@@ -125,8 +126,8 @@ class LineShape extends LineConnectorShape {
  
 // Command
  
- 	def configure( g:Graphics2D, style:Style, camera:Camera ) {
- 	  	configureFillableConnector( style, camera )
+ 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
+ 	  	configureFillableConnector( style, camera, element )
  	  	configureShadowableConnector( style, camera )
  	  	configureStrokableConnector( style, camera )
  	  	configureDecorable( style, camera )

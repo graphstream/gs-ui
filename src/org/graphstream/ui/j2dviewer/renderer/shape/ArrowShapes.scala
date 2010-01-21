@@ -4,7 +4,7 @@ import java.awt.{Image, Color, Graphics2D}
 import java.awt.geom.{Ellipse2D, Line2D, Path2D, Rectangle2D, RoundRectangle2D, RectangularShape}
 import org.graphstream.ui.geom.Point2
 import org.graphstream.ui.j2dviewer.geom.Vector2
-import org.graphstream.ui2.graphicGraph.GraphicEdge
+import org.graphstream.ui2.graphicGraph.{GraphicElement, GraphicEdge}
 import org.graphstream.ui2.graphicGraph.stylesheet.Style
 import org.graphstream.ui.j2dviewer.util.{GraphMetrics, Camera, CubicCurve}
 
@@ -13,8 +13,8 @@ class ArrowOnEdge extends AreaOnConnectorShape {
  
 // Command
  
- 	def configure( g:Graphics2D, style:Style, camera:Camera ) {
- 	  	configureFillable( style, camera )
+ 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
+ 	  	configureFillable( style, camera, element )
  	  	configureShadowable( style, camera )
  	  	configureStrokable( style, camera )
  	}
@@ -115,8 +115,8 @@ class ArrowOnEdge2 extends OrientedAreaShape {
  
 // Command
  
- 	def configure( g:Graphics2D, style:Style, camera:Camera ) {
- 	  	configureFillable( style, camera )
+ 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
+ 	  	configureFillable( style, camera, element )
  	  	configureShadowable( style, camera )
  	  	configureStrokable( style, camera )
  	}

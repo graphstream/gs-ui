@@ -57,7 +57,7 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 	
 	protected def pushStyle( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
 		if( shadow != null ) {
-		  	shadow.configure( g, group, camera )
+		  	shadow.configure( g, group, camera, null )
 		  	shadow.size( group, camera )
 		}
 	}

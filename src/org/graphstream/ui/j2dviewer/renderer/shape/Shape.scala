@@ -6,8 +6,8 @@ import java.awt.geom.RectangularShape
 import org.graphstream.ui.j2dviewer.util.{GraphMetrics, Camera}
 import org.graphstream.ui.geom.Point2
 import org.graphstream.ui.j2dviewer.geom.Vector2
-import org.graphstream.ui2.graphicGraph.GraphicEdge
-import org.graphstream.ui2.graphicGraph.stylesheet.Style
+import org.graphstream.ui2.graphicGraph.{GraphicElement, GraphicEdge}
+import org.graphstream.ui2.graphicGraph.stylesheet.{Style, StyleConstants}
 
 /**
  * Base for all shapes.
@@ -20,7 +20,7 @@ trait Shape {
      * at different positions.
      * @param g The Java2D graphics.
      */
- 	def configure( g:Graphics2D, style:Style, camera:Camera )
+ 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement )
  
  	/**
      * Must create the shape from informations given earlier, that is, resize it if needed and
@@ -53,6 +53,8 @@ trait Shape {
 trait Fillable {
 	/** The fill paint. */
 	var fillPaint:ShapePaint = null
+ 
+	var theFillPercent = 0f;
 
     /**
      * Fill the shape.
@@ -73,11 +75,19 @@ trait Fillable {
      * @param g The Java2D graphics.
      * @param shape The awt shape to fill.
      */
- 	def fill( g:Graphics2D, shape:java.awt.Shape ) { fill( g, 0, shape ) }
+ 	def fill( g:Graphics2D, shape:java.awt.Shape ) { fill( g, theFillPercent, shape ) }
 
     /** Configure all static parts needed to fill the shape. */
-  	protected def configureFillable( style:Style, camera:Camera ) {
- 		/*if( fillPaint == null )*/ fillPaint = ShapePaint( style )
+  	protected def configureFillable( style:Style, camera:Camera, element:GraphicElement ) {
+  	  	theFillPercent = 0
+  	  	if( style.getFillMode == StyleConstants.FillMode.DYN_PLAIN && element != null ) {
+  	  		element.getAttribute( "ui.color" ) match {
+  	  			case x:Number => theFillPercent = x.floatValue
+  	  			case _ => theFillPercent = 0f
+  	  		}
+  	  	}
+
+ 		fillPaint = ShapePaint( style )
   	}
 }
 
@@ -100,7 +110,7 @@ trait FillableLine {
  
 	def fill( g:Graphics2D, width:Float, shape:java.awt.Shape ) { fill( g, width, 0, shape ) }
  
-	protected def configureFillableConnector( style:Style, camera:Camera ) {
+	protected def configureFillableConnector( style:Style, camera:Camera, element:GraphicElement ) {
 		fillColor  = style.getFillColor( 0 )
 		fillStroke = ShapeStroke.strokeForConnectorFill( style )
 	}

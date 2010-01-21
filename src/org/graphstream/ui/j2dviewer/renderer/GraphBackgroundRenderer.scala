@@ -1,8 +1,9 @@
 package org.graphstream.ui.j2dviewer.renderer
 
-import java.awt.{Graphics2D, Color}
+import java.awt.{Graphics2D, Color, BasicStroke}
 
 import org.graphstream.ui2.graphicGraph.{StyleGroup, GraphicGraph, GraphicElement}
+import org.graphstream.ui2.graphicGraph.stylesheet.StyleConstants
 import org.graphstream.ui.j2dviewer.util.{Camera, GradientFactory}
 
 /**
@@ -43,6 +44,7 @@ class GraphBackgroundRenderer( val graph:GraphicGraph, val style:StyleGroup ) ex
 			displayNothingToDo( g, w, h )
 		} else {
 			renderGraphBackground( g, camera )
+			strokeGraph( g, camera )
 		}
 	}
 
@@ -72,6 +74,20 @@ class GraphBackgroundRenderer( val graph:GraphicGraph, val style:StyleGroup ) ex
 		g.fillRect( 0, 0,
 			metrics.viewport.data(0).toInt,
 			metrics.viewport.data(1).toInt )
+	}
+ 
+	protected def strokeGraph( g:Graphics2D, camera:Camera ) {
+		val metrics = camera.metrics
+
+		if( style.getStrokeMode != StyleConstants.StrokeMode.NONE && style.getStrokeWidth.value > 0 ) {
+			g.setColor( style.getStrokeColor( 0 ) )
+			g.setStroke( new BasicStroke( metrics.lengthToGu( style.getStrokeWidth ) ) );
+			val padx = metrics.lengthToPx( style.getPadding, 0 ).toInt
+			val pady = if( style.getPadding.size > 1 ) metrics.lengthToPx( style.getPadding, 1 ).toInt else padx
+			g.drawRect( padx, pady,
+				metrics.viewport.data(0).toInt - padx*2,
+				metrics.viewport.data(1).toInt - pady*2 )
+		}
 	}
 
 	protected def fillGradient( g:Graphics2D, camera:Camera ) {
