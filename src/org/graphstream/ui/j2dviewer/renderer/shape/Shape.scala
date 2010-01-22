@@ -95,23 +95,41 @@ trait Fillable {
  * Shape that cannot be filled, but must be stroked.
  */
 trait FillableLine {
-	var fillColor:Color = null
+	var fillColors:Array[Color] = null
 	var fillStroke:ShapeStroke = null
+	var theFillPercent = 0f;
   
 	def fill( g:Graphics2D, width:Float, dynColor:Float, shape:java.awt.Shape ) {
 		if( fillStroke != null ) {
 			val stroke = fillStroke.stroke( width )
    
-			g.setColor( fillColor )
+			g.setColor( fillColors(0) )
 			g.setStroke( stroke )
 			g.draw( shape )
 		}
 	}
  
-	def fill( g:Graphics2D, width:Float, shape:java.awt.Shape ) { fill( g, width, 0, shape ) }
+	def fill( g:Graphics2D, width:Float, shape:java.awt.Shape ) { fill( g, width, theFillPercent, shape ) }
  
 	protected def configureFillableConnector( style:Style, camera:Camera, element:GraphicElement ) {
-		fillColor  = style.getFillColor( 0 )
+  	  	theFillPercent = 0
+  	  	if( style.getFillMode == StyleConstants.FillMode.DYN_PLAIN && element != null ) {
+  	  		element.getAttribute( "ui.color" ) match {
+  	  			case x:Number => theFillPercent = x.floatValue
+  	  			case _ => theFillPercent = 0f
+  	  		}
+       
+  	  		fillColors = ShapePaint.createColors( style, style.getFillColorCount, style.getFillColors )
+  	  		fillColors(0) = ShapePaint.interpolateColor( fillColors, theFillPercent )
+  	  	}
+  	  	else
+        {
+  	  		if( fillColors == null || fillColors.length < 1 )
+  	  			fillColors = new Array[Color]( 1 )
+       
+  	  		fillColors(0) = style.getFillColor( 0 )
+        }
+
 		fillStroke = ShapeStroke.strokeForConnectorFill( style )
 	}
 }

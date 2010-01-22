@@ -96,7 +96,7 @@ object ShapePaint {
 		else createColors( style, style.getFillColorCount,   style.getFillColors )
 	}
  
-	protected def createColors( style:Style, n:Int, theColors:Colors ):Array[Color] = {
+	def createColors( style:Style, n:Int, theColors:Colors ):Array[Color] = {
 		val colors = new Array[Color]( n )
 		var i      = 0
 
@@ -106,6 +106,32 @@ object ShapePaint {
 		}
   
 		colors
+	}
+
+	def interpolateColor( colors:Array[Color], value:Float ):Color = {
+	  	val v = if( value < 0 ) 0 else { if( value > 1 ) 1 else value }
+		val n = colors.length
+		var c = colors( 0 )
+			
+		if( v == 1 ) {
+			c = colors( n-1 )	// Simplification, faster.
+		} else if( v != 0 ) {	// If value == 0, color is already set above.
+			var div = 1f / (n-1)
+			val col = ( value / div ).toInt
+
+			div = ( value - (div*col) ) / div
+				
+			val color0 = colors( col );
+			val color1 = colors( col + 1 );
+			val red    = ( (color0.getRed()  *(1-div)) + (color1.getRed()  *div) ) / 255f
+			val green  = ( (color0.getGreen()*(1-div)) + (color1.getGreen()*div) ) / 255f
+			val blue   = ( (color0.getBlue() *(1-div)) + (color1.getBlue() *div) ) / 255f
+			val alpha  = ( (color0.getAlpha()*(1-div)) + (color1.getAlpha()*div) ) / 255f
+					
+			c = new Color( red, green, blue, alpha )
+		}
+ 
+		c
 	}
  
 	private[this] val predefFractions  = new Array[Array[Float]]( 11 )
@@ -141,7 +167,7 @@ object ShapePaint {
 	predefFractions(8) = predefFractions8
 	predefFractions(9) = predefFractions9
 	predefFractions(10)= predefFractions10
-
+ 
 // Real paint implementations
  
  	abstract class ShapeGradientPaint( colors:Array[Color], fractions:Array[Float] ) extends ShapeAreaPaint {
@@ -211,7 +237,8 @@ object ShapePaint {
 	}
  
 	class ShapeDynPlainColorPaint( val colors:Array[Color] ) extends ShapeColorPaint {
-		def paint( value:Float ):Paint = {
+		def paint( value:Float ):Paint = interpolateColor( colors, value )
+		/*{
 			val v = if( value < 0 ) 0 else { if( value > 1 ) 1 else value }
 			val n = colors.length
 			var c = colors( 0 )
@@ -235,6 +262,6 @@ object ShapePaint {
 			}
  
 			c
-		}
+		}*/
 	}
 }
