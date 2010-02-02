@@ -4,6 +4,7 @@ import java.awt.Graphics2D
 import java.awt.geom.Point2D
 import org.graphstream.ui.graphicGraph.{GraphicElement, GraphicSprite, StyleGroup}
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
+import org.graphstream.ui.j2dviewer.J2DGraphRenderer
 import org.graphstream.ui.j2dviewer.util.Camera
 import org.graphstream.ui.j2dviewer.renderer.shape._
 
@@ -32,7 +33,7 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 
 		shape.text = element.label
 		shape.position( pos.x, pos.y )
-		shape.render( g, camera )
+		shape.render( g, camera, element )
 	}
 	
 	protected def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
@@ -40,7 +41,7 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 		val pos    = camera.getSpritePosition( sprite, new Point2D.Float, StyleConstants.Units.GU )
 
 		shape.position( pos.x, pos.y )
-		shape.renderShadow( g, camera )
+		shape.renderShadow( g, camera, element )
 	}
  
 	protected def elementInvisible( g:Graphics2D, camera:Camera, element:GraphicElement ) {

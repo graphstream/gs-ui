@@ -2,6 +2,10 @@ package org.graphstream.ui.j2dviewer
   
 import java.awt.{Container, Graphics2D, RenderingHints}
 import java.util.ArrayList
+import java.io.{File, IOException}
+import java.awt.image.BufferedImage
+
+import scala.collection.JavaConversions._
 
 import org.graphstream.ui.geom.Point3
 
@@ -16,6 +20,9 @@ import org.graphstream.ui.j2dviewer.util.{Camera, Selection}
 import org.graphstream.ui.j2dviewer.renderer._
 
 import org.graphstream.ScalaGS._
+
+import javax.imageio.ImageIO
+
 
 /**
  * 2D renderer using Swing and Java2D to render the graph.
@@ -150,33 +157,35 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 // Commands -- Rendering
   
   	def render( g:Graphics2D, width:Int, height:Int ) {
-		val sgs = graph.getStyleGroups
+  		if( graph != null ) { // not closed, the Swing repaint mechanism may trigger 1 or 2 calls to this after being closed.
+  			val sgs = graph.getStyleGroups
 	
-		setupGraphics( g )
-		graph.computeBounds
-		camera.setBounds( graph )
-		camera.setViewport( width, height );
+  			setupGraphics( g )
+  			graph.computeBounds
+  			camera.setBounds( graph )
+  			camera.setViewport( width, height );
 
-		getStyleRenderer(graph).render( g, camera, width, height )
+  			getStyleRenderer(graph).render( g, camera, width, height )
   
-		camera.pushView( g, graph )
-		sgs.shadows.foreach { group =>
-		  	val renderer = getStyleRenderer( group )
-		  	renderer.renderShadow( g, camera )
-		}
+  			camera.pushView( g, graph )
+  			sgs.shadows.foreach { group =>
+		  		val renderer = getStyleRenderer( group )
+		  		renderer.renderShadow( g, camera )
+  			}
   
-		sgs.zIndex.foreach { groups =>
-		  	groups.foreach { group =>
-		  	  	if( group.getType != Selector.Type.GRAPH ) {
-		  	  		val renderer = getStyleRenderer( group )
-		  	  		renderer.render( g, camera )
-		  	  	}
-		  	}
-		}
-		camera.popView( g )
+  			sgs.zIndex.foreach { groups =>
+  				groups.foreach { group =>
+		  	  		if( group.getType != Selector.Type.GRAPH ) {
+		  	  			val renderer = getStyleRenderer( group )
+		  	  			renderer.render( g, camera )
+		  	  		}
+  				}
+  			}
+  			camera.popView( g )
   
-		if( selection.renderer == null ) selection.renderer = new SelectionRenderer( selection, graph )
-		selection.renderer.render( g, camera, width, height )
+  			if( selection.renderer == null ) selection.renderer = new SelectionRenderer( selection, graph )
+  			selection.renderer.render( g, camera, width, height )
+  		}
   	}
    
    protected def setupGraphics( g:Graphics2D ) {
@@ -202,7 +211,34 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 		   g.setRenderingHint( RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY )
 	   }
    }
-  
+
+   def screenshot( filename:String, width:Int, height:Int ) {
+	   	if( filename.endsWith( "png" ) || filename.endsWith( "PNG" ) ) {
+			val img = new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB )
+			render( img.createGraphics(), width, height )
+
+			val file = new File( filename )
+ 
+			try { ImageIO.write( img, "png", file ) } catch { case e => e.printStackTrace() }
+		}
+		else if( filename.endsWith( "bmp" ) || filename.endsWith( "BMP" ) ) {
+			val img = new BufferedImage( width, height, BufferedImage.TYPE_INT_RGB )
+			render( img.createGraphics(), width, height )
+
+			val file = new File( filename )
+
+			try { ImageIO.write( img, "bmp", file ) } catch { case e => e.printStackTrace() }
+		}
+		else if( filename.endsWith( "jpg" ) || filename.endsWith( "JPG" ) || filename.endsWith( "jpeg" ) || filename.endsWith( "JPEG" ) ) {
+			val img = new BufferedImage( width, height, BufferedImage.TYPE_INT_RGB )
+			render( img.createGraphics(), width, height )
+
+			val file = new File( filename )
+
+			try { ImageIO.write( img, "jpg", file ) } catch { case e => e.printStackTrace() }
+		}
+   }
+   
 // Commands -- Style group listener
   
     def elementStyleChanged( element:Element, oldStyle:StyleGroup, style:StyleGroup ) {

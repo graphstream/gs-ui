@@ -90,12 +90,12 @@ class ArrowOnEdge extends AreaOnConnectorShape {
 		theShape.closePath
 	}
  
-	def renderShadow( g:Graphics2D, camera:Camera ) {
+	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
  		make( true, camera )
  		cast( g, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera ) {
+	def render( g:Graphics2D, camera:Camera, element:GraphicElement ) {
  		make( false, camera )
  		stroke( g, theShape )
  		fill( g, theShape )
@@ -151,12 +151,12 @@ class ArrowOnEdge2 extends OrientedAreaShape {
 		theShape.closePath
 	}
  
-	def renderShadow( g:Graphics2D, camera:Camera ) {
+	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
  		make( true, camera )
  		cast( g, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera ) {
+	def render( g:Graphics2D, camera:Camera, element:GraphicElement ) {
  		make( false, camera )
  		stroke( g, theShape )
  		fill( g, theShape )

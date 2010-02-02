@@ -4,6 +4,7 @@ import java.awt.{Paint, Color, GradientPaint, LinearGradientPaint, RadialGradien
 import java.awt.geom.RectangularShape
 
 import org.graphstream.ui.graphicGraph.stylesheet.{Style, Colors}
+import scala.collection.JavaConversions._
 import org.graphstream.ScalaGS._
 
 abstract class ShapePaint {

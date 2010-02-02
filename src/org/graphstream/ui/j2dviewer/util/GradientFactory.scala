@@ -11,9 +11,11 @@ import org.graphstream.ui.graphicGraph.stylesheet.Style
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.FillMode
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.FillMode._
 
+import scala.collection.JavaConversions._
 import org.graphstream.ScalaGS._
 
-@deprecated object GradientFactory {
+@deprecated( "Use the ShapePaint class instead." ) object GradientFactory {
+//@deprecated object GradientFactory {
 // Access
   
   	/**

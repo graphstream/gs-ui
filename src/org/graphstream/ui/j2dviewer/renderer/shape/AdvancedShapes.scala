@@ -137,16 +137,16 @@ class BlobShape extends AreaConnectorShape {
 	protected def makeShadow( camera:Camera ) {
 	}
  
-	def renderShadow( g:Graphics2D, camera:Camera ) {
+	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 // 		makeShadow( camera )
 // 		cast( g, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera ) {
+	def render( g:Graphics2D, camera:Camera, element:GraphicElement ) {
  		make( camera )
  		stroke( g, theShape )
  		fill( g, theSize, theShape )
- 		decor( g, camera, theShape )
+ 		decor( g, camera, element, theShape )
 // 		showCtrlPoints( g, camera )
 	}
  

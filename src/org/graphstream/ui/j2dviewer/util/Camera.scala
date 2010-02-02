@@ -7,6 +7,7 @@ import java.awt.geom.{AffineTransform, Point2D}
 import java.util.ArrayList
 
 import scala.collection.mutable.HashSet
+import scala.collection.JavaConversions._
 
 import org.graphstream.graph.Node
 import org.graphstream.ui.graphicGraph.stylesheet.Selector.Type._
@@ -136,12 +137,14 @@ class Camera {
   	 * @param element The element to test.
   	 * @return True if the element is visible and therefore must be rendered.
   	 */
-  	def isVisible( element:GraphicElement ):Boolean = element.getSelectorType match {
-  		case NODE   => ! nodeInvisible.contains( element.getId() )
-  		case EDGE   => isEdgeVisible( element.asInstanceOf[GraphicEdge] )
-  		case SPRITE => isSpriteVisible( element.asInstanceOf[GraphicSprite] )
-  		case _      => false
-  	 }
+  	def isVisible( element:GraphicElement ):Boolean = {
+  		if( styleVisible( element ) ) element.getSelectorType match {
+  			case NODE   => ! nodeInvisible.contains( element.getId() )
+  			case EDGE   => isEdgeVisible( element.asInstanceOf[GraphicEdge] )
+  			case SPRITE => isSpriteVisible( element.asInstanceOf[GraphicSprite] )
+  			case _      => false
+  		} else false
+    }
 
   	/**
   	 * Return the given point in pixels converted in graph units (GU) using the inverse
@@ -568,7 +571,33 @@ class Camera {
   		else if( y > y2 ) false
   		else true	
   	}
-	
+   
+  	protected def styleVisible( element:GraphicElement ):Boolean = {
+  		val visibility = element.getStyle.getVisibility
+  		element.getStyle.getVisibilityMode match {
+  			case VisibilityMode.HIDDEN     => false
+  			case VisibilityMode.AT_ZOOM    => ( zoom == visibility( 0 ) )
+  			case VisibilityMode.UNDER_ZOOM => ( zoom <= visibility( 0 ) )
+  			case VisibilityMode.OVER_ZOOM  => ( zoom >= visibility( 0 ) )
+  			case VisibilityMode.ZOOM_RANGE => if( visibility.size > 1 ) ( zoom >= visibility( 0 ) && zoom <= visibility( 1 ) ) else true
+  			case VisibilityMode.ZOOMS      => values.contains( visibility( 0 ) )
+  			case _                         => true
+  		}
+  	}
+
+  	def isTextVisible( element:GraphicElement ):Boolean = {
+  		val visibility = element.getStyle.getTextVisibility
+  		element.getStyle.getTextVisibilityMode match {
+  			case TextVisibilityMode.HIDDEN     => false
+  			case TextVisibilityMode.AT_ZOOM    => ( zoom == visibility( 0 ) )
+  			case TextVisibilityMode.UNDER_ZOOM => ( zoom <= visibility( 0 ) )
+  			case TextVisibilityMode.OVER_ZOOM  => ( zoom >= visibility( 0 ) )
+  			case TextVisibilityMode.ZOOM_RANGE => if( visibility.size > 1 ) ( zoom >= visibility( 0 ) && zoom <= visibility( 1 ) ) else true
+  			case TextVisibilityMode.ZOOMS      => values.contains( visibility( 0 ) )
+  			case _                         => true
+  		}
+  	}
+   
   	/**
   	 * Compute the position of a sprite if it is not attached.
   	 * @param sprite The sprite.

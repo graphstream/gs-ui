@@ -79,16 +79,16 @@ trait RectangularAreaShape extends AreaShape {
 		theShape.setFrame( x-w/2, y-h/2, w, h )
  	}
   
- 	def renderShadow( g:Graphics2D, camera:Camera ) {
+ 	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
  		makeShadow( camera )
  		cast( g, theShape )
  	}
   
- 	def render( g:Graphics2D, camera:Camera ) {
+ 	def render( g:Graphics2D, camera:Camera, element:GraphicElement ) {
  		make( camera )
  		fill( g, theShape )
  		stroke( g, theShape )
- 		decor( g, camera, theShape )
+ 		decor( g, camera, element, theShape )
  	}
 }
 
@@ -166,15 +166,15 @@ class LineShape extends LineConnectorShape {
 		} 
 	}
  
-	def renderShadow( g:Graphics2D, camera:Camera ) {
+	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
  		makeShadow( camera )
  		cast( g, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera ) {
+	def render( g:Graphics2D, camera:Camera, element:GraphicElement ) {
  		make( camera )
  		stroke( g, theShape )
  		fill( g, theSize, theShape )
- 		decor( g, camera, theShape )
+ 		decor( g, camera, element, theShape )
 	}
 }

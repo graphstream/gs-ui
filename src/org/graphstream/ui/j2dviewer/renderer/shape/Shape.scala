@@ -38,13 +38,13 @@ trait Shape {
   	/**
      * Render the shape.
      */
-  	def render( g:Graphics2D, camera:Camera )
+  	def render( g:Graphics2D, camera:Camera, element:GraphicElement )
    
    	/**
      * Render the shape shadow. The shadow is rendered in a different pas than usual rendering,
      * therefore it is a separate method.
      */
-   	def renderShadow( g:Graphics2D, camera:Camera )
+   	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement )
 }
 
 /**
@@ -265,8 +265,10 @@ trait Decorable {
 	var theDecor:ShapeDecor = null
   
  	/** Paint the decorations (text and icon). */
- 	def decor( g:Graphics2D, camera:Camera, shape:java.awt.Shape ) {
- 	  	if( theDecor != null ) {
+ 	def decor( g:Graphics2D, camera:Camera, element:GraphicElement, shape:java.awt.Shape ) {
+ 	  	var visible = true
+ 	  	if( element != null ) visible = camera.isTextVisible( element )
+ 	  	if( theDecor != null && visible ) {
  	  		val bounds = shape.getBounds2D
  	  		theDecor.render( g, camera, text, bounds.getMinX.toFloat, bounds.getMinY.toFloat, bounds.getMaxX.toFloat, bounds.getMaxY.toFloat )
  	  	}

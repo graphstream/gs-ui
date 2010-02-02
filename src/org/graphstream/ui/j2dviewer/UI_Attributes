@@ -1,0 +1,11 @@
+graph :
+	ui.antilalias		(present or not)		Activate the text and shape anti-aliasing.
+	ui.quality			(present or not)		Activate the quality (but slower) rendering modes.
+	ui.%.title			String					Set the view frame title with % the id of the view.
+	ui.default.title	String					Set all views default title.
+	ui.stylehseet		String					The URL of a stylesheet or the stylesheet itself.
+	
+Elements :
+	ui.class			String					Set of classes separated by commas.
+	ui.style			String					The style of an element.
+		

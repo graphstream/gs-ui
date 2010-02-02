@@ -66,13 +66,13 @@ object FontCache {
 class FontSlot( val name:String, style:TextStyle, size:Int ) {
 // attribute
 
-	var normal:HashMap[Integer,Font] = null
+	var normal:HashMap[java.lang.Integer,Font] = null
 	
-	var bold:HashMap[Integer,Font] = null
+	var bold:HashMap[java.lang.Integer,Font] = null
 	
-	var italic:HashMap[Integer,Font] = null 
+	var italic:HashMap[java.lang.Integer,Font] = null 
 	
-	var boldItalic:HashMap[Integer,Font] = null
+	var boldItalic:HashMap[java.lang.Integer,Font] = null
 	
 // Construction
  
@@ -80,12 +80,12 @@ class FontSlot( val name:String, style:TextStyle, size:Int ) {
 	
 // Command
  
-	protected def mapFromStyle( style:TextStyle ):Map[Integer,Font] = style match { 
-		case BOLD        => if( bold       == null ) bold       = new HashMap[Integer,Font]; bold
-		case ITALIC      => if( italic     == null ) italic     = new HashMap[Integer,Font]; italic
-		case BOLD_ITALIC => if( boldItalic == null ) boldItalic = new HashMap[Integer,Font]; boldItalic
-		case NORMAL      => if( normal     == null ) normal     = new HashMap[Integer,Font]; normal
-		case _           => if( normal     == null ) normal     = new HashMap[Integer,Font]; normal
+	protected def mapFromStyle( style:TextStyle ):Map[java.lang.Integer,Font] = style match { 
+		case BOLD        => if( bold       == null ) bold       = new HashMap[java.lang.Integer,Font]; bold
+		case ITALIC      => if( italic     == null ) italic     = new HashMap[java.lang.Integer,Font]; italic
+		case BOLD_ITALIC => if( boldItalic == null ) boldItalic = new HashMap[java.lang.Integer,Font]; boldItalic
+		case NORMAL      => if( normal     == null ) normal     = new HashMap[java.lang.Integer,Font]; normal
+		case _           => if( normal     == null ) normal     = new HashMap[java.lang.Integer,Font]; normal
 	}
 	
 	protected def toJavaStyle( style:TextStyle ):Int = style match {
@@ -98,7 +98,7 @@ class FontSlot( val name:String, style:TextStyle, size:Int ) {
 	
 	def insert( style:TextStyle, size:Int ):Font =  insert( mapFromStyle( style ), toJavaStyle( style ), size )
 	
-	protected def insert( map:Map[Integer,Font], style:Int, size:Int ):Font = {
+	protected def insert( map:Map[java.lang.Integer,Font], style:Int, size:Int ):Font = {
 		map.get( size ) match {
 			case None => {
 				val font = new Font( name, style, size )

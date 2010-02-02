@@ -2,6 +2,7 @@ package org.graphstream.ui.j2dviewer.renderer
 
 import java.awt.Graphics2D
 import org.graphstream.ui.graphicGraph.{GraphicElement, StyleGroup}
+import org.graphstream.ui.j2dviewer.J2DGraphRenderer
 import org.graphstream.ui.j2dviewer.util.Camera
 import org.graphstream.ui.j2dviewer.renderer.shape._
 
@@ -27,12 +28,12 @@ class NodeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 	protected def renderElement( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		shape.text = element.label
 		shape.position( element.getX, element.getY )
-		shape.render( g, camera )
+		shape.render( g, camera, element )
 	}
 	
 	protected def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		shape.position( element.getX, element.getY )
-		shape.renderShadow( g, camera )
+		shape.renderShadow( g, camera, element )
 	}
  
 	protected def elementInvisible( g:Graphics2D, camera:Camera, element:GraphicElement ) {

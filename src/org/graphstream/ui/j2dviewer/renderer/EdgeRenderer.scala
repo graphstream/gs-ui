@@ -2,6 +2,7 @@ package org.graphstream.ui.j2dviewer.renderer
 
 import java.awt.Graphics2D
 import org.graphstream.ui.graphicGraph.{GraphicElement, StyleGroup, GraphicEdge}
+import org.graphstream.ui.j2dviewer.J2DGraphRenderer
 import org.graphstream.ui.j2dviewer.util.Camera
 import org.graphstream.ui.j2dviewer.renderer.shape._
 
@@ -37,13 +38,13 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 		shape.endPoints( edge.from.getStyle, edge.to.getStyle, edge.isDirected, camera )
 		shape.position( edge.from.getX, edge.from.getY, edge.to.getX, edge.to.getY, edge.multi, edge.getGroup )
 		shape.setEdgeCtrlPoints( edge )// XXX HORROR, TERROR XXX
-		shape.render( g, camera )
+		shape.render( g, camera, element )
   
 		if( edge.isDirected ) {
 		  	arrow.connector( edge )
 		  	arrow.direction( shape )
 		  	arrow.position( edge.to.getX, edge.to.getY )
-		  	arrow.render( g, camera )
+		  	arrow.render( g, camera, element )
 		}
 	}
 	
@@ -53,13 +54,13 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 		shape.endPoints( edge.from.getStyle, edge.to.getStyle, edge.isDirected, camera )
 		shape.position( edge.from.getX, edge.from.getY, edge.to.getX, edge.to.getY, edge.multi, edge.getGroup )
 		shape.setEdgeCtrlPoints( edge )// XXX HORROR, TERROR XXX
-		shape.renderShadow( g, camera )
+		shape.renderShadow( g, camera, element )
   
 		if( edge.isDirected ) {
 		  	arrow.connector( edge )
 			arrow.direction( shape )
 			arrow.position( edge.to.getX, edge.to.getY )
-			arrow.renderShadow( g, camera )
+			arrow.renderShadow( g, camera, element )
 		}
 	}
  

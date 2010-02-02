@@ -82,7 +82,7 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 	protected def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		if( shadow != null ) {
 			shadow.position( element.getX, element.getY )
-			shadow.renderShadow( g, camera )
+			shadow.renderShadow( g, camera, element )
 		}
 	}
  
@@ -265,19 +265,19 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 		def checkIcon( camera:Camera )
 	}
   
-    class TextFieldComponentElement( element:GraphicElement, val component:JTextField ) extends ComponentElement( element ) with ActionListener {
+    class TextFieldComponentElement( element:GraphicElement, val comp:JTextField ) extends ComponentElement( element ) with ActionListener {
 	// Construction
 
-		element.setComponent( component )
-		component.addActionListener( this )
-		add( component )
+		element.setComponent( comp )
+		comp.addActionListener( this )
+		add( comp )
 
 	// Command
   
 		override def detach() {
 			super.detach
-			component.removeActionListener( this )
-			remove( component )
+			comp.removeActionListener( this )
+			remove( comp )
 			element.setComponent( null )
 	
 			//component = null
@@ -285,25 +285,25 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 		}
 	
 		def actionPerformed( e:ActionEvent ) {
-			element.label = component.asInstanceOf[JTextField].getText
+			element.label = comp.asInstanceOf[JTextField].getText
 			element.setAttribute( "ui.label", element.label )
 			element.setAttribute( "ui.clicked" )
 	    }
 	
-		override def jComponent:JComponent = component
+		override def jComponent:JComponent = comp
 		
 		override def setTextAlignment() {
 			import StyleConstants.TextAlignment._
 			group.getTextAlignment match {
-				case ABOVE    => component.setHorizontalAlignment( SwingConstants.CENTER )
-				case UNDER    => component.setHorizontalAlignment( SwingConstants.CENTER )
-				case ALONG    => component.setHorizontalAlignment( SwingConstants.CENTER )
-				case JUSTIFY  => component.setHorizontalAlignment( SwingConstants.CENTER )
-				case CENTER   => component.setHorizontalAlignment( SwingConstants.CENTER )
-				case AT_RIGHT => component.setHorizontalAlignment( SwingConstants.RIGHT )
-				case RIGHT    => component.setHorizontalAlignment( SwingConstants.RIGHT )
-				case AT_LEFT  => component.setHorizontalAlignment( SwingConstants.LEFT )
-				case LEFT     => component.setHorizontalAlignment( SwingConstants.LEFT )
+				case ABOVE    => comp.setHorizontalAlignment( SwingConstants.CENTER )
+				case UNDER    => comp.setHorizontalAlignment( SwingConstants.CENTER )
+				case ALONG    => comp.setHorizontalAlignment( SwingConstants.CENTER )
+				case JUSTIFY  => comp.setHorizontalAlignment( SwingConstants.CENTER )
+				case CENTER   => comp.setHorizontalAlignment( SwingConstants.CENTER )
+				case AT_RIGHT => comp.setHorizontalAlignment( SwingConstants.RIGHT )
+				case RIGHT    => comp.setHorizontalAlignment( SwingConstants.RIGHT )
+				case AT_LEFT  => comp.setHorizontalAlignment( SwingConstants.LEFT )
+				case LEFT     => comp.setHorizontalAlignment( SwingConstants.LEFT )
 				case _        => {}
 			}
 		}
@@ -313,31 +313,31 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 			                FontCache.getFont( group.getTextFont, group.getTextStyle, group.getTextSize.value.toInt )
 			           else FontCache.getDefaultFont( group.getTextStyle, group.getTextSize.value.toInt )
 			
-			component.setFont( font )
-			component.setForeground( group.getTextColor( 0 ) )
+			comp.setFont( font )
+			comp.setForeground( group.getTextColor( 0 ) )
 		}
 		
 		override def updateLabel() {
-			if( ! component.hasFocus() )
-				component.setText( element.getLabel )
+			if( ! comp.hasFocus() )
+				comp.setText( element.getLabel )
 		}
 	
 		override def checkIcon( camera:Camera ) { /* NOP */ }
 	}
     
-    class ButtonComponentElement( element:GraphicElement, val component:JButton ) extends ComponentElement( element ) with ActionListener {
+    class ButtonComponentElement( element:GraphicElement, val comp:JButton ) extends ComponentElement( element ) with ActionListener {
 	// Construction
     
-		element.setComponent( component )
-		component.addActionListener( this )
-		add( component )
+		element.setComponent( comp )
+		comp.addActionListener( this )
+		add( comp)
       
     // Commands
     
 		override def detach() {
 			super.detach
-			component.removeActionListener( this )
-			remove( component )
+			comp.removeActionListener( this )
+			remove( comp)
 			element.setComponent( null )
 	
 //			component = null;
@@ -345,26 +345,26 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 		}
 	
 		def actionPerformed( e:ActionEvent ) {
-			element.label = component.getText
+			element.label = comp.getText
 			element.setAttribute( "ui.label", element.label )
 			element.setAttribute( "ui.clicked" )
 			element.myGraph.setAttribute( "ui.clicked", element.getId )
 	    }
 	
-		override def jComponent:JComponent = component
+		override def jComponent:JComponent = comp
 	
 		override def setTextAlignment() {
 			import StyleConstants.TextAlignment._
 			group.getTextAlignment match {
-				case ALONG    => component.setHorizontalAlignment( SwingConstants.CENTER )
-				case JUSTIFY  => component.setHorizontalAlignment( SwingConstants.CENTER )
-				case CENTER   => component.setHorizontalAlignment( SwingConstants.CENTER )
-				case AT_RIGHT => component.setHorizontalAlignment( SwingConstants.RIGHT )
-				case RIGHT    => component.setHorizontalAlignment( SwingConstants.RIGHT )
-				case AT_LEFT  => component.setHorizontalAlignment( SwingConstants.LEFT )
-				case LEFT     => component.setHorizontalAlignment( SwingConstants.LEFT )
-				case ABOVE    => component.setVerticalAlignment( SwingConstants.TOP )
-				case UNDER    => component.setVerticalAlignment( SwingConstants.BOTTOM )
+				case ALONG    => comp.setHorizontalAlignment( SwingConstants.CENTER )
+				case JUSTIFY  => comp.setHorizontalAlignment( SwingConstants.CENTER )
+				case CENTER   => comp.setHorizontalAlignment( SwingConstants.CENTER )
+				case AT_RIGHT => comp.setHorizontalAlignment( SwingConstants.RIGHT )
+				case RIGHT    => comp.setHorizontalAlignment( SwingConstants.RIGHT )
+				case AT_LEFT  => comp.setHorizontalAlignment( SwingConstants.LEFT )
+				case LEFT     => comp.setHorizontalAlignment( SwingConstants.LEFT )
+				case ABOVE    => comp.setVerticalAlignment( SwingConstants.TOP )
+				case UNDER    => comp.setVerticalAlignment( SwingConstants.BOTTOM )
 				case _        => {}
 			}
 		}
@@ -374,15 +374,15 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 			     FontCache.getFont( group.getTextFont, group.getTextStyle, group.getTextSize.value.toInt )
 			else FontCache.getDefaultFont( group.getTextStyle, group.getTextSize().value.toInt )
 			
-			component.setFont( font )
-			component.setForeground( group.getTextColor( 0 ) )
+			comp.setFont( font )
+			comp.setForeground( group.getTextColor( 0 ) )
 		}
 		
 		override def updateLabel() {
 			val label = element.getLabel
 			
 			if( label != null )
-				component.setText( label )
+				comp.setText( label )
 		}
 	
 		override def checkIcon( camera:Camera ) {
@@ -393,13 +393,13 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 				val image = ImageCache.loadImage( url ).get
 				
 				if( image != null ) {
-					component.setIcon( new ImageIcon( image ) )
+					comp.setIcon( new ImageIcon( image ) )
 					
 					group.getIconMode match {
-						case AT_LEFT  => { component.setHorizontalTextPosition( SwingConstants.RIGHT );  component.setVerticalTextPosition( SwingConstants.CENTER ) }
-						case AT_RIGHT => { component.setHorizontalTextPosition( SwingConstants.LEFT  );  component.setVerticalTextPosition( SwingConstants.CENTER ) }
-						case ABOVE    => { component.setHorizontalTextPosition( SwingConstants.CENTER ); component.setVerticalTextPosition( SwingConstants.BOTTOM ) }
-						case UNDER    => { component.setHorizontalTextPosition( SwingConstants.CENTER ); component.setVerticalTextPosition( SwingConstants.TOP )    }
+						case AT_LEFT  => { comp.setHorizontalTextPosition( SwingConstants.RIGHT );  comp.setVerticalTextPosition( SwingConstants.CENTER ) }
+						case AT_RIGHT => { comp.setHorizontalTextPosition( SwingConstants.LEFT  );  comp.setVerticalTextPosition( SwingConstants.CENTER ) }
+						case ABOVE    => { comp.setHorizontalTextPosition( SwingConstants.CENTER ); comp.setVerticalTextPosition( SwingConstants.BOTTOM ) }
+						case UNDER    => { comp.setHorizontalTextPosition( SwingConstants.CENTER ); comp.setVerticalTextPosition( SwingConstants.TOP )    }
 						case _        => { throw new RuntimeException( "unknown image mode" ) }
 					}
 				}
