@@ -1,4 +1,4 @@
-package org.graphstream.ui.j2dviewer.util
+package org.graphstream.ui.j2dviewer
 
 import org.graphstream.ui.geom.Point3
 
@@ -16,9 +16,9 @@ import org.graphstream.ui.graphicGraph.{GraphicEdge, GraphicElement, GraphicGrap
 import org.graphstream.ui.graphicGraph.stylesheet.{Style, Values}
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 
+import org.graphstream.ui.util.{GraphMetrics, CubicCurve}
 import org.graphstream.ui.geom.Point2
-
-import org.graphstream.ui.j2dviewer.geom.Vector2
+import org.graphstream.ui.sgeom.Vector2
 
 import org.graphstream.ScalaGS._
 

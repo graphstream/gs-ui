@@ -5,8 +5,9 @@ import java.awt.geom.{Ellipse2D, Line2D, Path2D, CubicCurve2D, Rectangle2D, Roun
 import org.graphstream.ui.geom.Point2
 import org.graphstream.ui.graphicGraph.GraphicElement
 import org.graphstream.ui.graphicGraph.stylesheet.Style
-import org.graphstream.ui.j2dviewer.util.{GraphMetrics, Camera}
-import org.graphstream.ui.j2dviewer.geom.Vector2
+import org.graphstream.ui.j2dviewer.Camera
+import org.graphstream.ui.util.GraphMetrics
+import org.graphstream.ui.sgeom.Vector2
 
 class BlobShape extends AreaConnectorShape {
 	protected var theShape = new Path2D.Float
@@ -113,25 +114,33 @@ class BlobShape extends AreaConnectorShape {
 		var perpm    = new Vector2( mainDir.y, -mainDir.y ); perpm.normalize
 			
 		perpFrom.scalarMult( theSourceSize/4 )
-		perpm.scalarMult( theSize/2 )
-   
-		val t = 5f
+//		perpm.scalarMult( theSize/2 )
+		perpm.scalarMult( theSize*10 );
    
 		if( isDirected )
 		     perpTo.scalarMult( theSize/2 )
 		else perpTo.scalarMult( theTargetSize/4 )
 			
+//		theShape.reset
+//		theShape.moveTo( from.x - perpFrom.x, from.y - perpFrom.y )
+//		theShape.curveTo( ctrl1.x + perpm.x, ctrl1.y + perpm.y,
+//	                      ctrl2.x + perpm.x, ctrl2.y + perpm.y,
+//	                      to.x + perpTo.x, to.y + perpTo.y )
+//		theShape.lineTo( to.x - perpTo.x, to.y - perpTo.y )
+//		theShape.curveTo( ctrl2.x - perpm.x, ctrl2.y - perpm.y,
+//		                  ctrl1.x - perpm.x, ctrl1.y - perpm.y,
+//		                  from.x + perpFrom.x, from.y + perpFrom.y )
+//		theShape.closePath
 		theShape.reset
 		theShape.moveTo( from.x - perpFrom.x, from.y - perpFrom.y )
 		theShape.curveTo( ctrl1.x + perpm.x, ctrl1.y + perpm.y,
-	                      ctrl2.x + perpm.x, ctrl2.y + perpm.y,
+	                      ctrl2.x - perpm.x, ctrl2.y - perpm.y,
 	                      to.x + perpTo.x, to.y + perpTo.y )
 		theShape.lineTo( to.x - perpTo.x, to.y - perpTo.y )
 		theShape.curveTo( ctrl2.x - perpm.x, ctrl2.y - perpm.y,
-		                  ctrl1.x - perpm.x, ctrl1.y - perpm.y,
+		                  ctrl1.x + perpm.x, ctrl1.y + perpm.y,
 		                  from.x + perpFrom.x, from.y + perpFrom.y )
 		theShape.closePath
-		
 	}
 
 	protected def makeShadow( camera:Camera ) {
@@ -147,7 +156,15 @@ class BlobShape extends AreaConnectorShape {
  		stroke( g, theShape )
  		fill( g, theSize, theShape )
  		decor( g, camera, element, theShape )
-// 		showCtrlPoints( g, camera )
+ 		
+ 		val c = g.getColor();
+ 		val s = g.getStroke();
+ 		g.setStroke( new java.awt.BasicStroke( camera.metrics.px1 ) )
+ 		g.setColor( Color.red );
+ 		g.draw( theShape );
+ 		g.setStroke( s );
+ 		g.setColor( c );
+ 		showCtrlPoints( g, camera )
 	}
  
 	protected def showCtrlPoints( g:Graphics2D, camera:Camera ) {

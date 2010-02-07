@@ -2,8 +2,7 @@ package org.graphstream.ui.j2dviewer.renderer
 
 import java.awt.Graphics2D
 import org.graphstream.ui.graphicGraph.{GraphicElement, StyleGroup}
-import org.graphstream.ui.j2dviewer.J2DGraphRenderer
-import org.graphstream.ui.j2dviewer.util.Camera
+import org.graphstream.ui.j2dviewer.{Camera, J2DGraphRenderer}
 import org.graphstream.ui.j2dviewer.renderer.shape._
 
 class NodeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) {

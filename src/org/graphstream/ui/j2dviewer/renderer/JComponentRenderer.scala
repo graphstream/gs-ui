@@ -7,8 +7,8 @@ import javax.swing.{JComponent, JPanel, BorderFactory, JTextField, JButton, Swin
 import javax.swing.border.Border
 import org.graphstream.ui.graphicGraph.{GraphicElement, GraphicNode, GraphicSprite, StyleGroup}
 import org.graphstream.ui.graphicGraph.stylesheet.{Values, StyleConstants}
-import org.graphstream.ui.j2dviewer.J2DGraphRenderer
-import org.graphstream.ui.j2dviewer.util.{Camera, FontCache, ImageCache}
+import org.graphstream.ui.j2dviewer.{J2DGraphRenderer, Camera}
+import org.graphstream.ui.util.{FontCache, ImageCache}
 import org.graphstream.ui.j2dviewer.renderer.shape._
 
 /**

@@ -4,8 +4,7 @@ import java.awt.Graphics2D
 import java.awt.geom.Point2D
 import org.graphstream.ui.graphicGraph.{GraphicElement, GraphicSprite, StyleGroup}
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
-import org.graphstream.ui.j2dviewer.J2DGraphRenderer
-import org.graphstream.ui.j2dviewer.util.Camera
+import org.graphstream.ui.j2dviewer.{J2DGraphRenderer, Camera}
 import org.graphstream.ui.j2dviewer.renderer.shape._
 
 class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) {

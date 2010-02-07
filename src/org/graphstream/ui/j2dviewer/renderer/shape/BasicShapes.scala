@@ -5,7 +5,8 @@ import java.awt.geom.{Ellipse2D, Line2D, Path2D, CubicCurve2D, Rectangle2D, Roun
 import org.graphstream.ui.geom.Point2
 import org.graphstream.ui.graphicGraph.GraphicElement
 import org.graphstream.ui.graphicGraph.stylesheet.Style
-import org.graphstream.ui.j2dviewer.util.{GraphMetrics, Camera}
+import org.graphstream.ui.j2dviewer.Camera
+import org.graphstream.ui.util.GraphMetrics
 
 
 /**

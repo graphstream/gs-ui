@@ -3,9 +3,10 @@ package org.graphstream.ui.j2dviewer.renderer.shape
 import java.awt.{Color, Graphics2D, Image, Paint, Stroke}
 import java.awt.geom.RectangularShape
 
-import org.graphstream.ui.j2dviewer.util.{GraphMetrics, Camera}
+import org.graphstream.ui.j2dviewer.Camera
+import org.graphstream.ui.util.GraphMetrics
 import org.graphstream.ui.geom.Point2
-import org.graphstream.ui.j2dviewer.geom.Vector2
+import org.graphstream.ui.sgeom.Vector2
 import org.graphstream.ui.graphicGraph.{GraphicElement, GraphicEdge}
 import org.graphstream.ui.graphicGraph.stylesheet.{Style, StyleConstants}
 
@@ -26,13 +27,15 @@ trait Shape {
      * Must create the shape from informations given earlier, that is, resize it if needed and
      * position it.
      * All the settings for position, size, shadow, etc. must have been made. Usually all the
-     * "static" settings are already set in configure, therefore mist often this method is only in
-     * charge of changing  the shape position. The shape is built
-     * differently if it is for a shadow, so the boolean argument allows to distinguish the two
-     * cases.
-     * @param forShadow true if we prepare to draw a shadow.
+     * "static" settings are already set in configure, therefore most often this method is only in
+     * charge of changing  the shape position.
  	 */
  	protected def make( camera:Camera )
+ 	
+ 	/**
+ 	 * Same as {@link #make(Camera)} for the shadow shape. The shadow shape may be moved and
+ 	 * resized compared to the original shape. 
+ 	 */
   	protected def makeShadow( camera:Camera )
   
   	/**
@@ -54,6 +57,7 @@ trait Fillable {
 	/** The fill paint. */
 	var fillPaint:ShapePaint = null
  
+	/** Value in [0..1] for dyn-colors. */
 	var theFillPercent = 0f;
 
     /**
@@ -77,14 +81,17 @@ trait Fillable {
      */
  	def fill( g:Graphics2D, shape:java.awt.Shape ) { fill( g, theFillPercent, shape ) }
 
-    /** Configure all static parts needed to fill the shape. */
+    /**
+     *  Configure all static parts needed to fill the shape.
+     */
   	protected def configureFillable( style:Style, camera:Camera, element:GraphicElement ) {
-  	  	theFillPercent = 0
   	  	if( style.getFillMode == StyleConstants.FillMode.DYN_PLAIN && element != null ) {
   	  		element.getAttribute( "ui.color" ) match {
   	  			case x:Number => theFillPercent = x.floatValue
-  	  			case _ => theFillPercent = 0f
+  	  			case _        => theFillPercent = 0f
   	  		}
+  	  	} else {
+  	  		theFillPercent = 0
   	  	}
 
  		fillPaint = ShapePaint( style )

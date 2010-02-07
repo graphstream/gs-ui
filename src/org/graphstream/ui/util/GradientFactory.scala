@@ -1,4 +1,4 @@
-package org.graphstream.ui.j2dviewer.util
+package org.graphstream.ui.util
 
 import java.awt.Color
 import java.awt.GradientPaint

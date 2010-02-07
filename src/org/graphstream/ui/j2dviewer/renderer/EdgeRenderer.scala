@@ -3,7 +3,7 @@ package org.graphstream.ui.j2dviewer.renderer
 import java.awt.Graphics2D
 import org.graphstream.ui.graphicGraph.{GraphicElement, StyleGroup, GraphicEdge}
 import org.graphstream.ui.j2dviewer.J2DGraphRenderer
-import org.graphstream.ui.j2dviewer.util.Camera
+import org.graphstream.ui.j2dviewer.Camera
 import org.graphstream.ui.j2dviewer.renderer.shape._
 
 class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) {

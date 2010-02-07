@@ -4,7 +4,8 @@ import java.awt.{Graphics2D, Color, BasicStroke}
 
 import org.graphstream.ui.graphicGraph.{StyleGroup, GraphicGraph, GraphicElement}
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
-import org.graphstream.ui.j2dviewer.util.{Camera, GradientFactory}
+import org.graphstream.ui.j2dviewer.Camera
+import org.graphstream.ui.util.GradientFactory
 
 /**
  * Renderer for the graph background.

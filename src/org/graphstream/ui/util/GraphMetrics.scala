@@ -1,4 +1,4 @@
-package org.graphstream.ui.j2dviewer.util
+package org.graphstream.ui.util
 
 import org.graphstream.ui.geom.{Point3, Vector3}
 import org.graphstream.ui.graphicGraph.stylesheet.{StyleConstants, Value, Values}

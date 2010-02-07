@@ -3,10 +3,11 @@ package org.graphstream.ui.j2dviewer.renderer.shape
 import java.awt.{Image, Color, Graphics2D}
 import java.awt.geom.{Ellipse2D, Line2D, Path2D, Rectangle2D, RoundRectangle2D, RectangularShape}
 import org.graphstream.ui.geom.Point2
-import org.graphstream.ui.j2dviewer.geom.Vector2
+import org.graphstream.ui.sgeom.Vector2
 import org.graphstream.ui.graphicGraph.{GraphicElement, GraphicEdge}
 import org.graphstream.ui.graphicGraph.stylesheet.Style
-import org.graphstream.ui.j2dviewer.util.{GraphMetrics, Camera, CubicCurve}
+import org.graphstream.ui.j2dviewer.Camera
+import org.graphstream.ui.util.{GraphMetrics, CubicCurve}
 
 class ArrowOnEdge extends AreaOnConnectorShape {
 	val theShape = new Path2D.Float()

@@ -5,7 +5,8 @@ import java.awt.geom.{AffineTransform, Rectangle2D, Point2D}
 import java.awt.font.TextLayout
 import java.awt.image.BufferedImage
 
-import org.graphstream.ui.j2dviewer.util.{FontCache, ImageCache, GraphMetrics, Camera}
+import org.graphstream.ui.j2dviewer.Camera
+import org.graphstream.ui.util.{FontCache, ImageCache, GraphMetrics}
 
 import org.graphstream.ui.graphicGraph.stylesheet.Style
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._

@@ -1,4 +1,4 @@
-package org.graphstream.ui.j2dviewer.geom
+package org.graphstream.ui.sgeom
 
 import org.graphstream.ui.geom.Point2
 

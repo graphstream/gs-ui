@@ -15,7 +15,7 @@ import org.graphstream.ui.swingViewer.GraphRenderer
 import org.graphstream.ui.graphicGraph.{GraphicGraph, GraphicElement, StyleGroup, StyleGroupListener}
 import org.graphstream.ui.graphicGraph.stylesheet.Selector
 
-import org.graphstream.ui.j2dviewer.util.{Camera, Selection}
+import org.graphstream.ui.util.Selection
 
 import org.graphstream.ui.j2dviewer.renderer._
 
