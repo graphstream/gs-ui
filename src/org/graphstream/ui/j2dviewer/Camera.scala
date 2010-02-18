@@ -94,6 +94,13 @@ class Camera {
   	 * for nodes visibility. This allows to do it only once per rendering step.
   	 */
   	protected val nodeInvisible = new HashSet[String]
+  	
+  	/**
+  	 * The graph view port, if any. The graph view port is a view inside the graph space. It allows
+  	 * to compute the view according to a specified area of the graph space instead of the graph
+  	 * dimensions.
+  	 */
+  	protected var gviewport:Array[Float] = null
 	
 // Access
 	
@@ -236,8 +243,12 @@ class Camera {
   		else if( sprite.isAttachedToEdge() ) getSpritePositionEdge( sprite, pos, units )
   		else                                 getSpritePositionFree( sprite, pos, units )
   	 }
-
+  	
 // Command
+
+  	def setGraphViewport( minx:Float, miny:Float, maxx:Float, maxy:Float ) { gviewport = Array( minx, miny, maxx, maxy ) }
+  	
+  	def removeGraphViewport() { gviewport = null }
 
   	/**
   	 * Set the camera view in the given graphics and backup the previous transform of the graphics.
@@ -331,12 +342,15 @@ class Camera {
   		val padYgu = paddingYgu * 2
   		val padXpx = paddingXpx * 2
   		val padYpx = paddingYpx * 2
+  		val gw     = if( gviewport != null ) gviewport(2)-gviewport(0) else metrics.size.data(0)
+  		val gh     = if( gviewport != null ) gviewport(3)-gviewport(1) else metrics.size.data(1)
 //		val diag   = Math.max( metrics.size.data(0)+padXgu, metrics.size.data(1)+padYgu ).toFloat * zoom 
 //		
 //		sx = ( metrics.viewport.data(0) - padXpx ) / diag 
 //		sy = ( metrics.viewport.data(1) - padYpx ) / diag
-		sx = ( metrics.viewport.data(0) - padXpx ) / (( metrics.size.data(0) + padXgu ) * zoom ) 
-		sy = ( metrics.viewport.data(1) - padYpx ) / (( metrics.size.data(1) + padYgu ) * zoom )
+  		sx = ( metrics.viewport.data(0) - padXpx ) / (( gw + padXgu ) * zoom ) 
+		sy = ( metrics.viewport.data(1) - padYpx ) / (( gh + padYgu ) * zoom )
+  		
 		tx = center.x
 		ty = center.y
 		

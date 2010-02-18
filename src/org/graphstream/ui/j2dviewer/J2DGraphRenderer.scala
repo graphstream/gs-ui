@@ -127,6 +127,19 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   		camera.setAutoFitView( false )
   		camera.setViewCenter( x, y )
   	}
+  	
+  	def setGraphViewport( minx:Float, miny:Float, maxx:Float, maxy:Float ) {
+		camera.setAutoFitView( false )
+		camera.setViewCenter( minx + ( maxx - minx ), miny + ( maxy - miny ) )
+		camera.setGraphViewport( minx, miny, maxx, maxy )
+		camera.viewPercent = 1
+	}
+  	
+  	def removeGraphViewport()
+  	{
+  		camera.removeGraphViewport
+  		resetView();
+  	}
 
   	def setViewPercent( percent:Float ) {
   		camera.setAutoFitView( false )
