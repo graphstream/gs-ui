@@ -110,26 +110,29 @@ object ShapePaint {
 	}
 
 	def interpolateColor( colors:Array[Color], value:Float ):Color = {
-	  	val v = if( value < 0 ) 0 else { if( value > 1 ) 1 else value }
 		val n = colors.length
 		var c = colors( 0 )
-			
-		if( v == 1 ) {
-			c = colors( n-1 )	// Simplification, faster.
-		} else if( v != 0 ) {	// If value == 0, color is already set above.
-			var div = 1f / (n-1)
-			val col = ( value / div ).toInt
 
-			div = ( value - (div*col) ) / div
-				
-			val color0 = colors( col );
-			val color1 = colors( col + 1 );
-			val red    = ( (color0.getRed()  *(1-div)) + (color1.getRed()  *div) ) / 255f
-			val green  = ( (color0.getGreen()*(1-div)) + (color1.getGreen()*div) ) / 255f
-			val blue   = ( (color0.getBlue() *(1-div)) + (color1.getBlue() *div) ) / 255f
-			val alpha  = ( (color0.getAlpha()*(1-div)) + (color1.getAlpha()*div) ) / 255f
-					
-			c = new Color( red, green, blue, alpha )
+		if( n > 1 ) {
+			val v = if( value < 0 ) 0 else { if( value > 1 ) 1 else value }
+
+			if( v == 1 ) {
+				c = colors( n-1 )	// Simplification, faster.
+			} else if( v != 0 ) {	// If value == 0, color is already set above.
+				var div = 1f / (n-1)
+				val col = ( value / div ).toInt
+	
+				div = ( value - (div*col) ) / div
+	
+				val color0 = colors( col );
+				val color1 = colors( col + 1 );
+				val red    = ( (color0.getRed()  *(1-div)) + (color1.getRed()  *div) ) / 255f
+				val green  = ( (color0.getGreen()*(1-div)) + (color1.getGreen()*div) ) / 255f
+				val blue   = ( (color0.getBlue() *(1-div)) + (color1.getBlue() *div) ) / 255f
+				val alpha  = ( (color0.getAlpha()*(1-div)) + (color1.getAlpha()*div) ) / 255f
+						
+				c = new Color( red, green, blue, alpha )
+			}
 		}
  
 		c

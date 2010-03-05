@@ -244,6 +244,8 @@ class Camera {
   		else                                 getSpritePositionFree( sprite, pos, units )
   	 }
   	
+  	def graphViewport = gviewport
+  	
 // Command
 
   	def setGraphViewport( minx:Float, miny:Float, maxx:Float, maxy:Float ) { gviewport = Array( minx, miny, maxx, maxy ) }

@@ -23,6 +23,8 @@ class GraphBackgroundRenderer( val graph:GraphicGraph, val style:StyleGroup ) ex
 		val msg1 = "Graph width/height/depth is zero !!"
 		val msg2 = "Place components using the 'xyz' attribute."
 		
+		g.setColor( Color.WHITE )
+		g.fillRect( 0, 0, w, h )
 		g.setColor( Color.RED )
 		g.drawLine( 0, 0, w, h )
 		g.drawLine( 0, h, w, 0 )
@@ -41,7 +43,7 @@ class GraphBackgroundRenderer( val graph:GraphicGraph, val style:StyleGroup ) ex
      * Render the graph background. 
      */
 	def render( g:Graphics2D, camera:Camera, w:Int, h:Int ) {
-		if( camera.metrics.diagonal == 0 || ( graph.getNodeCount == 0 && graph.getSpriteCount == 0 ) ) {
+		if( camera.graphViewport == null && camera.metrics.diagonal == 0 && ( graph.getNodeCount == 0 && graph.getSpriteCount == 0 ) ) {
 			displayNothingToDo( g, w, h )
 		} else {
 			renderGraphBackground( g, camera )

@@ -11,7 +11,7 @@ import org.graphstream.ui.geom.Point3
 
 import org.graphstream.graph.Element
 
-import org.graphstream.ui.swingViewer.GraphRenderer
+import org.graphstream.ui.swingViewer.{GraphRenderer, LayerRenderer}
 import org.graphstream.ui.graphicGraph.{GraphicGraph, GraphicElement, StyleGroup, StyleGroupListener}
 import org.graphstream.ui.graphicGraph.stylesheet.Selector
 
@@ -59,6 +59,12 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 	/** The current selection. */
 	protected val selection = new Selection
  
+	/** The layer renderer for the background (under the graph), can be null. */
+	protected var backRenderer:LayerRenderer = null
+	
+	/** The layer renderer for the foreground (above the graph), can be null. */
+	protected var foreRenderer:LayerRenderer = null
+	
 // Construction
   
   	def open( graph:GraphicGraph, drawingSurface:Container ) {
@@ -176,9 +182,9 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   			setupGraphics( g )
   			graph.computeBounds
   			camera.setBounds( graph )
-  			camera.setViewport( width, height );
-
+  			camera.setViewport( width, height )
   			getStyleRenderer(graph).render( g, camera, width, height )
+  			renderBackLayer( g )
   
   			camera.pushView( g, graph )
   			sgs.shadows.foreach { group =>
@@ -194,13 +200,31 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 		  	  		}
   				}
   			}
+ 
   			camera.popView( g )
+  			renderForeLayer( g )
   
   			if( selection.renderer == null ) selection.renderer = new SelectionRenderer( selection, graph )
   			selection.renderer.render( g, camera, width, height )
   		}
   	}
-   
+   	
+	protected def renderBackLayer( g:Graphics2D ) { if( backRenderer != null ) renderLayer( g, backRenderer ) }
+	
+	protected def renderForeLayer( g:Graphics2D ) { if( foreRenderer != null ) renderLayer( g, foreRenderer ) }
+	
+	protected def renderLayer( g:Graphics2D, renderer:LayerRenderer ) {
+		val metrics = camera.metrics
+		
+		renderer.render( g, graph, metrics.ratioPx2Gu,
+			metrics.viewport.data(0).toInt,
+			metrics.viewport.data(1).toInt,
+			metrics.loVisible.x,
+			metrics.loVisible.y,
+			metrics.hiVisible.x,
+			metrics.hiVisible.y )
+	}
+
    protected def setupGraphics( g:Graphics2D ) {
 	   g.setRenderingHint( RenderingHints.KEY_STROKE_CONTROL,      RenderingHints.VALUE_STROKE_PURE )
 	   
@@ -251,6 +275,10 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 			try { ImageIO.write( img, "jpg", file ) } catch { case e => e.printStackTrace() }
 		}
    }
+   
+	def setBackLayerRenderer( renderer:LayerRenderer ) { backRenderer = renderer }
+
+	def setForeLayoutRenderer( renderer:LayerRenderer ) { foreRenderer = renderer }
    
 // Commands -- Style group listener
   
