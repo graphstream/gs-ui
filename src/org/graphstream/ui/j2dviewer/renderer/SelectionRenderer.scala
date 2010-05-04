@@ -1,7 +1,7 @@
 package org.graphstream.ui.j2dviewer.renderer
 
-import java.awt.{Graphics2D, Color}
 import java.awt.geom.Rectangle2D
+import java.awt.{Graphics2D, Color, BasicStroke}
 import org.graphstream.ui.graphicGraph.GraphicGraph
 import org.graphstream.ui.j2dviewer.Camera
 import org.graphstream.ui.util.Selection
@@ -30,6 +30,8 @@ class SelectionRenderer( val selection:Selection, val graph:GraphicGraph ) {
 			if( quality )
 			     g.setColor( linesColorQ )
 			else g.setColor( linesColor ) 
+
+			g.setStroke( new BasicStroke( 1 ) )
    
 			g.drawLine( 0, y1.toInt, panelWidth, y1.toInt )
 			g.drawLine( 0, y2.toInt, panelWidth, y2.toInt )
@@ -37,7 +39,7 @@ class SelectionRenderer( val selection:Selection, val graph:GraphicGraph ) {
 			g.drawLine( x2.toInt, 0, x2.toInt, panelHeight )
 	
 			shape.setFrame( x1, y1, x2-x1, y2-y1 )
-
+			
 			if( quality ) {
 				g.setColor( fillColor )
 				g.fill( shape )

@@ -19,16 +19,22 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 	  	val size = group.getSize
 		shape.configure( g, group, camera, null )
 		shape.size( group, camera )
-		arrow.configure( g, group, camera, null )
-		arrow.sizeForEdgeArrow( group, camera )
+		
+		if( arrow != null ) {
+			arrow.configure( g, group, camera, null )
+			arrow.sizeForEdgeArrow( group, camera )
+		}
 	}
 	
 	protected def pushDynStyle( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 	  	val size = group.getSize
 		shape.configure( g, group, camera, element )
 		shape.size( group, camera )
-		arrow.configure( g, group, camera, element )
-		arrow.sizeForEdgeArrow( group, camera )
+		
+		if( arrow != null ) {
+			arrow.configure( g, group, camera, element )
+			arrow.sizeForEdgeArrow( group, camera )
+		}
 	}
 	
 	protected def renderElement( g:Graphics2D, camera:Camera, element:GraphicElement ) {
@@ -40,7 +46,7 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 		shape.setEdgeCtrlPoints( edge )// XXX HORROR, TERROR XXX
 		shape.render( g, camera, element )
   
-		if( edge.isDirected ) {
+		if( edge.isDirected && arrow != null ) {
 		  	arrow.connector( edge )
 		  	arrow.direction( shape )
 		  	arrow.position( edge.to.getX, edge.to.getY )
@@ -56,7 +62,7 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 		shape.setEdgeCtrlPoints( edge )// XXX HORROR, TERROR XXX
 		shape.renderShadow( g, camera, element )
   
-		if( edge.isDirected ) {
+		if( edge.isDirected && arrow != null ) {
 		  	arrow.connector( edge )
 			arrow.direction( shape )
 			arrow.position( edge.to.getX, edge.to.getY )
