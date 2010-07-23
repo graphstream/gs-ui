@@ -1,9 +1,11 @@
 package org.graphstream.ui.j2dviewer.renderer.shape
 
-import java.awt.{Paint, Color, GradientPaint, LinearGradientPaint, RadialGradientPaint, MultipleGradientPaint}
-import java.awt.geom.RectangularShape
+import java.awt.{Paint, Color, TexturePaint, GradientPaint, LinearGradientPaint, RadialGradientPaint, MultipleGradientPaint}
+import java.awt.image.BufferedImage
+import java.awt.geom.{RectangularShape, Rectangle2D}
 
 import org.graphstream.ui.graphicGraph.stylesheet.{Style, Colors}
+import org.graphstream.ui.util.ImageCache
 import scala.collection.JavaConversions._
 import org.graphstream.ScalaGS._
 
@@ -11,12 +13,12 @@ abstract class ShapePaint {
 }
 
 abstract class ShapeAreaPaint extends ShapePaint with Area {
-	def paint( xFrom:Float, yFrom:Float, xTo:Float, yTo:Float ):Paint
-	def paint( shape:java.awt.Shape ):Paint = {
+	def paint( xFrom:Float, yFrom:Float, xTo:Float, yTo:Float, px2gu:Float ):Paint
+	def paint( shape:java.awt.Shape, px2gu:Float ):Paint = {
 		val s = shape.getBounds2D
 		
 		paint( s.getMinX.toFloat, s.getMinY.toFloat,
-		       s.getMaxX.toFloat, s.getMaxY.toFloat )
+		       s.getMaxX.toFloat, s.getMaxY.toFloat, px2gu )
 	}
 }
 
@@ -37,22 +39,25 @@ object ShapePaint {
 				case GRADIENT_DIAGONAL2  => new ShapeDiagonal2GradientPaint(  createColors( style, true ), createFractions( style, true ) )
 				case GRADIENT_RADIAL     => new ShapeRadialGradientPaint(     createColors( style, true ), createFractions( style, true ) )
 				case PLAIN               => new ShapePlainColorPaint(         style.getShadowColor( 0 ) )
+				case NONE                => null
 				case _                   => null
 			}
 		} else {
 			import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.FillMode._
 			style.getFillMode match {
-				case GRADIENT_VERTICAL   => new ShapeVerticalGradientPaint(   createColors( style, false ), createFractions( style, false ) )
-				case GRADIENT_HORIZONTAL => new ShapeHorizontalGradientPaint( createColors( style, false ), createFractions( style, false ) )
-				case GRADIENT_DIAGONAL1  => new ShapeDiagonal1GradientPaint(  createColors( style, false ), createFractions( style, false ) )
-				case GRADIENT_DIAGONAL2  => new ShapeDiagonal2GradientPaint(  createColors( style, false ), createFractions( style, false ) )
-				case GRADIENT_RADIAL     => new ShapeRadialGradientPaint(     createColors( style, false ), createFractions( style, false ) )
-				case DYN_PLAIN           => new ShapeDynPlainColorPaint(      createColors( style, false) )
-				case PLAIN               => new ShapePlainColorPaint(         style.getFillColor( 0 ) )
-				case IMAGE_TILED         => null
-				case IMAGE_SCALED        => null
-	   			case IMAGE_SCALED_RATIO  => null
-				case _                   => null
+				case GRADIENT_VERTICAL      => new ShapeVerticalGradientPaint(    createColors( style, false ), createFractions( style, false ) )
+				case GRADIENT_HORIZONTAL    => new ShapeHorizontalGradientPaint(  createColors( style, false ), createFractions( style, false ) )
+				case GRADIENT_DIAGONAL1     => new ShapeDiagonal1GradientPaint(   createColors( style, false ), createFractions( style, false ) )
+				case GRADIENT_DIAGONAL2     => new ShapeDiagonal2GradientPaint(   createColors( style, false ), createFractions( style, false ) )
+				case GRADIENT_RADIAL        => new ShapeRadialGradientPaint(      createColors( style, false ), createFractions( style, false ) )
+				case DYN_PLAIN              => new ShapeDynPlainColorPaint(       createColors( style, false) )
+				case PLAIN                  => new ShapePlainColorPaint(          style.getFillColor( 0 ) )
+				case IMAGE_TILED            => new ShapeImageTiledPaint(          style.getFillImage )
+				case IMAGE_SCALED           => new ShapeImageScaledPaint(         style.getFillImage )
+	   			case IMAGE_SCALED_RATIO_MAX => new ShapeImageScaledRatioMaxPaint( style.getFillImage )
+	   			case IMAGE_SCALED_RATIO_MIN => new ShapeImageScaledRatioMinPaint( style.getFillImage )
+	   			case NONE                   => null
+	   			case _                      => null
 			}
 		}
 	}
@@ -175,22 +180,27 @@ object ShapePaint {
 // Real paint implementations
  
  	abstract class ShapeGradientPaint( colors:Array[Color], fractions:Array[Float] ) extends ShapeAreaPaint {
-		def paint( xFrom:Float, yFrom:Float, xTo:Float, yTo:Float ):Paint = {
-			var x0 = xFrom; var y0 = yFrom
-            var x1 = xTo;   var y1 = yTo
+		def paint( xFrom:Float, yFrom:Float, xTo:Float, yTo:Float, px2gu:Float ):Paint = {
+			if( colors.length > 1 ) {
+				var x0 = xFrom; var y0 = yFrom
+				var x1 = xTo;   var y1 = yTo
                             
-            if( x0 > x1 ) { val tmp = x0; x0 = x1; x1 = tmp }
-            if( y0 > y1 ) { val tmp = y0; y0 = y1; y1 = tmp }
-            if( x0 == x1 ) { x1 = x0 + 0.001f }
-            if( y0 == y1 ) { y1 = y0 + 0.001f }
+				if( x0 > x1 ) { val tmp = x0; x0 = x1; x1 = tmp }
+				if( y0 > y1 ) { val tmp = y0; y0 = y1; y1 = tmp }
+				if( x0 == x1 ) { x1 = x0 + 0.001f }
+				if( y0 == y1 ) { y1 = y0 + 0.001f }
             
-            
-            realPaint( x0, y0, x1, y1 )
+				realPaint( x0, y0, x1, y1 )
+			} else {
+				if( colors.length > 0 )
+				     colors(0)
+				else Color.WHITE
+			}
 		}
   
 		def realPaint( x0:Float, y0:Float, x1:Float, y1:Float ):Paint
  	}
-  
+	
 	class ShapeVerticalGradientPaint( colors:Array[Color], fractions:Array[Float] ) extends ShapeGradientPaint( colors, fractions ) {
 		def realPaint( x0:Float, y0:Float, x1:Float, y1:Float ):Paint = {
 			if( version16 )
@@ -241,5 +251,87 @@ object ShapePaint {
  
 	class ShapeDynPlainColorPaint( val colors:Array[Color] ) extends ShapeColorPaint {
 		def paint( value:Float ):Paint = interpolateColor( colors, value )
+	}
+	
+	class ShapeImageTiledPaint( val url:String ) extends ShapeAreaPaint {
+		def paint( xFrom:Float, yFrom:Float, xTo:Float, yTo:Float, px2gu:Float ):Paint = {
+			ImageCache.loadImage( url ) match {
+				case x:Some[BufferedImage] => {
+					val img = x.get
+					new TexturePaint( img, new Rectangle2D.Float( xFrom, yFrom, img.getWidth/px2gu, img.getHeight/px2gu ) )
+				}
+				case _ => {
+					val img = ImageCache.dummyImage
+					new TexturePaint( img, new Rectangle2D.Float( xFrom, yFrom, img.getWidth*px2gu, img.getHeight*px2gu ) )
+				}
+			}
+		}
+	}
+	
+	class ShapeImageScaledPaint( val url:String ) extends ShapeAreaPaint {
+		def paint( xFrom:Float, yFrom:Float, xTo:Float, yTo:Float, gu2px:Float ):Paint = {
+			ImageCache.loadImage( url ) match {
+				case x:Some[BufferedImage] => {
+					val img = x.get
+					new TexturePaint( img, new Rectangle2D.Float( xFrom, yFrom, xTo-xFrom, yTo-yFrom ) )
+				}
+				case _ => {
+					val img = ImageCache.dummyImage
+					new TexturePaint( img, new Rectangle2D.Float( xFrom, yFrom, xTo-xFrom, yTo-yFrom ) )
+				}
+			}
+		}
+	}
+
+	class ShapeImageScaledRatioMaxPaint( val url:String ) extends ShapeAreaPaint {
+		def paint( xFrom:Float, yFrom:Float, xTo:Float, yTo:Float, gu2px:Float ):Paint = {
+			ImageCache.loadImage( url ) match {
+				case x:Some[BufferedImage] => {
+					val img = x.get
+					val w = xTo-xFrom
+					val h = yTo-yFrom
+					val ratioi = img.getWidth.toFloat / img.getHeight.toFloat
+					val ration = w / h
+
+					if( ratioi > ration ) {
+						val neww = h * ratioi
+						new TexturePaint( img, new Rectangle2D.Float( xFrom-((neww-w)/2), yFrom, neww, h ) )
+					} else {
+						val newh = w / ratioi
+						new TexturePaint( img, new Rectangle2D.Float( xFrom, yFrom-((newh-h)/2), w, newh ) )
+					}
+				}
+				case _ => {
+					val img = ImageCache.dummyImage
+					new TexturePaint( img, new Rectangle2D.Float( xFrom, yFrom, xTo-xFrom, yTo-yFrom ) )
+				}
+			}
+		}
+	}
+
+	class ShapeImageScaledRatioMinPaint( val url:String ) extends ShapeAreaPaint {
+		def paint( xFrom:Float, yFrom:Float, xTo:Float, yTo:Float, gu2px:Float ):Paint = {
+			ImageCache.loadImage( url ) match {
+				case x:Some[BufferedImage] => {
+					val img = x.get
+					val w = xTo-xFrom
+					val h = yTo-yFrom
+					val ratioi = img.getWidth.toFloat / img.getHeight.toFloat
+					val ration = w / h
+
+					if( ration > ratioi ) {
+						val neww = h * ratioi
+						new TexturePaint( img, new Rectangle2D.Float( xFrom+((w-neww)/2), yFrom, neww, h ) )
+					} else {
+						val newh = w / ratioi
+						new TexturePaint( img, new Rectangle2D.Float( xFrom, yFrom-((h-newh)/2), w, newh ) )
+					}
+				}
+				case _ => {
+					val img = ImageCache.dummyImage
+					new TexturePaint( img, new Rectangle2D.Float( xFrom, yFrom, xTo-xFrom, yTo-yFrom ) )
+				}
+			}
+		}
 	}
 }

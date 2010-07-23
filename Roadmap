@@ -1,27 +1,31 @@
 Roadmap
 =======
 
-Il reste à faire :
+ProblÃ¨mes :
+	Les ombres ne sont pas appliquÃ©s dans les Ã©vÃ©nements (:selected, :clicked, etc.).
+		=> problÃ¨me avec le shadow set ?
+
+Il reste ï¿½ faire :
 
 	* Un Jar utilisable dans GS Java.
 
-	* Respecter complètement le CSS
-		* Formes des n½uds
+	* Respecter complï¿½tement le CSS
+		* Formes des nï¿½uds
 		* Formes des arcs
 		* Formes des sprites
 
-	* Complèter le support des événements par le ViewerPipe (nodeMoved, nodeClicked, nodeReleased, nodeSelected, nodeUnselected)
+	* Complï¿½ter le support des ï¿½vï¿½nements par le ViewerPipe (nodeMoved, nodeClicked, nodeReleased, nodeSelected, nodeUnselected)
 	
 	* Tester le viewer dans le thread Swing, sans proxy.
 		
-Améliorations :
+Amï¿½liorations :
 	
-	* Les contour des flêches ne passent pas au dessus de l'arc ?
-	* Le positionnement des flêches au contact des n½uds (surtout sur les courbe cubiques).
-	* Un CSS pour la zone de sélection.
-	* Un type d'arc avec image mappée sur la longueur de l'arc.
+	* Les contour des flï¿½ches ne passent pas au dessus de l'arc ?
+	* Le positionnement des flï¿½ches au contact des nï¿½uds (surtout sur les courbe cubiques).
+	* Un CSS pour la zone de sï¿½lection.
+	* Un type d'arc avec image mappï¿½e sur la longueur de l'arc.
 		
 Bugs :
 
-	* Problème de repaint des bordures des JComponent si anti-alias est activé ?
+	* Problï¿½me de repaint des bordures des JComponent si anti-alias est activï¿½ ?
 	* En mode "blob" les arcs "loop" ne sonts pas corrects.

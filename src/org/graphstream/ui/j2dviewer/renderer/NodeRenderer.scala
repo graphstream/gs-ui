@@ -45,11 +45,12 @@ class NodeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 			case CIRCLE         => new CircleShape 
 		  	case BOX            => new SquareShape
 		  	case ROUNDED_BOX    => new RoundedSquareShape
+		  	case DIAMOND        => new DiamondShape
+		    case TRIANGLE       => new TriangleShape
+		    case CROSS          => new CrossShape
+		    case FREEPLANE      => new FreePlaneNodeShape
 		  	// ------------------------------------------
-		  	case DIAMOND        => Console.err.printf( "** SORRY diamond shape not yet implemented **%n" );      new CircleShape
 		  	case POLYGON        => Console.err.printf( "** SORRY polygon shape not yet implemented **%n" );      new CircleShape
-		    case TRIANGLE       => Console.err.printf( "** SORRY triangle shape not yet implemented **%n" );     new CircleShape
-		    case CROSS          => Console.err.printf( "** SORRY cross shape not yet implemented **%n" );        new CircleShape
 		    case TEXT_BOX       => Console.err.printf( "** SORRY text-box shape not yet implemented **%n" );     new SquareShape
 		    case TEXT_PARAGRAPH => Console.err.printf( "** SORRY text-para shape not yet implemented **%n" );    new SquareShape
 		    case TEXT_CIRCLE    => Console.err.printf( "** SORRY text-circle shape not yet implemented **%n" );  new CircleShape

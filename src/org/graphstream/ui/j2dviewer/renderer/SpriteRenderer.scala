@@ -52,17 +52,17 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 			case CIRCLE         => new CircleShape 
 		  	case BOX            => new SquareShape
 		  	case ROUNDED_BOX    => new RoundedSquareShape
+		  	case DIAMOND        => new DiamondShape
+		    case TRIANGLE       => new TriangleShape
+		    case CROSS          => new CrossShape
+		    case ARROW          => Console.err.printf( "** SORRY arrow shape not yet implemented **%n" );        new CircleShape
 		  	// ------------------------------------------
-		  	case DIAMOND        => Console.err.printf( "** SORRY diamond shape not yet implemented **%n" );      new CircleShape
 		  	case POLYGON        => Console.err.printf( "** SORRY polygon shape not yet implemented **%n" );      new CircleShape
-		    case TRIANGLE       => Console.err.printf( "** SORRY triangle shape not yet implemented **%n" );     new CircleShape
-		    case CROSS          => Console.err.printf( "** SORRY cross shape not yet implemented **%n" );        new CircleShape
 		    case TEXT_BOX       => Console.err.printf( "** SORRY text-box shape not yet implemented **%n" );     new SquareShape
 		    case TEXT_PARAGRAPH => Console.err.printf( "** SORRY text-para shape not yet implemented **%n" );    new SquareShape
 		    case TEXT_CIRCLE    => Console.err.printf( "** SORRY text-circle shape not yet implemented **%n" );  new CircleShape
 		    case TEXT_DIAMOND   => Console.err.printf( "** SORRY text-diamond shape not yet implemented **%n" ); new CircleShape
 		    case PIE_CHART      => Console.err.printf( "** SORRY pie-chart shape not yet implemented **%n" );    new CircleShape
-		    case ARROW          => Console.err.printf( "** SORRY arrow shape not yet implemented **%n" );        new CircleShape
 		    case IMAGES         => Console.err.printf( "** SORRY images shape not yet implemented **%n" );       new SquareShape 
 		    case JCOMPONENT     => throw new RuntimeException( "WTF, jcomponent should have its own renderer" )
 		    case x              => throw new RuntimeException( "%s shape cannot be set for nodes".format( x.toString ) )

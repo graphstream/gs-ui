@@ -8,6 +8,7 @@ import java.util.ArrayList
 
 import scala.collection.mutable.HashSet
 import scala.collection.JavaConversions._
+import scala.math._
 
 import org.graphstream.graph.Node
 import org.graphstream.ui.graphicGraph.stylesheet.Selector.Type._
@@ -19,6 +20,7 @@ import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 import org.graphstream.ui.util.{GraphMetrics, CubicCurve}
 import org.graphstream.ui.geom.Point2
 import org.graphstream.ui.sgeom.Vector2
+import org.graphstream.ui.j2dviewer.renderer.EdgeInfo
 
 import org.graphstream.ScalaGS._
 
@@ -190,19 +192,21 @@ class Camera {
   	 * @return The first node or sprite at the given coordinates or null if nothing found. 
   	 */
   	def findNodeOrSpriteAt( graph:GraphicGraph, x:Float, y:Float ):GraphicElement = {
+  		var ge:GraphicElement = null
+  		
   		graph.nodeSet.foreach { n =>	
   			val node = n.asInstanceOf[GraphicNode]
 			
   			if( nodeOrSpriteContains( node, x, y ) )
-  				return node
+  				ge = node
   		}
 	
   		graph.spriteSet.foreach { sprite =>
   			if( nodeOrSpriteContains( sprite, x, y ) )
-  				return sprite
+  				ge = sprite
   		}
 		
-  		null
+  		ge
   	 }
 	
   	/**
@@ -680,7 +684,7 @@ class Camera {
   	/**
   	 * Compute the position of a sprite if attached to an edge.
   	 * @param sprite The sprite.
-  	 * @param pos Where to stored the computed position, if null, the position is created.
+  	 * @param pos Where to store the computed position, if null, the position is created.
   	 * @param units The units the computed position must be given into. 
   	 * @return The same instance as pos, or a new one if pos was null.
   	 */
@@ -691,12 +695,15 @@ class Camera {
   			pos = new Point2D.Float
 		
   		val edge = sprite.getEdgeAttachment.asInstanceOf[GraphicEdge]
+  		val info = edge.getAttribute( "j2dvei" ).asInstanceOf[EdgeInfo]
 		
-  		if( edge.isCurve ) {
-  			val p0   = new Point2( edge.from.x, edge.from.y )
-  			val p1   = new Point2( edge.ctrl(0), edge.ctrl(1) )
-  			val p2   = new Point2( edge.ctrl(2), edge.ctrl(3) )
-  			val p3   = new Point2( edge.to.x, edge.to.y )
+ if(info eq null) throw new RuntimeException
+  		
+  		if( info.isCurve ) {
+  			val p0   = info.points(0) // new Point2( info.points(0).x, info.points(0).y )
+  			val p1   = info.points(1) // new Point2( info.points(1).x, info.points(1).y )
+  			val p2   = info.points(2) // new Point2( info.points(2).x, info.points(2).y )
+  			val p3   = info.points(3) // new Point2( info.points(3).x, info.points(3).y )
   			val perp = new Vector2( p3.y - p0.y, -( p3.x - p0.x ) )
      
   			perp.normalize
@@ -705,10 +712,10 @@ class Camera {
   			pos.x = CubicCurve.eval( p0.x, p1.x, p2.x, p3.x, sprite.getX ) + perp.x
   			pos.y = CubicCurve.eval( p0.y, p1.y, p2.y, p3.y, sprite.getX ) + perp.y
   		} else {
-  			var x  = edge.from.x
-  			var y  = edge.from.y
-  			var dx = edge.to.x - x
-  			var dy = edge.to.y - y
+  			var x  = info.points(0).x // edge.from.x
+  			var y  = info.points(0).y // edge.from.y
+  			var dx = info.points(3).x - x // edge.to.x - x
+  			var dy = info.points(3).y - y // edge.to.y - y
   			var d  = sprite.getX						// Percent on the edge.
   			val o  = sprite.getY						// Offset from the position given by percent, perpendicular to the edge.
 			
@@ -718,7 +725,7 @@ class Camera {
   			x += dx * d
   			y += dy * d
 			
-  			d   = Math.sqrt( dx*dx + dy*dy ).toFloat
+  			d   = sqrt( dx*dx + dy*dy ).toFloat
   			dx /= d
   			dy /= d
 			

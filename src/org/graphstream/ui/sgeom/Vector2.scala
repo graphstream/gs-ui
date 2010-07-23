@@ -4,6 +4,10 @@ import org.graphstream.ui.geom.Point2
 
 class Vector2( x:Float, y:Float ) extends org.graphstream.ui.geom.Vector2( x, y ) {
 
+	def this( other:Vector2 ) {
+		this( other.x, other.y )
+	}
+	
 	def this( from:Point2, to:Point2 ) {
 		this( to.x - from.x, to.y - from.y )
 	}

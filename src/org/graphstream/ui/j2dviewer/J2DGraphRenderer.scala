@@ -72,6 +72,8 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 		  	this.graph   = graph
 		  	this.surface = drawingSurface
 		  	graph.getStyleGroups.addListener( this )
+	  	} else {
+	  		throw new RuntimeException( "renderer already open, use close() first" )
 	  	}
   	}
 	
@@ -102,6 +104,8 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   	 */
    	def renderingSurface:Container = surface
 	
+// Access -- Renderer bindings
+   	
     protected def getStyleRenderer( graph:GraphicGraph ):GraphBackgroundRenderer = {
   		if( graph.getStyle.getRenderer( "dr" ) == null )
   			graph.getStyle.addRenderer( "dr", new GraphBackgroundRenderer( graph, graph.getStyle ) )
@@ -256,7 +260,8 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 
 			val file = new File( filename )
  
-			try { ImageIO.write( img, "png", file ) } catch { case e => e.printStackTrace() }
+			//try { ImageIO.write( img, "png", file ) } catch { case e => e.printStackTrace() }
+			ImageIO.write( img, "png", file )
 		}
 		else if( filename.endsWith( "bmp" ) || filename.endsWith( "BMP" ) ) {
 			val img = new BufferedImage( width, height, BufferedImage.TYPE_INT_RGB )
@@ -264,7 +269,8 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 
 			val file = new File( filename )
 
-			try { ImageIO.write( img, "bmp", file ) } catch { case e => e.printStackTrace() }
+//			try { ImageIO.write( img, "bmp", file ) } catch { case e => e.printStackTrace() }
+			ImageIO.write( img, "bmp", file )
 		}
 		else if( filename.endsWith( "jpg" ) || filename.endsWith( "JPG" ) || filename.endsWith( "jpeg" ) || filename.endsWith( "JPEG" ) ) {
 			val img = new BufferedImage( width, height, BufferedImage.TYPE_INT_RGB )
@@ -272,7 +278,8 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 
 			val file = new File( filename )
 
-			try { ImageIO.write( img, "jpg", file ) } catch { case e => e.printStackTrace() }
+//			try { ImageIO.write( img, "jpg", file ) } catch { case e => e.printStackTrace() }
+			ImageIO.write( img, "jpg", file )
 		}
    }
    

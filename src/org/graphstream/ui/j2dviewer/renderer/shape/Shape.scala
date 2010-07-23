@@ -4,9 +4,10 @@ import java.awt.{Color, Graphics2D, Image, Paint, Stroke}
 import java.awt.geom.RectangularShape
 
 import org.graphstream.ui.j2dviewer.Camera
+import org.graphstream.ui.j2dviewer.renderer.EdgeInfo
 import org.graphstream.ui.util.GraphMetrics
 import org.graphstream.ui.geom.Point2
-import org.graphstream.ui.sgeom.Vector2
+import org.graphstream.ui.sgeom.{Vector2, EdgePoints}
 import org.graphstream.ui.graphicGraph.{GraphicElement, GraphicEdge}
 import org.graphstream.ui.graphicGraph.stylesheet.{Style, StyleConstants}
 
@@ -66,11 +67,11 @@ trait Fillable {
      * @param dynColor The value between 0 and 1 allowing to know the dynamic plain color, if any.
      * @param shape The awt shape to fill.
      */
-	def fill( g:Graphics2D, dynColor:Float, shape:java.awt.Shape ) {
+	def fill( g:Graphics2D, dynColor:Float, shape:java.awt.Shape, camera:Camera ) {
 		fillPaint match {
-		  case p:ShapeAreaPaint  => g.setPaint( p.paint( shape ) );    g.fill( shape )
+		  case p:ShapeAreaPaint  => g.setPaint( p.paint( shape, camera.metrics.ratioPx2Gu ) );    g.fill( shape )
 		  case p:ShapeColorPaint => g.setPaint( p.paint( dynColor ) ); g.fill( shape )
-		  case _                 => null; printf( "no fill !!!%n" ) 
+		  case _                 => null; // No fill. // printf( "no fill !!!%n" ) 
 		}
 	}
  
@@ -79,7 +80,7 @@ trait Fillable {
      * @param g The Java2D graphics.
      * @param shape The awt shape to fill.
      */
- 	def fill( g:Graphics2D, shape:java.awt.Shape ) { fill( g, theFillPercent, shape ) }
+ 	def fill( g:Graphics2D, shape:java.awt.Shape, camera:Camera ) { fill( g, theFillPercent, shape, camera ) }
 
     /**
      *  Configure all static parts needed to fill the shape.
@@ -152,12 +153,12 @@ trait Strokable {
 	var theStroke:ShapeStroke = null
  	
 	/** The stroke width. */
-	var strokeWidth = 0f
+	var theStrokeWidth = 0f
 
  	/** Paint the stroke of the shape. */
 	def stroke( g:Graphics2D, shape:java.awt.Shape ) {
 		if( theStroke != null ) {
-			g.setStroke( theStroke.stroke( strokeWidth ) )
+			g.setStroke( theStroke.stroke( theStrokeWidth ) )
 			g.setColor( strokeColor )
 			g.draw( shape )
 		}	  
@@ -165,7 +166,7 @@ trait Strokable {
      
  	/** Configure all the static parts needed to stroke the shape. */
  	protected def configureStrokable( style:Style, camera:Camera ) {
-		strokeWidth = camera.metrics.lengthToGu( style.getStrokeWidth )
+		theStrokeWidth = camera.metrics.lengthToGu( style.getStrokeWidth )
 		/*if( strokeColor == null )*/ strokeColor = ShapeStroke.strokeColor( style )
 		/*if( theStroke   == null )*/ theStroke   = ShapeStroke.strokeForArea( style )
  	}
@@ -173,7 +174,7 @@ trait Strokable {
 
 trait StrokableLine extends Strokable {
  	protected override def configureStrokable( style:Style, camera:Camera ) {
-		strokeWidth = camera.metrics.lengthToGu( style.getStrokeWidth ) + camera.metrics.lengthToGu( style.getSize, 0 )
+		theStrokeWidth = camera.metrics.lengthToGu( style.getStrokeWidth ) + camera.metrics.lengthToGu( style.getSize, 0 )
 		strokeColor = ShapeStroke.strokeColor( style )
 		theStroke   = ShapeStroke.strokeForArea( style )
  	}
@@ -205,7 +206,7 @@ trait Shadowable {
      */
    	def cast( g:Graphics2D, shape:java.awt.Shape ) {
    		shadowPaint match {
-   			case p:ShapeAreaPaint  => g.setPaint( p.paint( shape ) ); g.fill( shape )
+   			case p:ShapeAreaPaint  => g.setPaint( p.paint( shape, 1 ) ); g.fill( shape )
    			case p:ShapeColorPaint => g.setPaint( p.paint( 0 ) );     g.fill( shape )
    			case _                 => null; printf( "no shadow !!!%n" )
    		}
@@ -307,75 +308,133 @@ trait Area {
  * Trait for elements painted between two points.
  */
 trait Connector {
-  
-	protected val from = new Point2
-	protected val to = new Point2
-	protected var ctrl1:Point2 = null
-	protected var ctrl2:Point2 = null
+// Attribute
+	
+	var info:EdgeInfo = null
+	
+	/** Width of the connector. */
 	protected var theSize:Float = 0
-	protected var theTargetSize:Float = 0
-	protected var theSourceSize:Float = 0
+	
+	/** Size of the element at the origin of the connector. */
+	protected var theTargetSizeX = 0f
+	protected var theTargetSizeY = 0f
+	
+	/** Size of the element at the end of the connector. */
+	protected var theSourceSizeX = 0f
+	protected var theSourceSizeY = 0f
+	
+	/** Is the connector directed ? */
 	var isDirected = false
-	var isCurve = false
-	var isLoop  = false
-	def fromPos:Point2 = from
-	def byPos1:Point2 = ctrl1
-	def byPos2:Point2 = ctrl2
-	def toPos:Point2 = to
+	
+// Command
+	
+	/** Origin point of the connector. */
+	def fromPos:Point2 = info.points(0)
+	
+	/** First control point. */
+	def byPos1:Point2 = info.points(1)
+	
+	/** Second control point. */
+	def byPos2:Point2 = info.points(2)
+	
+	/** Destination of the connector. */
+	def toPos:Point2 = info.points(3)
+	
+	/** Set the size (`width`) of the connector. */
 	def size( width:Float ) { theSize = width }
+	
+	/** Set the size of the connector using a predefined style. */
 	def size( style:Style, camera:Camera ) { size( camera.metrics.lengthToGu( style.getSize, 0 ) ) }
-	def endPoints( sourceWidth:Float, targetWidth:Float, directed:Boolean ) { theSourceSize = sourceWidth; theTargetSize = targetWidth; isDirected = directed }
-	def endPoints( sourceStyle:Style, targetStyle:Style, directed:Boolean, camera:Camera ) {
-		var src = camera.metrics.lengthToGu( sourceStyle.getSize, 0 )
-		if( sourceStyle.getSize.size > 1 ) {
-			val src2 = camera.metrics.lengthToGu( sourceStyle.getSize, 1 )
-			src = if( src2 < src ) src2 else src
-		}
-		var trg = camera.metrics.lengthToGu( targetStyle.getSize, 0 )
-		if( targetStyle.getSize.size > 1 ) {
-			val trg2 = camera.metrics.lengthToGu( targetStyle.getSize, 1 )
-			trg = if( trg2 < trg ) trg2 else trg
-		}
-		endPoints( src, trg, directed )
+	
+	/** Define the two end points sizes. */
+	def endPoints( sourceWidth:Float, targetWidth:Float, directed:Boolean ) {
+		theSourceSizeX = sourceWidth
+		theSourceSizeY = sourceWidth
+		theTargetSizeX = targetWidth
+		theTargetSizeY = targetWidth
+		isDirected = directed
 	}
-	def position( xFrom:Float, yFrom:Float, xTo:Float, yTo:Float ) { position( xFrom, yFrom, xTo, yTo, 0, null ) }
-	def position( xFrom:Float, yFrom:Float, xTo:Float, yTo:Float, multi:Int, group:GraphicEdge#EdgeGroup ) {
-		from.set( xFrom, yFrom )
-		to.set( xTo, yTo )
+	
+	/** Define the two end points sizes. */
+	def endPoints( sourceWidth:Float, sourceHeight:Float, targetWidth:Float, targetHeight:Float, directed:Boolean ) {
+		theSourceSizeX = sourceWidth
+		theSourceSizeY = sourceHeight
+		theTargetSizeX = targetWidth
+		theTargetSizeY = targetHeight
+		isDirected = directed
+	}
+	
+	/** Compute the two end points sizes. */
+	def endPoints( sourceStyle:Style, targetStyle:Style, directed:Boolean, camera:Camera ) {
+		theSourceSizeX = camera.metrics.lengthToGu( sourceStyle.getSize, 0 )
+		
+		if( sourceStyle.getSize.size > 1 )
+		      theSourceSizeY = camera.metrics.lengthToGu( sourceStyle.getSize, 1 )
+		else theSourceSizeY = theSourceSizeX
+		
+		theTargetSizeX = camera.metrics.lengthToGu( targetStyle.getSize, 0 )
+		
+		if( targetStyle.getSize.size > 1 )
+		      theTargetSizeY = camera.metrics.lengthToGu( targetStyle.getSize, 1 )
+		else theTargetSizeY = theTargetSizeX
+		
+		isDirected = directed
+	}
+	
+	/** Give the position of the origin and destination points. */
+	def position( info:EdgeInfo, style:Style, xFrom:Float, yFrom:Float, xTo:Float, yTo:Float ) { position( info, style, xFrom, yFrom, xTo, yTo, 0, null ) }
+	
+	/**
+	 * Give the position of the origin and destination points, for multi edges.
+	 * <p>
+	 * This only sets the isCurve/isLoop and ctrl1/ctrl2 for multi-edges/edge-loops, if the shape of the
+	 * edge given by the style is also a curve, the make() methods must set these fields (we cannot do it here
+	 * since we do not know the curves). This is important since arrows and sprites can be attached to edges.
+	 * </p>
+	 */
+	def position( info:EdgeInfo, style:Style, xFrom:Float, yFrom:Float, xTo:Float, yTo:Float, multi:Int, group:GraphicEdge#EdgeGroup ) {
+		this.info = info
+		info.points(0).set( xFrom, yFrom )
+		info.points(3).set( xTo, yTo )
 		if( group != null ) {
-			isCurve = true
-			ctrl1   = new Point2
-			ctrl2   = new Point2
+			info.isMulti = group.getCount
+			info.isCurve = true
 			if( xFrom == xTo && yFrom == yTo ) {
-				isLoop = true
+				info.isLoop = true
 				positionEdgeLoop( xFrom, yFrom, multi )
 			} else {
-				isLoop = false
+				info.isLoop = false
 				positionMultiEdge( xFrom, yFrom, xTo, yTo, multi, group )
 			}
 		} else {
 			if( xFrom == xTo && yFrom == yTo ) {
-				isLoop  = true
-				isCurve = true
-				ctrl1   = new Point2
-				ctrl2   = new Point2
+				info.isMulti = 0
+				info.isLoop  = true
+				info.isCurve = true
 				positionEdgeLoop( xFrom, yFrom, 0 )
 			} else {
-				isLoop  = false
-				isCurve = false
-				ctrl1 = null
-				ctrl2 = null
+				info.isMulti = 0
+				info.isLoop  = false
+				info.isCurve = false
+				// This does not mean the edge is not a curve, this means
+				// that with what we know actually it is not a curve.
+				// The style mays indicate a curve.
 			}		  
 		}
 	}
+	
+	/** Define the control points to make the edge a loop. */
 	protected def positionEdgeLoop( x:Float, y:Float, multi:Int ) {
 		var m = 1f + multi * 0.2f
-		var d = theTargetSize/2*m + 4*theTargetSize*m
+		val s = ( theTargetSizeX + theTargetSizeY ) / 2
+		var d = s / 2 * m + 4 * s * m
 
-		ctrl1.set( x + d, y )
-		ctrl2.set( x, y + d )
+		info.points(1).set( x + d, y )
+		info.points(2).set( x, y + d )
 //		to.set( x, y + theTargetNodeSize/2*m )
 	}
+	
+	/** Define the control points to make this edge a part of a multi-edge. */
 	protected def positionMultiEdge( x1:Float, y1:Float, x2:Float, y2:Float, multi:Int, group:GraphicEdge#EdgeGroup ) {
 		var vx  = (  x2 - x1 )
 		var vy  = (  y2 - y1 )
@@ -404,32 +463,21 @@ trait Connector {
 		vx2 *= f
 		vy2 *= f
   
-		ctrl1.set( x1 + vx, y1 + vy )
-		ctrl2.set( x2 - vx, y2 - vy )
+		info.points(1).set( x1 + vx, y1 + vy )
+		info.points(2).set( x2 - vx, y2 - vy )
   
 		val m = multi + ( if( edge.from eq main.from ) 0 else 1 )
   
 		if( m % 2 == 0 ) {
-			ctrl1.x += ( vx2 + ox )
-			ctrl1.y += ( vy2 + oy )
-			ctrl2.x += ( vx2 + ox )
-			ctrl2.y += ( vy2 + oy )
+			info.points(1).x += ( vx2 + ox )
+			info.points(1).y += ( vy2 + oy )
+			info.points(2).x += ( vx2 + ox )
+			info.points(2).y += ( vy2 + oy )
 		} else {
-			ctrl1.x -= ( vx2 - ox )
-			ctrl1.y -= ( vy2 - oy )
-			ctrl2.x -= ( vx2 - ox ) 
-			ctrl2.y -= ( vy2 - oy )		  
-		}
-	}
- 
-	def setEdgeCtrlPoints( edge:GraphicEdge ) {
-		if( ctrl1 != null && ctrl2 != null ) {
-			if( edge.ctrl == null ) edge.ctrl = new Array[Float]( 4 )
-			
-			edge.ctrl(0) = ctrl1.x
-			edge.ctrl(1) = ctrl1.y
-			edge.ctrl(2) = ctrl2.x
-			edge.ctrl(3) = ctrl2.y
+			info.points(1).x -= ( vx2 - ox )
+			info.points(1).y -= ( vy2 - oy )
+			info.points(2).x -= ( vx2 - ox ) 
+			info.points(2).y -= ( vy2 - oy )		  
 		}
 	}
 }
@@ -449,7 +497,7 @@ trait OrientedArea extends Area {
 	}
  
 	def direction( connector:Connector ) {
-		if( connector.isCurve ) {
+		if( connector.info.isCurve ) {
 			theDirection.set( connector.toPos.x - connector.byPos2.x, connector.toPos.y - connector.byPos2.y )
 		} else {
 			theDirection.set( connector.toPos.x - connector.fromPos.x, connector.toPos.y - connector.fromPos.y )

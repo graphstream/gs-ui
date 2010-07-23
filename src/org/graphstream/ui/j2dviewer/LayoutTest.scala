@@ -38,6 +38,7 @@ private class ATest extends ViewerListener {
 		graph.addAttribute( "ui.stylesheet", styleSheet )
 		
 		gen.addSink( graph )
+		gen.setDirectedEdges( true, true )
 		gen.begin
 		var i = 0
 		while ( i < 100 ) { gen.nextElement; i += 1 }
@@ -65,8 +66,56 @@ private class ATest extends ViewerListener {
  	def buttonReleased( id:String ) {} 
  
 // Data
-   
 	private val styleSheet:String = """
+			graph {
+ 				fill-mode: gradient-radial;
+ 				fill-color: white, gray;
+ 				padding: 60px;
+ 			} 
+			node {
+				shape: circle;
+				size: 10px;
+				fill-mode: gradient-vertical;
+				fill-color: white, rgb(200,200,200);
+				stroke-mode: plain; 
+				stroke-color: rgba(255,255,0,255);
+				stroke-width: 2px;
+				shadow-mode: plain;
+				shadow-width: 0px;
+				shadow-offset: 3px, -3px;
+				shadow-color: rgba(0,0,0,100);
+				text-visibility-mode: zoom-range;
+				text-visibility: 0, 0.9;
+				//icon-mode: at-left;
+				//icon: url('file:///home/antoine/GSLogo11d24.png');
+			}
+			node:clicked {
+				stroke-mode: plain;
+				stroke-color: red;
+			}
+			node:selected {
+				stroke-mode: plain;
+				stroke-width: 4px;
+				stroke-color: blue;
+			}
+			edge {
+				size: 1px;
+				shape: cubic-curve;
+				fill-color: rgb(128,128,128);
+				fill-mode: plain;
+				stroke-mode: plain;
+				stroke-color: rgb(80,80,80);
+				stroke-width: 1px;
+				shadow-mode: none;
+				shadow-color: rgba(0,0,0,50);
+				shadow-offset: 3px, -3px;
+				shadow-width: 0px;
+				arrow-shape: diamond;
+				arrow-size: 14px, 7px;
+			}
+		""";
+   
+	private val oldStyleSheet:String = """
 			graph {
  				fill-mode: gradient-radial;
  				fill-color: white, gray;
@@ -80,10 +129,10 @@ private class ATest extends ViewerListener {
 				stroke-mode: plain; 
 				stroke-color: rgba(255,255,0,255);
 				stroke-width: 2px;
-				//shadow-mode: plain;
-				//shadow-width: 0px;
-				//shadow-offset: 3px, -3px;
-				//shadow-color: rgba(0,0,0,100);
+				shadow-mode: plain;
+				shadow-width: 0px;
+				shadow-offset: 3px, -3px;
+				shadow-color: rgba(0,0,0,100);
 				text-visibility-mode: zoom-range;
 				text-visibility: 0, 0.9;
 				//icon-mode: at-left;
@@ -106,10 +155,10 @@ private class ATest extends ViewerListener {
 				stroke-mode: plain;
 				stroke-color: rgb(80,80,80);
 				stroke-width: 2px;
-				//shadow-mode: plain;
-				//shadow-color: rgba(0,0,0,50);
-				//shadow-offset: 3px, -3px;
-				//shadow-width: 0px;
+				shadow-mode: plain;
+				shadow-color: rgba(0,0,0,50);
+				shadow-offset: 3px, -3px;
+				shadow-width: 0px;
 				arrow-shape: arrow;
 				arrow-size: 20px, 6px;
 			}

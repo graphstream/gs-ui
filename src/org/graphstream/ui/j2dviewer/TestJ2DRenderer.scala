@@ -19,7 +19,7 @@ object TestJ2DRenderer {
 private class Test extends ViewerListener {
 	private[this] var loop = true
   
-	def run( args:Array[String] ) {
+	def run( args:Array[String] ) = {
 		val graph  = new MultiGraph( "g1" )
 		val viewer = new Viewer( graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD )
 		val pipeIn = viewer.newViewerPipe
@@ -28,7 +28,24 @@ private class Test extends ViewerListener {
 		pipeIn.addAttributeSink( graph )
 		pipeIn.addViewerListener( this )
 		pipeIn.pump
-  
+
+		graph.addAttribute( "ui.stylesheet", styleSheet )
+		graph.addAttribute( "ui.antialias" )
+		graph.addAttribute( "ui.quality" )
+/*
+		val A = graph.addNode( "A" )
+		val B = graph.addNode( "B" )
+
+		graph.addEdge( "AB1", "A", "B" )
+		graph.addEdge( "AB2", "A", "B" )
+		graph.addEdge( "AB3", "A", "B" )
+
+		A("xyz") = ( -1, 0, 0 )
+		B("xyz") = (  1, 0, 0 )
+
+		A("label") = "A"
+		B("label") = "B"
+*/
 		val A = graph.addNode( "A" )
 		val B = graph.addNode( "B" )
 		val C = graph.addNode( "C" )
@@ -39,12 +56,11 @@ private class Test extends ViewerListener {
 		graph.addEdges( "A", "B", "C", "A" )
 		graph.addEdges( "D", "E", "A", "D" )
 		graph.addEdge( "BD", "B", "D", true )
-		graph.addAttribute( "ui.stylesheet", styleSheet )
-		graph.addAttribute( "ui.antialias" )
-		graph.addAttribute( "ui.quality" )
   
 		graph.addEdge( "CC", "C", "C" )
 		graph.addEdge( "CC2", "C", "C", true )
+		graph.addEdge( "FF", "F", "F" )
+		graph.addEdge( "DD", "D", "D", true )
 		graph.addEdge( "BC2", "B", "C" )
 		graph.addEdge( "AB2", "A", "B", true )
 		graph.addEdge( "AB3", "A", "B", true )
@@ -65,7 +81,7 @@ private class Test extends ViewerListener {
 		C("label") = "C"
 		D("label") = "D"
 		E("label") = "E"
-  
+ 
 		val sman = new SpriteManager( graph )
   
 		val s1 = sman.addSprite( "S1" )
@@ -123,24 +139,27 @@ private class Test extends ViewerListener {
    
 	private val styleSheet:String = """
 			graph {
- 				fill-mode: gradient-radial;
+				canvas-color: white;
+ 				fill-mode: image-tiled;
+ 				fill-image: url('file:///home/antoine/Documents/Programs/gs-ui-scala-svn/paper.png');
  				fill-color: white, gray;
  				padding: 60px;
  			} 
 			node {
-				shape: circle;
+				shape: freeplane;
 				size: 60px, 60px;
-				fill-mode: gradient-vertical;
+				fill-mode: image-scaled-ratio-max;
+				fill-image: url('file:///home/antoine/Documents/Programs/gs-ui-scala-svn/FabricPlain0081.jpg');
 				fill-color: white, rgb(200,200,200);
 				stroke-mode: plain; 
 				stroke-color: rgba(100,100,100,255);
-				stroke-width: 3px;
+				stroke-width: 9px;
 				shadow-mode: plain;
 				shadow-width: 0px;
 				shadow-offset: 3px, -3px;
 				shadow-color: rgba(0,0,0,100);
 				icon-mode: at-left;
-				icon: url('file:///home/antoine/GSLogo11d24.png');
+				icon: url('file:///home/antoine/Documents/Perso/Art/Icons/GSLogo11d24.png');
 			}
 			node#E {
 				size: 90px, 90px;
@@ -156,7 +175,7 @@ private class Test extends ViewerListener {
 			}
 			node#A {
 				stroke-mode: plain;
-				stroke-width: 2px;
+				stroke-width: 9px;
 				stroke-color: yellow;
 				size: 80px, 30px;
 				shape: jcomponent;
@@ -167,18 +186,18 @@ private class Test extends ViewerListener {
 				icon-mode: none;
 			}
 			edge {
-				shape: blob;
-				size: 3px;
+				shape: cubic-curve;
+				size: 9px;
 				//fill-color: rgb(128,128,128);
 				fill-color: rgba(100,100,100,255);
 				fill-mode: plain;
 				//stroke-mode: plain;
 				//stroke-color: rgb(80,80,80);
 				//stroke-width: 2px;
-				//shadow-mode: plain;
-				//shadow-color: rgba(0,0,0,50);
-				//shadow-offset: 3px, -3px;
-				//shadow-width: 0px;
+				shadow-mode: plain;
+				shadow-color: rgba(0,0,0,50);
+				shadow-offset: 3px, -3px;
+				shadow-width: 0px;
 				arrow-shape: arrow;
 				arrow-size: 20px, 6px;
 			}

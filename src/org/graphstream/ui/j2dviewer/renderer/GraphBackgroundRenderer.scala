@@ -1,11 +1,14 @@
 package org.graphstream.ui.j2dviewer.renderer
 
-import java.awt.{Graphics2D, Color, BasicStroke}
+import java.awt.{Graphics2D, Color, BasicStroke, TexturePaint}
+import java.awt.image.BufferedImage
+import java.awt.geom.{RectangularShape, Rectangle2D}
+
 
 import org.graphstream.ui.graphicGraph.{StyleGroup, GraphicGraph, GraphicElement}
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
 import org.graphstream.ui.j2dviewer.Camera
-import org.graphstream.ui.util.GradientFactory
+import org.graphstream.ui.util.{GradientFactory, ImageCache}
 
 /**
  * Renderer for the graph background.
@@ -55,28 +58,126 @@ class GraphBackgroundRenderer( val graph:GraphicGraph, val style:StyleGroup ) ex
 		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.FillMode._
 
 		graph.getStyle.getFillMode match {
-			case NONE                => {}
-			case IMAGE_TILED         => fillBackground( g, camera )
-			case IMAGE_SCALED        => fillBackground( g, camera )
-			case IMAGE_SCALED_RATIO  => fillBackground( g, camera )
-			case GRADIENT_DIAGONAL1  => fillGradient( g, camera )
-			case GRADIENT_DIAGONAL2  => fillGradient( g, camera )
-			case GRADIENT_HORIZONTAL => fillGradient( g, camera )
-			case GRADIENT_VERTICAL   => fillGradient( g, camera )
-			case GRADIENT_RADIAL     => fillGradient( g, camera )
-			case DYN_PLAIN           => fillBackground( g, camera )
-			case _                   => fillBackground( g, camera )
+			case NONE                   => {}
+			case IMAGE_TILED            => fillImageTiled( g, camera )
+			case IMAGE_SCALED           => fillImageScaled( g, camera, 0 )
+			case IMAGE_SCALED_RATIO_MAX => fillImageScaled( g, camera, 1 )
+			case IMAGE_SCALED_RATIO_MIN => fillImageScaled( g, camera, 2 )
+			case GRADIENT_DIAGONAL1     => fillGradient( g, camera )
+			case GRADIENT_DIAGONAL2     => fillGradient( g, camera )
+			case GRADIENT_HORIZONTAL    => fillGradient( g, camera )
+			case GRADIENT_VERTICAL      => fillGradient( g, camera )
+			case GRADIENT_RADIAL        => fillGradient( g, camera )
+			case DYN_PLAIN              => fillBackground( g, camera )
+			case _                      => fillBackground( g, camera )
 		}
 	}
 
 	protected def fillBackground( g:Graphics2D, camera:Camera ) {
-		val style   = graph.getStyle 
 		val metrics = camera.metrics
 
 		g.setColor( style.getFillColor( 0 ) )
 		g.fillRect( 0, 0,
 			metrics.viewport.data(0).toInt,
 			metrics.viewport.data(1).toInt )
+	}
+	
+	protected def fillCanvasBackground( g:Graphics2D, camera:Camera ) {
+		val metrics = camera.metrics
+
+		g.setColor( style.getCanvasColor( 0 ) )
+		g.fillRect( 0, 0,
+			metrics.viewport.data(0).toInt,
+			metrics.viewport.data(1).toInt )
+	}
+	
+	protected def fillImageTiled( g:Graphics2D, camera:Camera ) {
+		val metrics = camera.metrics
+		val px2gu   = metrics.ratioPx2Gu
+		var img:BufferedImage = null
+		
+		ImageCache.loadImage( style.getFillImage ) match {
+			case x:Some[BufferedImage] => { img = x.get }
+			case _                     => { img = ImageCache.dummyImage }
+		}
+
+		// We offset the tilling so that the lower-left corner of the graph is at (0,0) 
+		// in origin tile.
+		
+//		val padx  = metrics.lengthToPx( style.getPadding, 0 ) 
+//		val pady  = metrics.lengthToPx( style.getPadding, 1 ) 
+		val gw    = ( metrics.graphWidthGU  * px2gu )// + ( padx * 2 )	// consider the padding ???
+		val gh    = ( metrics.graphHeightGU * px2gu )// + ( pady * 2 )	// probably not.
+		val x     = ( metrics.viewport.data(0) / 2 ) - ( gw / 2 )
+		val y     = metrics.viewport.data(1) - ( metrics.viewport.data(1) / 2 ) - ( gh / 2 )
+		val paint = new TexturePaint( img, new Rectangle2D.Float( x, y, img.getWidth, img.getHeight) )
+		val rect  = new Rectangle2D.Float( 0, 0, metrics.viewport.data(0), metrics.viewport.data(1) );
+		
+		g.setPaint( paint )
+		g.fill( rect );
+		g.setPaint( null )
+	}
+	
+	protected def fillImageScaled( g:Graphics2D, camera:Camera, mode:Int ) {
+		val metrics = camera.metrics
+		val px2gu   = metrics.ratioPx2Gu
+		var img:BufferedImage = null
+		
+		ImageCache.loadImage( style.getFillImage ) match {
+			case x:Some[BufferedImage] => { img = x.get }
+			case _                     => { img = ImageCache.dummyImage }
+		}
+		
+		fillCanvasBackground( g, camera )
+
+		val gw = ( metrics.graphWidthGU  * px2gu )
+		val gh = ( metrics.graphHeightGU * px2gu )
+		val x  = ( metrics.viewport.data(0) / 2 ) - ( gw / 2 )
+		val y  = metrics.viewport.data(1) - ( metrics.viewport.data(1) / 2 ) - ( gh / 2 )
+
+		mode match {
+			case 0 => {	// Ratio
+				g.drawImage( img,
+					x.toInt, y.toInt, (x+gw).toInt, (y+gh).toInt,
+					0, 0, img.getWidth, img.getHeight, null )
+			}
+			case 1 => {	// Ratio-max
+				val ratioi = img.getWidth.toFloat / img.getHeight.toFloat
+				val ratiog = gw / gh
+				
+				if( ratioi > ratiog ) {
+					val newgw = gh * ratioi
+					val newx  = x - ((newgw-gw)/2)
+					g.drawImage( img,
+							newx.toInt, y.toInt, (newx+newgw).toInt, (y+gh).toInt,
+							0, 0, img.getWidth, img.getHeight, null )
+				} else {
+					val newgh = gw / ratioi
+					val newy  = y - ((newgh-gh)/2)
+					g.drawImage( img,
+							x.toInt, newy.toInt, (x+gw).toInt, (newy+newgh).toInt,
+							0, 0, img.getWidth, img.getHeight, null )
+				}
+			}
+			case 2 => {	// Ratio-min
+				val ratioi = img.getWidth.toFloat / img.getHeight.toFloat
+				val ratiog = gw / gh
+				
+				if( ratiog > ratioi ) {
+					val newgw = gh * ratioi
+					val newx  = x + ((gw-newgw)/2)
+					g.drawImage( img,
+							newx.toInt, y.toInt, (newx+newgw).toInt, (y+gh).toInt,
+							0, 0, img.getWidth, img.getHeight, null )
+				} else {
+					val newgh = gw / ratioi
+					val newy  = y + ((gh-newgh)/2)
+					g.drawImage( img,
+							x.toInt, newy.toInt, (x+gw).toInt, (newy+newgh).toInt,
+							0, 0, img.getWidth, img.getHeight, null )
+				}
+			}
+		}
 	}
  
 	protected def strokeGraph( g:Graphics2D, camera:Camera ) {
@@ -96,7 +197,6 @@ class GraphBackgroundRenderer( val graph:GraphicGraph, val style:StyleGroup ) ex
 	protected def fillGradient( g:Graphics2D, camera:Camera ) {
 		// TODO use a Shape of the Shape library to do this.
 	  
-		val style   = graph.getStyle 
 		val metrics = camera.metrics
 
 		if( style.getFillColors.size < 2 ) {

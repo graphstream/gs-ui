@@ -87,7 +87,7 @@ trait RectangularAreaShape extends AreaShape {
   
  	def render( g:Graphics2D, camera:Camera, element:GraphicElement ) {
  		make( camera )
- 		fill( g, theShape )
+ 		fill( g, theShape, camera )
  		stroke( g, theShape )
  		decor( g, camera, element, theShape )
  	}
@@ -122,6 +122,175 @@ class RoundedSquareShape extends RectangularAreaShape {
 	}
 }
 
+abstract class PolygonalShape extends AreaShape {
+	var theShape = new Path2D.Float
+ 
+ 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
+ 	  	configureFillable( style, camera, element )
+ 	  	configureShadowable( style, camera )
+ 	  	configureStrokable( style, camera )
+ 	  	configureDecorable( style, camera )
+ 	}
+ 
+ 	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
+ 		makeShadow( camera )
+ 		cast( g, theShape )
+ 	}
+  
+ 	def render( g:Graphics2D, camera:Camera, element:GraphicElement ) {
+ 		make( camera )
+ 		fill( g, theShape, camera )
+ 		stroke( g, theShape )
+ 		decor( g, camera, element, theShape )
+ 	}	
+}
+
+class DiamondShape extends PolygonalShape {
+	def make( camera:Camera ) {
+		val x  = theCenter.x
+		val y  = theCenter.y
+		val w2 = theSize.x / 2
+		val h2 = theSize.y / 2
+
+		theShape.reset
+		theShape.moveTo( x - w2, y )
+		theShape.lineTo( x,      y - h2 )
+		theShape.lineTo( x + w2, y )
+		theShape.lineTo( x,      y + h2 )
+		theShape.closePath
+	}
+	
+	def makeShadow( camera:Camera ) {
+
+		val x  = theCenter.x + theShadowOff.x
+		val y  = theCenter.y + theShadowOff.y
+		val w2 = ( theSize.x + theShadowWidth.x ) / 2
+		val h2 = ( theSize.y + theShadowWidth.y ) / 2
+		
+		theShape.reset
+		theShape.moveTo( x - w2, y )
+		theShape.lineTo( x,      y - h2 )
+		theShape.lineTo( x + w2, y )
+		theShape.lineTo( x,      y + h2 )
+		theShape.closePath
+	}
+}
+
+class TriangleShape extends PolygonalShape {
+	def make( camera:Camera ) {
+		val x  = theCenter.x
+		val y  = theCenter.y
+		val w2 = theSize.x / 2
+		val h2 = theSize.y / 2
+		
+		theShape.reset
+		theShape.moveTo( x,      y + h2 )
+		theShape.lineTo( x + w2, y - h2 )
+		theShape.lineTo( x - w2, y - h2 )
+		theShape.closePath
+	}
+	
+	def makeShadow( camera:Camera ) {
+		val x  = theCenter.x + theShadowOff.x
+		val y  = theCenter.y + theShadowOff.y
+		val w2 = ( theSize.x + theShadowWidth.x ) / 2
+		val h2 = ( theSize.y + theShadowWidth.y ) / 2
+		
+		theShape.reset
+		theShape.moveTo( x,      y + h2 )
+		theShape.lineTo( x + w2, y - h2 )
+		theShape.lineTo( x - w2, y - h2 )
+		theShape.closePath
+	}
+}
+
+class CrossShape extends PolygonalShape {
+	def make( camera:Camera ) {
+		val x  = theCenter.x
+		val y  = theCenter.y
+		val h2 = theSize.x / 2
+		val w2 = theSize.y / 2
+		val w1 = theSize.x * 0.2f
+		val h1 = theSize.y * 0.2f
+		val w4 = theSize.x * 0.3f
+		val h4 = theSize.y * 0.3f
+		
+		theShape.reset
+		theShape.moveTo( x - w2, y + h4 )
+		theShape.lineTo( x - w4, y + h2 )
+		theShape.lineTo( x,      y + h1 )
+		theShape.lineTo( x + w4, y + h2 )
+		theShape.lineTo( x + w2, y + h4 )
+		theShape.lineTo( x + w1, y )
+		theShape.lineTo( x + w2, y - h4 )
+		theShape.lineTo( x + w4, y - h2 )
+		theShape.lineTo( x,      y - h1 )
+		theShape.lineTo( x - w4, y - h2 )
+		theShape.lineTo( x - w2, y - h4 )
+		theShape.lineTo( x - w1, y )
+		theShape.closePath
+	}
+	
+	def makeShadow( camera:Camera ) {
+		val x  = theCenter.x + theShadowOff.x
+		val y  = theCenter.y + theShadowOff.y
+		val h2 = ( theSize.x + theShadowWidth.x ) / 2
+		val w2 = ( theSize.y + theShadowWidth.y ) / 2
+		val w1 = ( theSize.x + theShadowWidth.x ) * 0.2f
+		val h1 = ( theSize.y + theShadowWidth.y ) * 0.2f
+		val w4 = ( theSize.x + theShadowWidth.x ) * 0.3f
+		val h4 = ( theSize.y + theShadowWidth.y ) * 0.3f
+		
+		theShape.reset
+		theShape.moveTo( x - w2, y + h4 )
+		theShape.lineTo( x - w4, y + h2 )
+		theShape.lineTo( x,      y + h1 )
+		theShape.lineTo( x + w4, y + h2 )
+		theShape.lineTo( x + w2, y + h4 )
+		theShape.lineTo( x + w1, y )
+		theShape.lineTo( x + w2, y - h4 )
+		theShape.lineTo( x + w4, y - h2 )
+		theShape.lineTo( x,      y - h1 )
+		theShape.lineTo( x - w4, y - h2 )
+		theShape.lineTo( x - w2, y - h4 )
+		theShape.lineTo( x - w1, y )
+		theShape.closePath
+	}
+}
+
+class FreePlaneNodeShape extends RectangularAreaShape {
+	val theShape = new Rectangle2D.Float
+	val theLineShape = new Line2D.Float 
+ 
+	override def make( camera:Camera ) {
+		var w = theSize.x
+		val h = theSize.y
+		val x = theCenter.x
+		val y = theCenter.y
+
+		theShape.setRect( x-w/2, y-h/2, w, h )
+		
+		w -= theStrokeWidth
+		
+		theLineShape.setLine( x-w/2, y-h/2, x+w/2, y-h/2 )
+	}
+	override def makeShadow( camera:Camera ) {
+		var x = theCenter.x + theShadowOff.x
+		var y = theCenter.y + theShadowOff.y
+		var w = theSize.x + theShadowWidth.x * 2
+		var h = theSize.y + theShadowWidth.y * 2
+		
+		theShape.setRect( x-w/2, y-h/2, w, h )
+		theLineShape.setLine( x-w/2, y-h/2, x+w/2, y-h/2 )
+	}
+	override def render( g:Graphics2D, camera:Camera, element:GraphicElement ) {
+ 		make( camera )
+ 		fill( g, theShape, camera )
+ 		stroke( g, theLineShape )
+ 		decor( g, camera, element, theShape )
+ 	}
+}
+
 class LineShape extends LineConnectorShape {
 	protected var theShape:java.awt.Shape = new Line2D.Float
  
@@ -135,7 +304,11 @@ class LineShape extends LineConnectorShape {
  	}
   
 	protected def make( camera:Camera ) {
-		if( isCurve ) {
+		val from = info.points(0)
+		val to   = info.points(3)
+		if( info.isCurve ) {
+			val ctrl1 = info.points(1)
+			val ctrl2 = info.points(2)
 			val curve = new CubicCurve2D.Float
 			theShape = curve
 			curve.setCurve( from.x, from.y, ctrl1.x, ctrl1.y, ctrl2.x, ctrl2.y, to.x, to.y )
@@ -146,16 +319,16 @@ class LineShape extends LineConnectorShape {
 		} 
 	}
 	protected def makeShadow( camera:Camera ) {
-		var x0 = from.x + theShadowOff.x
-		var y0 = from.y + theShadowOff.y
-		var x1 = to.x + theShadowOff.x
-		var y1 = to.y + theShadowOff.y
+		var x0 = info.points(0).x + theShadowOff.x
+		var y0 = info.points(0).y + theShadowOff.y
+		var x1 = info.points(3).x + theShadowOff.x
+		var y1 = info.points(3).y + theShadowOff.y
 		
-		if( isCurve ) {
-			var ctrlx0 = ctrl1.x + theShadowOff.x
-			var ctrly0 = ctrl1.y + theShadowOff.y
-			var ctrlx1 = ctrl2.x + theShadowOff.x
-			var ctrly1 = ctrl2.y + theShadowOff.y
+		if( info.isCurve ) {
+			var ctrlx0 = info.points(1).x + theShadowOff.x
+			var ctrly0 = info.points(1).y + theShadowOff.y
+			var ctrlx1 = info.points(2).x + theShadowOff.x
+			var ctrly1 = info.points(2).y + theShadowOff.y
 			
 			val curve = new CubicCurve2D.Float
 			theShape = curve

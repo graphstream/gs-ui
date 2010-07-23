@@ -103,5 +103,5 @@ object ImageCache {
 	 * A dummy 16x16 image used when an image cannot be loaded or found. 
 	 * @return An image.
 	 */
-	def dummyImage:Image = dummy
+	def dummyImage:BufferedImage = dummy
 }
