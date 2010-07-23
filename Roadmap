@@ -5,27 +5,31 @@ Problèmes :
 	Les ombres ne sont pas appliqués dans les événements (:selected, :clicked, etc.).
 		=> problème avec le shadow set ?
 
-Il reste � faire :
+Il reste à faire :
 
 	* Un Jar utilisable dans GS Java.
 
-	* Respecter compl�tement le CSS
-		* Formes des n�uds
+	* Respecter complétement le CSS
+		* Formes des nœuds
 		* Formes des arcs
-		* Formes des sprites
-
-	* Compl�ter le support des �v�nements par le ViewerPipe (nodeMoved, nodeClicked, nodeReleased, nodeSelected, nodeUnselected)
+		* Formes des sprites, orientation des sprites, etc.
 	
-	* Tester le viewer dans le thread Swing, sans proxy.
-		
-Am�liorations :
+	* Taille "fit" des nœuds et sprites.
 	
-	* Les contour des fl�ches ne passent pas au dessus de l'arc ?
-	* Le positionnement des fl�ches au contact des n�uds (surtout sur les courbe cubiques).
-	* Un CSS pour la zone de s�lection.
-	* Un type d'arc avec image mapp�e sur la longueur de l'arc.
+	* Forme "lines-breaks"
+	
+	* Compléter le support des événements par le ViewerPipe (nodeMoved, nodeClicked, nodeReleased, nodeSelected, nodeUnselected)
 		
+Améliorations :
+	
+	* Les contour des flèches ne passent pas au dessus de l'arc ?
+	* Le positionnement des flèches au contact des nœuds (surtout sur les courbe cubiques).
+	* Un CSS pour la zone de sélection.
+	* Un type d'arc avec image mappée sur la longueur de l'arc.
+	* Fond 9panes (pour les fond images)
+	* Un déplacement à la souris des objets avec magnétisme à une grille.
+	* Un type de fond "grille" pour mesurer les distances.
+	
 Bugs :
 
-	* Probl�me de repaint des bordures des JComponent si anti-alias est activ� ?
-	* En mode "blob" les arcs "loop" ne sonts pas corrects.
+	* Problème de repaint des bordures des JComponent si anti-alias est activ� ?

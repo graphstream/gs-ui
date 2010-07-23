@@ -1,4 +1,4 @@
-package org.graphstream.ui.j2dviewer
+package org.graphstream.ui.j2dviewer.renderer.test
 
 import scala.collection.JavaConversions._
 
