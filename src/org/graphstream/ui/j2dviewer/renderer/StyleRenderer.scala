@@ -40,7 +40,7 @@ abstract class StyleRenderer( val group:StyleGroup ) extends GraphicElement.Swin
      * This works in three phases:
      * <ol>
      * 		<li>draw all "bulk" elements using renderElement()</li>
-     * 		<li>draw all "dynamic" elments using renderElement().</li>
+     * 		<li>draw all "dynamic" elements using renderElement().</li>
      * 		<li>draw all "event" elements using renderElement().</li>
      * </ol>
      * Before drawing, the setupRenderingPass() and pushStyle() methods are called. The phase 1 is
@@ -72,7 +72,6 @@ abstract class StyleRenderer( val group:StyleGroup ) extends GraphicElement.Swin
 		if( group.hasDynamicElements ) {
 			group.dynamicElements.foreach { e =>
 				val ge = e.asInstanceOf[GraphicElement];
-					
 				if( camera.isVisible( ge ) ) {
 					if( ! group.elementHasEvents( ge ) ) {
 						pushDynStyle( g, camera, ge )

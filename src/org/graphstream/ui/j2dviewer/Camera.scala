@@ -197,16 +197,16 @@ class Camera {
   		graph.nodeSet.foreach { n =>	
   			val node = n.asInstanceOf[GraphicNode]
 			
-  			if( nodeOrSpriteContains( node, x, y ) )
+  			if( nodeContains( node, x, y ) )
   				ge = node
   		}
 	
   		graph.spriteSet.foreach { sprite =>
-  			if( nodeOrSpriteContains( sprite, x, y ) )
+  			if( spriteContains( sprite, x, y ) )
   				ge = sprite
   		}
-		
-  		ge
+  		
+ 		ge
   	 }
 	
   	/**
@@ -533,10 +533,10 @@ class Camera {
   	 * @return True if the node lies in the given area.
   	 */
   	protected def isSpriteIn( sprite:GraphicSprite, X1:Float, Y1:Float, X2:Float, Y2:Float ):Boolean = {
-  		if( sprite.isAttachedToNode ) {
-  			( ! nodeInvisible.contains( sprite.getNodeAttachment.getId ) )
-  		} else if( sprite.isAttachedToEdge ) {
-  			isEdgeVisible( sprite.getEdgeAttachment )
+  		if( sprite.isAttachedToNode && ( nodeInvisible.contains( sprite.getNodeAttachment.getId ) ) ) {
+  			false
+  		} else if( sprite.isAttachedToEdge && ! isEdgeVisible( sprite.getEdgeAttachment ) ) {
+  			false
   		} else {
   			val size = sprite.getStyle.getSize
   			val w2   = metrics.lengthToPx( size, 0 ) / 2
@@ -557,28 +557,61 @@ class Camera {
   	}
    
   	protected def spritePositionPx( sprite:GraphicSprite ):Point2D.Float = {
-  		sprite.getUnits match {
-  			case Units.PX       => { new Point2D.Float( sprite.getX, sprite.getY ) }
-  			case Units.GU       => { val pos = new Point2D.Float( sprite.getX, sprite.getY ); Tx.transform( pos, pos ).asInstanceOf[Point2D.Float] }
-  			case Units.PERCENTS => { new Point2D.Float( (sprite.getX/100f)*metrics.viewport.data(0), (sprite.getY/100f)*metrics.viewport.data(1) ) }
-  		}
+  		val pos = new Point2D.Float
+  		
+  		getSpritePosition( sprite, pos, Units.PX )
+  		
+//  		sprite.getUnits match {
+//  			case Units.PX       => { new Point2D.Float( sprite.getX, sprite.getY ) }
+//  			case Units.GU       => { val pos = new Point2D.Float( sprite.getX, sprite.getY ); Tx.transform( pos, pos ).asInstanceOf[Point2D.Float] }
+//  			case Units.PERCENTS => { new Point2D.Float( (sprite.getX/100f)*metrics.viewport.data(0), (sprite.getY/100f)*metrics.viewport.data(1) ) }
+//  		}
   	}
 
   	/**
-  	 * Check if a node or sprite contains the given point (x,y).
-  	 * @param elt The node or sprite.
+  	 * Check if a node contains the given point (x,y).
+  	 * @param elt The node.
   	 * @param x The point abscissa.
   	 * @param y The point ordinate.
   	 * @return True if (x,y) is in the given element.
   	 */
-  	protected def nodeOrSpriteContains( elt:GraphicElement, x:Float, y:Float ):Boolean = {
-  		val size = elt.getStyle.getSize
+  	protected def nodeContains( elt:GraphicElement, x:Float, y:Float ):Boolean = {
+  		val size = elt.getStyle.getSize	// TODO use nodeinfo
   		val w2   = metrics.lengthToPx( size, 0 ) / 2
   		val h2   = if( size.size() > 1 ) metrics.lengthToPx( size, 1 )/2 else w2
   		val src  = new Point2D.Float( elt.getX(), elt.getY() )
   		val dst  = new Point2D.Float
 		
   		Tx.transform( src, dst )
+
+  		val x1 = dst.x - w2
+  		val x2 = dst.x + w2
+  		val y1 = dst.y - h2
+  		val y2 = dst.y + h2
+		
+  		if( x < x1 )      false
+  		else if( y < y1 ) false
+  		else if( x > x2 ) false
+  		else if( y > y2 ) false
+  		else true	
+  	}
+
+  	/**
+  	 * Check if a sprite contains the given point (x,y).
+  	 * @param elt The sprite.
+  	 * @param x The point abscissa.
+  	 * @param y The point ordinate.
+  	 * @return True if (x,y) is in the given element.
+  	 */
+  	protected def spriteContains( elt:GraphicElement, x:Float, y:Float ):Boolean = {
+  		val sprite = elt.asInstanceOf[GraphicSprite]
+  		val size   = sprite.getStyle.getSize // TODO use nodeinfo
+  		val w2     = metrics.lengthToPx( size, 0 ) / 2
+  		val h2     = if( size.size() > 1 ) metrics.lengthToPx( size, 1 )/2 else w2
+  		val dst    = spritePositionPx( sprite ) // new Point2D.Float( sprite.getX(), sprite.getY() )
+//  		val dst    = new Point2D.Float
+//	
+//  		Tx.transform( src, dst )
 
   		val x1 = dst.x - w2
   		val x2 = dst.x + w2
@@ -712,12 +745,12 @@ class Camera {
   			pos.x = CubicCurve.eval( p0.x, p1.x, p2.x, p3.x, sprite.getX ) + perp.x
   			pos.y = CubicCurve.eval( p0.y, p1.y, p2.y, p3.y, sprite.getX ) + perp.y
   		} else {
-  			var x  = info.points(0).x // edge.from.x
-  			var y  = info.points(0).y // edge.from.y
-  			var dx = info.points(3).x - x // edge.to.x - x
-  			var dy = info.points(3).y - y // edge.to.y - y
-  			var d  = sprite.getX						// Percent on the edge.
-  			val o  = sprite.getY						// Offset from the position given by percent, perpendicular to the edge.
+  			var x  = info.points(0).x 			// edge.from.x
+  			var y  = info.points(0).y 			// edge.from.y
+  			var dx = info.points(3).x - x 		// edge.to.x - x
+  			var dy = info.points(3).y - y 		// edge.to.y - y
+  			var d  = sprite.getX				// Percent on the edge.
+  			val o  = sprite.getY				// Offset from the position given by percent, perpendicular to the edge.
 			
   			d = if( d > 1 ) 1 else d
   			d = if( d < 0 ) 0 else d

@@ -45,11 +45,11 @@ object ShapeStroke {
 		
 		def stroke( width:Float ):Stroke = {
 			if( width == oldWidth ) {
-				if( oldStroke == null ) oldStroke = new BasicStroke( width )	// WTF ??
+				if( oldStroke == null ) oldStroke = new BasicStroke( width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL )	// WTF ??
 				oldStroke
 			} else {
 				oldWidth  = width
-				oldStroke = new BasicStroke( width )
+				oldStroke = new BasicStroke( width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL )
 				oldStroke
 			}
 		}

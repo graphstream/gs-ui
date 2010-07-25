@@ -1,7 +1,8 @@
 package org.graphstream.ui.j2dviewer.renderer
 
 import java.awt.Graphics2D
-import org.graphstream.ui.graphicGraph.{GraphicElement, StyleGroup}
+import org.graphstream.ui.geom.Point2
+import org.graphstream.ui.graphicGraph.{GraphicElement, GraphicNode, StyleGroup}
 import org.graphstream.ui.j2dviewer.{Camera, J2DGraphRenderer}
 import org.graphstream.ui.j2dviewer.renderer.shape._
 
@@ -21,22 +22,45 @@ class NodeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 	protected def pushDynStyle( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		val size = group.getSize
 		shape.configure( g, group, camera, element )
-		shape.size( group, camera )
+		shape.dynSize( group, camera, element )
 	}
 	
 	protected def renderElement( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		shape.text = element.label
-		shape.position( element.getX, element.getY )
+		val info = getOrSetNodeInfo( element )
+		shape.position( info, element.getX, element.getY )
 		shape.render( g, camera, element )
 	}
 	
 	protected def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
-		shape.position( element.getX, element.getY )
+		val info = getOrSetNodeInfo( element )
+		shape.position( info, element.getX, element.getY )
 		shape.renderShadow( g, camera, element )
 	}
  
 	protected def elementInvisible( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		// NOP
+	}	
+		
+	/** Retrieve the node shared informations stored on the given node element.
+	 * If such information is not yet present, add it to the element. 
+	 * @param element The element to look for.
+	 * @return The node information.
+	 * @throws RuntimeException if the element is not a node.
+	 */
+	protected def getOrSetNodeInfo( element:GraphicElement ):NodeInfo= {
+		if( element.isInstanceOf[GraphicNode] ) {
+			var info = element.getAttribute( "j2dvni" ).asInstanceOf[NodeInfo]
+			
+			if( info eq null ) {
+				info = new NodeInfo
+				element.setAttribute( "j2dvni", info )
+			}
+			
+			info
+		} else {
+			throw new RuntimeException( "Trying to get NodeInfo on non-node ..." )
+		}
 	}
  
 	protected def chooseShape():AreaShape = {
@@ -70,4 +94,8 @@ object NodeRenderer {
 		     new JComponentRenderer( style, mainRenderer )
 		else new NodeRenderer( style )
 	}
+}
+
+class NodeInfo {
+	var theSize = new Point2( 0, 0 )
 }

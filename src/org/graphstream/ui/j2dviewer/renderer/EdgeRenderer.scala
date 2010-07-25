@@ -30,7 +30,7 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 	protected def pushDynStyle( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 	  	val size = group.getSize
 		shape.configure( g, group, camera, element )
-		shape.size( group, camera )
+		shape.dynSize( group, camera, element )
 		
 		if( arrow != null ) {
 			arrow.configure( g, group, camera, element )
@@ -44,14 +44,15 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 		
 		shape.text = element.label
 		
-		shape.endPoints( edge.from.getStyle, edge.to.getStyle, edge.isDirected, camera )
+		shape.endPoints( edge.from, edge.to, edge.isDirected, camera )
+//		shape.endPoints( edge.from.getStyle, edge.to.getStyle, edge.isDirected, camera )
 		shape.position( info, edge.from.getStyle, edge.from.getX, edge.from.getY, edge.to.getX, edge.to.getY, edge.multi, edge.getGroup )
 		shape.render( g, camera, element )
   
 		if( edge.isDirected && arrow != null ) {
 		  	arrow.connector( edge )
 		  	arrow.direction( shape )
-		  	arrow.position( edge.to.getX, edge.to.getY )
+		  	arrow.position( null, edge.to.getX, edge.to.getY )
 		  	arrow.render( g, camera, element )
 		}
 	}
@@ -60,20 +61,21 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 		val edge = element.asInstanceOf[GraphicEdge]
 		val info = getOrSetEdgeInfo( element )
 		
-		shape.endPoints( edge.from.getStyle, edge.to.getStyle, edge.isDirected, camera )
+		shape.endPoints( edge.from, edge.to, edge.isDirected, camera )
+//		shape.endPoints( edge.from.getStyle, edge.to.getStyle, edge.isDirected, camera )
 		shape.position( info, edge.from.getStyle, edge.from.getX, edge.from.getY, edge.to.getX, edge.to.getY, edge.multi, edge.getGroup )
 		shape.renderShadow( g, camera, element )
   
 		if( edge.isDirected && arrow != null ) {
 		  	arrow.connector( edge )
 			arrow.direction( shape )
-			arrow.position( edge.to.getX, edge.to.getY )
+			arrow.position( null, edge.to.getX, edge.to.getY )
 			arrow.renderShadow( g, camera, element )
 		}
 	}
 	
-	/** Retrieve the edge informations stored on the given edge element. If such information is not
-	 * yet present, add it to the element. 
+	/** Retrieve the shared edge informations stored on the given edge element.
+	 * If such information is not yet present, add it to the element. 
 	 * @param element The element to look for.
 	 * @return The edge information.
 	 * @throws RuntimeException if the element is not an edge.

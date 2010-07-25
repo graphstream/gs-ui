@@ -81,7 +81,7 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 													
 	protected def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		if( shadow != null ) {
-			shadow.position( element.getX, element.getY )
+			shadow.position( null, element.getX, element.getY )
 			shadow.renderShadow( g, camera, element )
 		}
 	}

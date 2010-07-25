@@ -4,16 +4,14 @@ import java.awt.{Color, Graphics2D, Image, Paint, Stroke}
 import java.awt.geom.RectangularShape
 
 import org.graphstream.ui.j2dviewer.Camera
-import org.graphstream.ui.j2dviewer.renderer.EdgeInfo
+import org.graphstream.ui.j2dviewer.renderer.{NodeInfo, EdgeInfo}
 import org.graphstream.ui.util.GraphMetrics
 import org.graphstream.ui.geom.Point2
 import org.graphstream.ui.sgeom.{Vector2, EdgePoints}
-import org.graphstream.ui.graphicGraph.{GraphicElement, GraphicEdge}
+import org.graphstream.ui.graphicGraph.{GraphicElement, GraphicNode, GraphicEdge}
 import org.graphstream.ui.graphicGraph.stylesheet.{Style, StyleConstants}
 
-/**
- * Base for all shapes.
- */
+/** Base for all shapes. */
 trait Shape {
 // Command
     
@@ -301,7 +299,24 @@ trait Area {
   
 		theSize.set( w, h )
 	}
-	def position( x:Float, y:Float ) { theCenter.set( x, y ) }
+	def dynSize( style:Style, camera:Camera, element:GraphicElement ) {
+		var w = camera.metrics.lengthToGu( style.getSize, 0 )
+		var h = if( style.getSize.size > 1 ) camera.metrics.lengthToGu( style.getSize, 1 ) else w
+
+		if( element.hasAttribute( "ui.size" ) ) {
+			w = camera.metrics.lengthToGu( StyleConstants.convertValue( element.getAttribute( "ui.size" ) ) )
+			h = w;
+		}
+  
+		theSize.set( w, h )
+	}
+	def position( info:NodeInfo, x:Float, y:Float ) {
+		if( info != null ) {
+			info.theSize.copy( theSize )
+		}
+
+		theCenter.set( x, y )
+	}
 }
 
 /**
@@ -315,11 +330,14 @@ trait Connector {
 	/** Width of the connector. */
 	protected var theSize:Float = 0
 	
+	/** Size of the element at the end of the connector. */
+//	protected var theSourceInfo:NodeInfo = null
+	
 	/** Size of the element at the origin of the connector. */
+//	protected var theTargetInfo:NodeInfo = null
+	
 	protected var theTargetSizeX = 0f
 	protected var theTargetSizeY = 0f
-	
-	/** Size of the element at the end of the connector. */
 	protected var theSourceSizeX = 0f
 	protected var theSourceSizeY = 0f
 	
@@ -346,7 +364,34 @@ trait Connector {
 	/** Set the size of the connector using a predefined style. */
 	def size( style:Style, camera:Camera ) { size( camera.metrics.lengthToGu( style.getSize, 0 ) ) }
 	
-	/** Define the two end points sizes. */
+	def dynSize( style:Style, camera:Camera, element:GraphicElement ) {
+		var w = camera.metrics.lengthToGu( style.getSize, 0 )
+		
+		if( element.hasAttribute( "ui.size" ) ) {
+			w = camera.metrics.lengthToGu( StyleConstants.convertValue( element.getAttribute( "ui.size" ) ) )
+		}
+		
+		size( w )
+	}
+	
+	/** Define the two end points sizes using the fit size stored in the nodes. */
+	def endPoints( from:GraphicNode, to:GraphicNode, directed:Boolean, camera:Camera ) {
+		val fromInfo = from.getAttribute( "j2dvni" ).asInstanceOf[NodeInfo]
+		val toInfo   = to.getAttribute( "j2dvni" ).asInstanceOf[NodeInfo]
+		
+		if( fromInfo != null && toInfo != null ) {
+//Console.err.printf( "Using the dynamic size%n" )
+			isDirected     = directed
+			theSourceSizeX = fromInfo.theSize.x
+			theSourceSizeY = fromInfo.theSize.y
+			theTargetSizeX = toInfo.theSize.x
+			theTargetSizeY = toInfo.theSize.y
+		} else {
+			endPoints( from.getStyle, to.getStyle, directed, camera )
+		}
+	}
+	
+	/** Define the two end points sizes (does not use the style nor the fit size). */
 	def endPoints( sourceWidth:Float, targetWidth:Float, directed:Boolean ) {
 		theSourceSizeX = sourceWidth
 		theSourceSizeY = sourceWidth
@@ -355,7 +400,7 @@ trait Connector {
 		isDirected = directed
 	}
 	
-	/** Define the two end points sizes. */
+	/** Define the two end points sizes (does not use the style nor the fit size). */
 	def endPoints( sourceWidth:Float, sourceHeight:Float, targetWidth:Float, targetHeight:Float, directed:Boolean ) {
 		theSourceSizeX = sourceWidth
 		theSourceSizeY = sourceHeight
@@ -364,7 +409,7 @@ trait Connector {
 		isDirected = directed
 	}
 	
-	/** Compute the two end points sizes. */
+	/** Compute the two end points sizes using the style (may not use the fit size). */
 	def endPoints( sourceStyle:Style, targetStyle:Style, directed:Boolean, camera:Camera ) {
 		theSourceSizeX = camera.metrics.lengthToGu( sourceStyle.getSize, 0 )
 		

@@ -23,29 +23,52 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 	protected def pushDynStyle( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		val size = group.getSize
 		shape.configure( g, group, camera, element )
-		shape.size( group, camera )
+		shape.dynSize( group, camera, element )
 	}
 	
 	protected def renderElement( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		val sprite = element.asInstanceOf[GraphicSprite]
 		val pos    = camera.getSpritePosition( sprite, new Point2D.Float, StyleConstants.Units.GU )
-
+		val info   = getOrSetSpriteInfo( element )
+		
 		shape.text = element.label
-		shape.position( pos.x, pos.y )
+		shape.position( info, pos.x, pos.y )
 		shape.render( g, camera, element )
 	}
 	
 	protected def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		val sprite = element.asInstanceOf[GraphicSprite]
 		val pos    = camera.getSpritePosition( sprite, new Point2D.Float, StyleConstants.Units.GU )
+		val info   = getOrSetSpriteInfo( element )
 
-		shape.position( pos.x, pos.y )
+		shape.position( info, pos.x, pos.y )
 		shape.renderShadow( g, camera, element )
 	}
  
 	protected def elementInvisible( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 	}
  
+	/** Retrieve the node shared informations stored on the given node element.
+	 * If such information is not yet present, add it to the element. 
+	 * @param element The element to look for.
+	 * @return The node information.
+	 * @throws RuntimeException if the element is not a node.
+	 */
+	protected def getOrSetSpriteInfo( element:GraphicElement ):NodeInfo= {
+		if( element.isInstanceOf[GraphicSprite] ) {
+			var info = element.getAttribute( "j2dvsi" ).asInstanceOf[NodeInfo]
+			
+			if( info eq null ) {
+				info = new NodeInfo
+				element.setAttribute( "j2dvsi", info )
+			}
+			
+			info
+		} else {
+			throw new RuntimeException( "Trying to get NodeInfo on non-node ..." )
+		}
+	}
+
 	protected def chooseShape():AreaShape = {
 		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Shape._
 		group.getShape match {
