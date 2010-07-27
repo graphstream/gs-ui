@@ -5,7 +5,6 @@ import org.graphstream.ui.graphicGraph.{GraphicElement, StyleGroup, GraphicEdge}
 import org.graphstream.ui.j2dviewer.J2DGraphRenderer
 import org.graphstream.ui.j2dviewer.Camera
 import org.graphstream.ui.j2dviewer.renderer.shape._
-import org.graphstream.ui.sgeom.EdgePoints
 
 class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) {
 	var shape:ConnectorShape = null
@@ -44,16 +43,17 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 		
 		shape.text = element.label
 		
+		shape.setupContents( g, camera, element, info )
 		shape.endPoints( edge.from, edge.to, edge.isDirected, camera )
 //		shape.endPoints( edge.from.getStyle, edge.to.getStyle, edge.isDirected, camera )
 		shape.position( info, edge.from.getStyle, edge.from.getX, edge.from.getY, edge.to.getX, edge.to.getY, edge.multi, edge.getGroup )
-		shape.render( g, camera, element )
+		shape.render( g, camera, element, info )
   
 		if( edge.isDirected && arrow != null ) {
 		  	arrow.connector( edge )
 		  	arrow.direction( shape )
-		  	arrow.position( null, edge.to.getX, edge.to.getY )
-		  	arrow.render( g, camera, element )
+		  	arrow.positionAndFit( g, camera, null, edge.to, edge.to.getX, edge.to.getY )
+		  	arrow.render( g, camera, element, info )
 		}
 	}
 	
@@ -61,16 +61,17 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 		val edge = element.asInstanceOf[GraphicEdge]
 		val info = getOrSetEdgeInfo( element )
 		
+		shape.setupContents( g, camera, element, info )
 		shape.endPoints( edge.from, edge.to, edge.isDirected, camera )
 //		shape.endPoints( edge.from.getStyle, edge.to.getStyle, edge.isDirected, camera )
 		shape.position( info, edge.from.getStyle, edge.from.getX, edge.from.getY, edge.to.getX, edge.to.getY, edge.multi, edge.getGroup )
-		shape.renderShadow( g, camera, element )
+		shape.renderShadow( g, camera, element, info )
   
 		if( edge.isDirected && arrow != null ) {
 		  	arrow.connector( edge )
 			arrow.direction( shape )
-			arrow.position( null, edge.to.getX, edge.to.getY )
-			arrow.renderShadow( g, camera, element )
+			arrow.positionAndFit( g, camera, null, edge.to, edge.to.getX, edge.to.getY )
+			arrow.renderShadow( g, camera, element, info )
 		}
 	}
 	
@@ -82,11 +83,11 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 	 */
 	protected def getOrSetEdgeInfo( element:GraphicElement ):EdgeInfo= {
 		if( element.isInstanceOf[GraphicEdge] ) {
-			var info = element.getAttribute( "j2dvei" ).asInstanceOf[EdgeInfo]
+			var info = element.getAttribute( ElementInfo.attributeName ).asInstanceOf[EdgeInfo]
 			
 			if( info eq null ) {
 				info = new EdgeInfo
-				element.setAttribute( "j2dvei", info )
+				element.setAttribute( ElementInfo.attributeName, info )
 			}
 			
 			info
@@ -129,12 +130,4 @@ object EdgeRenderer {
 	def apply( style:StyleGroup, mainRenderer:J2DGraphRenderer ):StyleRenderer = {
 		new EdgeRenderer( style )
 	}
-}
-
-/** Data stored on the edge to retrieve the edge points and various shared data between parts of the renderer. */
-class EdgeInfo {
-	val points = new EdgePoints( 4 )
-	var isCurve = false
-	var isMulti = 1
-	var isLoop = false
 }

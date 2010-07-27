@@ -32,8 +32,9 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 		val info   = getOrSetSpriteInfo( element )
 		
 		shape.text = element.label
-		shape.position( info, pos.x, pos.y )
-		shape.render( g, camera, element )
+		shape.setupContents( g, camera, element, info )
+		shape.positionAndFit( g, camera, info, element, pos.x, pos.y )
+		shape.render( g, camera, element, info )
 	}
 	
 	protected def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
@@ -41,8 +42,9 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 		val pos    = camera.getSpritePosition( sprite, new Point2D.Float, StyleConstants.Units.GU )
 		val info   = getOrSetSpriteInfo( element )
 
-		shape.position( info, pos.x, pos.y )
-		shape.renderShadow( g, camera, element )
+		shape.setupContents( g, camera, element, info )
+		shape.positionAndFit( g, camera, info, element, pos.x, pos.y )
+		shape.renderShadow( g, camera, element, info )
 	}
  
 	protected def elementInvisible( g:Graphics2D, camera:Camera, element:GraphicElement ) {
@@ -56,11 +58,11 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 	 */
 	protected def getOrSetSpriteInfo( element:GraphicElement ):NodeInfo= {
 		if( element.isInstanceOf[GraphicSprite] ) {
-			var info = element.getAttribute( "j2dvsi" ).asInstanceOf[NodeInfo]
+			var info = element.getAttribute( ElementInfo.attributeName ).asInstanceOf[NodeInfo]
 			
 			if( info eq null ) {
 				info = new NodeInfo
-				element.setAttribute( "j2dvsi", info )
+				element.setAttribute( ElementInfo.attributeName, info )
 			}
 			
 			info

@@ -71,7 +71,7 @@ private class TestFreePlane extends ViewerListener {
 		E("label")    = "Topic5"
 		F("label")    = "SubTopic1"
 		G("label")    = "SubTopic2"
-		H("label")    = "SubTopic3"
+		H("label")    = "Very Long Sub Topic ..."
 		
 		while( loop ) {
 			pipeIn.pump
@@ -108,7 +108,8 @@ private class TestFreePlane extends ViewerListener {
  			} 
 			node {
 				shape: freeplane;
-				size: 90px, 25px;
+				size: 10px;
+				size-mode: fit;
 				fill-mode: none;
 				stroke-mode: plain; 
 				stroke-color: grey;

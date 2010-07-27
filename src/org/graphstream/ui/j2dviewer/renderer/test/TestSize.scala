@@ -147,6 +147,7 @@ class TestSize extends ViewerListener {
 				size: 1px;
 			}
 			sprite {
+				shape: box;
 				fill-color: #FCC;
 				stroke-mode: plain;
 				stroke-color: black;

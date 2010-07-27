@@ -5,6 +5,7 @@ import org.graphstream.ui.geom.Point2
 import org.graphstream.ui.graphicGraph.{GraphicElement, GraphicNode, StyleGroup}
 import org.graphstream.ui.j2dviewer.{Camera, J2DGraphRenderer}
 import org.graphstream.ui.j2dviewer.renderer.shape._
+import org.graphstream.ui.sgeom.EdgePoints
 
 class NodeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) {
 	protected var shape:AreaShape = null
@@ -28,14 +29,16 @@ class NodeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 	protected def renderElement( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		shape.text = element.label
 		val info = getOrSetNodeInfo( element )
-		shape.position( info, element.getX, element.getY )
-		shape.render( g, camera, element )
+		shape.setupContents( g, camera, element, info )
+		shape.positionAndFit( g, camera, info, element, element.getX, element.getY )
+		shape.render( g, camera, element, info )
 	}
 	
 	protected def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		val info = getOrSetNodeInfo( element )
-		shape.position( info, element.getX, element.getY )
-		shape.renderShadow( g, camera, element )
+		shape.setupContents( g, camera, element, info )
+		shape.positionAndFit( g, camera, info, element, element.getX, element.getY )
+		shape.renderShadow( g, camera, element, info )
 	}
  
 	protected def elementInvisible( g:Graphics2D, camera:Camera, element:GraphicElement ) {
@@ -50,11 +53,11 @@ class NodeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 	 */
 	protected def getOrSetNodeInfo( element:GraphicElement ):NodeInfo= {
 		if( element.isInstanceOf[GraphicNode] ) {
-			var info = element.getAttribute( "j2dvni" ).asInstanceOf[NodeInfo]
+			var info = element.getAttribute( ElementInfo.attributeName ).asInstanceOf[NodeInfo]
 			
 			if( info eq null ) {
 				info = new NodeInfo
-				element.setAttribute( "j2dvni", info )
+				element.setAttribute( ElementInfo.attributeName, info )
 			}
 			
 			info
@@ -96,6 +99,25 @@ object NodeRenderer {
 	}
 }
 
-class NodeInfo {
+object ElementInfo {
+	def attributeName = "j2dvi"
+}
+
+/** Elements of rendering that, contrary to the shapes, are specific to the element, not the style group. */
+class ElementInfo {
+	var iconAndText:IconAndText = null
+}
+
+/** Specific element info for nodes. */
+class NodeInfo extends ElementInfo {
 	var theSize = new Point2( 0, 0 )
+}
+
+/** Element information specific to the edges.
+ *  Data stored on the edge to retrieve the edge points and various shared data between parts of the renderer. */
+class EdgeInfo extends ElementInfo {
+	val points = new EdgePoints( 4 )
+	var isCurve = false
+	var isMulti = 1
+	var isLoop = false
 }

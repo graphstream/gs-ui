@@ -20,6 +20,8 @@ Il reste à faire :
 	
 	* Compléter le support des événements par le ViewerPipe (nodeMoved, nodeClicked, nodeReleased, nodeSelected, nodeUnselected)
 		
+	* Icon at right, bottom, up.
+
 Améliorations :
 	
 	* Les contour des flèches ne passent pas au dessus de l'arc ?
@@ -32,4 +34,9 @@ Améliorations :
 	
 Bugs :
 
-	* Problème de repaint des bordures des JComponent si anti-alias est activ� ?
+	* Problème de repaint des bordures des JComponent si anti-alias est activé ?
+	* Problème de déplacement des sprites attachés, ce sont les coordonnées d'attachement qui sont modifiées.
+	* Pour les tailles dynamiques, si les arcs sont dessinés avant les noeuds et que leur point
+	  d'attachement dépend de la taille du noeud, l'arc est mal dessiné s'il n'y a pas deux frames
+	  de dessinées. Problème d'ordre : positionAndFit (et les nodeinfos) devraient être faits dès le
+	  début du rendu.

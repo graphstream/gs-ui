@@ -7,7 +7,7 @@ import org.graphstream.ui.graphicGraph.GraphicElement
 import org.graphstream.ui.graphicGraph.stylesheet.Style
 import org.graphstream.ui.j2dviewer.Camera
 import org.graphstream.ui.util.GraphMetrics
-
+import org.graphstream.ui.j2dviewer.renderer.{ElementInfo, NodeInfo, EdgeInfo}
 
 /**
  * Base for shapes centered around one point.
@@ -64,14 +64,14 @@ trait RectangularAreaShape extends AreaShape {
  	  	configureDecorable( style, camera )
  	}
  
- 	protected def make( camera:Camera ) {
+ 	protected def make( g:Graphics2D, camera:Camera ) {
 		val w = theSize.x
 		val h = theSize.y
 		
 		theShape.setFrame( theCenter.x-w/2, theCenter.y-h/2, w, h )
  	}
  
- 	protected def makeShadow( camera:Camera ) {
+ 	protected def makeShadow( g:Graphics2D, camera:Camera ) {
 		val x = theCenter.x + theShadowOff.x
 		val y = theCenter.y + theShadowOff.y
 		val w = theSize.x + theShadowWidth.x * 2
@@ -80,17 +80,30 @@ trait RectangularAreaShape extends AreaShape {
 		theShape.setFrame( x-w/2, y-h/2, w, h )
  	}
   
- 	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
- 		makeShadow( camera )
+ 	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		makeShadow( g, camera )
  		cast( g, theShape )
  	}
   
- 	def render( g:Graphics2D, camera:Camera, element:GraphicElement ) {
- 		make( camera )
+ 	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		make( g, camera )
  		fill( g, theShape, camera )
  		stroke( g, theShape )
- 		decor( g, camera, element, theShape )
+ 		decor( g, camera, info.iconAndText, element, theShape )
  	}
+ 	
+ 	override def positionAndFit( g:Graphics2D, camera:Camera, info:NodeInfo, element:GraphicElement, x:Float, y:Float ) {
+ 		if( fit ) {
+			// Compute the real size and propagate it to the node info.
+			val decorSize = theDecor.size( g, camera, info.iconAndText )
+
+			if( decorSize._1 > 0 && decorSize._2 > 0 ) {
+				theSize.set( decorSize._1, decorSize._2 )
+			}
+		}
+
+		super.positionAndFit(  g, camera, info, element, x, y )
+	}
 }
 
 class CircleShape extends RectangularAreaShape {
@@ -104,14 +117,14 @@ class SquareShape extends RectangularAreaShape {
 class RoundedSquareShape extends RectangularAreaShape {
 	val theShape = new RoundRectangle2D.Float
  
-	override def make( camera:Camera ) {
+	override def make( g:Graphics2D, camera:Camera ) {
 		var w = theSize.x
 		var h = theSize.y
 		var r = if( h/8 > w/8 ) w/8 else h/8 
   
 		theShape.setRoundRect( theCenter.x-w/2, theCenter.y-h/2, w, h, r, r )
 	}
-	override def makeShadow( camera:Camera ) {
+	override def makeShadow( g:Graphics2D, camera:Camera ) {
 		var x = theCenter.x + theShadowOff.x
 		var y = theCenter.y + theShadowOff.y
 		var w = theSize.x + theShadowWidth.x * 2
@@ -132,21 +145,34 @@ abstract class PolygonalShape extends AreaShape {
  	  	configureDecorable( style, camera )
  	}
  
- 	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
- 		makeShadow( camera )
+ 	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		makeShadow( g, camera )
  		cast( g, theShape )
  	}
   
- 	def render( g:Graphics2D, camera:Camera, element:GraphicElement ) {
- 		make( camera )
+ 	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		make( g, camera )
  		fill( g, theShape, camera )
  		stroke( g, theShape )
- 		decor( g, camera, element, theShape )
+ 		decor( g, camera, info.iconAndText, element, theShape )
  	}	
+ 	 	
+ 	override def positionAndFit( g:Graphics2D, camera:Camera, info:NodeInfo, element:GraphicElement, x:Float, y:Float ) {
+		if( fit ) {
+			// Compute the real size and propagate it to the node info.
+			val decorSize = theDecor.size( g, camera, info.iconAndText )
+			
+			if( decorSize._1 > 0 && decorSize._2 > 0 ) {
+				theSize.set( decorSize._1, decorSize._2 )
+			}
+		}
+
+		super.positionAndFit(  g, camera, info, element, x, y )
+	}
 }
 
 class DiamondShape extends PolygonalShape {
-	def make( camera:Camera ) {
+	def make( g:Graphics2D, camera:Camera ) {
 		val x  = theCenter.x
 		val y  = theCenter.y
 		val w2 = theSize.x / 2
@@ -160,7 +186,7 @@ class DiamondShape extends PolygonalShape {
 		theShape.closePath
 	}
 	
-	def makeShadow( camera:Camera ) {
+	def makeShadow( g:Graphics2D, camera:Camera ) {
 
 		val x  = theCenter.x + theShadowOff.x
 		val y  = theCenter.y + theShadowOff.y
@@ -177,7 +203,7 @@ class DiamondShape extends PolygonalShape {
 }
 
 class TriangleShape extends PolygonalShape {
-	def make( camera:Camera ) {
+	def make( g:Graphics2D, camera:Camera ) {
 		val x  = theCenter.x
 		val y  = theCenter.y
 		val w2 = theSize.x / 2
@@ -190,7 +216,7 @@ class TriangleShape extends PolygonalShape {
 		theShape.closePath
 	}
 	
-	def makeShadow( camera:Camera ) {
+	def makeShadow( g:Graphics2D, camera:Camera ) {
 		val x  = theCenter.x + theShadowOff.x
 		val y  = theCenter.y + theShadowOff.y
 		val w2 = ( theSize.x + theShadowWidth.x ) / 2
@@ -205,7 +231,7 @@ class TriangleShape extends PolygonalShape {
 }
 
 class CrossShape extends PolygonalShape {
-	def make( camera:Camera ) {
+	def make( g:Graphics2D, camera:Camera ) {
 		val x  = theCenter.x
 		val y  = theCenter.y
 		val h2 = theSize.x / 2
@@ -231,7 +257,7 @@ class CrossShape extends PolygonalShape {
 		theShape.closePath
 	}
 	
-	def makeShadow( camera:Camera ) {
+	def makeShadow( g:Graphics2D, camera:Camera ) {
 		val x  = theCenter.x + theShadowOff.x
 		val y  = theCenter.y + theShadowOff.y
 		val h2 = ( theSize.x + theShadowWidth.x ) / 2
@@ -262,7 +288,7 @@ class FreePlaneNodeShape extends RectangularAreaShape {
 	val theShape = new Rectangle2D.Float
 	val theLineShape = new Line2D.Float 
  
-	override def make( camera:Camera ) {
+	override def make( g:Graphics2D, camera:Camera ) {
 		var w = theSize.x
 		val h = theSize.y
 		val x = theCenter.x
@@ -274,7 +300,8 @@ class FreePlaneNodeShape extends RectangularAreaShape {
 		
 		theLineShape.setLine( x-w/2, y-h/2, x+w/2, y-h/2 )
 	}
-	override def makeShadow( camera:Camera ) {
+
+	override def makeShadow( g:Graphics2D, camera:Camera ) {
 		var x = theCenter.x + theShadowOff.x
 		var y = theCenter.y + theShadowOff.y
 		var w = theSize.x + theShadowWidth.x * 2
@@ -283,11 +310,12 @@ class FreePlaneNodeShape extends RectangularAreaShape {
 		theShape.setRect( x-w/2, y-h/2, w, h )
 		theLineShape.setLine( x-w/2, y-h/2, x+w/2, y-h/2 )
 	}
-	override def render( g:Graphics2D, camera:Camera, element:GraphicElement ) {
- 		make( camera )
+
+	override def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		make( g, camera )
  		fill( g, theShape, camera )
  		stroke( g, theLineShape )
- 		decor( g, camera, element, theShape )
+ 		decor( g, camera, info.iconAndText, element, theShape )
  	}
 }
 
@@ -303,7 +331,7 @@ class LineShape extends LineConnectorShape {
  	  	configureDecorable( style, camera )
  	}
   
-	protected def make( camera:Camera ) {
+	protected def make( g:Graphics2D, camera:Camera ) {
 		val from = info.points(0)
 		val to   = info.points(3)
 		if( info.isCurve ) {
@@ -318,7 +346,7 @@ class LineShape extends LineConnectorShape {
 			line.setLine( from.x, from.y, to.x, to.y )
 		} 
 	}
-	protected def makeShadow( camera:Camera ) {
+	protected def makeShadow( g:Graphics2D, camera:Camera ) {
 		var x0 = info.points(0).x + theShadowOff.x
 		var y0 = info.points(0).y + theShadowOff.y
 		var x1 = info.points(3).x + theShadowOff.x
@@ -340,15 +368,15 @@ class LineShape extends LineConnectorShape {
 		} 
 	}
  
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
- 		makeShadow( camera )
+	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		makeShadow( g, camera )
  		cast( g, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement ) {
- 		make( camera )
+	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		make( g, camera )
  		stroke( g, theShape )
  		fill( g, theSize, theShape )
- 		decor( g, camera, element, theShape )
+ 		decor( g, camera, info.iconAndText, element, theShape )
 	}
 }

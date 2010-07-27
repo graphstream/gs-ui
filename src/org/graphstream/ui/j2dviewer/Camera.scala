@@ -20,8 +20,9 @@ import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 import org.graphstream.ui.util.{GraphMetrics, CubicCurve}
 import org.graphstream.ui.geom.Point2
 import org.graphstream.ui.sgeom.Vector2
-import org.graphstream.ui.j2dviewer.renderer.EdgeInfo
+import org.graphstream.ui.j2dviewer.renderer.{ElementInfo, EdgeInfo, NodeInfo}
 
+import scala.math._
 import org.graphstream.ScalaGS._
 
 //import org.graphstream.ui.j2dviewer.util.GraphMetrics
@@ -35,8 +36,8 @@ import org.graphstream.ScalaGS._
  * from the first to the second. It also contains the graph metrics, a set of values that
  * give the overall dimensions of the graph in graph units, as well as the view port, the
  * area on the screen (or any rendering surface) that will receive the results in pixels
- * (or rendering units). The two mains methods for this operation are {@link #pushView(Graphics2D,GraphicGraph)}
- * and {@link #popView()}.
+ * (or rendering units). The two mains methods for this operation are
+ * {@link #pushView(Graphics2D,GraphicGraph)} and {@link #popView()}.
  * </p>
  * 
  * <p>
@@ -57,7 +58,8 @@ import org.graphstream.ScalaGS._
  * </p>
  * 
  * <p>
- * The camera is also able to compute sprite positions according to their attachement.
+ * The camera is also able to compute sprite positions according to their attachment, as well as
+ * maintaining a list of all elements out of the view, so that it is not needed to render them.
  * </p>
  */
 class Camera {
@@ -317,7 +319,7 @@ class Camera {
   		Tx.translate( metrics.viewport.data(0) / 2,
   		              metrics.viewport.data(1) / 2 )	// 4. Place the whole result at the centre of the view port.		
   		if( rotation != 0 )
-  			Tx.rotate( rotation/(180/Math.Pi) )			// 3. Eventually apply a rotation.
+  			Tx.rotate( rotation/(180/Pi) )				// 3. Eventually apply a rotation.
   		Tx.scale( sx, -sy )								// 2. Scale the graph to pixels. Scale -y since we reverse the view (top-left to bottom-left).
   		Tx.translate( -tx, -ty )						// 1. Move the graph so that its real centre is at (0,0).
 		
@@ -368,7 +370,7 @@ class Camera {
   		Tx.translate( metrics.viewport.data(0) / 2,
 		              metrics.viewport.data(1) / 2 )	// 4. Place the whole result at the centre of the view port.			
 		if( rotation != 0 )
-			Tx.rotate( rotation/(180/Math.Pi) );			// 3. Eventually apply a rotation.
+			Tx.rotate( rotation/(180/Pi) );				// 3. Eventually apply a rotation.
 		Tx.scale( sx, -sy )								// 2. Scale the graph to pixels. Scale -y since we reverse the view (top-left to bottom-left).
 		Tx.translate( -tx, -ty )						// 1. Move the graph so that the given centre is at (0,0).
 		
@@ -560,7 +562,6 @@ class Camera {
   		val pos = new Point2D.Float
   		
   		getSpritePosition( sprite, pos, Units.PX )
-  		
 //  		sprite.getUnits match {
 //  			case Units.PX       => { new Point2D.Float( sprite.getX, sprite.getY ) }
 //  			case Units.GU       => { val pos = new Point2D.Float( sprite.getX, sprite.getY ); Tx.transform( pos, pos ).asInstanceOf[Point2D.Float] }
@@ -576,7 +577,7 @@ class Camera {
   	 * @return True if (x,y) is in the given element.
   	 */
   	protected def nodeContains( elt:GraphicElement, x:Float, y:Float ):Boolean = {
-  		val size = elt.getStyle.getSize	// TODO use nodeinfo
+  		val size = getNodeOrSpriteSize( elt )	//  elt.getStyle.getSize	// TODO use nodeinfo
   		val w2   = metrics.lengthToPx( size, 0 ) / 2
   		val h2   = if( size.size() > 1 ) metrics.lengthToPx( size, 1 )/2 else w2
   		val src  = new Point2D.Float( elt.getX(), elt.getY() )
@@ -605,7 +606,7 @@ class Camera {
   	 */
   	protected def spriteContains( elt:GraphicElement, x:Float, y:Float ):Boolean = {
   		val sprite = elt.asInstanceOf[GraphicSprite]
-  		val size   = sprite.getStyle.getSize // TODO use nodeinfo
+  		val size   = getNodeOrSpriteSize( elt ) //sprite.getStyle.getSize // TODO use nodeinfo
   		val w2     = metrics.lengthToPx( size, 0 ) / 2
   		val h2     = if( size.size() > 1 ) metrics.lengthToPx( size, 1 )/2 else w2
   		val dst    = spritePositionPx( sprite ) // new Point2D.Float( sprite.getX(), sprite.getY() )
@@ -623,6 +624,14 @@ class Camera {
   		else if( x > x2 ) false
   		else if( y > y2 ) false
   		else true	
+  	}
+  	
+  	protected def getNodeOrSpriteSize( elt:GraphicElement ):Values = {
+  		val info = elt.getAttribute( ElementInfo.attributeName ).asInstanceOf[NodeInfo]
+  		
+  		if( info != null )
+  			new Values( Units.GU, info.theSize.x, info.theSize.y )
+  		else elt.getStyle.getSize
   	}
    
   	protected def styleVisible( element:GraphicElement ):Boolean = {
@@ -695,7 +704,7 @@ class Camera {
      * @param units The units the computed position must be given into. 
      * @return The same instance as pos, or a new one if pos was null.
      */
-    protected def getSpritePositionNode( sprite:GraphicSprite, position:Point2D.Float, units:Units):Point2D.Float = {
+    protected def getSpritePositionNode( sprite:GraphicSprite, position:Point2D.Float, units:Units ):Point2D.Float = {
     	var pos = position
 //printf( "getSpritePositionNode(%s, %s, %s)%n", sprite, position, units )
     	if( pos == null )
@@ -705,12 +714,12 @@ class Camera {
     	val radius = metrics.lengthToGu( sprite.getX, sprite.getUnits )
     	val z      = sprite.getZ
 		
-    	pos.x = node.x + ( Math.cos( z ).toFloat * radius )
-    	pos.y = node.y + ( Math.sin( z ).toFloat * radius )
+    	pos.x = node.x + ( cos( z ).toFloat * radius )
+    	pos.y = node.y + ( sin( z ).toFloat * radius )
 
     	if( units == Units.PX )
     		Tx.transform( pos, pos )
-		
+
     	pos
     }
 	
@@ -728,9 +737,9 @@ class Camera {
   			pos = new Point2D.Float
 		
   		val edge = sprite.getEdgeAttachment.asInstanceOf[GraphicEdge]
-  		val info = edge.getAttribute( "j2dvei" ).asInstanceOf[EdgeInfo]
+  		val info = edge.getAttribute( ElementInfo.attributeName ).asInstanceOf[EdgeInfo]
 		
- if(info eq null) throw new RuntimeException
+if(info eq null) throw new RuntimeException
   		
   		if( info.isCurve ) {
   			val p0   = info.points(0) // new Point2( info.points(0).x, info.points(0).y )
@@ -848,19 +857,19 @@ class Camera {
 
 		// Find the angle of the entering vector with (1,0).
 
-		val d  = Math.sqrt( dx*dx + dy*dy ).toFloat
+		val d  = sqrt( dx*dx + dy*dy ).toFloat
 		var a  = dx / d
 
 		// Compute the coordinates at which the entering vector and the ellipse cross.
 
-		a  = Math.acos( a ).toFloat
-		dx = ( Math.cos( a ) * w ).toFloat
-		dy = ( Math.sin( a ) * h ).toFloat
+		a  = acos( a ).toFloat
+		dx = ( cos( a ) * w ).toFloat
+		dy = ( sin( a ) * h ).toFloat
 
 		// The distance from the ellipse centre to the crossing point of the ellipse and
 		// vector. Yo !
 
-		Math.sqrt( dx*dx + dy*dy ).toFloat
+		sqrt( dx*dx + dy*dy ).toFloat
 	}
 
  	/**
@@ -874,7 +883,7 @@ class Camera {
 	protected def evalBoxRadius( p0:Point2, p1:Point2, p2:Point2, p3:Point2, w:Float, h:Float ):Float = {
 		// Pythagora : Angle at which we compute the intersection with the height or the width.
 	
-		var da = w / ( Math.sqrt( w*w + h*h ).toFloat )
+		var da = w / ( sqrt( w*w + h*h ).toFloat )
 		
 		da = if( da < 0 ) -da else da
 		
@@ -890,7 +899,7 @@ class Camera {
 			dy = p3.y - p0.y
 		}
   
-		val d = Math.sqrt( dx*dx + dy*dy ).toFloat
+		val d = sqrt( dx*dx + dy*dy ).toFloat
 		var a = dx/d
 		
 		a = if( a < 0 ) -a else a

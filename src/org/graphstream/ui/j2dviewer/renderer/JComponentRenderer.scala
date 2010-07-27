@@ -81,8 +81,15 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 													
 	protected def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		if( shadow != null ) {
-			shadow.position( null, element.getX, element.getY )
-			shadow.renderShadow( g, camera, element )
+			val pos = new Point2D.Float( element.getX, element.getY )
+
+			if( element.isInstanceOf[GraphicSprite] ) {
+				camera.getSpritePosition( element.asInstanceOf[GraphicSprite], pos, StyleConstants.Units.GU )
+			}
+			
+//			shadow.setupContents( g, camera, element, null )
+			shadow.positionAndFit( g, camera, null, element, pos.x, pos.y )
+			shadow.renderShadow( g, camera, element, null )
 		}
 	}
  

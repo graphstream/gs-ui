@@ -2,6 +2,7 @@ package org.graphstream.ui.j2dviewer.renderer.shape
 
 import java.awt.{Image, Color, Graphics2D}
 import java.awt.geom.{Ellipse2D, Line2D, Path2D, CubicCurve2D, Rectangle2D, RoundRectangle2D, RectangularShape}
+import org.graphstream.ui.j2dviewer.renderer.ElementInfo
 import org.graphstream.ui.geom.Point2
 import org.graphstream.ui.graphicGraph.GraphicElement
 import org.graphstream.ui.graphicGraph.stylesheet.Style
@@ -63,7 +64,7 @@ class BlobShape extends AreaConnectorShapeWithCubics {
  	  	configureDecorable( style, camera )
  	}
   
-	protected def make( camera:Camera ) {
+	protected def make( g:Graphics2D, camera:Camera ) {
 		make( camera, 0, 0, 0, 0 )
 	}
 	
@@ -212,20 +213,20 @@ class BlobShape extends AreaConnectorShapeWithCubics {
 		theShape.closePath
 	}
 
-	protected def makeShadow( camera:Camera ) {
+	protected def makeShadow( g:Graphics2D, camera:Camera ) {
 		make( camera, theShadowOff.x, theShadowOff.y, theShadowWidth.x, theShadowWidth.y )
 	}
 	
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
- 		makeShadow( camera )
+	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		makeShadow( g, camera )
  		cast( g, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement ) {
- 		make( camera )
+	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		make( g, camera )
  		stroke( g, theShape )
  		fill( g, theSize, theShape, camera )
- 		decor( g, camera, element, theShape )
+ 		decor( g, camera, info.iconAndText, element, theShape )
 
  		if( showControlPolygon ) {
 	 		val c = g.getColor();
@@ -255,7 +256,7 @@ class AngleShape extends AreaConnectorShape {
  	  	configureDecorable( style, camera )
  	}
 	
-	protected def make( camera:Camera ) {
+	protected def make( g:Graphics2D, camera:Camera ) {
 		make( camera, 0, 0, 0, 0 )
 	}
   
@@ -387,22 +388,22 @@ class AngleShape extends AreaConnectorShape {
 		theShape.closePath
 	}
 
-	protected def makeShadow( camera:Camera ) {
+	protected def makeShadow( g:Graphics2D, camera:Camera ) {
 		if( info.isCurve )
 		     makeOnCurve( camera, theShadowOff.x, theShadowOff.y, theShadowWidth.x, theShadowWidth.y )
 		else makeOnLine( camera, theShadowOff.x, theShadowOff.y, theShadowWidth.x, theShadowWidth.y )
 	}
  
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
- 		makeShadow( camera )
+	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		makeShadow( g, camera )
  		cast( g, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement ) {
- 		make( camera )
+	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		make( g, camera )
  		stroke( g, theShape )
  		fill( g, theSize, theShape, camera )
- 		decor( g, camera, element, theShape )
+ 		decor( g, camera, info.iconAndText, element, theShape )
 	}
 }
 
@@ -421,7 +422,7 @@ class CubicCurveShape extends LineConnectorShape {
  	  	configureDecorable( style, camera )
  	}
 	
-	protected def make( camera:Camera ) {
+	protected def make( g:Graphics2D, camera:Camera ) {
 		make( camera, 0, 0, 0, 0 )
 	}
   
@@ -509,22 +510,22 @@ class CubicCurveShape extends LineConnectorShape {
 		theShape.curveTo( c1x, c1y, c2x, c2y, tox, toy )
 	}
 
-	protected def makeShadow( camera:Camera ) {
+	protected def makeShadow( g:Graphics2D, camera:Camera ) {
 		if( info.isCurve )
 		     makeMultiOrLoop( camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth )
 		else makeSingle( camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth )
 	}
 	
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
- 		makeShadow( camera )
+	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		makeShadow( g, camera )
  		cast( g, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement ) {
- 		make( camera )
+	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		make( g, camera )
  		stroke( g, theShape )
  		fill( g, theSize, theShape )
- 		decor( g, camera, element, theShape )
+ 		decor( g, camera, info.iconAndText, element, theShape )
 	}
 }
 
@@ -543,7 +544,7 @@ class FreePlaneEdgeShape extends LineConnectorShape {
  	  	configureDecorable( style, camera )
  	}
 	
-	protected def make( camera:Camera ) {
+	protected def make( g:Graphics2D, camera:Camera ) {
 		make( camera, 0, 0, 0, 0 )
 	}
   
@@ -633,21 +634,21 @@ class FreePlaneEdgeShape extends LineConnectorShape {
 		theShape.curveTo( c1x, c1y, c2x, c2y, tox, toy )
 	}
 
-	protected def makeShadow( camera:Camera ) {
+	protected def makeShadow( g:Graphics2D, camera:Camera ) {
 		if( info.isCurve )
 		     makeMultiOrLoop( camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth )
 		else makeSingle( camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth )
 	}
 	
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
- 		makeShadow( camera )
+	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		makeShadow( g, camera )
  		cast( g, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement ) {
- 		make( camera )
+	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		make( g, camera )
  		stroke( g, theShape )
  		fill( g, theSize, theShape )
- 		decor( g, camera, element, theShape )
+ 		decor( g, camera, info.iconAndText, element, theShape )
 	}
 }

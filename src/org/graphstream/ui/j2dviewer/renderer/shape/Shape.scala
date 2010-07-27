@@ -4,7 +4,7 @@ import java.awt.{Color, Graphics2D, Image, Paint, Stroke}
 import java.awt.geom.RectangularShape
 
 import org.graphstream.ui.j2dviewer.Camera
-import org.graphstream.ui.j2dviewer.renderer.{NodeInfo, EdgeInfo}
+import org.graphstream.ui.j2dviewer.renderer.{ElementInfo, NodeInfo, EdgeInfo}
 import org.graphstream.ui.util.GraphMetrics
 import org.graphstream.ui.geom.Point2
 import org.graphstream.ui.sgeom.{Vector2, EdgePoints}
@@ -24,29 +24,30 @@ trait Shape {
  
  	/**
      * Must create the shape from informations given earlier, that is, resize it if needed and
-     * position it.
+     * position it, and do all the things that are specific to each element, and cannot be done
+     * for the group of elements.
      * All the settings for position, size, shadow, etc. must have been made. Usually all the
      * "static" settings are already set in configure, therefore most often this method is only in
-     * charge of changing  the shape position.
+     * charge of changing  the shape position (and computing size if fitting it to the contents).
  	 */
- 	protected def make( camera:Camera )
+ 	protected def make( g:Graphics2D, camera:Camera )
  	
  	/**
  	 * Same as {@link #make(Camera)} for the shadow shape. The shadow shape may be moved and
  	 * resized compared to the original shape. 
  	 */
-  	protected def makeShadow( camera:Camera )
+  	protected def makeShadow( g:Graphics2D, camera:Camera )
   
   	/**
      * Render the shape.
      */
-  	def render( g:Graphics2D, camera:Camera, element:GraphicElement )
+  	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo )
    
    	/**
      * Render the shape shadow. The shadow is rendered in a different pas than usual rendering,
      * therefore it is a separate method.
      */
-   	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement )
+   	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo )
 }
 
 /**
@@ -271,18 +272,29 @@ trait Decorable {
 	var theDecor:ShapeDecor = null
   
  	/** Paint the decorations (text and icon). */
- 	def decor( g:Graphics2D, camera:Camera, element:GraphicElement, shape:java.awt.Shape ) {
+ 	def decor( g:Graphics2D, camera:Camera, iconAndText:IconAndText, element:GraphicElement, shape:java.awt.Shape ) {
  	  	var visible = true
  	  	if( element != null ) visible = camera.isTextVisible( element )
  	  	if( theDecor != null && visible ) {
  	  		val bounds = shape.getBounds2D
- 	  		theDecor.render( g, camera, text, bounds.getMinX.toFloat, bounds.getMinY.toFloat, bounds.getMaxX.toFloat, bounds.getMaxY.toFloat )
+ 	  		theDecor.render( g, camera, iconAndText, bounds.getMinX.toFloat, bounds.getMinY.toFloat, bounds.getMaxX.toFloat, bounds.getMaxY.toFloat )
  	  	}
  	}
   
   	/** Configure all the static parts needed to decor the shape. */
   	protected def configureDecorable( style:Style, camera:Camera ) {
 		/*if( theDecor == null )*/ theDecor = ShapeDecor( style )
+  	}
+  	
+  	/** Setup the parts of the decor specific to each element. */
+  	def setupContents( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+  		if( info != null ) {
+  			if( info.iconAndText == null )
+  				info.iconAndText = ShapeDecor.iconAndText( element.getStyle )
+
+//			info.iconAndText.setIcon( ??? )
+  			info.iconAndText.setText( g, element.label )
+  		}
   	}
 }
 
@@ -292,13 +304,19 @@ trait Decorable {
 trait Area {
 	protected val theCenter = new Point2
 	protected val theSize = new Point2
+	protected var fit = false
+	
 	def size( width:Float, height:Float ) { theSize.set( width, height ) }
+	
 	def size( style:Style, camera:Camera ) { 
 		val w = camera.metrics.lengthToGu( style.getSize, 0 )
 		val h = if( style.getSize.size > 1 ) camera.metrics.lengthToGu( style.getSize, 1 ) else w
   
 		theSize.set( w, h )
+		
+		fit = ( style.getSizeMode == StyleConstants.SizeMode.FIT )
 	}
+	
 	def dynSize( style:Style, camera:Camera, element:GraphicElement ) {
 		var w = camera.metrics.lengthToGu( style.getSize, 0 )
 		var h = if( style.getSize.size > 1 ) camera.metrics.lengthToGu( style.getSize, 1 ) else w
@@ -310,7 +328,8 @@ trait Area {
   
 		theSize.set( w, h )
 	}
-	def position( info:NodeInfo, x:Float, y:Float ) {
+	
+	def positionAndFit( g:Graphics2D, camera:Camera, info:NodeInfo, element:GraphicElement, x:Float, y:Float ) {
 		if( info != null ) {
 			info.theSize.copy( theSize )
 		}
@@ -376,17 +395,18 @@ trait Connector {
 	
 	/** Define the two end points sizes using the fit size stored in the nodes. */
 	def endPoints( from:GraphicNode, to:GraphicNode, directed:Boolean, camera:Camera ) {
-		val fromInfo = from.getAttribute( "j2dvni" ).asInstanceOf[NodeInfo]
-		val toInfo   = to.getAttribute( "j2dvni" ).asInstanceOf[NodeInfo]
+		val fromInfo = from.getAttribute( ElementInfo.attributeName ).asInstanceOf[NodeInfo]
+		val toInfo   = to.getAttribute( ElementInfo.attributeName ).asInstanceOf[NodeInfo]
 		
 		if( fromInfo != null && toInfo != null ) {
-//Console.err.printf( "Using the dynamic size%n" )
+Console.err.printf( "Using the dynamic size%n" )
 			isDirected     = directed
 			theSourceSizeX = fromInfo.theSize.x
 			theSourceSizeY = fromInfo.theSize.y
 			theTargetSizeX = toInfo.theSize.x
 			theTargetSizeY = toInfo.theSize.y
 		} else {
+Console.err.printf( "NOT using the dynamic size :-(%n" )
 			endPoints( from.getStyle, to.getStyle, directed, camera )
 		}
 	}

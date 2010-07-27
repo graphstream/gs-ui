@@ -8,6 +8,7 @@ import org.graphstream.ui.graphicGraph.{GraphicElement, GraphicEdge}
 import org.graphstream.ui.graphicGraph.stylesheet.Style
 import org.graphstream.ui.j2dviewer.Camera
 import org.graphstream.ui.util.{GraphMetrics, CubicCurve}
+import org.graphstream.ui.j2dviewer.renderer.ElementInfo
 
 class ArrowOnEdge extends AreaOnConnectorShape {
 	val theShape = new Path2D.Float()
@@ -20,8 +21,8 @@ class ArrowOnEdge extends AreaOnConnectorShape {
  	  	configureStrokable( style, camera )
  	}
   
-	protected def make( camera:Camera ) { make( false, camera ) }
-	protected def makeShadow( camera:Camera ) { make( true, camera ) }
+	protected def make( g:Graphics2D, camera:Camera ) { make( false, camera ) }
+	protected def makeShadow( g:Graphics2D, camera:Camera ) { make( true, camera ) }
   
 	protected def make( forShadow:Boolean, camera:Camera ) {
 		if( theConnector.info.isCurve )
@@ -91,12 +92,12 @@ class ArrowOnEdge extends AreaOnConnectorShape {
 		theShape.closePath
 	}
  
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
+	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
  		make( true, camera )
  		cast( g, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement ) {
+	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
  		make( false, camera )
  		stroke( g, theShape )
  		fill( g, theShape, camera )
@@ -122,8 +123,8 @@ class ArrowOnEdge2 extends OrientedAreaShape {
  	  	configureStrokable( style, camera )
  	}
   
-	protected def make( camera:Camera ) { make( false, camera ) }
-	protected def makeShadow( camera:Camera ) { make( true, camera ) }
+	protected def make( g:Graphics2D, camera:Camera ) { make( false, camera ) }
+	protected def makeShadow( g:Graphics2D, camera:Camera ) { make( true, camera ) }
   
 	protected def make( forShadow:Boolean, camera:Camera ) {
 		val off = camera.evalTargetRadius( theEdge )
@@ -152,12 +153,12 @@ class ArrowOnEdge2 extends OrientedAreaShape {
 		theShape.closePath
 	}
  
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
+	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
  		make( true, camera )
  		cast( g, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement ) {
+	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
  		make( false, camera )
  		stroke( g, theShape )
  		fill( g, theShape, camera )
@@ -175,8 +176,8 @@ class CircleOnEdge extends AreaOnConnectorShape {
  	  	configureStrokable( style, camera )
  	}
   
-	protected def make( camera:Camera )       { make( false, camera ) }
-	protected def makeShadow( camera:Camera ) { make( true, camera ) }
+	protected def make( g:Graphics2D, camera:Camera )       { make( false, camera ) }
+	protected def makeShadow( g:Graphics2D, camera:Camera ) { make( true, camera ) }
   
 	protected def make( forShadow:Boolean, camera:Camera ) {
 		if( theConnector.info.isCurve )
@@ -228,12 +229,12 @@ class CircleOnEdge extends AreaOnConnectorShape {
 		theShape.setFrame( p1.x-(theSize.x/2), p1.y-(theSize.y/2), theSize.x, theSize.y )
 	}
  
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
+	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
  		make( true, camera )
  		cast( g, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement ) {
+	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
  		make( false, camera )
  		stroke( g, theShape )
  		fill( g, theShape, camera )
@@ -258,8 +259,8 @@ class DiamondOnEdge extends AreaOnConnectorShape {
  	  	configureStrokable( style, camera )
  	}
   
-	protected def make( camera:Camera ) { make( false, camera ) }
-	protected def makeShadow( camera:Camera ) { make( true, camera ) }
+	protected def make( g:Graphics2D, camera:Camera ) { make( false, camera ) }
+	protected def makeShadow( g:Graphics2D, camera:Camera ) { make( true, camera ) }
   
 	protected def make( forShadow:Boolean, camera:Camera ) {
 		if( theConnector.info.isCurve )
@@ -331,12 +332,12 @@ class DiamondOnEdge extends AreaOnConnectorShape {
 		theShape.closePath
 	}
  
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
+	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
  		make( true, camera )
  		cast( g, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement ) {
+	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
  		make( false, camera )
  		stroke( g, theShape )
  		fill( g, theShape, camera )
