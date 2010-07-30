@@ -45,7 +45,7 @@ class TestArrows extends ViewerListener {
 		val BC = graph.addEdge( "BC", "B", "C", true )
 		val CD = graph.addEdge( "CD", "C", "D", true )
 		val DA = graph.addEdge( "DA", "D", "A", true )
-//		val BB = graph.addEdge( "BB", "B", "B", true )
+		val BB = graph.addEdge( "BB", "B", "B", true )
 		val DE = graph.addEdge( "DE", "D", "E", true )
 		
 		A("xyz") = ( 0, 1, 0 )
@@ -133,7 +133,7 @@ class TestArrows extends ViewerListener {
 				padding: 10px;
 			}
 			node#C {
-				shape: circle;
+				shape: box;
 				size: 50px;
 			}
 			node#D {
@@ -153,7 +153,7 @@ class TestArrows extends ViewerListener {
 				fill-color: grey;
 				fill-mode: plain;
 				arrow-shape: arrow;
-				arrow-size: 20px, 6px;
+				arrow-size: 20px, 5px;
 			}
 			edge#BC {
 				shape: cubic-curve;

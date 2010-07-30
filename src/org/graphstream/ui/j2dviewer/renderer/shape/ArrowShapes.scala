@@ -60,38 +60,6 @@ class ArrowOnEdge extends AreaOnConnectorShape {
 		theShape.lineTo( x - theDirection(0) - perp(0), y - theDirection(1) - perp(1) )
 		theShape.closePath
 	}
-
-	protected def makeOnCurve1( forShadow:Boolean, camera:Camera ) {
-		val off = ShapeUtil.evalTargetRadius( theEdge, theConnector.fromPos, theConnector.byPos1, theConnector.byPos2, theConnector.toPos, camera )
-		var style = theEdge.getStyle
-
-		// Express node width in percents of the edge length.
-
-		var d  = CubicCurve.approxLengthOfCurve( theConnector )
-		var t1 = ( ( d - off ) / d )				// TODO This method is not correct, you cannot expect
-													// parametric positions to map to lengths linearly.
-		// Express arrow length in percents of the edge length.
-			
-		var t2 = ( ( d - ( off + theSize.x ) ) / d )
-
-		// Now compute arrow coordinates and vector.
-		
-		var p1 = CubicCurve.eval( theConnector.fromPos, theConnector.byPos1, theConnector.byPos2, theConnector.toPos, t1 )
-		var p2 = CubicCurve.eval( theConnector.fromPos, theConnector.byPos1, theConnector.byPos2, theConnector.toPos, t2 )
-		var dir = Vector2( p1.x - p2.x, p1.y - p2.y )
-
-		var per = Vector2( dir(1), -dir(0) )
-		per.normalize
-		per.scalarMult( theSize.y )
-  
-		// Create a polygon.
-
-		theShape.reset
-		theShape.moveTo( p1.x , p1.y )
-		theShape.lineTo( p1.x - dir(0) + per(0), p1.y - dir(1) + per(1) )		
-		theShape.lineTo( p1.x - dir(0) - per(0), p1.y - dir(1) - per(1) )
-		theShape.closePath
-	}
 	
 	protected def makeOnCurve( forShadow:Boolean, camera:Camera ) {
 		val (p1,t) = CubicCurve.approxIntersectionPointOnCurve( theEdge, theConnector, camera )
@@ -112,60 +80,6 @@ class ArrowOnEdge extends AreaOnConnectorShape {
 		theShape.lineTo( p1.x - dir(0) + per(0), p1.y - dir(1) + per(1) )		
 		theShape.lineTo( p1.x - dir(0) - per(0), p1.y - dir(1) - per(1) )
 		theShape.closePath		
-	}
- 
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		make( true, camera )
- 		cast( g, theShape )
-	}
- 
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		make( false, camera )
- 		stroke( g, theShape )
- 		fill( g, theShape, camera )
-	}
-}
-
-class ArrowOnEdge2 extends OrientedAreaShape {
-	val theShape = new Path2D.Float()
-	var theEdge:GraphicEdge = null
- 
-// Command
- 
- 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
- 	  	configureFillable( style, camera, element )
- 	  	configureShadowable( style, camera )
- 	  	configureStrokable( style, camera )
- 	}
-  
-	protected def make( g:Graphics2D, camera:Camera ) { make( false, camera ) }
-	protected def makeShadow( g:Graphics2D, camera:Camera ) { make( true, camera ) }
-  
-	protected def make( forShadow:Boolean, camera:Camera ) {
-		val off = ShapeUtil.evalTargetRadius( theEdge, camera )
-  
-		theDirection.normalize
-  
-		var x    = theCenter.x - ( theDirection(0) * off )
-		var y    = theCenter.y - ( theDirection(1) * off )
-  		val perp = new Vector2( theDirection(1), -theDirection(0) )
-		
-    	perp.normalize
-    	theDirection.scalarMult( theSize.x )
-		perp.scalarMult( theSize.y )
-		
-		if( forShadow ) {
-			x += theShadowOff.x
-			y += theShadowOff.y
-		}
-  
-		// Create a polygon.
-		
-		theShape.reset
-		theShape.moveTo( x , y )
-		theShape.lineTo( x - theDirection(0) + perp(0), y - theDirection(1) + perp(1) )		
-		theShape.lineTo( x - theDirection(0) - perp(0), y - theDirection(1) - perp(1) )
-		theShape.closePath
 	}
  
 	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
@@ -227,21 +141,17 @@ class CircleOnEdge extends AreaOnConnectorShape {
 	}
 
 	protected def makeOnCurve( forShadow:Boolean, camera:Camera ) {
-		val off   = ShapeUtil.evalTargetRadius( theEdge, theConnector.fromPos, theConnector.byPos1, theConnector.byPos2, theConnector.toPos, camera ) + ( ( theSize.x+theSize.y ) / 4 )
-		var style = theEdge.getStyle
-
-		// Express node width in percents of the edge length.
-
-		val d  = lengthOfCurve( theConnector )
-		val t1 = ( ( d - off ) / d )
-
-		// Now compute arrow coordinates and vector.
+		val (p1,t) = CubicCurve.approxIntersectionPointOnCurve( theEdge, theConnector, camera )
+		val style  = theEdge.getStyle
 		
-		val p1 = CubicCurve.eval( theConnector.fromPos, theConnector.byPos1, theConnector.byPos2, theConnector.toPos, t1 )
+		val p2 = CubicCurve.eval( theConnector.fromPos, theConnector.byPos1, theConnector.byPos2, theConnector.toPos, t-0.1f )
+		var dir = Vector2( p1.x - p2.x, p1.y - p2.y )
+		dir.normalize
+		dir.scalarMult( theSize.x/2 )
 
-		// Create the shape.
+		// Create a polygon.
 
-		theShape.setFrame( p1.x-(theSize.x/2), p1.y-(theSize.y/2), theSize.x, theSize.y )
+		theShape.setFrame( (p1.x-dir.x)-(theSize.x/2), (p1.y-dir.y)-(theSize.y/2), theSize.x, theSize.y )
 	}
  
 	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
@@ -313,37 +223,26 @@ class DiamondOnEdge extends AreaOnConnectorShape {
 		theShape.lineTo( x - theDirection(0) - perp(0), y - theDirection(1) - perp(1) )
 		theShape.closePath
 	}
-
+	
 	protected def makeOnCurve( forShadow:Boolean, camera:Camera ) {
-		val off = ShapeUtil.evalTargetRadius( theEdge, theConnector.fromPos, theConnector.byPos1, theConnector.byPos2, theConnector.toPos, camera )
-		var style = theEdge.getStyle
+		val (p1,t) = CubicCurve.approxIntersectionPointOnCurve( theEdge, theConnector, camera )
+		val style  = theEdge.getStyle
 		
-		// Express node width in percents of the edge length.
-
-		var d  = lengthOfCurve( theConnector )
-		var t1 = ( ( d - off ) / d )
-			
-		// Express arrow length in percents of the edge length.
-			
-		var t2 = ( ( d - ( off + theSize.x ) ) / d )
-
-		// Now compute arrow coordinates and vector.
-		
-		var p1 = CubicCurve.eval( theConnector.fromPos, theConnector.byPos1, theConnector.byPos2, theConnector.toPos, t1 )
-		var p2 = CubicCurve.eval( theConnector.fromPos, theConnector.byPos1, theConnector.byPos2, theConnector.toPos, t2 )
-		var dir = Vector2( ( p1.x - p2.x ) / 2, ( p1.y - p2.y ) / 2 )
-
+		val p2  = CubicCurve.eval( theConnector.fromPos, theConnector.byPos1, theConnector.byPos2, theConnector.toPos, t-0.1f )
+		var dir = Vector2( p1.x - p2.x, p1.y - p2.y )
+		dir.normalize
+		dir.scalarMult( theSize.x )
 		var per = Vector2( dir(1), -dir(0) )
 		per.normalize
 		per.scalarMult( theSize.y )
-  
+		
 		// Create a polygon.
-	
+
 		theShape.reset
 		theShape.moveTo( p1.x , p1.y )
-		theShape.lineTo( p1.x - dir(0) + per(0), p1.y - dir(1) + per(1) )
-		theShape.lineTo( p2.x, p2.y )
-		theShape.lineTo( p1.x - dir(0) - per(0), p1.y - dir(1) - per(1) )
+		theShape.lineTo( p1.x - dir(0)/2 + per(0), p1.y - dir(1)/2 + per(1) )
+		theShape.lineTo( p1.x - dir(0), p1.y - dir(1) )
+		theShape.lineTo( p1.x - dir(0)/2 - per(0), p1.y - dir(1)/2 - per(1) )
 		theShape.closePath
 	}
  
