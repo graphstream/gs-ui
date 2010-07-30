@@ -49,6 +49,48 @@ abstract class AreaConnectorShapeWithCubics extends AreaConnectorShape {
 	}
 }
 
+abstract class LineConnectorShapeWithCubics extends LineConnectorShape {
+	protected var showControlPolygon = false
+	
+	protected def showCtrlPoints( g:Graphics2D, camera:Camera ) {
+		if( showControlPolygon ) {
+			val from   = info.points(0)
+			val ctrl1  = info.points(1)
+			val ctrl2  = info.points(2)
+			val to     = info.points(3)
+		   	val oval   = new Ellipse2D.Float
+	 		val color  = g.getColor
+		 	val stroke = g.getStroke
+		 	val px6    = camera.metrics.px1*6;
+		   	val px3    = camera.metrics.px1*3
+	   
+	 		g.setColor( Color.RED )
+	 		oval.setFrame( from.x-px3, from.y-px3, px6, px6 )
+	 		g.fill( oval )
+	
+	 		if( ctrl1 != null ) {
+	 			oval.setFrame( ctrl1.x-px3, ctrl1.y-px3, px6, px6 )
+		 		g.fill( oval )
+		 		oval.setFrame( ctrl2.x-px3, ctrl2.y-px3, px6, px6 )
+		 		g.fill( oval )
+		 		val line = new Line2D.Float
+		 		line.setLine( ctrl1.x, ctrl1.y, ctrl2.x, ctrl2.y )
+		 		g.setStroke( new java.awt.BasicStroke( camera.metrics.px1 ) )
+		 		g.draw( line )
+		 		line.setLine( from.x, from.y, ctrl1.x, ctrl1.y )
+		 		g.draw( line )
+		 		line.setLine( ctrl2.x, ctrl2.y, to.x, to.y )
+		 		g.draw( line )
+	 		}
+	
+	 		oval.setFrame( to.x-px3, to.y-px3, px6, px6 )
+	 		g.fill( oval )
+	 		g.setColor( color )
+		 	g.setStroke( stroke )
+		}
+	}
+}
+
 /**
  * A blob-like shape.
  */
@@ -410,7 +452,7 @@ class AngleShape extends AreaConnectorShape {
 /**
  * A cubic curve shape.
  */
-class CubicCurveShape extends LineConnectorShape {
+class CubicCurveShape extends LineConnectorShapeWithCubics {
 	protected var theShape = new Path2D.Float
 
 // Command
@@ -526,6 +568,17 @@ class CubicCurveShape extends LineConnectorShape {
  		stroke( g, theShape )
  		fill( g, theSize, theShape )
  		decor( g, camera, info.iconAndText, element, theShape )
+// 		showControlPolygon = true
+// 		if( showControlPolygon ) {
+//	 		val c = g.getColor();
+//	 		val s = g.getStroke();
+//	 		g.setStroke( new java.awt.BasicStroke( camera.metrics.px1 ) )
+//	 		g.setColor( Color.red );
+//	 		g.draw( theShape );
+//	 		g.setStroke( s );
+//	 		g.setColor( c );
+//	 		showCtrlPoints( g, camera )
+// 		}
 	}
 }
 

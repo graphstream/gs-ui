@@ -7,14 +7,10 @@ Problèmes :
 
 Il reste à faire :
 
-	* Un Jar utilisable dans GS Java.
-
 	* Respecter complétement le CSS
 		* Formes des nœuds
 		* Formes des arcs
 		* Formes des sprites, orientation des sprites, etc.
-	
-	* Taille "fit" des nœuds et sprites.
 	
 	* Forme "lines-breaks"
 	
@@ -31,6 +27,9 @@ Améliorations :
 	* Fond 9panes (pour les fond images)
 	* Un déplacement à la souris des objets avec magnétisme à une grille.
 	* Un type de fond "grille" pour mesurer les distances.
+	* Possibilité de spécifier l'icone de manière dynamique, spécifique à chaque élément sans
+	  toucher au CSS.
+	* Pouvoir positionner les flêches au centre des arcs.
 	
 Bugs :
 
@@ -40,3 +39,5 @@ Bugs :
 	  d'attachement dépend de la taille du noeud, l'arc est mal dessiné s'il n'y a pas deux frames
 	  de dessinées. Problème d'ordre : positionAndFit (et les nodeinfos) devraient être faits dès le
 	  début du rendu.
+	* Est-ce que les flêches prennent en compte la taille dynamique ?
+		-> Camera.evalTargetRadius.

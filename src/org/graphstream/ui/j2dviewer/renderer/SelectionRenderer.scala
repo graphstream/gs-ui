@@ -9,8 +9,8 @@ import org.graphstream.ui.util.Selection
 class SelectionRenderer( val selection:Selection, val graph:GraphicGraph ) {
 	protected val shape        = new Rectangle2D.Float
 	protected val linesColor   = new Color( 240, 240, 240 )
-	protected val linesColorQ  = new Color(   0,   0,   0, 128 )
-	protected val fillColor    = new Color(  50,  50, 200, 128 )
+	protected val linesColorQ  = new Color(   0,   0,   0, 64 )
+	protected val fillColor    = new Color(  50,  50, 200, 32 )
 	protected val strokeColorQ = new Color(  50,  50, 200, 64 )
 	protected val strokeColor  = new Color( 128, 128, 128 )
  

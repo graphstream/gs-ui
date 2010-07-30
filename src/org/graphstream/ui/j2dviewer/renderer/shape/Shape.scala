@@ -289,10 +289,18 @@ trait Decorable {
   	/** Setup the parts of the decor specific to each element. */
   	def setupContents( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
   		if( info != null ) {
+  			val style = element.getStyle
+  			
   			if( info.iconAndText == null )
-  				info.iconAndText = ShapeDecor.iconAndText( element.getStyle )
+  				info.iconAndText = ShapeDecor.iconAndText( style, camera, element )
 
-//			info.iconAndText.setIcon( ??? )
+  			if( style.getIcon != null && style.getIcon.equals( "dynamic" ) && element.hasAttribute( "ui.icon" ) ) {
+  				val url = element.getLabel("ui.icon").toString
+  				info.iconAndText.setIcon( g, url )
+// Console.err.printf( "changing icon %s%n", url )
+  			}
+// else Console.err.print( "NOT changing icon... %b %s %b%n".format( style.getIcon != null, style.getIcon, element.hasAttribute( "ui.icon" ) ) )
+  			
   			info.iconAndText.setText( g, element.label )
   		}
   	}
@@ -399,14 +407,14 @@ trait Connector {
 		val toInfo   = to.getAttribute( ElementInfo.attributeName ).asInstanceOf[NodeInfo]
 		
 		if( fromInfo != null && toInfo != null ) {
-Console.err.printf( "Using the dynamic size%n" )
+//Console.err.printf( "Using the dynamic size%n" )
 			isDirected     = directed
 			theSourceSizeX = fromInfo.theSize.x
 			theSourceSizeY = fromInfo.theSize.y
 			theTargetSizeX = toInfo.theSize.x
 			theTargetSizeY = toInfo.theSize.y
 		} else {
-Console.err.printf( "NOT using the dynamic size :-(%n" )
+//Console.err.printf( "NOT using the dynamic size :-(%n" )
 			endPoints( from.getStyle, to.getStyle, directed, camera )
 		}
 	}

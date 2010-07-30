@@ -57,7 +57,7 @@ class TestSize extends ViewerListener {
 		A("label") = "A"
 		B("label") = "B"
 		C("label") = "C"
-		D("label") = "D"
+		D("label") = "A long label ..."
 		
 		val sm = new SpriteManager( graph )
 		val S1 = sm.addSprite( "S1" )
@@ -134,6 +134,11 @@ class TestSize extends ViewerListener {
 				size-mode: dyn-size;
 				size: 10px;
 			}
+			node#D {
+				shape: box;
+				size-mode: fit;
+				padding: 5px;
+			}
 			edge {
 				shape: blob;
 				size: 1px;
@@ -147,7 +152,7 @@ class TestSize extends ViewerListener {
 				size: 1px;
 			}
 			sprite {
-				shape: box;
+				shape: circle;
 				fill-color: #FCC;
 				stroke-mode: plain;
 				stroke-color: black;

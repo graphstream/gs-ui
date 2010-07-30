@@ -1,22 +1,20 @@
-package org.graphstream.ui.j2dviewer
+package org.graphstream.ui.j2dviewer.renderer.test
 
 import org.graphstream.graph.Graph
 import org.graphstream.scalags.graph.MultiGraph
 
+import org.graphstream.ui.j2dviewer.J2DGraphRenderer
 import org.graphstream.ui.swingViewer.{Viewer, DefaultView, ViewerPipe, ViewerListener}
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
 import org.graphstream.ui.spriteManager._
 
 import org.graphstream.ScalaGS._
 
-object TestJ2DRenderer {
-	def main( args:Array[String] ) {
-		val test = new Test
-		test.run( args )
-	}
+object TestFillImage {
+	def main( args:Array[String] ) { (new TestFillImage).run( args ) }
 }
 
-private class Test extends ViewerListener {
+private class TestFillImage extends ViewerListener {
 	private[this] var loop = true
   
 	def run( args:Array[String] ) = {
@@ -141,15 +139,15 @@ private class Test extends ViewerListener {
 			graph {
 				canvas-color: white;
  				fill-mode: image-tiled;
- 				fill-image: url('file:///home/antoine/Documents/Programs/gs-ui-scala-svn/paper.png');
+ 				fill-image: url('file:///home/antoine/Documents/Programs/gs-ui-scala-svn/data/paper.png');
  				fill-color: white, gray;
  				padding: 60px;
  			} 
 			node {
-				shape: freeplane;
+				shape: box;
 				size: 60px, 60px;
 				fill-mode: image-scaled-ratio-max;
-				fill-image: url('file:///home/antoine/Documents/Programs/gs-ui-scala-svn/FabricPlain0081.jpg');
+				fill-image: url('file:///home/antoine/Documents/Programs/gs-ui-scala-svn/data/FabricPlain0081.jpg');
 				fill-color: white, rgb(200,200,200);
 				stroke-mode: plain; 
 				stroke-color: rgba(100,100,100,255);

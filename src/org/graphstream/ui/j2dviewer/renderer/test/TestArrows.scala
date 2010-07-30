@@ -13,20 +13,19 @@ import org.graphstream.ui.j2dviewer._
 
 import org.graphstream.ScalaGS._
 
-object TestSprites {
-	def main( args:Array[String] ) {
-		(new TestSprites).run
-	}
+object TestArrows {
+	def main( args:Array[String] ) { (new TestArrows).run } 
 }
 
-class TestSprites extends ViewerListener {
+class TestArrows extends ViewerListener {
 	var loop = true
 	
 	def run() = {
-		val graph  = new MultiGraph( "TestSprites" )
+		val graph  = new MultiGraph( "TestSize" )
 		val viewer = new Viewer( graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD )
 		val pipeIn = viewer.newViewerPipe
 		val view   = viewer.addView( "view1", new J2DGraphRenderer )
+//		val view   = viewer.addDefaultView( true )
   
 		pipeIn.addAttributeSink( graph )
 		pipeIn.addViewerListener( this )
@@ -40,36 +39,42 @@ class TestSprites extends ViewerListener {
 		val B = graph.addNode( "B" )
 		val C = graph.addNode( "C" )
 		val D = graph.addNode( "D" )
+		val E = graph.addNode( "E" )
 
-		graph.addEdge( "AB1", "A", "B", true )
-		graph.addEdge( "AB2", "B", "A", true )
-		graph.addEdge( "BC", "B", "C" )
-		graph.addEdge( "CD", "C", "D" )
-		graph.addEdge( "DA", "D", "A" )
-		graph.addEdge( "BB", "B", "B" )
+		val AB = graph.addEdge( "AB", "A", "B", true )
+		val BC = graph.addEdge( "BC", "B", "C", true )
+		val CD = graph.addEdge( "CD", "C", "D", true )
+		val DA = graph.addEdge( "DA", "D", "A", true )
+//		val BB = graph.addEdge( "BB", "B", "B", true )
+		val DE = graph.addEdge( "DE", "D", "E", true )
 		
 		A("xyz") = ( 0, 1, 0 )
-		B("xyz") = ( 1.5, 1, 0 )
-		C("xyz") = ( 1, 0, 0 )
+		B("xyz") = ( 1, 0.8, 0 )
+		C("xyz") = ( 0.8, 0, 0 )
 		D("xyz") = ( 0, 0, 0 )
+		E("xyz") = ( 0.5, 0.5, 0 )
 		
 		A("label") = "A"
-		B("label") = "B"
+		B("label") = "Long label ..."
 		C("label") = "C"
-		D("label") = "D"
+		D("label") = "A long label ..."
+		E("label") = "Another long label"
 		
-		val sman = new SpriteManager( graph )
- 
-		sman.setSpriteFactory( new MySpriteFactory )
-		
-		val s1 = sman.addSprite( "S1" ).asInstanceOf[MySprite]
+		var size = 20f
+		var sizeInc = 1f
 			
-		s1.attachToEdge( "AB1" )
-		
 		while( loop ) {
 			pipeIn.pump
-			s1.move
-			sleep( 10 )
+			sleep( 40 )
+			A.setAttribute( "ui.size", size.asInstanceOf[AnyRef] )
+			
+			size += sizeInc
+			
+			if( size > 50 ) {
+				sizeInc = -1f; size = 50f
+			} else if( size < 20 ) {
+				sizeInc = 1f; size = 20f
+			}
 		}
 		
 		printf( "bye bye" )
@@ -102,11 +107,11 @@ class TestSprites extends ViewerListener {
  			} 
 			node {
 				shape: circle;
-				size: 14px;
+				size: 30px;
 				fill-mode: plain;
-				fill-color: white;
+				fill-color: #CCCC;
 				stroke-mode: plain; 
-				stroke-color: grey;
+				stroke-color: black;
 				stroke-width: 1px;
 			}
 			node:clicked {
@@ -117,63 +122,44 @@ class TestSprites extends ViewerListener {
 				stroke-mode: plain;
 				stroke-color: blue;
 			}
+			node#A {
+				size-mode: dyn-size;
+				size: 10px;
+			}
+			node#B {
+				shape: circle;
+				size-mode: fit;
+				size: 50px;
+				padding: 10px;
+			}
+			node#C {
+				shape: circle;
+				size: 50px;
+			}
+			node#D {
+				shape: box;
+				size-mode: fit;
+				padding: 5px;
+			}
+			node#E {
+				shape: circle;
+				size-mode: fit;
+				size: 20px, 10px;
+				padding: 6px;
+			}
 			edge {
 				shape: line;
 				size: 1px;
 				fill-color: grey;
 				fill-mode: plain;
 				arrow-shape: arrow;
-				arrow-size: 10px, 3px;
+				arrow-size: 20px, 6px;
 			}
 			edge#BC {
 				shape: cubic-curve;
 			}
-			sprite {
-				shape: circle;
-				fill-color: red;
+			edge#AB {
+				shape: cubic-curve;
 			}
 			"""
-
-	class MySpriteFactory extends SpriteFactory {
-		override def newSprite( identifier:String, manager:SpriteManager, position:Values ):Sprite = {
-			if( position != null )
-				return new MySprite( identifier, manager, position );
-		
-			return new MySprite( identifier, manager );
-		}
-	}
-	
-	class MySprite( identifier:String, manager:SpriteManager, pos:Values ) extends Sprite( identifier, manager, pos ) {
-		def this( identifier:String, manager:SpriteManager ) {
-			this( identifier, manager, new Values( StyleConstants.Units.GU, 0, 0, 0 ) )
-		}
-		
-		val SPEED = 0.005f
-		var speed = SPEED
-		
-		def move() {
-			var p = getX
-			
-			p += speed
-			
-			if( p < 0 || p > 1 ) {
-				val edge = getAttachment.asInstanceOf[Edge]
-				val node = if( p > 1 ) edge.getTargetNode else edge.getSourceNode
-				var other = randomOutEdge( node )
-				
-				if( node.getOutDegree > 1 ) { while( other eq edge ) other = randomOutEdge( node ) }
-				
-				attachToEdge( other.getId )
-				if( node eq other.getSourceNode ) {
-					setPosition( 0 )
-					speed = SPEED
-				} else {
-					setPosition( 1 )
-					speed = -SPEED
-				}
-			} else {
-				setPosition( p )
-			}
-		}
-	}
 }
