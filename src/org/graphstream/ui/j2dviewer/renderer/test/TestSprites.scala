@@ -63,12 +63,15 @@ class TestSprites extends ViewerListener {
 		sman.setSpriteFactory( new MySpriteFactory )
 		
 		val s1 = sman.addSprite( "S1" ).asInstanceOf[MySprite]
+		val s2 = sman.addSprite( "S2" ).asInstanceOf[MySprite]
 			
 		s1.attachToEdge( "AB1" )
+		s1.attachToEdge( "CD" )
 		
 		while( loop ) {
 			pipeIn.pump
 			s1.move
+			s2.move
 			sleep( 10 )
 		}
 		
@@ -131,6 +134,9 @@ class TestSprites extends ViewerListener {
 			sprite {
 				shape: circle;
 				fill-color: red;
+			}
+			sprite#S2 {
+				shape: arrow;
 			}
 			"""
 

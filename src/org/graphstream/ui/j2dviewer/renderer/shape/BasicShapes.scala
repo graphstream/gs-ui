@@ -5,6 +5,7 @@ import java.awt.geom.{Ellipse2D, Line2D, Path2D, CubicCurve2D, Rectangle2D, Roun
 import org.graphstream.ui.geom.Point2
 import org.graphstream.ui.graphicGraph.GraphicElement
 import org.graphstream.ui.graphicGraph.stylesheet.Style
+import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 import org.graphstream.ui.j2dviewer.Camera
 import org.graphstream.ui.util.GraphMetrics
 import org.graphstream.ui.j2dviewer.renderer.{ElementInfo, NodeInfo, EdgeInfo}
@@ -62,6 +63,8 @@ trait RectangularAreaShape extends AreaShape {
  	  	configureShadowable( style, camera )
  	  	configureStrokable( style, camera )
  	  	configureDecorable( style, camera )
+ 	  	
+ 	  	
  	}
  
  	protected def make( g:Graphics2D, camera:Camera ) {
@@ -155,7 +158,7 @@ abstract class PolygonalShape extends AreaShape {
  		fill( g, theShape, camera )
  		stroke( g, theShape )
  		decor( g, camera, info.iconAndText, element, theShape )
- 	}	
+ 	}
  	 	
  	override def positionAndFit( g:Graphics2D, camera:Camera, info:NodeInfo, element:GraphicElement, x:Float, y:Float ) {
 		if( fit ) {

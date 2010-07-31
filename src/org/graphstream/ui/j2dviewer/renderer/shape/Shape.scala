@@ -51,6 +51,19 @@ trait Shape {
 }
 
 /**
+ * Trait for shapes that can also be used as sprite. As sprites can be "oriented" these additional
+ * rendering methods are here to render the sprite rotated.
+ * TODO experimental, would allow to rotate the whole sprite
+ */
+trait SpriteShape {
+	/**  */
+	def renderSprite( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo )
+	
+	/** */
+	def renderShadowSprite( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo )
+}
+
+/**
  * Trait for shapes that can be filled.
  */
 trait Fillable {
