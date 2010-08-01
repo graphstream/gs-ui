@@ -16,25 +16,27 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 	}
 	
 	protected def pushStyle( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
-	  	val size = group.getSize
-		shape.configure( g, group, camera, null )
-		shape.size( group, camera )
+//	  	val size = group.getSize
+	  	shape.configureForGroup( g, group, camera )
+//		shape.configure( g, group, camera, null )
+//		shape.size( group, camera )
 		
 		if( arrow != null ) {
-			arrow.configure( g, group, camera, null )
-			arrow.sizeForEdgeArrow( group, camera )
+			arrow.configureForGroup( g, group, camera )
+//			arrow.configure( g, group, camera, null )
+//			arrow.sizeForEdgeArrow( group, camera )
 		}
 	}
 	
 	protected def pushDynStyle( g:Graphics2D, camera:Camera, element:GraphicElement ) {
-	  	val size = group.getSize
-		shape.configure( g, group, camera, element )
-		shape.dynSize( group, camera, element )
-		
-		if( arrow != null ) {
-			arrow.configure( g, group, camera, element )
-			arrow.sizeForEdgeArrow( group, camera )
-		}
+//	  	val size = group.getSize
+//		shape.configure( g, group, camera, element )
+//		shape.dynSize( group, camera, element )
+//		
+//		if( arrow != null ) {
+//			arrow.configure( g, group, camera, element )
+//			arrow.sizeForEdgeArrow( group, camera )
+//		}
 	}
 	
 	protected def renderElement( g:Graphics2D, camera:Camera, element:GraphicElement ) {
@@ -42,17 +44,20 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 		val info = getOrSetEdgeInfo( element )
 		
 		shape.text = element.label
-		
-		shape.setupContents( g, camera, element, info )
-		shape.endPoints( edge.from, edge.to, edge.isDirected, camera )
-//		shape.endPoints( edge.from.getStyle, edge.to.getStyle, edge.isDirected, camera )
-		shape.position( info, edge.from.getStyle, edge.from.getX, edge.from.getY, edge.to.getX, edge.to.getY, edge.multi, edge.getGroup )
+
+		shape.configureForElement( g, element, info, camera )
+//		shape.setupContents( g, camera, element, info )
+//		shape.endPoints( edge.from, edge.to, edge.isDirected, camera )
+////		shape.endPoints( edge.from.getStyle, edge.to.getStyle, edge.isDirected, camera )
+//		shape.position( info, edge.from.getStyle, edge.from.getX, edge.from.getY, edge.to.getX, edge.to.getY, edge.multi, edge.getGroup )
 		shape.render( g, camera, element, info )
   
 		if( edge.isDirected && arrow != null ) {
-		  	arrow.connector( edge )
-		  	arrow.direction( shape )
-		  	arrow.positionAndFit( g, camera, null, edge.to, edge.to.getX, edge.to.getY )
+			arrow.theConnectorYoureAttachedTo( shape )
+			arrow.configureForElement( g, element, info, camera )
+//		  	arrow.connector( edge )
+//		  	arrow.direction( shape )
+//		  	arrow.positionAndFit( g, camera, null, edge.to, edge.to.getX, edge.to.getY )
 		  	arrow.render( g, camera, element, info )
 		}
 	}
@@ -61,16 +66,19 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 		val edge = element.asInstanceOf[GraphicEdge]
 		val info = getOrSetEdgeInfo( element )
 		
-		shape.setupContents( g, camera, element, info )
-		shape.endPoints( edge.from, edge.to, edge.isDirected, camera )
-//		shape.endPoints( edge.from.getStyle, edge.to.getStyle, edge.isDirected, camera )
-		shape.position( info, edge.from.getStyle, edge.from.getX, edge.from.getY, edge.to.getX, edge.to.getY, edge.multi, edge.getGroup )
+		shape.configureForElement( g, element, info, camera )
+//		shape.setupContents( g, camera, element, info )
+//		shape.endPoints( edge.from, edge.to, edge.isDirected, camera )
+////		shape.endPoints( edge.from.getStyle, edge.to.getStyle, edge.isDirected, camera )
+//		shape.position( info, edge.from.getStyle, edge.from.getX, edge.from.getY, edge.to.getX, edge.to.getY, edge.multi, edge.getGroup )
 		shape.renderShadow( g, camera, element, info )
   
 		if( edge.isDirected && arrow != null ) {
-		  	arrow.connector( edge )
-			arrow.direction( shape )
-			arrow.positionAndFit( g, camera, null, edge.to, edge.to.getX, edge.to.getY )
+			arrow.theConnectorYoureAttachedTo( shape )
+			arrow.configureForElement( g, element, info, camera )
+//		  	arrow.connector( edge )
+//			arrow.direction( shape )
+//			arrow.positionAndFit( g, camera, null, edge.to, edge.to.getX, edge.to.getY )
 			arrow.renderShadow( g, camera, element, info )
 		}
 	}

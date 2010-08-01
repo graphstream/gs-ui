@@ -443,6 +443,7 @@ class Camera {
   	 */
   	def setBounds( minx:Float, miny:Float, minz:Float, maxx:Float, maxy:Float, maxz:Float ) = metrics.setBounds( minx, miny, minz, maxx, maxy, maxz )
   
+  	/** Set the graphic graph bounds from the graphic graph. */
   	def setBounds( graph:GraphicGraph ) { setBounds( graph.getMinPos.x, graph.getMinPos.y, 0, graph.getMaxPos.x, graph.getMaxPos.y, 0 ) }
    
 // Utility
@@ -745,9 +746,10 @@ class Camera {
   			val p2   = info.points(2)
   			val p3   = info.points(3)
   			val perp = CubicCurve.perpendicular( p0, p1, p2, p3, sprite.getX )
+  			val y    = metrics.lengthToGu( sprite.getY, sprite.getUnits )
   			
   			perp.normalize
-  			perp.scalarMult( sprite.getY )
+  			perp.scalarMult( y )
   			
   			pos.x = CubicCurve.eval( p0.x, p1.x, p2.x, p3.x, sprite.getX ) - perp.data(0)
   			pos.y = CubicCurve.eval( p0.y, p1.y, p2.y, p3.y, sprite.getX ) - perp.data(1) 			
@@ -758,7 +760,8 @@ class Camera {
   			var dx = info.points(3).x - x 		// edge.to.x - x
   			var dy = info.points(3).y - y 		// edge.to.y - y
   			var d  = sprite.getX				// Percent on the edge.
-  			val o  = sprite.getY				// Offset from the position given by percent, perpendicular to the edge.
+  			val o  = metrics.lengthToGu( sprite.getY, sprite.getUnits )	
+  												// Offset from the position given by percent, perpendicular to the edge.
 			
   			d = if( d > 1 ) 1 else d
   			d = if( d < 0 ) 0 else d

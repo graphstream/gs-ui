@@ -35,15 +35,17 @@ Améliorations :
 	* Le choix de ne pas utiliser les transformations affines pour chaque translation/echelle
 	  mais de construire les shapes sur place a été fait pour des raisons de rapidité, mais est-ce
 	  un bon choix ?
+	  
+	* RENOMMER les ElementInfo en ShapeSharedInfo, les NodeInfo en AreaSharedInfo et les EdgeInfo
+	  en ConnectorSharedInfo.
 	
 Bugs :
 
 	* Problème de repaint des bordures des JComponent si anti-alias est activé ?
-	* Problème de déplacement des sprites attachés, ce sont les coordonnées d'attachement qui sont modifiées.
 	* Pour les tailles dynamiques, si les arcs sont dessinés avant les noeuds et que leur point
 	  d'attachement dépend de la taille du noeud, l'arc est mal dessiné s'il n'y a pas deux frames
 	  de dessinées. Problème d'ordre : positionAndFit (et les nodeinfos) devraient être faits dès le
 	  début du rendu.
-	* Il reste des problèmes d'adaptation de la vue à la position des sprites -> TestSprites,
-	  positionner les sommets sur des tailles + petites que 1 (entre 0 et 1).
 	* Le texte est-il bien alligné face aux icônes ?	  
+	* ETRANGE bug avec les icones dynamiques (TestIcons) si le renderer OpenGL n'est pas activé,
+	  certaines icones ne s'affichent pas.

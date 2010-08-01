@@ -8,54 +8,45 @@ import org.graphstream.ui.j2dviewer.renderer.shape._
 
 import java.awt.geom._
 
-/** Utility methods to deal with bezier cubic curves. */
+/** Utility methods to deal with Bézier cubic curves. */
 object CubicCurve {
-	/**
-	 * Evaluate a cubic bezier curve according to control points (x) and return the position at
-	 * parametric position `t` of the curve.
-	 * @param x0 The first control point.
-	 * @param x1 The second control point.
-	 * @param x2 The third control point.
-	 * @param x3 The fourth control point.
-	 * @param t The percent on the curve (between 0 and 1 included).
-	 * @return The coordinate at t percent on the curve.
-	 */
+	/** Evaluate a cubic Bézier curve according to control points `x0`, `x1`, `x2` and `x3` and 
+	 * return the position at parametric position `t` of the curve.
+	 * @return The coordinate at parametric position `t` on the curve. */
 	def eval( x0:Float, x1:Float, x2:Float, x3:Float, t:Float ):Float = {
 		val tt = ( 1f - t )
 		
 		x0 * (tt*tt*tt) + 3f * x1 * t * (tt*tt) + 3f * x2 * (t*t) * tt + x3 * (t*t*t)
 	}
 
-	/**
-	 * Evaluate a cubic bezier curve according to control points (x) and return the position at
-	 * a given "percent" (t) of the curve.
-	 * @param p0 The first control point.
-	 * @param p1 The second control point.
-	 * @param p2 The third control point.
-	 * @param p3 The fourth control point.
-	 * @param t The percent on the curve (between 0 and 1 included).
-	 * @return The coordinates at t percent on the curve.
-	 */
+	/** Evaluate a cubic Bézier curve according to control points `p0`, `p1`, `p2` and `p3` and 
+	 * return the position at parametric position `t` of the curve.
+	 * @return The point at parametric position `t` on the curve. */
 	def eval( p0:Point2, p1:Point2, p2:Point2, p3:Point2, t:Float ):Point2 = {
 		new Point2( eval( p0.x, p1.x, p2.x, p3.x, t ),
 		            eval( p0.y, p1.y, p2.y, p3.y, t ) )
 	}
 
+	/** Evaluate a cubic Bézier curve according to control points `p0`, `p1`, `p2` and `p3` and 
+	 * return the position at parametric position `t` of the curve.
+	 * @return The point at parametric position `t` on the curve. */
 	def eval( p0:Point2D.Float, p1:Point2D.Float, p2:Point2D.Float, p3:Point2D.Float, t:Float ):Point2D.Float = {
 		new Point2D.Float( eval( p0.x, p1.x, p2.x, p3.x, t ),
 		                    eval( p0.y, p1.y, p2.y, p3.y, t ) )
 	}
-
 	
-	/** Evaluate a cubic bezier curve according to control points (p) and store the position
-	 * in `result` at the given parametric position `t`. Return `result`. */
+	/** Evaluate a cubic Bézier curve according to control points `p0`, `p1`, `p2` and `p3` and 
+	 * store the position at parametric position `t` of the curve in `result`.
+	 * @return the given reference to `result`. */
 	def eval( p0:Point2, p1:Point2, p2:Point2, p3:Point2, t:Float, result:Point2 ):Point2 = {
 		result.set( eval( p0.x, p1.x, p2.x, p3.x, t ),
 		            eval( p0.y, p1.y, p2.y, p3.y, t ) )
 		result
 	}
 	
-	/** Derivative of a cubic bezier curve at parametric position `t` */
+	/** Derivative of a cubic Bézier curve according to control points `x0`, `x1`, `x2` and `x3` 
+	 * at parametric position `t` of the curve.
+	 * @return The derivative at parametric position `t` on the curve. */
 	def derivative( x0:Float, x1:Float, x2:Float, x3:Float, t:Float ):Float = {
 //A = x3 - 3 * x2 + 3 * x1 - x0
 //B = 3 * x2 - 6 * x1 + 3 * x0
@@ -67,34 +58,46 @@ object CubicCurve {
 		( 3 * x1 - 3 * x0 )
 	}
 	
-	/** Derivative of a cubic bezier curve at parametric position `t`. */
+	/** Derivative point of a cubic Bézier curve according to control points `x0`, `x1`, `x2` and
+	 * `x3` at parametric position `t` of the curve.
+	 * @return The derivative point at parametric position `t` on the curve. */
 	def derivative( p0:Point2, p1:Point2, p2:Point2, p3:Point3, t:Float ):Point2 = {
 		new Point2( derivative( p0.x, p1.x, p2.x, p3.x, t ), derivative( p0.y, p1.y, p2.y, p3.y, t ) )
 	}
 
+	/** Store in `result` the derivative point of a cubic Bézier curve according to control points
+	 * `x0`, `x1`, `x2` and `x3` at parametric position `t` of the curve.
+	 * @return the given reference to `result`. */
 	def derivative( p0:Point2, p1:Point2, p2:Point2, p3:Point3, t:Float, result:Point2 ):Point2 = {
 		result.set( derivative( p0.x, p1.x, p2.x, p3.x, t ), derivative( p0.y, p1.y, p2.y, p3.y, t ) )
 		result
 	}
-	
+
+	/** The perpendicular vector to the curve defined by control points `p0`, `p1`, `p2` and `p3`
+	 * at parametric position `t`.
+	 * @return A vector perpendicular to the curve at position `t`. */
 	def perpendicular( p0:Point2, p1:Point2, p2:Point2, p3:Point2, t:Float ):Vector2 = {
 		new Vector2( derivative( p0.y, p1.y, p2.y, p3.y, t ), -derivative( p0.x, p1.x, p2.x, p3.x, t ) )
 	}
 
+	/** Store in `result` the perpendicular vector to the curve defined by control points `p0`,
+	 * `p1`, `p2` and `p3`  at parametric position `t`.
+	 * @return the given reference to `result`. */
 	def perpendicular( p0:Point2, p1:Point2, p2:Point2, p3:Point2, t:Float, result:Vector2 ):Vector2 = {
 		result.set( derivative( p0.y, p1.y, p2.y, p3.y, t ), -derivative( p0.x, p1.x, p2.x, p3.x, t ) )
 		result
 	}
 	
+	/** The perpendicular vector to the curve defined by control points `p0`, `p1`, `p2` and `p3`
+	 * at parametric position `t`.
+	 * @return A vector perpendicular to the curve at position `t`. */
 	def perpendicular( p0:Point2D.Float, p1:Point2D.Float, p2:Point2D.Float, p3:Point2D.Float, t:Float ):Point2D.Float = {
 		new Point2D.Float( derivative( p0.y, p1.y, p2.y, p3.y, t ), -derivative( p0.x, p1.x, p2.x, p3.x, t ) )
 	}
 	
-	/** 
-	 * A quick and dirty hack to evaluate the length of a cubic bezier curve. This method simply compute
+	/** A quick and dirty hack to evaluate the length of a cubic bezier curve. This method simply compute
 	 * the length of the three segments of the enclosing polygon and scale them. This is fast but
-	 * inaccurate.
-	 */
+	 * inaccurate. */
 	def approxLengthOfCurveQuickAndDirty( c:Connector ):Float = {
 		// Computing a curve real length is really heavy.
 		// We approximate it using the length of the 3 line segments of the enclosing
@@ -102,10 +105,8 @@ object CubicCurve {
 		( c.fromPos.distance( c.byPos1 )*0.5f + c.byPos1.distance( c.byPos2 )*0.8f + c.byPos2.distance( c.toPos )*0.5f )
 	}
 	
-	/**
-	 * Evaluate the length of a bezier curve by taking four points on the curve and summing the lengths of
-	 * the five segments thus defined.
-	 */
+	/** Evaluate the length of a Bézier curve by taking four points on the curve and summing the lengths of
+	 * the five segments thus defined. */
 	def approxLengthOfCurveQuick( c:Connector ):Float = {
 		val ip0 = CubicCurve.eval( c.fromPos, c.byPos1, c.byPos2, c.toPos, 0.1f )
 		val ip1 = CubicCurve.eval( c.fromPos, c.byPos1, c.byPos2, c.toPos, 0.3f )
@@ -115,10 +116,8 @@ object CubicCurve {
 		( c.fromPos.distance( ip0 ) + ip0.distance( ip1 ) + ip1.distance( ip2 ) + ip2.distance( ip3 ) + ip3.distance( c.toPos ) )
 	}
 	
-	/**
-	 * Evaluate the length of a bezier curve by taking n points on the curve and summing the lengths of
-	 * the n+1 segments thus defined.
-	 */
+	/** Evaluate the length of a Bézier curve by taking n points on the curve and summing the lengths of
+	 * the n+1 segments thus defined. */
 	def approxLengthOfCurve( c:Connector ):Float = {
 		val inc = 0.1f
 		var i   = inc
@@ -137,11 +136,9 @@ object CubicCurve {
 		len
 	}
 	
-	/**
-	 * Return two points, one inside and the second outside of the shape of the destination node
-	 * of the given `edge`, the points can be used to deduce a vector along the bezier curve entering
-	 * point in the shape.
-	 */
+	/** Return two points, one inside and the second outside of the shape of the destination node
+	 * of the given `edge`, the points can be used to deduce a vector along the Bézier curve entering
+	 * point in the shape. */
 	def approxVectorEnteringCurve( edge:GraphicEdge, c:Connector, camera:Camera ):(Point2, Point2) = {
 		val node = edge.to
 		val info = node.getAttribute( ElementInfo.attributeName ).asInstanceOf[NodeInfo]
@@ -175,12 +172,23 @@ object CubicCurve {
 		(p0, p1)
 	}
 	
-	/**
-	 * Use a dychotomy methode to evaluate the intersection between the `edge` destination node
-	 * shape and the bezier curve of the connector `c` given. The returned values are the point of
+	/** Use a dichotomy method to evaluate the intersection between the `edge` destination node
+	 * shape and the Bézier curve of the connector `c`. The returned values are the point of
 	 * intersection as well as the parametric position of this point on the curve (a float).
+	 * The maximal recursive depth of the dichotomy is fixed to 7 here.
+	 * @return A 2-tuple made of the point of intersection and the associated parametric position.
 	 */
-	def approxIntersectionPointOnCurve( edge:GraphicEdge, c:Connector, camera:Camera ):(Point2,Float) = {
+	def approxIntersectionPointOnCurve( edge:GraphicEdge, c:Connector, camera:Camera ):(Point2,Float) = 
+		approxIntersectionPointOnCurve( edge, c, camera, 7 )
+		
+	/** Use a dichotomy method to evaluate the intersection between the `edge` destination node
+	 * shape and the Bézier curve of the connector `c`. The returned values are the point of
+	 * intersection as well as the parametric position of this point on the curve (a float).
+	 * The dichotomy can recurse at any level to increase precision, often 7 is sufficient, the
+	 * `maxDepth` parameter allows to set this depth.
+	 * @return A 2-tuple made of the point of intersection and the associated parametric position.
+	 */
+	def approxIntersectionPointOnCurve( edge:GraphicEdge, c:Connector, camera:Camera, maxDepth:Int ):(Point2,Float) = {
 		val node = edge.to
 		val info = node.getAttribute( ElementInfo.attributeName ).asInstanceOf[NodeInfo]
 		var w    = 0f
@@ -194,7 +202,6 @@ object CubicCurve {
 			h = if( node.getStyle.getSize.size > 1 ) camera.metrics.lengthToGu( node.getStyle.getSize, 1 ) else w
 		}
 			
-		val maxDepth  = 7
 		var searching = true
 		var p         = c.toPos//        = CubicCurve.eval( c.fromPos, c.byPos1, c.byPos2, c.toPos, 0.5f )
 		var tbeg      = 0f

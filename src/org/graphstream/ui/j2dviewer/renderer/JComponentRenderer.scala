@@ -57,8 +57,9 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 	
 	protected def pushStyle( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
 		if( shadow != null ) {
-		  	shadow.configure( g, group, camera, null )
-		  	shadow.size( group, camera )
+			shadow.configureForGroup( g, group, camera )
+//		  	shadow.configure( g, group, camera, null )
+//		  	shadow.size( group, camera )
 		}
 	}
 	
@@ -81,14 +82,15 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 													
 	protected def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		if( shadow != null ) {
-			val pos = new Point2D.Float( element.getX, element.getY )
-
-			if( element.isInstanceOf[GraphicSprite] ) {
-				camera.getSpritePosition( element.asInstanceOf[GraphicSprite], pos, StyleConstants.Units.GU )
-			}
-			
-//			shadow.setupContents( g, camera, element, null )
-			shadow.positionAndFit( g, camera, null, element, pos.x, pos.y )
+//			val pos = new Point2D.Float( element.getX, element.getY )
+//
+//			if( element.isInstanceOf[GraphicSprite] ) {
+//				camera.getSpritePosition( element.asInstanceOf[GraphicSprite], pos, StyleConstants.Units.GU )
+//			}
+//			
+////			shadow.setupContents( g, camera, element, null )
+//			shadow.positionAndFit( g, camera, null, element, pos.x, pos.y )
+			shadow.configureForElement( g, element, null, camera )
 			shadow.renderShadow( g, camera, element, null )
 		}
 	}

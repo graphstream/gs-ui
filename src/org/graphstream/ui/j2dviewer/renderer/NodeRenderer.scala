@@ -15,29 +15,32 @@ class NodeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 	}
 	
 	protected def pushStyle( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
-		val size = group.getSize
-		shape.configure( g, group, camera, null )
-		shape.size( group, camera )
+//		val size = group.getSize
+		shape.configureForGroup( g, group, camera )
+//		shape.configure( g, group, camera, null )
+//		shape.size( group, camera )
 	}
 	
 	protected def pushDynStyle( g:Graphics2D, camera:Camera, element:GraphicElement ) {
-		val size = group.getSize
-		shape.configure( g, group, camera, element )
-		shape.dynSize( group, camera, element )
+//		val size = group.getSize
+//		shape.configure( g, group, camera, element )
+//		shape.dynSize( group, camera, element )
 	}
 	
 	protected def renderElement( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		shape.text = element.label
 		val info = getOrSetNodeInfo( element )
-		shape.setupContents( g, camera, element, info )
-		shape.positionAndFit( g, camera, info, element, element.getX, element.getY )
+		shape.configureForElement( g, element, info, camera )
+//		shape.setupContents( g, camera, element, info )
+//		shape.positionAndFit( g, camera, info, element, element.getX, element.getY )
 		shape.render( g, camera, element, info )
 	}
 	
 	protected def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		val info = getOrSetNodeInfo( element )
-		shape.setupContents( g, camera, element, info )
-		shape.positionAndFit( g, camera, info, element, element.getX, element.getY )
+		shape.configureForElement( g, element, info, camera )
+//		shape.setupContents( g, camera, element, info )
+//		shape.positionAndFit( g, camera, info, element, element.getX, element.getY )
 		shape.renderShadow( g, camera, element, info )
 	}
  

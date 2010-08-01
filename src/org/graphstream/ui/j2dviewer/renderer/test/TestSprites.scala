@@ -8,6 +8,7 @@ import org.graphstream.algorithm.Toolkit._
 import org.graphstream.ui.graphicGraph.stylesheet.{Values, StyleConstants}
 import org.graphstream.ui.swingViewer.{Viewer, DefaultView, ViewerPipe, ViewerListener}
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
+import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 import org.graphstream.ui.spriteManager._
 import org.graphstream.ui.j2dviewer._
 
@@ -64,15 +65,19 @@ class TestSprites extends ViewerListener {
 		
 		val s1 = sman.addSprite( "S1" ).asInstanceOf[MySprite]
 		val s2 = sman.addSprite( "S2" ).asInstanceOf[MySprite]
+		val s3 = sman.addSprite( "S3" ).asInstanceOf[MySprite]
 			
 		s1.attachToEdge( "AB1" )
 		s2.attachToEdge( "CD" )
-		s2.setOffset( 0.04f )
+		s3.attachToEdge( "DA" )
+		s2.setOffsetPx( 20 )
+		s3.setOffsetPx( 15 )
 		
 		while( loop ) {
 			pipeIn.pump
 			s1.move
 			s2.move
+			s3.move
 			sleep( 10 )
 		}
 		
@@ -140,7 +145,14 @@ class TestSprites extends ViewerListener {
 				shape: arrow;
 				sprite-orientation: projection;
 				size: 20px, 10px;
+				fill-color: blue;
 				
+			}
+			sprite#S3 {
+				shape: arrow;
+				sprite-orientation: to;
+				size: 10px, 5px;
+				fill-color: green;
 			}
 			"""
 
@@ -161,8 +173,9 @@ class TestSprites extends ViewerListener {
 		val SPEED = 0.005f
 		var speed = SPEED
 		var off = 0f
+		var units = Units.PX
 		
-		def setOffset( offset:Float ) { off = offset }
+		def setOffsetPx( offset:Float ) { off = offset; units = Units.PX }
 		
 		def move() {
 			var p = getX
@@ -180,15 +193,15 @@ class TestSprites extends ViewerListener {
 					
 					attachToEdge( other.getId )
 					if( node eq other.getSourceNode ) {
-						setPosition( 0, off, 0 )
+						setPosition( units, 0, off, 0 )
 						speed = SPEED
 					} else {
-						setPosition( 1, off, 0 )
+						setPosition( units, 1, off, 0 )
 						speed = -SPEED
 					}
 				}
 			} else {
-				setPosition( p, off, 0 )
+				setPosition( units, p, off, 0 )
 			}
 		}
 	}

@@ -16,11 +16,11 @@ class ArrowOnEdge extends AreaOnConnectorShape {
  
 // Command
  
- 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
- 	  	configureFillable( style, camera, element )
- 	  	configureShadowable( style, camera )
- 	  	configureStrokable( style, camera )
- 	}
+// 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
+// 	  	configureFillable( style, camera, element )
+// 	  	configureShadowable( style, camera )
+// 	  	configureStrokable( style, camera )
+// 	}
   
 	protected def make( g:Graphics2D, camera:Camera ) { make( false, camera ) }
 	protected def makeShadow( g:Graphics2D, camera:Camera ) { make( true, camera ) }
@@ -99,11 +99,11 @@ class CircleOnEdge extends AreaOnConnectorShape {
  
 // Command
  
- 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
- 	  	configureFillable( style, camera, element )
- 	  	configureShadowable( style, camera )
- 	  	configureStrokable( style, camera )
- 	}
+// 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
+// 	  	configureFillable( style, camera, element )
+// 	  	configureShadowable( style, camera )
+// 	  	configureStrokable( style, camera )
+// 	}
   
 	protected def make( g:Graphics2D, camera:Camera )       { make( false, camera ) }
 	protected def makeShadow( g:Graphics2D, camera:Camera ) { make( true, camera ) }
@@ -178,11 +178,11 @@ class DiamondOnEdge extends AreaOnConnectorShape {
  
 // Command
  
- 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
- 	  	configureFillable( style, camera, element )
- 	  	configureShadowable( style, camera )
- 	  	configureStrokable( style, camera )
- 	}
+// 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
+// 	  	configureFillable( style, camera, element )
+// 	  	configureShadowable( style, camera )
+// 	  	configureStrokable( style, camera )
+// 	}
   
 	protected def make( g:Graphics2D, camera:Camera ) { make( false, camera ) }
 	protected def makeShadow( g:Graphics2D, camera:Camera ) { make( true, camera ) }

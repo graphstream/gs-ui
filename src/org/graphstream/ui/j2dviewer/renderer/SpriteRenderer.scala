@@ -15,26 +15,28 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 	}
 	
 	protected def pushStyle( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
-		val size = group.getSize
-		shape.configure( g, group, camera, null )
-		shape.size( group, camera )
+//		val size = group.getSize
+		shape.configureForGroup( g, group, camera )
+//		shape.configure( g, group, camera, null )
+//		shape.size( group, camera )
 	}
 	
 	protected def pushDynStyle( g:Graphics2D, camera:Camera, element:GraphicElement ) {
-		val size = group.getSize
-		shape.configure( g, group, camera, element )
-		shape.dynSize( group, camera, element )
+//		val size = group.getSize
+//		shape.configure( g, group, camera, element )
+//		shape.dynSize( group, camera, element )
 	}
 	
 	protected def renderElement( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		val sprite = element.asInstanceOf[GraphicSprite]
-		val pos    = camera.getSpritePosition( sprite, new Point2D.Float, StyleConstants.Units.GU )
+//		val pos    = camera.getSpritePosition( sprite, new Point2D.Float, StyleConstants.Units.GU )
 		val info   = getOrSetSpriteInfo( element )
 		
 		shape.text = element.label
-		shape.setupContents( g, camera, element, info )
-		shape.positionAndFit( g, camera, info, element, pos.x, pos.y )
-		if( shape.isInstanceOf[Orientable] ) shape.asInstanceOf[Orientable].setupOrientation( camera, element.asInstanceOf[GraphicSprite] )
+		shape.configureForElement( g, element, info, camera )
+//		shape.setupContents( g, camera, element, info )
+//		shape.positionAndFit( g, camera, info, element, pos.x, pos.y )
+//		if( shape.isInstanceOf[Orientable] ) shape.asInstanceOf[Orientable].setupOrientation( camera, element.asInstanceOf[GraphicSprite] )
 		shape.render( g, camera, element, info )
 	}
 	
@@ -43,9 +45,10 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 		val pos    = camera.getSpritePosition( sprite, new Point2D.Float, StyleConstants.Units.GU )
 		val info   = getOrSetSpriteInfo( element )
 
-		shape.setupContents( g, camera, element, info )
-		shape.positionAndFit( g, camera, info, element, pos.x, pos.y )
-		if( shape.isInstanceOf[Orientable] ) shape.asInstanceOf[Orientable].setupOrientation( camera, element.asInstanceOf[GraphicSprite] )
+		shape.configureForElement( g, element, info, camera )
+//		shape.setupContents( g, camera, element, info )
+//		shape.positionAndFit( g, camera, info, element, pos.x, pos.y )
+//		if( shape.isInstanceOf[Orientable] ) shape.asInstanceOf[Orientable].setupOrientation( camera, element.asInstanceOf[GraphicSprite] )
 		shape.renderShadow( g, camera, element, info )
 	}
  

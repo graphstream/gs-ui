@@ -99,12 +99,12 @@ class BlobShape extends AreaConnectorShapeWithCubics {
  
 // Command
  
- 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
- 	  	configureFillable( style, camera, element )
- 	  	configureShadowable( style, camera )
- 	  	configureStrokable( style, camera )
- 	  	configureDecorable( style, camera )
- 	}
+// 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
+// 	  	configureFillable( style, camera, element )
+// 	  	configureShadowable( style, camera )
+// 	  	configureStrokable( style, camera )
+// 	  	configureDecorable( style, camera )
+// 	}
   
 	protected def make( g:Graphics2D, camera:Camera ) {
 		make( camera, 0, 0, 0, 0 )
@@ -291,12 +291,12 @@ class AngleShape extends AreaConnectorShape {
  
 // Command
  
- 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
- 	  	configureFillable( style, camera, element )
- 	  	configureShadowable( style, camera )
- 	  	configureStrokable( style, camera )
- 	  	configureDecorable( style, camera )
- 	}
+// 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
+// 	  	configureFillable( style, camera, element )
+// 	  	configureShadowable( style, camera )
+// 	  	configureStrokable( style, camera )
+// 	  	configureDecorable( style, camera )
+// 	}
 	
 	protected def make( g:Graphics2D, camera:Camera ) {
 		make( camera, 0, 0, 0, 0 )
@@ -457,12 +457,12 @@ class CubicCurveShape extends LineConnectorShapeWithCubics {
 
 // Command
  
- 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
- 	  	configureFillableConnector( style, camera, element )
- 	  	configureShadowableConnector( style, camera )
- 	  	configureStrokableConnector( style, camera )
- 	  	configureDecorable( style, camera )
- 	}
+// 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
+// 	  	configureFillableConnector( style, camera, element )
+// 	  	configureShadowableConnector( style, camera )
+// 	  	configureStrokableConnector( style, camera )
+// 	  	configureDecorable( style, camera )
+// 	}
 	
 	protected def make( g:Graphics2D, camera:Camera ) {
 		make( camera, 0, 0, 0, 0 )
@@ -590,12 +590,12 @@ class FreePlaneEdgeShape extends LineConnectorShape {
 
 // Command
  
- 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
- 	  	configureFillableConnector( style, camera, element )
- 	  	configureShadowableConnector( style, camera )
- 	  	configureStrokableConnector( style, camera )
- 	  	configureDecorable( style, camera )
- 	}
+// 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
+// 	  	configureFillableConnector( style, camera, element )
+// 	  	configureShadowableConnector( style, camera )
+// 	  	configureStrokableConnector( style, camera )
+// 	  	configureDecorable( style, camera )
+// 	}
 	
 	protected def make( g:Graphics2D, camera:Camera ) {
 		make( camera, 0, 0, 0, 0 )
