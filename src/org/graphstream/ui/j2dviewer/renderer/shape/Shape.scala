@@ -4,12 +4,13 @@ import java.awt.{Color, Graphics2D, Image, Paint, Stroke}
 import java.awt.geom.RectangularShape
 
 import org.graphstream.ui.j2dviewer.Camera
-import org.graphstream.ui.j2dviewer.renderer.{ElementInfo, NodeInfo, EdgeInfo}
-import org.graphstream.ui.util.GraphMetrics
+import org.graphstream.ui.j2dviewer.renderer._
+import org.graphstream.ui.util._
 import org.graphstream.ui.geom.Point2
-import org.graphstream.ui.sgeom.{Vector2, EdgePoints}
-import org.graphstream.ui.graphicGraph.{GraphicElement, GraphicNode, GraphicEdge}
-import org.graphstream.ui.graphicGraph.stylesheet.{Style, StyleConstants}
+import org.graphstream.ui.sgeom._
+import org.graphstream.ui.graphicGraph._
+import org.graphstream.ui.graphicGraph.stylesheet._
+import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 
 /** Base for all shapes. */
 trait Shape {
@@ -48,19 +49,6 @@ trait Shape {
      * therefore it is a separate method.
      */
    	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo )
-}
-
-/**
- * Trait for shapes that can also be used as sprite. As sprites can be "oriented" these additional
- * rendering methods are here to render the sprite rotated.
- * TODO experimental, would allow to rotate the whole sprite
- */
-trait SpriteShape {
-	/**  */
-	def renderSprite( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo )
-	
-	/** */
-	def renderShadowSprite( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo )
 }
 
 /**
@@ -317,6 +305,58 @@ trait Decorable {
   			info.iconAndText.setText( g, element.label )
   		}
   	}
+}
+
+trait Orientable {
+	var orientation:StyleConstants.SpriteOrientation = null
+	
+	var target = new Point2
+	
+	protected def configureOrientable( style:Style, camera:Camera ) {
+		orientation = style.getSpriteOrientation
+	}
+	
+	def setupOrientation( camera:Camera, sprite:GraphicSprite ) {
+		sprite.getAttachment match {
+			case gn:GraphicNode => {
+				sprite.getStyle.getSpriteOrientation match {
+					case SpriteOrientation.NONE       => { target.set( 0, 0 ) }
+					case SpriteOrientation.FROM       => { target.set( gn.getX, gn.getY ) }
+					case SpriteOrientation.TO         => { target.set( gn.getX, gn.getY ) }
+					case SpriteOrientation.PROJECTION => { target.set( gn.getX, gn.getY ) }
+				}
+			}
+			case ge:GraphicEdge => {
+				sprite.getStyle.getSpriteOrientation match {
+					case SpriteOrientation.NONE       => { target.set( 0, 0 ) }
+					case SpriteOrientation.FROM       => { target.set( ge.from.getX, ge.from.getY ) }
+					case SpriteOrientation.TO         => { target.set( ge.to.getX, ge.to.getY ) }
+					case SpriteOrientation.PROJECTION => {
+						val ei = ge.getAttribute( ElementInfo.attributeName ).asInstanceOf[EdgeInfo]
+						
+						if( ei != null )
+						      setTargetOnEdgeInfo( ei, camera, sprite, ge )
+						else setTargetOnLineEdge( camera, sprite, ge ) 
+					}
+				}
+			}
+			case _ => { orientation = SpriteOrientation.NONE }
+		}
+	}
+	
+	protected def setTargetOnEdgeInfo( ei:EdgeInfo, camera:Camera, sprite:GraphicSprite, ge:GraphicEdge ) {
+		if( ei.isCurve  ) {
+			CubicCurve.eval( ei.points(0), ei.points(1), ei.points(2), ei.points(3), sprite.getX, target )
+		} else {
+			setTargetOnLineEdge( camera, sprite, ge )
+		}
+	}
+	
+	protected def setTargetOnLineEdge( camera:Camera, sprite:GraphicSprite, ge:GraphicEdge ) {
+		val dir = Vector2( ge.to.getX-ge.from.getX, ge.to.getY-ge.from.getY )
+		dir.scalarMult( sprite.getX )
+		target.set( ge.from.getX + dir.x, ge.from.getY + dir.y )
+	}
 }
 
 /**

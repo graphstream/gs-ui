@@ -6,10 +6,13 @@ import org.graphstream.ui.j2dviewer._
 import org.graphstream.ui.j2dviewer.renderer._
 import org.graphstream.ui.j2dviewer.renderer.shape._
 
+import java.awt.geom._
+
+/** Utility methods to deal with bezier cubic curves. */
 object CubicCurve {
 	/**
-	 * Evaluate a cubic curve according to control points (x) and return the position at
-	 * a given "percent" (t) of the curve.
+	 * Evaluate a cubic bezier curve according to control points (x) and return the position at
+	 * parametric position `t` of the curve.
 	 * @param x0 The first control point.
 	 * @param x1 The second control point.
 	 * @param x2 The third control point.
@@ -24,7 +27,7 @@ object CubicCurve {
 	}
 
 	/**
-	 * Evaluate a cubic curve according to control points (x) and return the position at
+	 * Evaluate a cubic bezier curve according to control points (x) and return the position at
 	 * a given "percent" (t) of the curve.
 	 * @param p0 The first control point.
 	 * @param p1 The second control point.
@@ -38,8 +41,57 @@ object CubicCurve {
 		            eval( p0.y, p1.y, p2.y, p3.y, t ) )
 	}
 
+	def eval( p0:Point2D.Float, p1:Point2D.Float, p2:Point2D.Float, p3:Point2D.Float, t:Float ):Point2D.Float = {
+		new Point2D.Float( eval( p0.x, p1.x, p2.x, p3.x, t ),
+		                    eval( p0.y, p1.y, p2.y, p3.y, t ) )
+	}
+
+	
+	/** Evaluate a cubic bezier curve according to control points (p) and store the position
+	 * in `result` at the given parametric position `t`. Return `result`. */
+	def eval( p0:Point2, p1:Point2, p2:Point2, p3:Point2, t:Float, result:Point2 ):Point2 = {
+		result.set( eval( p0.x, p1.x, p2.x, p3.x, t ),
+		            eval( p0.y, p1.y, p2.y, p3.y, t ) )
+		result
+	}
+	
+	/** Derivative of a cubic bezier curve at parametric position `t` */
+	def derivative( x0:Float, x1:Float, x2:Float, x3:Float, t:Float ):Float = {
+//A = x3 - 3 * x2 + 3 * x1 - x0
+//B = 3 * x2 - 6 * x1 + 3 * x0
+//C = 3 * x1 - 3 * x0
+//D = x0
+//Vx = 3At2 + 2Bt + C 
+		3 * ( x3 - 3 * x2 + 3 * x1 - x0 ) * t*t +
+		2 * ( 3 * x2 - 6 * x1 + 3 * x0 ) * t +
+		( 3 * x1 - 3 * x0 )
+	}
+	
+	/** Derivative of a cubic bezier curve at parametric position `t`. */
+	def derivative( p0:Point2, p1:Point2, p2:Point2, p3:Point3, t:Float ):Point2 = {
+		new Point2( derivative( p0.x, p1.x, p2.x, p3.x, t ), derivative( p0.y, p1.y, p2.y, p3.y, t ) )
+	}
+
+	def derivative( p0:Point2, p1:Point2, p2:Point2, p3:Point3, t:Float, result:Point2 ):Point2 = {
+		result.set( derivative( p0.x, p1.x, p2.x, p3.x, t ), derivative( p0.y, p1.y, p2.y, p3.y, t ) )
+		result
+	}
+	
+	def perpendicular( p0:Point2, p1:Point2, p2:Point2, p3:Point2, t:Float ):Vector2 = {
+		new Vector2( derivative( p0.y, p1.y, p2.y, p3.y, t ), -derivative( p0.x, p1.x, p2.x, p3.x, t ) )
+	}
+
+	def perpendicular( p0:Point2, p1:Point2, p2:Point2, p3:Point2, t:Float, result:Vector2 ):Vector2 = {
+		result.set( derivative( p0.y, p1.y, p2.y, p3.y, t ), -derivative( p0.x, p1.x, p2.x, p3.x, t ) )
+		result
+	}
+	
+	def perpendicular( p0:Point2D.Float, p1:Point2D.Float, p2:Point2D.Float, p3:Point2D.Float, t:Float ):Point2D.Float = {
+		new Point2D.Float( derivative( p0.y, p1.y, p2.y, p3.y, t ), -derivative( p0.x, p1.x, p2.x, p3.x, t ) )
+	}
+	
 	/** 
-	 * A quick and dirty hack to evaluate the length of a cubic curve. This method simply compute
+	 * A quick and dirty hack to evaluate the length of a cubic bezier curve. This method simply compute
 	 * the length of the three segments of the enclosing polygon and scale them. This is fast but
 	 * inaccurate.
 	 */
@@ -51,7 +103,7 @@ object CubicCurve {
 	}
 	
 	/**
-	 * Evaluate the length of a curve by taking four points on the curve and summing the lengths of
+	 * Evaluate the length of a bezier curve by taking four points on the curve and summing the lengths of
 	 * the five segments thus defined.
 	 */
 	def approxLengthOfCurveQuick( c:Connector ):Float = {
@@ -64,7 +116,7 @@ object CubicCurve {
 	}
 	
 	/**
-	 * Evaluate the length of a curve by taking n points on the curve and summing the lengths of
+	 * Evaluate the length of a bezier curve by taking n points on the curve and summing the lengths of
 	 * the n+1 segments thus defined.
 	 */
 	def approxLengthOfCurve( c:Connector ):Float = {
@@ -87,7 +139,7 @@ object CubicCurve {
 	
 	/**
 	 * Return two points, one inside and the second outside of the shape of the destination node
-	 * of the given `edge`, the points can be used to deduce a vector along the curve entering
+	 * of the given `edge`, the points can be used to deduce a vector along the bezier curve entering
 	 * point in the shape.
 	 */
 	def approxVectorEnteringCurve( edge:GraphicEdge, c:Connector, camera:Camera ):(Point2, Point2) = {
@@ -125,7 +177,7 @@ object CubicCurve {
 	
 	/**
 	 * Use a dychotomy methode to evaluate the intersection between the `edge` destination node
-	 * shape and the curve of the connector `c` given. The returned values are the point of
+	 * shape and the bezier curve of the connector `c` given. The returned values are the point of
 	 * intersection as well as the parametric position of this point on the curve (a float).
 	 */
 	def approxIntersectionPointOnCurve( edge:GraphicEdge, c:Connector, camera:Camera ):(Point2,Float) = {
@@ -164,5 +216,62 @@ object CubicCurve {
 		}
 		
 		(p, t)
+	}
+	
+// =================================================================================================
+// A simple test for the cubic curve eval, derivative and perpendicular methods.	
+// =================================================================================================
+	
+	import javax.swing._
+	import java.awt._
+	
+	def main( args:Array[String] ) {
+
+		val frame = new JFrame("Test Beziers")
+		val canvas = new MyCanvas()
+		
+		frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE )
+		frame.add( canvas, BorderLayout.CENTER )
+		frame.setSize( 400, 420 )
+		frame.setVisible( true )
+	}
+	
+	class MyCanvas extends JPanel {
+		override def paint( gg:Graphics ) {
+			val g  = gg.asInstanceOf[Graphics2D]
+			val P0 = new Point2D.Float( 10, 390 )
+			val P1 = new Point2D.Float( 50, 10 )
+			val P2 = new Point2D.Float( 350, 390 )
+			val P3 = new Point2D.Float( 390, 10 )
+			
+			val curve = new CubicCurve2D.Float
+			val line  = new Line2D.Float
+			curve.setCurve( P0, P1, P2, P3 )
+			
+			g.setColor( Color.BLUE )
+			g.draw( curve )
+			g.setColor( Color.RED )
+			
+			line.setLine( P0, P1 )
+			g.draw( line )
+			line.setLine( P1, P2 )
+			g.draw( line )
+			line.setLine( P2, P3 )
+			g.draw( line )
+			
+			var t = 0f;
+			
+			g.setColor( Color.GREEN )
+			while( t < 1 ) {
+				val P = eval( P0, P1, P2, P3, t )
+				val V = perpendicular( P0, P1, P2, P3, t )
+				val T = new Point2D.Float( P.x+V.x, P.y+V.y )
+				
+				line.setLine( P, T )
+				g.draw( line )
+				
+				t += 0.01f
+			}
+		}
 	}
 }

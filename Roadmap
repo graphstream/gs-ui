@@ -21,7 +21,6 @@ Il reste à faire :
 Améliorations :
 	
 	* Les contour des flèches ne passent pas au dessus de l'arc ?
-	* Le positionnement des flèches au contact des nœuds (surtout sur les courbe cubiques).
 	* Un CSS pour la zone de sélection.
 	* Un type d'arc avec image mappée sur la longueur de l'arc.
 	* Fond 9panes (pour les fond images)
@@ -30,6 +29,12 @@ Améliorations :
 	* Possibilité de spécifier l'icone de manière dynamique, spécifique à chaque élément sans
 	  toucher au CSS.
 	* Pouvoir positionner les flêches au centre des arcs.
+	* Des strokes a double ou triple traits (c.f. les nœuds source/puit des automates).
+	* Remove node0 and node1 as synonims of from and to in sprite orientations CSS.
+	
+	* Le choix de ne pas utiliser les transformations affines pour chaque translation/echelle
+	  mais de construire les shapes sur place a été fait pour des raisons de rapidité, mais est-ce
+	  un bon choix ?
 	
 Bugs :
 
@@ -39,5 +44,6 @@ Bugs :
 	  d'attachement dépend de la taille du noeud, l'arc est mal dessiné s'il n'y a pas deux frames
 	  de dessinées. Problème d'ordre : positionAndFit (et les nodeinfos) devraient être faits dès le
 	  début du rendu.
-	* Est-ce que les flêches prennent en compte la taille dynamique ?
-		-> Camera.evalTargetRadius.
+	* Il reste des problèmes d'adaptation de la vue à la position des sprites -> TestSprites,
+	  positionner les sommets sur des tailles + petites que 1 (entre 0 et 1).
+	* Le texte est-il bien alligné face aux icônes ?	  

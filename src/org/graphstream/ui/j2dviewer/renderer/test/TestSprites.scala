@@ -66,7 +66,8 @@ class TestSprites extends ViewerListener {
 		val s2 = sman.addSprite( "S2" ).asInstanceOf[MySprite]
 			
 		s1.attachToEdge( "AB1" )
-		s1.attachToEdge( "CD" )
+		s2.attachToEdge( "CD" )
+		s2.setOffset( 0.04f )
 		
 		while( loop ) {
 			pipeIn.pump
@@ -137,6 +138,9 @@ class TestSprites extends ViewerListener {
 			}
 			sprite#S2 {
 				shape: arrow;
+				sprite-orientation: projection;
+				size: 20px, 10px;
+				
 			}
 			"""
 
@@ -156,6 +160,9 @@ class TestSprites extends ViewerListener {
 		
 		val SPEED = 0.005f
 		var speed = SPEED
+		var off = 0f
+		
+		def setOffset( offset:Float ) { off = offset }
 		
 		def move() {
 			var p = getX
@@ -164,21 +171,24 @@ class TestSprites extends ViewerListener {
 			
 			if( p < 0 || p > 1 ) {
 				val edge = getAttachment.asInstanceOf[Edge]
-				val node = if( p > 1 ) edge.getTargetNode else edge.getSourceNode
-				var other = randomOutEdge( node )
 				
-				if( node.getOutDegree > 1 ) { while( other eq edge ) other = randomOutEdge( node ) }
-				
-				attachToEdge( other.getId )
-				if( node eq other.getSourceNode ) {
-					setPosition( 0 )
-					speed = SPEED
-				} else {
-					setPosition( 1 )
-					speed = -SPEED
+				if( edge != null ) {
+					val node = if( p > 1 ) edge.getTargetNode else edge.getSourceNode
+					var other = randomOutEdge( node )
+					
+					if( node.getOutDegree > 1 ) { while( other eq edge ) other = randomOutEdge( node ) }
+					
+					attachToEdge( other.getId )
+					if( node eq other.getSourceNode ) {
+						setPosition( 0, off, 0 )
+						speed = SPEED
+					} else {
+						setPosition( 1, off, 0 )
+						speed = -SPEED
+					}
 				}
 			} else {
-				setPosition( p )
+				setPosition( p, off, 0 )
 			}
 		}
 	}

@@ -732,27 +732,26 @@ class Camera {
   	 */
   	protected def getSpritePositionEdge( sprite:GraphicSprite, position:Point2D.Float, units:Units ):Point2D.Float = {
   		var pos = position
-//printf( "getSpritePositionEdge(%s, %s, %s)%n", sprite, position, units )
+
   		if( pos == null )
   			pos = new Point2D.Float
 		
   		val edge = sprite.getEdgeAttachment.asInstanceOf[GraphicEdge]
   		val info = edge.getAttribute( ElementInfo.attributeName ).asInstanceOf[EdgeInfo]
 		
-if(info eq null) throw new RuntimeException
-  		
   		if( info.isCurve ) {
-  			val p0   = info.points(0) // new Point2( info.points(0).x, info.points(0).y )
-  			val p1   = info.points(1) // new Point2( info.points(1).x, info.points(1).y )
-  			val p2   = info.points(2) // new Point2( info.points(2).x, info.points(2).y )
-  			val p3   = info.points(3) // new Point2( info.points(3).x, info.points(3).y )
-  			val perp = new Vector2( p3.y - p0.y, -( p3.x - p0.x ) )
-     
+  			val p0   = info.points(0)
+  			val p1   = info.points(1)
+  			val p2   = info.points(2)
+  			val p3   = info.points(3)
+  			val perp = CubicCurve.perpendicular( p0, p1, p2, p3, sprite.getX )
+  			
   			perp.normalize
   			perp.scalarMult( sprite.getY )
-     
-  			pos.x = CubicCurve.eval( p0.x, p1.x, p2.x, p3.x, sprite.getX ) + perp.x
-  			pos.y = CubicCurve.eval( p0.y, p1.y, p2.y, p3.y, sprite.getX ) + perp.y
+  			
+  			pos.x = CubicCurve.eval( p0.x, p1.x, p2.x, p3.x, sprite.getX ) - perp.data(0)
+  			pos.y = CubicCurve.eval( p0.y, p1.y, p2.y, p3.y, sprite.getX ) - perp.data(1) 			
+  			
   		} else {
   			var x  = info.points(0).x 			// edge.from.x
   			var y  = info.points(0).y 			// edge.from.y

@@ -63,8 +63,6 @@ trait RectangularAreaShape extends AreaShape {
  	  	configureShadowable( style, camera )
  	  	configureStrokable( style, camera )
  	  	configureDecorable( style, camera )
- 	  	
- 	  	
  	}
  
  	protected def make( g:Graphics2D, camera:Camera ) {

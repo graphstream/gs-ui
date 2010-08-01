@@ -34,6 +34,7 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 		shape.text = element.label
 		shape.setupContents( g, camera, element, info )
 		shape.positionAndFit( g, camera, info, element, pos.x, pos.y )
+		if( shape.isInstanceOf[Orientable] ) shape.asInstanceOf[Orientable].setupOrientation( camera, element.asInstanceOf[GraphicSprite] )
 		shape.render( g, camera, element, info )
 	}
 	
@@ -44,6 +45,7 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 
 		shape.setupContents( g, camera, element, info )
 		shape.positionAndFit( g, camera, info, element, pos.x, pos.y )
+		if( shape.isInstanceOf[Orientable] ) shape.asInstanceOf[Orientable].setupOrientation( camera, element.asInstanceOf[GraphicSprite] )
 		shape.renderShadow( g, camera, element, info )
 	}
  
@@ -80,7 +82,7 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 		  	case DIAMOND        => new DiamondShape
 		    case TRIANGLE       => new TriangleShape
 		    case CROSS          => new CrossShape
-		    case ARROW          => Console.err.printf( "** SORRY arrow shape not yet implemented **%n" );        new CircleShape
+		    case ARROW          => new SpriteArrowShape
 		  	// ------------------------------------------
 		  	case POLYGON        => Console.err.printf( "** SORRY polygon shape not yet implemented **%n" );      new CircleShape
 		    case TEXT_BOX       => Console.err.printf( "** SORRY text-box shape not yet implemented **%n" );     new SquareShape

@@ -1,0 +1,18 @@
+The Java2D renderer
+===================
+
+This renderer is intended to be used for portable rendering using Java. The goal is to fully
+implement the CSS designed in the Core UI package.
+
+The camera
+----------
+
+The renderers
+-------------
+
+The Shapes
+----------
+
+The rendering
+-------------
+
