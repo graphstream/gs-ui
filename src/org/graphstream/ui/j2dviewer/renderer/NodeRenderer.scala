@@ -8,39 +8,28 @@ import org.graphstream.ui.j2dviewer.renderer.shape._
 import org.graphstream.ui.sgeom.EdgePoints
 
 class NodeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) {
-	protected var shape:AreaShape = null
+	protected var shape:Shape = null
  
 	protected def setupRenderingPass( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
 		shape = chooseShape
 	}
 	
 	protected def pushStyle( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
-//		val size = group.getSize
 		shape.configureForGroup( g, group, camera )
-//		shape.configure( g, group, camera, null )
-//		shape.size( group, camera )
 	}
 	
 	protected def pushDynStyle( g:Graphics2D, camera:Camera, element:GraphicElement ) {
-//		val size = group.getSize
-//		shape.configure( g, group, camera, element )
-//		shape.dynSize( group, camera, element )
 	}
 	
 	protected def renderElement( g:Graphics2D, camera:Camera, element:GraphicElement ) {
-		shape.text = element.label
 		val info = getOrSetNodeInfo( element )
 		shape.configureForElement( g, element, info, camera )
-//		shape.setupContents( g, camera, element, info )
-//		shape.positionAndFit( g, camera, info, element, element.getX, element.getY )
 		shape.render( g, camera, element, info )
 	}
 	
 	protected def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		val info = getOrSetNodeInfo( element )
 		shape.configureForElement( g, element, info, camera )
-//		shape.setupContents( g, camera, element, info )
-//		shape.positionAndFit( g, camera, info, element, element.getX, element.getY )
 		shape.renderShadow( g, camera, element, info )
 	}
  
@@ -69,7 +58,7 @@ class NodeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 		}
 	}
  
-	protected def chooseShape():AreaShape = {
+	protected def chooseShape():Shape = {
 		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Shape._
 		group.getShape match {
 			case CIRCLE         => new CircleShape 

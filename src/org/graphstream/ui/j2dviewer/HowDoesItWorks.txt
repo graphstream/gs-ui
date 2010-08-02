@@ -4,15 +4,37 @@ The Java2D renderer
 This renderer is intended to be used for portable rendering using Java. The goal is to fully
 implement the CSS designed in the Core UI package.
 
+The basic rendering scheme is to browse style groups in order. 
+Each group contains a set of elements pertaining to the same style.
+For each group the corresponding element shape is setup globally to configure all the unchanging
+parts for each element (shape form, size if it is not dynamic, etc.).
+
+Then for each element, a new configuration of the shape is done for dynamic parts if needed, if
+the color is set via an attribute, if the icon is changed via an attribute, etc. The sizes are
+checked if the size mode is to fit to the contents, etc.
+
+Then the rendering really occurs once.
+
+If there are shadows, this rendering starts anew, but only configuring things used for shadows
+(size and shadow colors). 
+
 The camera
 ----------
+
+The camera is in charge of setting the view, telling which elements are visible or not (could
+improve things a lot for very large rendering, simply start in a place of the graph and browse
+through it without ever viewing it globally).
 
 The renderers
 -------------
 
+Renderers are very simple things that manipulate shapes, set them up, and render them.
+
 The Shapes
 ----------
 
-The rendering
--------------
+This is where the rendering really occurs. All is done to set up things once for each style, not
+once for each element, as most often elements share the same style.
 
+
+TODO, this document is far from complete ...

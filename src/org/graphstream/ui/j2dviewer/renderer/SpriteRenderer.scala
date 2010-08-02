@@ -8,35 +8,24 @@ import org.graphstream.ui.j2dviewer.{J2DGraphRenderer, Camera}
 import org.graphstream.ui.j2dviewer.renderer.shape._
 
 class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) {
-	protected var shape:AreaShape = null
+	protected var shape:Shape = null
   
 	protected def setupRenderingPass( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
 		shape = chooseShape
 	}
 	
 	protected def pushStyle( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
-//		val size = group.getSize
 		shape.configureForGroup( g, group, camera )
-//		shape.configure( g, group, camera, null )
-//		shape.size( group, camera )
 	}
 	
 	protected def pushDynStyle( g:Graphics2D, camera:Camera, element:GraphicElement ) {
-//		val size = group.getSize
-//		shape.configure( g, group, camera, element )
-//		shape.dynSize( group, camera, element )
 	}
 	
 	protected def renderElement( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		val sprite = element.asInstanceOf[GraphicSprite]
-//		val pos    = camera.getSpritePosition( sprite, new Point2D.Float, StyleConstants.Units.GU )
 		val info   = getOrSetSpriteInfo( element )
 		
-		shape.text = element.label
 		shape.configureForElement( g, element, info, camera )
-//		shape.setupContents( g, camera, element, info )
-//		shape.positionAndFit( g, camera, info, element, pos.x, pos.y )
-//		if( shape.isInstanceOf[Orientable] ) shape.asInstanceOf[Orientable].setupOrientation( camera, element.asInstanceOf[GraphicSprite] )
 		shape.render( g, camera, element, info )
 	}
 	
@@ -46,9 +35,6 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 		val info   = getOrSetSpriteInfo( element )
 
 		shape.configureForElement( g, element, info, camera )
-//		shape.setupContents( g, camera, element, info )
-//		shape.positionAndFit( g, camera, info, element, pos.x, pos.y )
-//		if( shape.isInstanceOf[Orientable] ) shape.asInstanceOf[Orientable].setupOrientation( camera, element.asInstanceOf[GraphicSprite] )
 		shape.renderShadow( g, camera, element, info )
 	}
  
@@ -76,7 +62,7 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 		}
 	}
 
-	protected def chooseShape():AreaShape = {
+	protected def chooseShape():Shape = {
 		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Shape._
 		group.getShape match {
 			case CIRCLE         => new CircleShape 
@@ -86,6 +72,7 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 		    case TRIANGLE       => new TriangleShape
 		    case CROSS          => new CrossShape
 		    case ARROW          => new SpriteArrowShape
+		    case FLOW           => new SpriteFlowShape
 		  	// ------------------------------------------
 		  	case POLYGON        => Console.err.printf( "** SORRY polygon shape not yet implemented **%n" );      new CircleShape
 		    case TEXT_BOX       => Console.err.printf( "** SORRY text-box shape not yet implemented **%n" );     new SquareShape
@@ -95,7 +82,7 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 		    case PIE_CHART      => Console.err.printf( "** SORRY pie-chart shape not yet implemented **%n" );    new CircleShape
 		    case IMAGES         => Console.err.printf( "** SORRY images shape not yet implemented **%n" );       new SquareShape 
 		    case JCOMPONENT     => throw new RuntimeException( "WTF, jcomponent should have its own renderer" )
-		    case x              => throw new RuntimeException( "%s shape cannot be set for nodes".format( x.toString ) )
+		    case x              => throw new RuntimeException( "%s shape cannot be set for sprites".format( x.toString ) )
 		}
 	}
 }

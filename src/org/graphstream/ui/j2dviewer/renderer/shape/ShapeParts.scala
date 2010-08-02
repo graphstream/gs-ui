@@ -259,6 +259,8 @@ trait Decorable {
   	
   	/** Setup the parts of the decor specific to each element. */
   	protected def configureDecorableForElement( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+  		text = element.label
+ 
   		if( info != null ) {
   			val style = element.getStyle
   			
@@ -443,7 +445,7 @@ trait Connector {
 	private def size( style:Style, camera:Camera ) { size( camera.metrics.lengthToGu( style.getSize, 0 ) ) }
 	
 	private def dynSize( style:Style, camera:Camera, element:GraphicElement ) {
-		var w = camera.metrics.lengthToGu( style.getSize, 0 )
+		var w = theSize  // already set by the configureForGroup() //camera.metrics.lengthToGu( style.getSize, 0 )
 		
 		if( element.hasAttribute( "ui.size" ) ) {
 			w = camera.metrics.lengthToGu( StyleConstants.convertValue( element.getAttribute( "ui.size" ) ) )

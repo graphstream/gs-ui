@@ -740,7 +740,7 @@ class Camera {
   		val edge = sprite.getEdgeAttachment.asInstanceOf[GraphicEdge]
   		val info = edge.getAttribute( ElementInfo.attributeName ).asInstanceOf[EdgeInfo]
 		
-  		if( info.isCurve ) {
+  		if( info != null && info.isCurve ) {
   			val p0   = info.points(0)
   			val p1   = info.points(1)
   			val p2   = info.points(2)
@@ -755,13 +755,24 @@ class Camera {
   			pos.y = CubicCurve.eval( p0.y, p1.y, p2.y, p3.y, sprite.getX ) - perp.data(1) 			
   			
   		} else {
-  			var x  = info.points(0).x 			// edge.from.x
-  			var y  = info.points(0).y 			// edge.from.y
-  			var dx = info.points(3).x - x 		// edge.to.x - x
-  			var dy = info.points(3).y - y 		// edge.to.y - y
+  			var x  = 0f
+  			var y  = 0f
+  			var dx = 0f
+  			var dy = 0f
   			var d  = sprite.getX				// Percent on the edge.
   			val o  = metrics.lengthToGu( sprite.getY, sprite.getUnits )	
   												// Offset from the position given by percent, perpendicular to the edge.
+  			if( info != null ) {
+  				x  = info.points(0).x
+  				y  = info.points(0).y
+  				dx = info.points(3).x - x
+  				dy = info.points(3).y - y
+  			} else {
+  				x  = edge.from.x
+  				y  = edge.from.y
+  				dx = edge.to.x - x
+  				dy = edge.to.y - y
+  			}
 			
   			d = if( d > 1 ) 1 else d
   			d = if( d < 0 ) 0 else d

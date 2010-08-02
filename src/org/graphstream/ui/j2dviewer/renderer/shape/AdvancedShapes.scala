@@ -1,58 +1,24 @@
 package org.graphstream.ui.j2dviewer.renderer.shape
 
-import java.awt.{Image, Color, Graphics2D}
-import java.awt.geom.{Ellipse2D, Line2D, Path2D, CubicCurve2D, Rectangle2D, RoundRectangle2D, RectangularShape}
-import org.graphstream.ui.j2dviewer.renderer.ElementInfo
+import java.awt._
+import java.awt.geom._
+
+import org.graphstream.ui.j2dviewer.renderer._
 import org.graphstream.ui.geom.Point2
-import org.graphstream.ui.graphicGraph.GraphicElement
-import org.graphstream.ui.graphicGraph.stylesheet.Style
-import org.graphstream.ui.j2dviewer.Camera
-import org.graphstream.ui.util.GraphMetrics
-import org.graphstream.ui.sgeom.Vector2
+import org.graphstream.ui.graphicGraph._
+import org.graphstream.ui.graphicGraph.stylesheet._
+import org.graphstream.ui.j2dviewer._
+import org.graphstream.ui.util._
+import org.graphstream.ui.sgeom._
+
 import scala.math._
 
-abstract class AreaConnectorShapeWithCubics extends AreaConnectorShape {
+/** Utility trait to display cubics Bézier curves control polygons. */
+abstract trait ShowCubics {
 	protected var showControlPolygon = false
 	
-	protected def showCtrlPoints( g:Graphics2D, camera:Camera ) {
-		if( showControlPolygon ) {
-			val from   = info.points(0)
-			val ctrl1  = info.points(1)
-			val ctrl2  = info.points(2)
-			val to     = info.points(3)
-		   	val oval   = new Ellipse2D.Float
-	 		val color  = g.getColor
-		 	val stroke = g.getStroke
-		 	val px6    = camera.metrics.px1*6;
-		   	val px3    = camera.metrics.px1*3
-	   
-	 		g.setColor( Color.RED )
-	 		oval.setFrame( from.x-px3, from.y-px3, px6, px6 )
-	 		g.fill( oval )
-	
-	 		if( ctrl1 != null ) {
-	 			oval.setFrame( ctrl1.x-px3, ctrl1.y-px3, px6, px6 )
-		 		g.fill( oval )
-		 		oval.setFrame( ctrl2.x-px3, ctrl2.y-px3, px6, px6 )
-		 		g.fill( oval )
-		 		val line = new Line2D.Float
-		 		line.setLine( ctrl1.x, ctrl1.y, ctrl2.x, ctrl2.y )
-		 		g.setStroke( new java.awt.BasicStroke( camera.metrics.px1 ) )
-		 		g.draw( line )
-	 		}
-	
-	 		oval.setFrame( to.x-px3, to.y-px3, px6, px6 )
-	 		g.fill( oval )
-	 		g.setColor( color )
-		 	g.setStroke( stroke )
-		}
-	}
-}
-
-abstract class LineConnectorShapeWithCubics extends LineConnectorShape {
-	protected var showControlPolygon = false
-	
-	protected def showCtrlPoints( g:Graphics2D, camera:Camera ) {
+	/** Show the control polygons. */
+	protected def showCtrlPoints( g:Graphics2D, camera:Camera, info:EdgeInfo ) {
 		if( showControlPolygon ) {
 			val from   = info.points(0)
 			val ctrl1  = info.points(1)
@@ -94,18 +60,11 @@ abstract class LineConnectorShapeWithCubics extends LineConnectorShape {
 /**
  * A blob-like shape.
  */
-class BlobShape extends AreaConnectorShapeWithCubics {
+class BlobShape extends AreaConnectorShape with ShowCubics {
 	protected var theShape = new Path2D.Float
  
 // Command
  
-// 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
-// 	  	configureFillable( style, camera, element )
-// 	  	configureShadowable( style, camera )
-// 	  	configureStrokable( style, camera )
-// 	  	configureDecorable( style, camera )
-// 	}
-  
 	protected def make( g:Graphics2D, camera:Camera ) {
 		make( camera, 0, 0, 0, 0 )
 	}
@@ -278,7 +237,7 @@ class BlobShape extends AreaConnectorShapeWithCubics {
 	 		g.draw( theShape );
 	 		g.setStroke( s );
 	 		g.setColor( c );
-	 		showCtrlPoints( g, camera )
+	 		showCtrlPoints( g, camera, info.asInstanceOf[EdgeInfo] )
  		}
 	}
 }
@@ -291,13 +250,6 @@ class AngleShape extends AreaConnectorShape {
  
 // Command
  
-// 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
-// 	  	configureFillable( style, camera, element )
-// 	  	configureShadowable( style, camera )
-// 	  	configureStrokable( style, camera )
-// 	  	configureDecorable( style, camera )
-// 	}
-	
 	protected def make( g:Graphics2D, camera:Camera ) {
 		make( camera, 0, 0, 0, 0 )
 	}
@@ -452,18 +404,11 @@ class AngleShape extends AreaConnectorShape {
 /**
  * A cubic curve shape.
  */
-class CubicCurveShape extends LineConnectorShapeWithCubics {
+class CubicCurveShape extends LineConnectorShape with ShowCubics {
 	protected var theShape = new Path2D.Float
 
 // Command
  
-// 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
-// 	  	configureFillableConnector( style, camera, element )
-// 	  	configureShadowableConnector( style, camera )
-// 	  	configureStrokableConnector( style, camera )
-// 	  	configureDecorable( style, camera )
-// 	}
-	
 	protected def make( g:Graphics2D, camera:Camera ) {
 		make( camera, 0, 0, 0, 0 )
 	}
@@ -590,13 +535,6 @@ class FreePlaneEdgeShape extends LineConnectorShape {
 
 // Command
  
-// 	def configure( g:Graphics2D, style:Style, camera:Camera, element:GraphicElement ) {
-// 	  	configureFillableConnector( style, camera, element )
-// 	  	configureShadowableConnector( style, camera )
-// 	  	configureStrokableConnector( style, camera )
-// 	  	configureDecorable( style, camera )
-// 	}
-	
 	protected def make( g:Graphics2D, camera:Camera ) {
 		make( camera, 0, 0, 0, 0 )
 	}
