@@ -65,7 +65,7 @@ class ArrowOnEdge extends AreaOnConnectorShape {
 		val (p1,t) = CubicCurve.approxIntersectionPointOnCurve( theEdge, theConnector, camera )
 		val style  = theEdge.getStyle
 		
-		val p2 = CubicCurve.eval( theConnector.fromPos, theConnector.byPos1, theConnector.byPos2, theConnector.toPos, t-0.1f )
+		val p2 = CubicCurve.eval( theConnector.fromPos, theConnector.byPos1, theConnector.byPos2, theConnector.toPos, t-0.03f )
 		var dir = Vector2( p1.x - p2.x, p1.y - p2.y )
 		dir.normalize
 		dir.scalarMult( theSize.x )

@@ -103,6 +103,10 @@ class TestStars extends ViewerListener {
 				fill-mode: gradient-radial;
 				fill-color: #FFFA, #FFF0;
 				stroke-mode: none; 
+				shadow-mode: gradient-radial;
+				shadow-color: #FFF9, #FFF0;
+				shadow-width: 10px;
+				shadow-offset: 0px, 0px;
 			}
 			node:clicked {
 				fill-color: #F00A, #F000;

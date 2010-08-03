@@ -80,7 +80,7 @@ class TestSprites extends ViewerListener {
 		
 		s2.setOffsetPx( 20 )
 		s3.setOffsetPx( 15 )
-		s4.setOffsetPx( 5 )
+		s4.setOffsetPx( 4 )
 		
 		while( loop ) {
 			pipeIn.pump
@@ -171,7 +171,7 @@ class TestSprites extends ViewerListener {
 				shape: flow;
 				size: 8px;
 				fill-color: #99A9;
-				sprite-orientation: from;
+				sprite-orientation: to;
 			}			"""
 
 	class MySpriteFactory extends SpriteFactory {
@@ -188,7 +188,7 @@ class TestSprites extends ViewerListener {
 			this( identifier, manager, new Values( StyleConstants.Units.GU, 0, 0, 0 ) )
 		}
 		
-		val SPEED = 0.005f
+		val SPEED = 0.001f
 		var speed = SPEED
 		var off = 0f
 		var units = Units.PX
