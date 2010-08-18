@@ -1,9 +1,8 @@
 Roadmap
 =======
 
-Problèmes :
-	Les ombres ne sont pas appliqués dans les événements (:selected, :clicked, etc.).
-		=> problème avec le shadow set ?
+En plan :
+	- La shape "polygonal" et "edge-points".
 
 Il reste à faire :
 
@@ -29,6 +28,8 @@ Améliorations :
 	* Possibilité de spécifier l'icone de manière dynamique, spécifique à chaque élément sans
 	  toucher au CSS.
 	* Pouvoir positionner les flêches au centre des arcs.
+	* Pouvoir décaler le texte des arcs.
+	* Peux ont avoir des arcs dont la couleur est un dégradé entre la couleur des deux nœuds ?
 	* Des strokes a double ou triple traits (c.f. les nœuds source/puit des automates).
 	* Remove node0 and node1 as synonims of from and to in sprite orientations CSS.
 	
@@ -40,12 +41,12 @@ Améliorations :
 	  en ConnectorSharedInfo.
 	
 Bugs :
-
+	* Les ombres ne sont pas appliqués dans les événements (:selected, :clicked, etc.).
+		=> problème avec le shadow set ?
 	* Problème de repaint des bordures des JComponent si anti-alias est activé ?
 	* Pour les tailles dynamiques, si les arcs sont dessinés avant les noeuds et que leur point
 	  d'attachement dépend de la taille du noeud, l'arc est mal dessiné s'il n'y a pas deux frames
 	  de dessinées. Problème d'ordre : positionAndFit (et les nodeinfos) devraient être faits dès le
 	  début du rendu.
-	* Le texte est-il bien alligné face aux icônes ?	  
 	* ETRANGE bug avec les icones dynamiques (TestIcons) si le renderer OpenGL n'est pas activé,
 	  certaines icones ne s'affichent pas.

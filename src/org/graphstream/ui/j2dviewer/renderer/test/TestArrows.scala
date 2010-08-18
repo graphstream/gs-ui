@@ -40,6 +40,7 @@ class TestArrows extends ViewerListener {
 		val C = graph.addNode( "C" )
 		val D = graph.addNode( "D" )
 		val E = graph.addNode( "E" )
+		val F = graph.addNode( "F" )
 
 		val AB = graph.addEdge( "AB", "A", "B", true )
 		val BC = graph.addEdge( "BC", "B", "C", true )
@@ -47,18 +48,22 @@ class TestArrows extends ViewerListener {
 		val DA = graph.addEdge( "DA", "D", "A", true )
 		val BB = graph.addEdge( "BB", "B", "B", true )
 		val DE = graph.addEdge( "DE", "D", "E", true )
+		val DF = graph.addEdge( "DF", "D", "F", true )
+		val CF = graph.addEdge( "CF", "C", "F", true )
 		
 		A("xyz") = ( 0, 1, 0 )
 		B("xyz") = ( 1, 0.8, 0 )
 		C("xyz") = ( 0.8, 0, 0 )
 		D("xyz") = ( 0, 0, 0 )
 		E("xyz") = ( 0.5, 0.5, 0 )
+		F("xyz") = ( 0.5, 0.25, 0 )
 		
 		A("label") = "A"
 		B("label") = "Long label ..."
 		C("label") = "C"
 		D("label") = "A long label ..."
 		E("label") = "Another long label"
+		F("label") = "F"
 		
 		var size = 20f
 		var sizeInc = 1f
@@ -160,6 +165,15 @@ class TestArrows extends ViewerListener {
 			}
 			edge#AB {
 				shape: cubic-curve;
+			}
+			edge#CF {
+				shape: cubic-curve;
+				arrow-shape: image;
+				arrow-image: url('file:///home/antoine/Documents/Perso/Art/Icons/GSLogo11d24.png');
+			}
+			edge#DF {
+				arrow-shape: image;
+				arrow-image: url('file:///home/antoine/Documents/Perso/Art/Icons/GSLogo11d24.png');
 			}
 			"""
 }

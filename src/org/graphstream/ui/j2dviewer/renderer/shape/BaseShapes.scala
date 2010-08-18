@@ -33,19 +33,16 @@ trait AreaShape
 	def configureForElement( g:Graphics2D, element:GraphicElement, info:ElementInfo, camera:Camera ) {
 		configureFillableForElement( element.getStyle, camera, element )
 		configureDecorableForElement( g, camera, element, info )
-		
-		var pos = new Point2D.Float( element.getX, element.getY )
-		
-		if( element.isInstanceOf[GraphicSprite] )
-			  pos = camera.getSpritePosition( element.asInstanceOf[GraphicSprite], pos, Units.GU ); 
-		
-		if( fit ) {
-			val decorSize = theDecor.size( g, camera, info.iconAndText )
-		
-			configureAreaForElement( g, camera, info.asInstanceOf[NodeInfo], element, pos.x, pos.y, decorSize._1, decorSize._2 )
-		} else {
-			configureAreaForElement( g, camera, info.asInstanceOf[NodeInfo], element, pos.x, pos.y )
-		}
+		configureAreaForElement( g, camera, info.asInstanceOf[NodeInfo], element, theDecor )
+//		var pos = camera.getNodeOrSpritePositionGU( element, null )
+//		
+//		if( fit ) {
+//			val decorSize = theDecor.size( g, camera, info.iconAndText )
+//		
+//			configureAreaForElement( g, camera, info.asInstanceOf[NodeInfo], element, pos.x, pos.y, decorSize._1, decorSize._2 )
+//		} else {
+//			configureAreaForElement( g, camera, info.asInstanceOf[NodeInfo], element, pos.x, pos.y )
+//		}
 	}
 }
 
@@ -154,7 +151,7 @@ trait RectangularAreaShape extends AreaShape {
  		make( g, camera )
  		fill( g, theShape, camera )
  		stroke( g, theShape )
- 		decor( g, camera, info.iconAndText, element, theShape )
+ 		decorArea( g, camera, info.iconAndText, element, theShape )
  	}
  	
 // 	override def positionAndFit( g:Graphics2D, camera:Camera, info:NodeInfo, element:GraphicElement, x:Float, y:Float ) {
@@ -183,7 +180,7 @@ abstract class PolygonalShape extends AreaShape {
  		make( g, camera )
  		fill( g, theShape, camera )
  		stroke( g, theShape )
- 		decor( g, camera, info.iconAndText, element, theShape )
+ 		decorArea( g, camera, info.iconAndText, element, theShape )
  	}
  	 	
 // 	override def positionAndFit( g:Graphics2D, camera:Camera, info:NodeInfo, element:GraphicElement, x:Float, y:Float ) {
@@ -250,6 +247,6 @@ class LineShape extends LineConnectorShape {
  		make( g, camera )
  		stroke( g, theShape )
  		fill( g, theSize, theShape )
- 		decor( g, camera, info.iconAndText, element, theShape )
+ 		decorConnector( g, camera, info.iconAndText, element, theShape )
 	}
 }

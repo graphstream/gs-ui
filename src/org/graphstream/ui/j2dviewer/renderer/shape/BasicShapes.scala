@@ -183,6 +183,6 @@ class FreePlaneNodeShape extends RectangularAreaShape {
  		make( g, camera )
  		fill( g, theShape, camera )
  		stroke( g, theLineShape )
- 		decor( g, camera, info.iconAndText, element, theShape )
+ 		decorArea( g, camera, info.iconAndText, element, theShape )
  	}
 }

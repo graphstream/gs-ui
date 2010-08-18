@@ -58,6 +58,11 @@ class TestSize extends ViewerListener {
 		B("label") = "B"
 		C("label") = "C"
 		D("label") = "A long label ..."
+			
+		AB("label") = "AB"
+		BC("label") = "A long label ..."
+		CD("label") = "CD"
+		BB("label") = "BB"
 		
 		val sm = new SpriteManager( graph )
 		val S1 = sm.addSprite( "S1" )

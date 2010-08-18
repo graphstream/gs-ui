@@ -660,6 +660,15 @@ class Camera {
   			case _                         => true
   		}
   	}
+  	
+  	def getNodeOrSpritePositionGU( elt:GraphicElement, pos:Point2D.Float ):Point2D.Float = {
+  		var p = pos
+  		if( p == null ) p = new Point2D.Float
+  		elt match {
+  			case node:GraphicNode     => { p.x = node.getX; p.y = node.getY; p }
+  			case sprite:GraphicSprite => { getSpritePosition( sprite, p, Units.GU ) }
+  		}
+  	}
    
   	/**
   	 * Compute the position of a sprite if it is not attached.
@@ -707,13 +716,13 @@ class Camera {
      */
     protected def getSpritePositionNode( sprite:GraphicSprite, position:Point2D.Float, units:Units ):Point2D.Float = {
     	var pos = position
-//printf( "getSpritePositionNode(%s, %s, %s)%n", sprite, position, units )
+
     	if( pos == null )
     		pos = new Point2D.Float
 		
     	val node   = sprite.getNodeAttachment
     	val radius = metrics.lengthToGu( sprite.getX, sprite.getUnits )
-    	val z      = sprite.getZ
+    	val z      = sprite.getZ * ( Pi / 180f )
 		
     	pos.x = node.x + ( cos( z ).toFloat * radius )
     	pos.y = node.y + ( sin( z ).toFloat * radius )

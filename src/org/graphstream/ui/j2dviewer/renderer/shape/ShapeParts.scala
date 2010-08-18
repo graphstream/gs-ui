@@ -65,6 +65,24 @@ trait Fillable {
   	}
 }
 
+trait FillableMulticolored {
+	var fillColors:Array[Color] = null
+	
+	protected def configureFillableMultiColoredForGroup( style:Style, camera:Camera ) {
+		val count = style.getFillColorCount
+		
+		if( fillColors == null || fillColors.length != count ) {
+			fillColors = new Array[Color]( count )
+			
+			for( i <- 0 until count )
+				fillColors( i ) = style.getFillColor( i )
+		}
+	}
+	
+//	protected def configureFillableMulticoloredForElement( g:Graphics2D, element:GraphicElement, info:ElementInfo, camera:Camera ) {
+//	}
+}
+
 /**
  * Shape that cannot be filled, but must be stroked.
  */
@@ -243,14 +261,30 @@ trait Decorable {
 	var theDecor:ShapeDecor = null
   
  	/** Paint the decorations (text and icon). */
- 	def decor( g:Graphics2D, camera:Camera, iconAndText:IconAndText, element:GraphicElement, shape:java.awt.Shape ) {
+ 	def decorArea( g:Graphics2D, camera:Camera, iconAndText:IconAndText, element:GraphicElement, shape:java.awt.Shape ) {
  	  	var visible = true
  	  	if( element != null ) visible = camera.isTextVisible( element )
  	  	if( theDecor != null && visible ) {
  	  		val bounds = shape.getBounds2D
- 	  		theDecor.render( g, camera, iconAndText, bounds.getMinX.toFloat, bounds.getMinY.toFloat, bounds.getMaxX.toFloat, bounds.getMaxY.toFloat )
+ 	  		theDecor.renderInside( g, camera, iconAndText, bounds.getMinX.toFloat, bounds.getMinY.toFloat, bounds.getMaxX.toFloat, bounds.getMaxY.toFloat )
  	  	}
  	}
+	
+	def decorConnector( g:Graphics2D, camera:Camera, iconAndText:IconAndText, element:GraphicElement, shape:java.awt.Shape ) {
+ 	  	var visible = true
+ 	  	if( element != null ) visible = camera.isTextVisible( element )
+ 	  	if( theDecor != null && visible ) {
+ 	  		element match {
+ 	  			case edge:GraphicEdge => {
+ 	  				theDecor.renderAlong( g, camera, iconAndText, edge.from.x, edge.from.y, edge.to.x, edge.to.y )
+ 	  			}
+ 	  			case _ => {
+ 	  				val bounds = shape.getBounds2D
+ 	  				theDecor.renderAlong( g, camera, iconAndText, bounds.getMinX.toFloat, bounds.getMinY.toFloat, bounds.getMaxX.toFloat, bounds.getMaxY.toFloat )
+ 	  			}
+ 	  		}
+ 	  	}
+	}
   
   	/** Configure all the static parts needed to decor the shape. */
   	protected def configureDecorableForGroup( style:Style, camera:Camera ) {
@@ -351,6 +385,18 @@ trait Area {
 	protected def configureAreaForElement( g:Graphics2D, camera:Camera, info:NodeInfo, element:GraphicElement, x:Float, y:Float, contentOverallWidth:Float, contentOverallHeight:Float ) {
 		dynSize( element.getStyle, camera, element )
 		positionAndFit( g, camera, info, element, x, y, contentOverallWidth, contentOverallHeight )
+	}
+	
+	protected def configureAreaForElement( g:Graphics2D, camera:Camera, info:NodeInfo, element:GraphicElement, decor:ShapeDecor ) {
+		var pos = camera.getNodeOrSpritePositionGU( element, null )
+		
+		if( fit ) {
+			val decorSize = decor.size( g, camera, info.iconAndText )
+		
+			configureAreaForElement( g, camera, info.asInstanceOf[NodeInfo], element, pos.x, pos.y, decorSize._1, decorSize._2 )
+		} else {
+			configureAreaForElement( g, camera, info.asInstanceOf[NodeInfo], element, pos.x, pos.y )
+		}
 	}
 	
 	private def size( width:Float, height:Float ) { theSize.set( width, height ) }

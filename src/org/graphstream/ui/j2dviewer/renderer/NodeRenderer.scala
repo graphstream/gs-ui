@@ -11,7 +11,7 @@ class NodeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 	protected var shape:Shape = null
  
 	protected def setupRenderingPass( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
-		shape = chooseShape
+		shape = chooseShape( shape )
 	}
 	
 	protected def pushStyle( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
@@ -58,16 +58,16 @@ class NodeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 		}
 	}
  
-	protected def chooseShape():Shape = {
+	protected def chooseShape( oldShape:Shape ):Shape = {
 		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Shape._
 		group.getShape match {
-			case CIRCLE         => new CircleShape 
-		  	case BOX            => new SquareShape
-		  	case ROUNDED_BOX    => new RoundedSquareShape
-		  	case DIAMOND        => new DiamondShape
-		    case TRIANGLE       => new TriangleShape
-		    case CROSS          => new CrossShape
-		    case FREEPLANE      => new FreePlaneNodeShape
+			case CIRCLE         => if( oldShape.isInstanceOf[CircleShape] )        oldShape else new CircleShape 
+		  	case BOX            => if( oldShape.isInstanceOf[SquareShape] )        oldShape else new SquareShape
+		  	case ROUNDED_BOX    => if( oldShape.isInstanceOf[RoundedSquareShape] ) oldShape else new RoundedSquareShape
+		  	case DIAMOND        => if( oldShape.isInstanceOf[DiamondShape] )       oldShape else new DiamondShape
+		    case TRIANGLE       => if( oldShape.isInstanceOf[TriangleShape] )      oldShape else new TriangleShape
+		    case CROSS          => if( oldShape.isInstanceOf[CrossShape] )         oldShape else new CrossShape
+		    case FREEPLANE      => if( oldShape.isInstanceOf[FreePlaneNodeShape] ) oldShape else new FreePlaneNodeShape
 		  	// ------------------------------------------
 		  	case POLYGON        => Console.err.printf( "** SORRY polygon shape not yet implemented **%n" );      new CircleShape
 		    case TEXT_BOX       => Console.err.printf( "** SORRY text-box shape not yet implemented **%n" );     new SquareShape

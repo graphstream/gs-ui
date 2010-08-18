@@ -12,6 +12,7 @@ import org.graphstream.ui.graphicGraph._
 import org.graphstream.ui.graphicGraph.stylesheet._
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 
+
 class SpriteArrowShape extends PolygonalShape with Orientable {
 	
 	override def configureForGroup( g:Graphics2D, style:Style, camera:Camera ) {
@@ -101,12 +102,16 @@ class SpriteFlowShape
 		}
 	}
 	
-	def make( g:Graphics2D, camera:Camera ) {
+	def make( g:Graphics2D, camera:Camera ) { make( g, camera, 0, 0 ) }
+	
+	def makeShadow( g:Graphics2D, camera:Camera ) { make( g, camera, theShadowOff.x, theShadowOff.y ) }
+		
+	def make( g:Graphics2D, camera:Camera, shx:Float, shy:Float ) {
 		if( edgeInfo != null ) {
 			var P0  = if( reverse ) edgeInfo.points(3) else edgeInfo.points(0)
 			var P3  = if( reverse ) edgeInfo.points(0) else edgeInfo.points(3)
 			val dir = Vector2( P3.x-P0.x, P3.y-P0.y )
-			val per = Vector2( dir.y, -dir.x )
+			val per = Vector2( dir.y + shx, -dir.x + shy )
 			
 			per.normalize
 			per.scalarMult( offset )
@@ -135,22 +140,6 @@ class SpriteFlowShape
 		}
 	}
 	
-	def makeShadow( g:Graphics2D, camera:Camera ) {
-//		val x   = theCenter.x + theShadowOff.x
-//		val y   = theCenter.y + theShadowOff.y
-//		val dir = Vector2( target.x - x, target.y - y ); dir.normalize
-//		var per = Vector2( dir.y, -dir.x )
-//		
-//		dir.scalarMult( theSize.x + theShadowWidth.x )
-//		per.scalarMult( ( theSize.y + theShadowWidth.y ) / 2 )
-//
-//		theShape.reset
-//		theShape.moveTo( x + per.x, y + per.y )
-//		theShape.lineTo( x + dir.x, y + dir.y )
-//		theShape.lineTo( x - per.x, y - per.y )
-//		theShape.closePath
-	}
-	
 	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
 		if( edgeInfo != null ) {
 			makeShadow( g, camera )
@@ -163,130 +152,116 @@ class SpriteFlowShape
  			make( g, camera )
  			stroke( g, theShape )
  			fill( g, theSize, theShape )
- 			decor( g, camera, info.iconAndText, element, theShape )
+ 			decorConnector( g, camera, info.iconAndText, element, theShape )
  		}
  	}
 }
 
-/*
-class SpriteFlowShape extends LineConnectorShape {
-	protected var theShape = new Line2D.Float 
-	
-	protected def make( g:Graphics2D, camera:Camera ) {
-		make( camera, 0, 0, 0, 0 )
-	}
-  
-	protected def make( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-		if( info.isMulti > 1 || info.isLoop )	// is a loop or a multi edge
-		     makeMultiOrLoop( camera, sox, soy, swx, swy )
-		else makeSingle( camera, sox, soy, swx, swy )	// is a single edge.
-	}
- 
-	protected def makeSingle( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-		val fromx   = info.points(0).x + sox
-		val fromy   = info.points(0).y + soy
-		val tox     = info.points(3).x + sox
-		val toy     = info.points(3).y + soy
-		val mainDir = new Vector2( info.points(0), info.points(3) )
-		val length  = mainDir.length
-		val angle   = mainDir.y / length
-		var c1x     = 0f
-		var c1y     = 0f
-		var c2x     = 0f
-		var c2y     = 0f
-		
-		if( angle > 0.707107f || angle < -0.707107f ) {
-			// North or south.
-			c1x = fromx + mainDir.x / 2
-			c2x = c1x
-			c1y = fromy
-			c2y = toy
-		} else {
-			// East or west.
-			c1x = fromx
-			c2x = tox
-			c1y = fromy + mainDir.y / 2
-			c2y = c1y
-		}
-
-		theShape.reset
-		theShape.moveTo( fromx, fromy )
-		theShape.curveTo( c1x, c1y, c2x, c2y, tox, toy )
-
-		// Set the connector as a curve.
-		
-		if( sox == 0 && soy == 0 ) {
-			info.isCurve = true
-			info.points(0).set( fromx, fromy )
-			info.points(1).set( c1x, c1y )
-			info.points(2).set( c2x, c2y )
-			info.points(3).set( tox, toy )
-		}
-	}
- 
-	protected def makeMultiOrLoop( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-		if( info.isLoop )
-			 makeLoop( camera, sox, soy, swx, swy )
-		else makeMulti( camera, sox, soy, swx, swy )
-	}
-	
-	protected def makeMulti( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-		val fromx   = info.points(0).x + sox
-		val fromy   = info.points(0).y + soy
-		val tox     = info.points(3).x + sox
-		val toy     = info.points(3).y + soy
-		val c1x     = info.points(1).x + sox
-		val c1y     = info.points(1).y + soy
-		val c2x     = info.points(2).x + sox
-		val c2y     = info.points(2).y + soy
-
-		theShape.reset
-		theShape.moveTo( fromx, fromy )
-		theShape.curveTo( c1x, c1y, c2x, c2y, tox, toy )
-	}
-
-	protected def makeLoop( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-	  	val fromx = info.points(0).x + sox
-		val fromy = info.points(0).y + soy
-		val tox   = info.points(3).x + sox
-		val toy   = info.points(3).y + soy
-		val c1x   = info.points(1).x + sox
-		val c1y   = info.points(1).y + soy
-		val c2x   = info.points(2).x + sox
-		val c2y   = info.points(2).y + soy
-
-		theShape.reset
-		theShape.moveTo( fromx, fromy )
-		theShape.curveTo( c1x, c1y, c2x, c2y, tox, toy )
-	}
-
-	protected def makeShadow( g:Graphics2D, camera:Camera ) {
-		if( info.isCurve )
-		     makeMultiOrLoop( camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth )
-		else makeSingle( camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth )
-	}
-	
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		makeShadow( g, camera )
- 		cast( g, theShape )
-	}
- 
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		make( g, camera )
- 		stroke( g, theShape )
- 		fill( g, theSize, theShape )
- 		decor( g, camera, info.iconAndText, element, theShape )
-// 		showControlPolygon = true
-// 		if( showControlPolygon ) {
-//	 		val c = g.getColor();
-//	 		val s = g.getStroke();
-//	 		g.setStroke( new java.awt.BasicStroke( camera.metrics.px1 ) )
-//	 		g.setColor( Color.red );
-//	 		g.draw( theShape );
-//	 		g.setStroke( s );
-//	 		g.setColor( c );
-//	 		showCtrlPoints( g, camera )
-// 		}
-	}
+object SpritePieChartShape {
+	/** Some predefined colors. */
+	val colors = Array[Color]( Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.MAGENTA,
+			Color.CYAN, Color.ORANGE, Color.PINK )
 }
-*/
+
+class SpritePieChartShape
+	extends Shape
+	with Area
+	with FillableMulticolored
+	with Strokable 
+	with Shadowable 
+	with Decorable {
+	
+	val theShape = new Ellipse2D.Float
+	
+	var theValues:Array[Float] = null
+	var valuesRef:AnyRef = null
+
+	def configureForGroup( g:Graphics2D, style:Style, camera:Camera ) {
+		configureAreaForGroup( style, camera )
+		configureFillableMultiColoredForGroup( style, camera )
+		configureStrokableForGroup( style, camera )
+		configureShadowableForGroup( style, camera )
+		configureDecorableForGroup( style, camera )
+	}
+	
+	def configureForElement( g:Graphics2D, element:GraphicElement, info:ElementInfo, camera:Camera ) {
+		configureDecorableForElement( g, camera, element, info )
+		configureAreaForElement( g, camera, info.asInstanceOf[NodeInfo], element, theDecor )
+
+		if( element.hasAttribute( "ui.pie-values" ) ) {
+			val oldRef = valuesRef
+			valuesRef = element.getAttribute( "ui.pie-values" )
+			// We use valueRef to avoid
+			// recreating the values array for nothing.
+			if( ( theValues == null ) || ( oldRef ne valuesRef ) ) {
+				theValues = getPieValues( valuesRef )
+			}
+		}
+	}
+	
+	override def make( g:Graphics2D, camera:Camera ) {
+		theShape.setFrameFromCenter( theCenter.x, theCenter.y, theCenter.x+theSize.x/2, theCenter.y+theSize.y/2 )
+	}
+	
+	override def makeShadow( g:Graphics2D, camera:Camera ) {
+		theShape.setFrameFromCenter( theCenter.x+theShadowOff.x, theCenter.y+theShadowOff.y,
+				theCenter.x+(theSize.x+theShadowWidth.x)/2, theCenter.y+(theSize.y+theShadowWidth.y)/2 )
+	}
+	
+	override def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+		makeShadow( g, camera )
+		cast( g, theShape )
+ 	}
+  
+ 	override def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		make( g, camera )
+ 		fillPies( g, element )
+ 		//fill( g, theSize, theShape )
+ 		stroke( g, theShape )
+ 		decorArea( g, camera, info.iconAndText, element, theShape )
+ 	}
+ 	
+ 	protected def fillPies( g:Graphics2D, element:GraphicElement ) {
+ 		if( theValues != null ) {
+	 		// we assume the pies values sum up to one. And we wont check it, its a mater of speed ;-).
+	 		val arc = new Arc2D.Float
+	 		var beg = 0f
+	 		var end = 0f
+	 		var col = 0
+	 		var sum = 0f
+	 		
+	 		theValues.foreach { value =>
+	 			end = beg + value
+	 			arc.setArcByCenter( theCenter.x, theCenter.y, theSize.x/2, beg*360, value*360, Arc2D.PIE )
+	 			g.setColor( fillColors( col % fillColors.length ) )
+	 			g.fill( arc )
+	 			beg = end
+	 			sum += value
+	 			col += 1
+	 		}
+	 		
+	 		if( sum > 1.01f )
+	 			Console.err.print( "[Sprite %s] The sum of values for ui.pie-value should eval to 1 at max (actually %f)%n".format( element.getId, sum ) )
+ 		}
+ 	}
+ 	
+ // utilities
+ 	
+ 	/** Try to extract an array of float values from various sources. */
+ 	protected def getPieValues( values:AnyRef ):Array[Float] = {
+ 		values match {
+ 			case a:Array[AnyRef] => { 
+ 				val result = new Array[Float]( a.length )
+ 				a.map( { _ match {
+ 						case n:Number => n.floatValue
+ 						case s:String => s.toFloat
+ 						case _        => 0f
+ 					}
+ 				} )
+ 			}
+ 			case b:Array[Float]  => { b }
+ 			case c:String          => { c.split(',').map { _.toFloat } }
+ 			case _                 => { Array[Float]( 0 ) }
+ 		}
+ 	}
+}

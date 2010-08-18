@@ -227,7 +227,7 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
  		make( g, camera )
  		stroke( g, theShape )
  		fill( g, theSize, theShape, camera )
- 		decor( g, camera, info.iconAndText, element, theShape )
+ 		decorConnector( g, camera, info.iconAndText, element, theShape )
 
  		if( showControlPolygon ) {
 	 		val c = g.getColor();
@@ -397,7 +397,7 @@ class AngleShape extends AreaConnectorShape {
  		make( g, camera )
  		stroke( g, theShape )
  		fill( g, theSize, theShape, camera )
- 		decor( g, camera, info.iconAndText, element, theShape )
+ 		decorConnector( g, camera, info.iconAndText, element, theShape )
 	}
 }
 
@@ -512,7 +512,7 @@ class CubicCurveShape extends LineConnectorShape with ShowCubics {
  		make( g, camera )
  		stroke( g, theShape )
  		fill( g, theSize, theShape )
- 		decor( g, camera, info.iconAndText, element, theShape )
+ 		decorConnector( g, camera, info.iconAndText, element, theShape )
 // 		showControlPolygon = true
 // 		if( showControlPolygon ) {
 //	 		val c = g.getColor();
@@ -640,6 +640,6 @@ class FreePlaneEdgeShape extends LineConnectorShape {
  		make( g, camera )
  		stroke( g, theShape )
  		fill( g, theSize, theShape )
- 		decor( g, camera, info.iconAndText, element, theShape )
+ 		decorConnector( g, camera, info.iconAndText, element, theShape )
 	}
 }

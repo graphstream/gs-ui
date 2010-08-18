@@ -1,12 +1,12 @@
 package org.graphstream.ui.j2dviewer.renderer.test
 
-import org.graphstream.graph.{Graph, Edge}
+import org.graphstream.graph._
 import org.graphstream.scalags.graph.MultiGraph
 
 import org.graphstream.algorithm.Toolkit._
 
-import org.graphstream.ui.graphicGraph.stylesheet.{Values, StyleConstants}
-import org.graphstream.ui.swingViewer.{Viewer, DefaultView, ViewerPipe, ViewerListener}
+import org.graphstream.ui.graphicGraph.stylesheet._
+import org.graphstream.ui.swingViewer._
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 import org.graphstream.ui.spriteManager._
@@ -66,21 +66,28 @@ class TestSprites extends ViewerListener {
 		
 		val sman = new SpriteManager( graph )
  
-		sman.setSpriteFactory( new MySpriteFactory )
+//		sman.setSpriteFactory( new MySpriteFactory )
 		
-		val s1 = sman.addSprite( "S1" ).asInstanceOf[MySprite]
-		val s2 = sman.addSprite( "S2" ).asInstanceOf[MySprite]
-		val s3 = sman.addSprite( "S3" ).asInstanceOf[MySprite]
-		val s4 = sman.addSprite( "S4" ).asInstanceOf[MySprite]
+		val s1 = sman.addSprite( "S1", classOf[MovingEdgeSprite] )
+		val s2 = sman.addSprite( "S2", classOf[MovingEdgeSprite] )
+		val s3 = sman.addSprite( "S3", classOf[MovingEdgeSprite] )
+		val s4 = sman.addSprite( "S4", classOf[MovingEdgeSprite] )
+		val s5 = sman.addSprite( "S5", classOf[DataSprite] )
+		val s6 = sman.addSprite( "S6", classOf[MovingNodeSprite] )
 			
 		s1.attachToEdge( "AB1" )
 		s2.attachToEdge( "CD" )
 		s3.attachToEdge( "DA" )
 		s4.attachToEdge( "EB" )
+		s5.attachToNode( "A" )
+		s6.attachToNode( "C" )
 		
 		s2.setOffsetPx( 20 )
 		s3.setOffsetPx( 15 )
 		s4.setOffsetPx( 4 )
+		s5.setPosition( Units.PX, 30, 0, 90 )
+		s5.setData( 0.3f, 0.5f, 0.2f )
+		s6.setOffsetPx( 20 )
 		
 		while( loop ) {
 			pipeIn.pump
@@ -88,6 +95,7 @@ class TestSprites extends ViewerListener {
 			s2.move
 			s3.move
 			s4.move
+			s6.move
 			sleep( 4 )
 		}
 		
@@ -172,55 +180,87 @@ class TestSprites extends ViewerListener {
 				size: 8px;
 				fill-color: #99A9;
 				sprite-orientation: to;
-			}			"""
+			}
+			sprite#S5 {
+				shape: pie-chart;
+				size: 40px;
+				fill-color: cyan, magenta, yellow, red, green, blue;
+				stroke-mode: plain;
+				stroke-width: 1px;
+				stroke-color: black;
+			}
+			sprite#S6 {
+				shape: circle;
+				size: 30px;
+				fill-color: #55C;
+			}
+			"""
+}
 
-	class MySpriteFactory extends SpriteFactory {
-		override def newSprite( identifier:String, manager:SpriteManager, position:Values ):Sprite = {
-			if( position != null )
-				return new MySprite( identifier, manager, position );
+class MovingEdgeSprite extends Sprite {
+	val SPEED = 0.001f
+	var speed = SPEED
+	var off = 0f
+	var units = Units.PX
+	
+	def setOffsetPx( offset:Float ) { off = offset; units = Units.PX }
+	
+	def move() {
+		var p = getX
 		
-			return new MySprite( identifier, manager );
+		p += speed
+		
+		if( p < 0 || p > 1 ) {
+			val edge = getAttachment.asInstanceOf[Edge]
+			
+			if( edge != null ) {
+				val node = if( p > 1 ) edge.getTargetNode else edge.getSourceNode
+				var other = randomOutEdge( node )
+				
+				if( node.getOutDegree > 1 ) { while( other eq edge ) other = randomOutEdge( node ) }
+				
+				attachToEdge( other.getId )
+				if( node eq other.getSourceNode ) {
+					setPosition( units, 0, off, 0 )
+					speed = SPEED
+				} else {
+					setPosition( units, 1, off, 0 )
+					speed = -SPEED
+				}
+			}
+		} else {
+			setPosition( units, p, off, 0 )
 		}
 	}
+}
+
+class MovingNodeSprite extends Sprite {
+	val SPEED = 1f
+	var speed = SPEED
+	var off = 0f
+	var units = Units.PX
 	
-	class MySprite( identifier:String, manager:SpriteManager, pos:Values ) extends Sprite( identifier, manager, pos ) {
-		def this( identifier:String, manager:SpriteManager ) {
-			this( identifier, manager, new Values( StyleConstants.Units.GU, 0, 0, 0 ) )
-		}
+	def setOffsetPx( offset:Float ) { off = offset; units = Units.PX }
+	
+	def move() {
+		var p = getZ + speed
 		
-		val SPEED = 0.001f
-		var speed = SPEED
-		var off = 0f
-		var units = Units.PX
+		if( p < 0 || p > 360 ) { p = 0f }
 		
-		def setOffsetPx( offset:Float ) { off = offset; units = Units.PX }
-		
-		def move() {
-			var p = getX
+		val node = getAttachment.asInstanceOf[Node]
 			
-			p += speed
-			
-			if( p < 0 || p > 1 ) {
-				val edge = getAttachment.asInstanceOf[Edge]
-				
-				if( edge != null ) {
-					val node = if( p > 1 ) edge.getTargetNode else edge.getSourceNode
-					var other = randomOutEdge( node )
-					
-					if( node.getOutDegree > 1 ) { while( other eq edge ) other = randomOutEdge( node ) }
-					
-					attachToEdge( other.getId )
-					if( node eq other.getSourceNode ) {
-						setPosition( units, 0, off, 0 )
-						speed = SPEED
-					} else {
-						setPosition( units, 1, off, 0 )
-						speed = -SPEED
-					}
-				}
-			} else {
-				setPosition( units, p, off, 0 )
-			}
+		if( node != null ) {
+			setPosition( units, off, 0, p )
 		}
+	}
+}
+
+class DataSprite extends Sprite {
+	def setData( values:Float* ) {
+		val data = new Array[Float]( values.length )
+		var i    = 0
+
+		values.foreach { value => data(i) = value; i += 1 }
+		addAttribute( "ui.pie-values", data )
 	}
 }

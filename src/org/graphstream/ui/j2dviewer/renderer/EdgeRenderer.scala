@@ -11,8 +11,8 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 	var arrow:AreaOnConnectorShape = null
   
 	protected def setupRenderingPass( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
-		shape = chooseShape
-		arrow = chooseArrowShape
+		shape = chooseShape( shape )
+		arrow = chooseArrowShape( arrow )
 	}
 	
 	protected def pushStyle( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
@@ -79,27 +79,27 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 	  
 	}
 
- 	protected def chooseShape():Shape = {
+ 	protected def chooseShape( oldShape:Shape ):Shape = {
 		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Shape._
 		group.getShape match {
-			case LINE        => new LineShape
-		  	case ANGLE       => new AngleShape
-    		case BLOB        => new BlobShape
-		  	case CUBIC_CURVE => new CubicCurveShape
-		  	case FREEPLANE   => new FreePlaneEdgeShape
+			case LINE        => if( oldShape.isInstanceOf[LineShape] )          oldShape else new LineShape
+		  	case ANGLE       => if( oldShape.isInstanceOf[AngleShape] )         oldShape else new AngleShape
+    		case BLOB        => if( oldShape.isInstanceOf[BlobShape] )          oldShape else new BlobShape
+		  	case CUBIC_CURVE => if( oldShape.isInstanceOf[CubicCurveShape] )    oldShape else new CubicCurveShape
+		  	case FREEPLANE   => if( oldShape.isInstanceOf[FreePlaneEdgeShape] ) oldShape else new FreePlaneEdgeShape
     		case POLYLINE    => Console.err.printf( "** Sorry poly edge shape is not yet implemented **%n" );  new LineShape
 		    case x           => throw new RuntimeException( "%s shape cannot be set for edges".format( x.toString ) )
 		}
 	}
   
- 	protected def chooseArrowShape():AreaOnConnectorShape = {
+ 	protected def chooseArrowShape( oldArrow:AreaOnConnectorShape ):AreaOnConnectorShape = {
  		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.ArrowShape._
 		group.getArrowShape match {
 			case NONE    => null
-			case ARROW   => new ArrowOnEdge
-			case CIRCLE  => new CircleOnEdge
-			case DIAMOND => new DiamondOnEdge
-			case IMAGE   => Console.err.printf( "** Sorry image arrow not yet implemented **" );   new ArrowOnEdge
+			case ARROW   => if( oldArrow.isInstanceOf[ArrowOnEdge] )   oldArrow else new ArrowOnEdge
+			case CIRCLE  => if( oldArrow.isInstanceOf[CircleOnEdge] )  oldArrow else new CircleOnEdge
+			case DIAMOND => if( oldArrow.isInstanceOf[DiamondOnEdge] ) oldArrow else new DiamondOnEdge
+			case IMAGE   => if( oldArrow.isInstanceOf[ImageOnEdge] )   oldArrow else new ImageOnEdge
 		    case x       => throw new RuntimeException( "%s shape cannot be set for edge arrows".format( x.toString ) )
 		}
  	}
