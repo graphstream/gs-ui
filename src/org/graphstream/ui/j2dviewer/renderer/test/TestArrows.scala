@@ -1,6 +1,6 @@
 package org.graphstream.ui.j2dviewer.renderer.test
 
-import org.graphstream.graph.{Graph, Edge}
+import org.graphstream.graph._
 import org.graphstream.scalags.graph.MultiGraph
 
 import org.graphstream.algorithm.Toolkit._
@@ -35,21 +35,21 @@ class TestArrows extends ViewerListener {
 		graph.addAttribute( "ui.antialias" )
 		graph.addAttribute( "ui.quality" )
 		
-		val A = graph.addNode( "A" )
-		val B = graph.addNode( "B" )
-		val C = graph.addNode( "C" )
-		val D = graph.addNode( "D" )
-		val E = graph.addNode( "E" )
-		val F = graph.addNode( "F" )
+		val A:Node = graph.addNode( "A" )
+		val B:Node = graph.addNode( "B" )
+		val C:Node = graph.addNode( "C" )
+		val D:Node = graph.addNode( "D" )
+		val E:Node = graph.addNode( "E" )
+		val F:Node = graph.addNode( "F" )
 
-		val AB = graph.addEdge( "AB", "A", "B", true )
-		val BC = graph.addEdge( "BC", "B", "C", true )
-		val CD = graph.addEdge( "CD", "C", "D", true )
-		val DA = graph.addEdge( "DA", "D", "A", true )
-		val BB = graph.addEdge( "BB", "B", "B", true )
-		val DE = graph.addEdge( "DE", "D", "E", true )
-		val DF = graph.addEdge( "DF", "D", "F", true )
-		val CF = graph.addEdge( "CF", "C", "F", true )
+		val AB:Edge = graph.addEdge( "AB", "A", "B", true )
+		val BC:Edge = graph.addEdge( "BC", "B", "C", true )
+		val CD:Edge = graph.addEdge( "CD", "C", "D", true )
+		val DA:Edge = graph.addEdge( "DA", "D", "A", true )
+		val BB:Edge = graph.addEdge( "BB", "B", "B", true )
+		val DE:Edge = graph.addEdge( "DE", "D", "E", true )
+		val DF:Edge = graph.addEdge( "DF", "D", "F", true )
+		val CF:Edge = graph.addEdge( "CF", "C", "F", true )
 		
 		A("xyz") = ( 0, 1, 0 )
 		B("xyz") = ( 1, 0.8, 0 )

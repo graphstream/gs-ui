@@ -1,6 +1,6 @@
 package org.graphstream.ui.j2dviewer.renderer.test
 
-import org.graphstream.graph.Graph
+import org.graphstream.graph._
 import org.graphstream.scalags.graph.MultiGraph
 
 import org.graphstream.ui.swingViewer.{Viewer, DefaultView, ViewerPipe, ViewerListener}
@@ -34,15 +34,15 @@ private class TestFreePlane extends ViewerListener {
 		graph.addAttribute( "ui.antialias" )
 		graph.addAttribute( "ui.quality" )
 		
-		val root = graph.addNode( "root" )
-		val A    = graph.addNode( "A" )
-		val B    = graph.addNode( "B" )
-		val C    = graph.addNode( "C" )
-		val D    = graph.addNode( "D" )
-		val E    = graph.addNode( "E" )
-		val F    = graph.addNode( "F" )
-		val G    = graph.addNode( "G" )
-		val H    = graph.addNode( "H" )
+		val root:Node = graph.addNode( "root" )
+		val A:Node    = graph.addNode( "A" )
+		val B:Node    = graph.addNode( "B" )
+		val C:Node    = graph.addNode( "C" )
+		val D:Node    = graph.addNode( "D" )
+		val E:Node    = graph.addNode( "E" )
+		val F:Node    = graph.addNode( "F" )
+		val G:Node    = graph.addNode( "G" )
+		val H:Node    = graph.addNode( "H" )
 
 		graph.addEdge( "rA", "root", "A" )
 		graph.addEdge( "rB", "root", "B" )

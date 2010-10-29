@@ -55,7 +55,7 @@ trait Fillable {
      */
   	protected def configureFillableForElement( style:Style, camera:Camera, element:GraphicElement ) {
   	  	if( style.getFillMode == StyleConstants.FillMode.DYN_PLAIN && element != null ) {
-  	  		element.getAttribute( "ui.color" ) match {
+  	  		element.getAttribute[AnyRef]( "ui.color" ) match {
   	  			case x:Number => theFillPercent = x.floatValue
   	  			case _        => theFillPercent = 0f
   	  		}
@@ -111,7 +111,7 @@ trait FillableLine {
   	  	// TODO look at this and try to create the fillColors at the in ForGroup configuration !!!
 		theFillPercent = 0
   	  	if( style.getFillMode == StyleConstants.FillMode.DYN_PLAIN && element != null ) {
-  	  		element.getAttribute( "ui.color" ) match {
+  	  		element.getAttribute[AnyRef]( "ui.color" ) match {
   	  			case x:Number => theFillPercent = x.floatValue
   	  			case _ => theFillPercent = 0f
   	  		}
@@ -338,7 +338,7 @@ trait Orientable {
 					case SpriteOrientation.FROM       => { target.set( ge.from.getX, ge.from.getY ) }
 					case SpriteOrientation.TO         => { target.set( ge.to.getX, ge.to.getY ) }
 					case SpriteOrientation.PROJECTION => {
-						val ei = ge.getAttribute( ElementInfo.attributeName ).asInstanceOf[EdgeInfo]
+						val ei = ge.getAttribute[EdgeInfo]( ElementInfo.attributeName )
 						
 						if( ei != null )
 						      setTargetOnEdgeInfo( ei, camera, sprite, ge )

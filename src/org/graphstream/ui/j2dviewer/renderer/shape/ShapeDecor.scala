@@ -376,7 +376,7 @@ object IconAndText {
 /**
  * A simple wrapper for a font and a text string.
  */
-class TextBox( val font:Font, val textColor:Color ) {
+class TextBox( val font:Font, val textColor:Color, val bgColor:Color ) {
 	
 	/** The text stored as a text layout. */
 	var text:TextLayout = null
@@ -419,6 +419,13 @@ class TextBox( val font:Font, val textColor:Color ) {
  	/** Renders the text at the given coordinates. */
  	def render( g:Graphics2D, xLeft:Float, yBottom:Float ) {
 		if( text != null ) {
+			if( bgColor ne null ) {
+				val a = ascent
+				val h = a + descent
+				g.setColor( bgColor )
+				g.fill( new Rectangle2D.Float( xLeft, yBottom-a, width+1, h ) )
+			}
+			
 			g.setColor( textColor )
 			text.draw( g, xLeft, yBottom )
 		}
@@ -430,14 +437,23 @@ class TextBox( val font:Font, val textColor:Color ) {
  */
 object TextBox {
 	def apply( style:Style ):TextBox = {
+		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.TextBackgroundMode._
+		
 		val fontName  = style.getTextFont
 		val fontStyle = style.getTextStyle
 		val fontSize  = style.getTextSize
 		val textColor = style.getTextColor( 0 )
-		TextBox( fontName, fontStyle, fontSize.value.toInt, textColor )
+		var bgColor:Color = null
+
+		style.getTextBackgroundMode match {
+			case NONE  => {}
+			case PLAIN => { bgColor = style.getTextBackgroundColor( 0 ) }
+		}
+		
+		TextBox( fontName, fontStyle, fontSize.value.toInt, textColor, bgColor )
 	}
 
-	def apply( fontName:String, style:TextStyle, fontSize:Int, textColor:Color ):TextBox = {
-		new TextBox( FontCache.getFont( fontName, style, fontSize ), textColor )
+	def apply( fontName:String, style:TextStyle, fontSize:Int, textColor:Color, bgColor:Color ):TextBox = {
+		new TextBox( FontCache.getFont( fontName, style, fontSize ), textColor, bgColor )
 	}
 }

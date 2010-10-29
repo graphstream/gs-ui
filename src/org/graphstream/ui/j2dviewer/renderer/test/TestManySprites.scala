@@ -60,7 +60,7 @@ class TestManySprites extends ViewerListener {
 //		gen.setDirectedEdges( true, true )
 		gen.begin
 		var i = 0
-		while ( i < NODE_COUNT ) { gen.nextElement; i += 1 }
+		while ( i < NODE_COUNT ) { gen.nextEvents; i += 1 }
 		gen.end
   
 		sleep( 1000 )
@@ -157,8 +157,8 @@ protected class TestSprite( identifier:String, manager:SpriteManager ) extends S
 	
 	def chooseNextEdge() {
 		val edge = getAttachment.asInstanceOf[Edge]
-		val node = if( dir > 0 ) edge.getTargetNode else edge.getSourceNode
-		val next = randomEdge( node )
+		val node:Node = if( dir > 0 ) edge.getTargetNode[Node] else edge.getSourceNode[Node]
+		val next:Edge = randomEdge( node )
 		var pos  = 0
 		
 		if( node == next.getSourceNode )

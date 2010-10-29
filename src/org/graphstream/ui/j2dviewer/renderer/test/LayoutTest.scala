@@ -41,7 +41,7 @@ private class ATest extends ViewerListener {
 		gen.setDirectedEdges( true, true )
 		gen.begin
 		var i = 0
-		while ( i < 100 ) { gen.nextElement; i += 1 }
+		while ( i < 100 ) { gen.nextEvents; i += 1 }
 		gen.end
   
 		graph.foreach { _.addAttribute( "ui.label", "truc" ) }

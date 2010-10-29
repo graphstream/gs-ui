@@ -1,6 +1,6 @@
 package org.graphstream.ui.j2dviewer.renderer.test
 
-import org.graphstream.graph.Graph
+import org.graphstream.graph._
 import org.graphstream.scalags.graph.MultiGraph
 
 import org.graphstream.ui.j2dviewer.J2DGraphRenderer
@@ -44,12 +44,12 @@ private class TestFillImage extends ViewerListener {
 		A("label") = "A"
 		B("label") = "B"
 */
-		val A = graph.addNode( "A" )
-		val B = graph.addNode( "B" )
-		val C = graph.addNode( "C" )
-		val D = graph.addNode( "D" )
-		val E = graph.addNode( "E" )
-		val F = graph.addNode( "F" )
+		val A:Node = graph.addNode( "A" )
+		val B:Node = graph.addNode( "B" )
+		val C:Node = graph.addNode( "C" )
+		val D:Node = graph.addNode( "D" )
+		val E:Node = graph.addNode( "E" )
+		val F:Node = graph.addNode( "F" )
 
 		graph.addEdges( "A", "B", "C", "A" )
 		graph.addEdges( "D", "E", "A", "D" )

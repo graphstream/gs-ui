@@ -196,7 +196,7 @@ class Camera {
   	def findNodeOrSpriteAt( graph:GraphicGraph, x:Float, y:Float ):GraphicElement = {
   		var ge:GraphicElement = null
   		
-  		graph.nodeSet.foreach { n =>	
+  		graph.getEachNode.foreach { n =>	
   			val node = n.asInstanceOf[GraphicNode]
 			
   			if( nodeContains( node, x, y ) )
@@ -223,7 +223,7 @@ class Camera {
   	def allNodesOrSpritesIn( graph:GraphicGraph, x1:Float, y1:Float, x2:Float, y2:Float ):ArrayList[GraphicElement] = {
   		val elts = new ArrayList[GraphicElement]
 	
-        graph.nodeSet.foreach { node:Node =>	
+        graph.getEachNode.foreach { node:Node =>	
   			if( isNodeIn( node.asInstanceOf[GraphicNode], x1, y1, x2, y2 ) )
   				elts.add( node.asInstanceOf[GraphicNode] )
   		}
@@ -465,7 +465,7 @@ class Camera {
 		
   		nodeInvisible.clear
 	
-  		graph.nodeSet.foreach { node =>
+  		graph.getEachNode.foreach { node =>
   			val visible = isNodeIn( node.asInstanceOf[GraphicNode], 0, 0, W, H );
 			
   			if( ! visible )

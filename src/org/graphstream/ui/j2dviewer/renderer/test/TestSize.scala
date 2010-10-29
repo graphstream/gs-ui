@@ -1,6 +1,6 @@
 package org.graphstream.ui.j2dviewer.renderer.test
 
-import org.graphstream.graph.{Graph, Edge}
+import org.graphstream.graph._
 import org.graphstream.scalags.graph.MultiGraph
 
 import org.graphstream.algorithm.Toolkit._
@@ -38,16 +38,16 @@ class TestSize extends ViewerListener {
 		graph.addAttribute( "ui.antialias" )
 		graph.addAttribute( "ui.quality" )
 		
-		val A = graph.addNode( "A" )
-		val B = graph.addNode( "B" )
-		val C = graph.addNode( "C" )
-		val D = graph.addNode( "D" )
+		val A:Node = graph.addNode( "A" )
+		val B:Node = graph.addNode( "B" )
+		val C:Node = graph.addNode( "C" )
+		val D:Node = graph.addNode( "D" )
 
-		val AB = graph.addEdge( "AB", "A", "B" )
-		val BC = graph.addEdge( "BC", "B", "C" )
-		val CD = graph.addEdge( "CD", "C", "D" )
-		val DA = graph.addEdge( "DA", "D", "A" )
-		val BB = graph.addEdge( "BB", "B", "B" )
+		val AB:Edge = graph.addEdge( "AB", "A", "B" )
+		val BC:Edge = graph.addEdge( "BC", "B", "C" )
+		val CD:Edge = graph.addEdge( "CD", "C", "D" )
+		val DA:Edge = graph.addEdge( "DA", "D", "A" )
+		val BB:Edge = graph.addEdge( "BB", "B", "B" )
 		
 		A("xyz") = ( 0, 1, 0 )
 		B("xyz") = ( 1, 1, 0 )

@@ -1,6 +1,6 @@
 package org.graphstream.ui.j2dviewer.renderer.test
 
-import org.graphstream.graph.Graph
+import org.graphstream.graph._
 import org.graphstream.scalags.graph.MultiGraph
 
 import org.graphstream.ui.swingViewer.{Viewer, DefaultView, ViewerPipe, ViewerListener}
@@ -34,10 +34,10 @@ private class TestIcons extends ViewerListener {
 		graph.addAttribute( "ui.antialias" )
 		graph.addAttribute( "ui.quality" )
 		
-		val A = graph.addNode( "A" )
-		val B = graph.addNode( "B" )
-		val C = graph.addNode( "C" )
-		val D = graph.addNode( "D" )
+		val A:Node = graph.addNode( "A" )
+		val B:Node = graph.addNode( "B" )
+		val C:Node = graph.addNode( "C" )
+		val D:Node = graph.addNode( "D" )
 
 		graph.addEdge( "AB", "A", "B" )
 		graph.addEdge( "BC", "B", "C" )

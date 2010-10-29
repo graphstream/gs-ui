@@ -32,11 +32,11 @@ class TestStars extends ViewerListener {
 		graph.addAttribute( "ui.antialias" )
 		graph.addAttribute( "ui.quality" )
 		
-		val A = graph.addNode( "A" )
-		val B = graph.addNode( "B" )
-		val C = graph.addNode( "C" )
-		val D = graph.addNode( "D" )
-		val E = graph.addNode( "E" )
+		val A:Node = graph.addNode( "A" )
+		val B:Node = graph.addNode( "B" )
+		val C:Node = graph.addNode( "C" )
+		val D:Node = graph.addNode( "D" )
+		val E:Node = graph.addNode( "E" )
 
 		graph.addEdge( "AB", "A", "B" )
 		graph.addEdge( "BC", "B", "C" )
@@ -158,7 +158,7 @@ class TestStars extends ViewerListener {
 				val edge = getAttachment.asInstanceOf[Edge]
 				
 				if( edge != null ) {
-					val node = if( p > 1 ) edge.getTargetNode else edge.getSourceNode
+					val node = if( p > 1 ) edge.getTargetNode[Node] else edge.getSourceNode[Node]
 					var other = randomOutEdge( node )
 					
 					if( node.getOutDegree > 1 ) { while( other eq edge ) other = randomOutEdge( node ) }
