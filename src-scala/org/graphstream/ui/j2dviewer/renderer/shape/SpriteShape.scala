@@ -2,6 +2,7 @@ package org.graphstream.ui.j2dviewer.renderer.shape
 
 import java.awt._
 import java.awt.geom._
+import java.awt.image._
 
 import org.graphstream.ui.j2dviewer._
 import org.graphstream.ui.j2dviewer.renderer._
@@ -12,6 +13,7 @@ import org.graphstream.ui.graphicGraph._
 import org.graphstream.ui.graphicGraph.stylesheet._
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 
+import scala.math._
 
 class SpriteArrowShape extends PolygonalShape with Orientable {
 	
@@ -58,6 +60,14 @@ class SpriteArrowShape extends PolygonalShape with Orientable {
 	}
 }
 
+class OrientableSquareShape extends OrientableRectangularAreaShape {
+	val theShape:RectangularShape = new Rectangle2D.Float
+}
+/*
+class OrientableRoundedSquareShape extends OrientableRectangularAreaShape {
+	var theShape = new RoundRectangle2D.Float
+}
+*/
 class SpriteFlowShape
 	extends Shape
 	with FillableLine

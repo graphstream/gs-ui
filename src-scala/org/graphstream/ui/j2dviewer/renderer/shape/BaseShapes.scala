@@ -3,13 +3,15 @@ package org.graphstream.ui.j2dviewer.renderer.shape
 import java.awt._
 import java.awt.geom._
 
-import org.graphstream.ui.geom.Point2
+import org.graphstream.ui.sgeom._
 import org.graphstream.ui.graphicGraph._
 import org.graphstream.ui.graphicGraph.stylesheet._
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 import org.graphstream.ui.j2dviewer._
 import org.graphstream.ui.j2dviewer.renderer._
 import org.graphstream.ui.util._
+
+import scala.math._
 
 /**
  * Base for shapes centered around one point.
@@ -166,6 +168,100 @@ trait RectangularAreaShape extends AreaShape {
 //
 //		super.positionAndFit(  g, camera, info, element, x, y )
 //	}
+}
+
+abstract class OrientableRectangularAreaShape extends RectangularAreaShape with Orientable {
+	 
+	var p:Point2D.Float = null
+	var angle = 0f
+	var w = 0f
+	var h = 0f
+	var oriented = false
+	
+	override def configureForGroup( g:Graphics2D, style:Style, camera:Camera ) {
+		super.configureForGroup( g, style, camera )
+		configureOrientableForGroup( style, camera )
+		oriented = (style.getSpriteOrientation != StyleConstants.SpriteOrientation.NONE)
+	}
+ 
+	override def configureForElement( g:Graphics2D, element:GraphicElement, info:ElementInfo, camera:Camera ) {
+		super.configureForElement( g, element, info, camera )
+		configureOrientableForElement( camera, element.asInstanceOf[GraphicSprite] /* Check This XXX TODO !*/ );
+	}
+	
+	protected override def make( g:Graphics2D, camera:Camera ) { make( g, false, camera ) }
+	protected override def makeShadow( g:Graphics2D, camera:Camera ) { make( g, true, camera ) }
+
+	protected def make( g:Graphics2D, forShadow:Boolean, camera:Camera ) {
+		if (oriented) {
+			val theDirection = new Vector2(
+					target.x - theCenter.x,
+					target.y - theCenter.y )
+			
+			theDirection.normalize
+		
+			var x = theCenter.x
+			var y = theCenter.y
+		
+			if( forShadow ) {
+				x += theShadowOff.x
+				y += theShadowOff.y
+			}
+		
+			p     = camera.transform( x, y )	// Pass to pixels, the image will be drawn in pixels.
+			angle = acos( theDirection.dotProduct( 1, 0 ) ).toFloat
+		
+			if( theDirection.y > 0 )			// The angle is always computed for acute angles
+				angle = ( Pi - angle ).toFloat
+	
+			w = camera.metrics.lengthToPx(theSize.x, Units.GU)
+			h = camera.metrics.lengthToPx(theSize.y, Units.GU)
+			theShape.setFrame(0, 0, w, h)
+		} else {
+			if (forShadow)
+				super.makeShadow(g, camera)
+			else
+				super.make(g, camera)
+		}
+	}
+	
+ 
+	override def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		make(g, true, camera)
+ 		
+ 		if (oriented) {
+	 		val Tx = g.getTransform
+	 		val Tr = new AffineTransform
+	 		Tr.translate( p.x, p.y )								// 3. Position the image at its position in the graph.
+	 		Tr.rotate( angle )										// 2. Rotate the image from its center.
+	 		Tr.translate( -w/2, -h/2 )								// 1. Position in center of the image.
+	 		g.setTransform( Tr )									// An identity matrix.
+ 			cast(g, theShape)
+	 		g.setTransform( Tx )									// Restore the original transform
+ 		} else {
+ 			super.renderShadow(g, camera, element, info)
+ 		}
+	}
+ 
+	override def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		make(g, false, camera)
+		
+ 		if (oriented) {
+	 		val Tx = g.getTransform
+	 		val Tr = new AffineTransform
+	 		Tr.translate( p.x, p.y )								// 3. Position the image at its position in the graph.
+	 		Tr.rotate( angle )										// 2. Rotate the image from its center.
+	 		Tr.translate( -w/2, -h/2 )								// 1. Position in center of the image.
+	 		g.setTransform( Tr )									// An identity matrix.
+	 		stroke(g, theShape)
+	 		fill(g, theShape, camera)
+	 		g.setTransform( Tx )									// Restore the original transform
+	 		theShape.setFrame(theCenter.x-w/2, theCenter.y-h/2, w, h)
+	 		decorArea(g, camera, info.iconAndText, element, theShape)
+ 		} else {
+ 			super.render(g, camera, element, info)
+ 		}
+ 	}
 }
 
 abstract class PolygonalShape extends AreaShape {

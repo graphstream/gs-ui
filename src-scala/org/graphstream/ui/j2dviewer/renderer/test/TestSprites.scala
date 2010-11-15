@@ -15,7 +15,7 @@ import org.graphstream.ui.j2dviewer._
 import org.graphstream.ScalaGS._
 
 object TestSprites {
-	def main( args:Array[String] ) {
+	def main( args:Array[String] ):Unit = {
 		(new TestSprites).run
 	}
 }
@@ -74,6 +74,7 @@ class TestSprites extends ViewerListener {
 		val s4 = sman.addSprite( "S4", classOf[MovingEdgeSprite] )
 		val s5 = sman.addSprite( "S5", classOf[DataSprite] )
 		val s6 = sman.addSprite( "S6", classOf[MovingNodeSprite] )
+		val s7 = sman.addSprite( "S7", classOf[MovingEdgeSprite] )
 			
 		s1.attachToEdge( "AB1" )
 		s2.attachToEdge( "CD" )
@@ -81,6 +82,7 @@ class TestSprites extends ViewerListener {
 		s4.attachToEdge( "EB" )
 		s5.attachToNode( "A" )
 		s6.attachToNode( "C" )
+		s7.attachToEdge("AB2")
 		
 		s2.setOffsetPx( 20 )
 		s3.setOffsetPx( 15 )
@@ -88,6 +90,11 @@ class TestSprites extends ViewerListener {
 		s5.setPosition( Units.PX, 30, 0, 90 )
 		s5.setData( 0.3f, 0.5f, 0.2f )
 		s6.setOffsetPx( 20 )
+
+		s1.addAttribute("ui.label", "FooBar1")
+		s2.addAttribute("ui.label", "FooBar2")
+		s4.addAttribute("ui.label", "FooBar4")
+		s7.addAttribute("ui.label", "FooBar7")
 		
 		while( loop ) {
 			pipeIn.pump
@@ -96,6 +103,7 @@ class TestSprites extends ViewerListener {
 			s3.move
 			s4.move
 			s6.move
+			s7.move
 			sleep( 4 )
 		}
 		
@@ -193,6 +201,15 @@ class TestSprites extends ViewerListener {
 				shape: circle;
 				size: 30px;
 				fill-color: #55C;
+			}
+			sprite#S7 {
+				shape: box;
+				size: 100px, 58px;
+				sprite-orientation: projection;
+				fill-mode: image-scaled;
+				fill-image: url('data/container_small.png');
+				fill-color: red;
+				stroke-mode: none;
 			}
 			"""
 }

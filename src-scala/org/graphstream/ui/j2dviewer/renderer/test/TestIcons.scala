@@ -17,8 +17,8 @@ object TestIcons {
 private class TestIcons extends ViewerListener {
 	private[this] var loop = true
   
-	val icon1 = "file:///home/antoine/Documents/Programs/gs-ui-scala-svn/data/surprise1.png"
-	val icon2 = "file:///home/antoine/Documents/Programs/gs-ui-scala-svn/data/surprise2.png"
+	val icon1 = "data/surprise1.png"
+	val icon2 = "data/surprise2.png"
 	
 	def run( args:Array[String] ) = {
 		val graph  = new MultiGraph( "Icons ..." )
@@ -70,9 +70,9 @@ private class TestIcons extends ViewerListener {
 			     A("ui.icon") = icon2
 			else A("ui.icon") = icon1
 			
-			B("ui.icon") = "/home/antoine/Documents/Programs/gs-ui-scala-svn/data/cube/3anidot5a_%d.png".format( i )
-			C("ui.icon") = "/home/antoine/Documents/Programs/gs-ui-scala-svn/data/cube/3anidot5a_%d.png".format( i )
-			D("ui.icon") = "/home/antoine/Documents/Programs/gs-ui-scala-svn/data/cube/3anidot5a_%d.png".format( i )
+			B("ui.icon") = "data/cube/3anidot5a_%d.png".format( i )
+			C("ui.icon") = "data/cube/3anidot5a_%d.png".format( i )
+			D("ui.icon") = "data/cube/3anidot5a_%d.png".format( i )
 		}
 		
 		printf( "bye bye" )

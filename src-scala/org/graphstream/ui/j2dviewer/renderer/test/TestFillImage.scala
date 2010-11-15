@@ -139,7 +139,7 @@ private class TestFillImage extends ViewerListener {
 			graph {
 				canvas-color: white;
  				fill-mode: image-tiled;
- 				fill-image: url('file:///home/antoine/Documents/Programs/gs-ui-scala-svn/data/paper.png');
+ 				fill-image: url('data/paper.png');
  				fill-color: white, gray;
  				padding: 60px;
  			} 
@@ -147,7 +147,7 @@ private class TestFillImage extends ViewerListener {
 				shape: box;
 				size: 60px, 60px;
 				fill-mode: image-scaled-ratio-max;
-				fill-image: url('file:///home/antoine/Documents/Programs/gs-ui-scala-svn/data/FabricPlain0081.jpg');
+				fill-image: url('data/FabricPlain0081.jpg');
 				fill-color: white, rgb(200,200,200);
 				stroke-mode: plain; 
 				stroke-color: rgba(100,100,100,255);

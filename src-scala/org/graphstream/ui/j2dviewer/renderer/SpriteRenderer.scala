@@ -65,14 +65,14 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 	protected def chooseShape( oldShape:Shape ):Shape = {
 		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Shape._
 		group.getShape match {
-			case CIRCLE         => if( oldShape.isInstanceOf[CircleShape] )        oldShape else new CircleShape 
-		  	case BOX            => if( oldShape.isInstanceOf[SquareShape] )        oldShape else new SquareShape
-		  	case ROUNDED_BOX    => if( oldShape.isInstanceOf[RoundedSquareShape] ) oldShape else new RoundedSquareShape
-		  	case DIAMOND        => if( oldShape.isInstanceOf[DiamondShape] )       oldShape else new DiamondShape
-		    case TRIANGLE       => if( oldShape.isInstanceOf[TriangleShape] )      oldShape else new TriangleShape
-		    case CROSS          => if( oldShape.isInstanceOf[CrossShape] )         oldShape else new CrossShape
-		    case ARROW          => if( oldShape.isInstanceOf[SpriteArrowShape] )   oldShape else new SpriteArrowShape
-		    case FLOW           => if( oldShape.isInstanceOf[SpriteFlowShape] )    oldShape else new SpriteFlowShape
+			case CIRCLE         => if( oldShape.isInstanceOf[CircleShape] )           oldShape else new CircleShape 
+		  	case BOX            => if( oldShape.isInstanceOf[OrientableSquareShape] ) oldShape else new OrientableSquareShape
+		  	case ROUNDED_BOX    => if( oldShape.isInstanceOf[RoundedSquareShape] )    oldShape else new RoundedSquareShape
+		  	case DIAMOND        => if( oldShape.isInstanceOf[DiamondShape] )          oldShape else new DiamondShape
+		    case TRIANGLE       => if( oldShape.isInstanceOf[TriangleShape] )         oldShape else new TriangleShape
+		    case CROSS          => if( oldShape.isInstanceOf[CrossShape] )            oldShape else new CrossShape
+		    case ARROW          => if( oldShape.isInstanceOf[SpriteArrowShape] )      oldShape else new SpriteArrowShape
+		    case FLOW           => if( oldShape.isInstanceOf[SpriteFlowShape] )       oldShape else new SpriteFlowShape
 		  	// ------------------------------------------
 		  	case POLYGON        => Console.err.printf( "** SORRY polygon shape not yet implemented **%n" );      new CircleShape
 		    case TEXT_BOX       => Console.err.printf( "** SORRY text-box shape not yet implemented **%n" );     new SquareShape

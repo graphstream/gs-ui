@@ -14,7 +14,7 @@ import org.graphstream.ui.j2dviewer._
 import org.graphstream.ScalaGS._
 
 object TestSize {
-	def main( args:Array[String] ) {
+	def main( args:Array[String] ):Unit = {
 		//System.setProperty( "gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer" )
 		(new TestSize).run
 	} 
@@ -27,7 +27,7 @@ class TestSize extends ViewerListener {
 		val graph  = new MultiGraph( "TestSize" )
 		val viewer = new Viewer( graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD )
 		val pipeIn = viewer.newViewerPipe
-		val view   = viewer.addView( "view1", new J2DGraphRenderer )
+		val view   = viewer.addView( "view1", new J2DGraphRenderer /*new org.graphstream.ui.swingViewer.basicRenderer.SwingBasicGraphRenderer*/ )
 //		val view   = viewer.addDefaultView( true )
   
 		pipeIn.addAttributeSink( graph )

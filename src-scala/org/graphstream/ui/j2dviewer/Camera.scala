@@ -25,7 +25,6 @@ import org.graphstream.ui.j2dviewer.renderer.{ElementInfo, EdgeInfo, NodeInfo}
 import scala.math._
 import org.graphstream.ScalaGS._
 
-//import org.graphstream.ui.j2dviewer.util.GraphMetrics
 
 /**
  * Define how the graph is viewed.
@@ -95,7 +94,8 @@ class Camera {
   	/**
   	 * Which node is visible. This allows to mark invisible nodes to fasten visibility tests for
   	 * nodes, attached sprites and edges. The visibility test is heavy, and we often need to test
-  	 * for nodes visibility. This allows to do it only once per rendering step.
+  	 * for nodes visibility. This allows to do it only once per rendering step. Hence the storage
+  	 * of the invisible nodes here.
   	 */
   	protected val nodeInvisible = new HashSet[String]
   	
@@ -491,8 +491,8 @@ class Camera {
   	 * @return True if visible.
   	 */
   	protected def isEdgeVisible( edge:GraphicEdge ):Boolean = {
-  		val node0Invis = nodeInvisible.contains( edge.getNode0.getId )
-  		val node1Invis = nodeInvisible.contains( edge.getNode1.getId )
+  		val node0Invis = nodeInvisible.contains( edge.getNode0[Node].getId )
+  		val node1Invis = nodeInvisible.contains( edge.getNode1[Node].getId )
 		
   		! ( node0Invis && node1Invis )
   	}

@@ -8,7 +8,7 @@ import javax.swing._
 import java.awt._
 
 object AllSwingTest {
-	def main( args:Array[String] ) {
+	def main( args:Array[String] ):Unit = {
 		val test = new AllInSwing
 		test.run
 	}
