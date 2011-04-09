@@ -38,7 +38,9 @@ import org.graphstream.ui.j2dviewer.renderer.shape._
 
 import java.awt.geom._
 
-/** Utility methods to deal with Bézier cubic curves. */
+/**
+ *  Utility methods to deal with Bézier cubic curves.
+ */
 object CubicCurve {
 	/** Evaluate a cubic Bézier curve according to control points `x0`, `x1`, `x2` and `x3` and 
 	 * return the position at parametric position `t` of the curve.
@@ -56,11 +58,20 @@ object CubicCurve {
 		new Point2( eval( p0.x, p1.x, p2.x, p3.x, t ),
 		            eval( p0.y, p1.y, p2.y, p3.y, t ) )
 	}
+	
+	/** Evaluate a cubic Bézier curve according to control points `p0`, `p1`, `p2` and `p3` and 
+	 * return the position at parametric position `t` of the curve.
+	 * @return The point at parametric position `t` on the curve. */
+	def eval(p0:Point3, p1:Point3, p2:Point3, p3:Point3, t:Float):Point3 = {
+	    new Point3(eval(p0.x, p1.x, p2.x, p3.x, t),
+	               eval(p0.y, p1.y, p2.y, p3.y, t),
+	               eval(p0.z, p1.z, p2.z, p3.z, t))
+	}
 
 	/** Evaluate a cubic Bézier curve according to control points `p0`, `p1`, `p2` and `p3` and 
 	 * return the position at parametric position `t` of the curve.
 	 * @return The point at parametric position `t` on the curve. */
-	def eval( p0:Point2D.Float, p1:Point2D.Float, p2:Point2D.Float, p3:Point2D.Float, t:Float ):Point2D.Float = {
+	def eval(p0:Point2D.Float, p1:Point2D.Float, p2:Point2D.Float, p3:Point2D.Float, t:Float):Point2D.Float = {
 		new Point2D.Float( eval( p0.x, p1.x, p2.x, p3.x, t ),
 		                    eval( p0.y, p1.y, p2.y, p3.y, t ) )
 	}
@@ -68,9 +79,19 @@ object CubicCurve {
 	/** Evaluate a cubic Bézier curve according to control points `p0`, `p1`, `p2` and `p3` and 
 	 * store the position at parametric position `t` of the curve in `result`.
 	 * @return the given reference to `result`. */
-	def eval( p0:Point2, p1:Point2, p2:Point2, p3:Point2, t:Float, result:Point2 ):Point2 = {
+	def eval(p0:Point2, p1:Point2, p2:Point2, p3:Point2, t:Float, result:Point2):Point2 = {
 		result.set( eval( p0.x, p1.x, p2.x, p3.x, t ),
 		            eval( p0.y, p1.y, p2.y, p3.y, t ) )
+		result
+	}
+	
+	/** Evaluate a cubic Bézier curve according to control points `p0`, `p1`, `p2` and `p3` and 
+	 * store the position at parametric position `t` of the curve in `result`.
+	 * @return the given reference to `result`. */
+	def eval(p0:Point3, p1:Point3, p2:Point3, p3:Point3, t:Float, result:Point3):Point3 = {
+		result.set( eval( p0.x, p1.x, p2.x, p3.x, t ),
+		            eval( p0.y, p1.y, p2.y, p3.y, t ),
+		            eval( p0.z, p1.z, p2.z, p3.z, t ) )
 		result
 	}
 	
@@ -91,15 +112,34 @@ object CubicCurve {
 	/** Derivative point of a cubic Bézier curve according to control points `x0`, `x1`, `x2` and
 	 * `x3` at parametric position `t` of the curve.
 	 * @return The derivative point at parametric position `t` on the curve. */
-	def derivative( p0:Point2, p1:Point2, p2:Point2, p3:Point3, t:Float ):Point2 = {
+	def derivative(p0:Point2, p1:Point2, p2:Point2, p3:Point2, t:Float):Point2 = {
 		new Point2( derivative( p0.x, p1.x, p2.x, p3.x, t ), derivative( p0.y, p1.y, p2.y, p3.y, t ) )
+	}
+	
+	/** Derivative point of a cubic Bézier curve according to control points `x0`, `x1`, `x2` and
+	 * `x3` at parametric position `t` of the curve.
+	 * @return The derivative point at parametric position `t` on the curve. */
+	def derivative(p0:Point3, p1:Point3, p2:Point3, p3:Point3, t:Float):Point3 = {
+		new Point3( derivative( p0.x, p1.x, p2.x, p3.x, t ),
+		            derivative( p0.y, p1.y, p2.y, p3.y, t ),
+		            derivative( p0.z, p1.z, p2.z, p3.z, t ) )
 	}
 
 	/** Store in `result` the derivative point of a cubic Bézier curve according to control points
 	 * `x0`, `x1`, `x2` and `x3` at parametric position `t` of the curve.
 	 * @return the given reference to `result`. */
-	def derivative( p0:Point2, p1:Point2, p2:Point2, p3:Point3, t:Float, result:Point2 ):Point2 = {
+	def derivative(p0:Point2, p1:Point2, p2:Point2, p3:Point3, t:Float, result:Point2):Point2 = {
 		result.set( derivative( p0.x, p1.x, p2.x, p3.x, t ), derivative( p0.y, p1.y, p2.y, p3.y, t ) )
+		result
+	}
+	
+	/** Store in `result` the derivative point of a cubic Bézier curve according to control points
+	 * `x0`, `x1`, `x2` and `x3` at parametric position `t` of the curve.
+	 * @return the given reference to `result`. */
+	def derivative(p0:Point3, p1:Point3, p2:Point3, p3:Point3, t:Float, result:Point3):Point3 = {
+		result.set( derivative( p0.x, p1.x, p2.x, p3.x, t ),
+		            derivative( p0.y, p1.y, p2.y, p3.y, t ),
+		            derivative( p0.z, p1.z, p2.z, p3.z, t ) )
 		result
 	}
 

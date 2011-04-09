@@ -492,16 +492,16 @@ trait Connector {
 // Command
 	
 	/** Origin point of the connector. */
-	def fromPos:Point2 = info.points(0)
+	def fromPos:Point3 = info.points(0)
 	
 	/** First control point. */
-	def byPos1:Point2 = info.points(1)
+	def byPos1:Point3 = info.points(1)
 	
 	/** Second control point. */
-	def byPos2:Point2 = info.points(2)
+	def byPos2:Point3 = info.points(2)
 	
 	/** Destination of the connector. */
-	def toPos:Point2 = info.points(3)
+	def toPos:Point3 = info.points(3)
 	
 	def configureConnectorForGroup( style:Style, camera:Camera ) {
 		size( style, camera )

@@ -39,7 +39,7 @@ import scala.collection.mutable.HashMap
 import javax.imageio.ImageIO;
 
 /**
- * A simple cache for images to avoid reloading them constantly and to allow sharing.
+ * A simple cache for Java2D images to avoid reloading them constantly and to allow sharing.
  * 
  * TODO have a policy to release images if they have not been used for a given time.
  */
@@ -75,7 +75,7 @@ object ImageCache {
 	 * @param fileNameOrUrl A file name or an URL pointing at the image.
 	 * @return An image or null if the image cannot be found.
 	 */
-	def loadImage( fileNameOrUrl:String ):Option[BufferedImage] = loadImage( fileNameOrUrl, false )
+	def loadImage(fileNameOrUrl:String):Option[BufferedImage] = loadImage(fileNameOrUrl, false)
 	
 	/**
 	 * The same as {@link #loadImage(String)} but you can force the cache to try to reload
@@ -84,7 +84,7 @@ object ImageCache {
 	 * @param forceTryReload If true, try to reload an image that where not found before.
 	 * @return An image or null if the image cannot be found.
 	 */
-	def loadImage( fileNameOrUrl:String, forceTryReload:Boolean ):Option[BufferedImage] = {
+	def loadImage(fileNameOrUrl:String, forceTryReload:Boolean):Option[BufferedImage] = {
 		imageCache.get( fileNameOrUrl ) match {
 			case None => {
 				val url = ClassLoader.getSystemClassLoader.getResource( fileNameOrUrl )

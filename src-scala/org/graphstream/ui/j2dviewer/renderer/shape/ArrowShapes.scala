@@ -60,7 +60,7 @@ class ArrowOnEdge extends AreaOnConnectorShape {
 	}
  
 	protected def makeOnLine( forShadow:Boolean, camera:Camera ) {
-		var off = ShapeUtil.evalTargetRadius( theEdge, camera )
+		var off = ShapeUtil.evalTargetRadius2D( theEdge, camera )
 		val theDirection = new Vector2(
 			theConnector.toPos.x - theConnector.fromPos.x,
 			theConnector.toPos.y - theConnector.fromPos.y )
@@ -137,7 +137,7 @@ class CircleOnEdge extends AreaOnConnectorShape {
 	}
  
 	protected def makeOnLine( forShadow:Boolean, camera:Camera ) {
-		val off = ShapeUtil.evalTargetRadius( theEdge, camera ) + ((theSize.x+theSize.y)/4)
+		val off = ShapeUtil.evalTargetRadius2D( theEdge, camera ) + ((theSize.x+theSize.y)/4)
 		val theDirection = new Vector2(
 			theConnector.toPos.x - theConnector.fromPos.x,
 			theConnector.toPos.y - theConnector.fromPos.y )
@@ -210,7 +210,7 @@ class DiamondOnEdge extends AreaOnConnectorShape {
 	}
  
 	protected def makeOnLine( forShadow:Boolean, camera:Camera ) {
-		var off = ShapeUtil.evalTargetRadius( theEdge, camera )
+		var off = ShapeUtil.evalTargetRadius2D( theEdge, camera )
 		val theDirection = new Vector2(
 			theConnector.toPos.x - theConnector.fromPos.x,
 			theConnector.toPos.y - theConnector.fromPos.y )
@@ -317,7 +317,7 @@ class ImageOnEdge extends AreaOnConnectorShape {
 	}
  
 	protected def makeOnLine( forShadow:Boolean, camera:Camera ) {
-		var off = ShapeUtil.evalTargetRadius( theEdge, camera )
+		var off = ShapeUtil.evalTargetRadius2D( theEdge, camera )
 		val theDirection = new Vector2(
 			theConnector.toPos.x - theConnector.fromPos.x,
 			theConnector.toPos.y - theConnector.fromPos.y )

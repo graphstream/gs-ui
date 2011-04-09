@@ -33,7 +33,7 @@ package org.graphstream.ui.util
 import org.graphstream.ui.geom.Point3
 
 /**
- * A replesentation of the current selection.
+ * A representation of the current selection.
  */
 class Selection {
 	var active = false
@@ -57,6 +57,8 @@ class Selection {
   
  	def x1:Float = lo.x
  	def y1:Float = lo.y
+ 	def z1:Float = lo.z
  	def x2:Float = hi.x
  	def y2:Float = hi.y
+ 	def z2:Float = hi.z
 }

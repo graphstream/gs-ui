@@ -83,7 +83,7 @@ class TestManySprites extends ViewerListener {
 		printf( "%d nodes, %d sprites%n", NODE_COUNT, SPRITE_COUNT )
   
 		graph.addAttribute( "ui.default.title", "Layout Test" );
-//		graph.addAttribute( "ui.antialias" )
+		graph.addAttribute( "ui.antialias" )
 		graph.addAttribute( "ui.stylesheet", styleSheet )
 		
 		gen.addSink( graph )

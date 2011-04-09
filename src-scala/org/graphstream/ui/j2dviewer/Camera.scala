@@ -30,7 +30,7 @@
  */
 package org.graphstream.ui.j2dviewer
 
-import org.graphstream.ui.geom.Point3
+import org.graphstream.ui.sgeom.Point3
 
 import java.awt.Graphics2D
 import java.awt.geom.{AffineTransform, Point2D}
@@ -119,7 +119,7 @@ class Camera {
   	protected var rotation:Float = 0
 	
   	/** Padding around the graph. */
-  	protected var padding = new Values( Units.GU, 0, 0, 0 );
+  	protected var padding = new Values(Units.GU, 0, 0, 0);
 	
   	/**
   	 * Which node is visible. This allows to mark invisible nodes to fasten visibility tests for
@@ -178,11 +178,11 @@ class Camera {
   	 * @param element The element to test.
   	 * @return True if the element is visible and therefore must be rendered.
   	 */
-  	def isVisible( element:GraphicElement ):Boolean = {
+  	def isVisible(element:GraphicElement):Boolean = {
   		if( styleVisible( element ) ) element.getSelectorType match {
-  			case NODE   => ! nodeInvisible.contains( element.getId() )
-  			case EDGE   => isEdgeVisible( element.asInstanceOf[GraphicEdge] )
-  			case SPRITE => isSpriteVisible( element.asInstanceOf[GraphicSprite] )
+  			case NODE   => ! nodeInvisible.contains(element.getId)
+  			case EDGE   => isEdgeVisible(element.asInstanceOf[GraphicEdge])
+  			case SPRITE => isSpriteVisible(element.asInstanceOf[GraphicSprite])
   			case _      => false
   		} else false
     }
@@ -195,7 +195,7 @@ class Camera {
   	 * @param y The source point ordinate in pixels.
   	 * @return The resulting points in graph units.
   	 */
-  	def inverseTransform( x:Float, y:Float ):Point2D.Float = {
+  	def inverseTransform(x:Float, y:Float):Point2D.Float = {
   		val p = new Point2D.Float( x, y )
 		
   		xT.transform( p, p );
@@ -207,7 +207,7 @@ class Camera {
   	 * Transform a point in graph units into pixels.
   	 * @return The transformed point.
   	 */
-  	def transform( x:Float, y:Float ):Point2D.Float = {
+  	def transform(x:Float, y:Float):Point2D.Float = {
   		val p = new Point2D.Float( x, y )
 		
   		Tx.transform( p, p )
@@ -223,7 +223,7 @@ class Camera {
   	 * @param y The point ordinate.
   	 * @return The first node or sprite at the given coordinates or null if nothing found. 
   	 */
-  	def findNodeOrSpriteAt( graph:GraphicGraph, x:Float, y:Float ):GraphicElement = {
+  	def findNodeOrSpriteAt(graph:GraphicGraph, x:Float, y:Float):GraphicElement = {
   		var ge:GraphicElement = null
   		
   		graph.getEachNode.foreach { n =>	

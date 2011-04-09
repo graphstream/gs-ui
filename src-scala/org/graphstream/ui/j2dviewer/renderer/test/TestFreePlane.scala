@@ -41,7 +41,7 @@ import org.graphstream.ui.j2dviewer._
 import org.graphstream.ScalaGS._
 
 object TestFreePlane {
-	def main( args:Array[String] ) {
+	def main( args:Array[String] ):Unit = {
 		val test = new TestFreePlane
 		test.run( args )
 	}

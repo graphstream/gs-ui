@@ -66,7 +66,7 @@ object FontCache {
 	/**
 	 * The default font with specific size and style. 
 	 */
-	def getDefaultFont( style:TextStyle, size:Int ):Font = getFont( "SansSerif", style, size )
+	def getDefaultFont(style:TextStyle, size:Int):Font = getFont( "SansSerif", style, size )
 	
 	/**
 	 * Lookup a font, and if not found, try to load it, if still not available, return the
@@ -76,10 +76,10 @@ object FontCache {
 	 * @param size The font size in points.
 	 * @return A font.
 	 */
-	def getFont( name:String, style:TextStyle, size:Int ):Font = {
+	def getFont(name:String, style:TextStyle, size:Int):Font = {
 		cache.get( name ) match {
-		  case None      => { val slot = new FontSlot( name, style, size ); cache.put( name, slot ); slot.getFont( style, size ) }
-		  case x:Some[_] => { x.get.getFont( style, size ) }
+		  case None      => { val slot = new FontSlot(name, style, size); cache.put(name, slot); slot.getFont(style, size) }
+		  case x:Some[_] => { x.get.getFont(style, size) }
 		}
 	}
  
@@ -93,7 +93,7 @@ object FontCache {
  * the font for sizes and styles.
  * </p> 
  */
-class FontSlot( val name:String, style:TextStyle, size:Int ) {
+class FontSlot(val name:String, style:TextStyle, size:Int) {
 // attribute
 
 	var normal:HashMap[java.lang.Integer,Font] = null
