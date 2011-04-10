@@ -140,6 +140,7 @@ class NodeInfo extends ElementInfo {
  *  Data stored on the edge to retrieve the edge points and various shared data between parts of the renderer. */
 class EdgeInfo extends ElementInfo {
 	val points = new EdgePoints( 4 )
+	var isPoly = false
 	var isCurve = false
 	var isMulti = 1
 	var isLoop = false

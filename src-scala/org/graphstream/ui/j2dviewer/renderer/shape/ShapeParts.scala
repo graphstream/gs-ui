@@ -36,7 +36,6 @@ import java.awt.geom._
 import org.graphstream.ui.j2dviewer._
 import org.graphstream.ui.j2dviewer.renderer._
 import org.graphstream.ui.util._
-import org.graphstream.ui.geom.Point2
 import org.graphstream.ui.sgeom._
 import org.graphstream.ui.graphicGraph._
 import org.graphstream.ui.graphicGraph.stylesheet._
@@ -466,20 +465,20 @@ trait Area {
 
 /**
  * Trait for elements painted between two points.
+ * 
+ * The purpose of this class is to store the lines coordinates of an edge. This connector can
+ * be made of only two points, 4 points when this is a bezier curve or more if this is a polyline.
+ * The coordinates of these points are stored in a EdgeInfo attribute directly on the edge element
+ * since several parts of the rendering need to access it (for example, sprites retrieve it
+ * to follow the correct path when attached to this edge).
  */
-trait Connector {
+trait Connector extends AttributeUtils {
 // Attribute
 	
 	var info:EdgeInfo = null
 	
 	/** Width of the connector. */
 	protected var theSize:Float = 0
-	
-	/** Size of the element at the end of the connector. */
-//	protected var theSourceInfo:NodeInfo = null
-	
-	/** Size of the element at the origin of the connector. */
-//	protected var theTargetInfo:NodeInfo = null
 	
 	protected var theTargetSizeX = 0f
 	protected var theTargetSizeY = 0f
@@ -489,19 +488,22 @@ trait Connector {
 	/** Is the connector directed ? */
 	var isDirected = false
 	
+	/** Used to avoid recomputing the "ui.points" attribute at each step. */
+	var uiPointsRef:AnyRef = null
+	
 // Command
 	
 	/** Origin point of the connector. */
 	def fromPos:Point3 = info.points(0)
 	
-	/** First control point. */
+	/** First control point. Works only for curves. */
 	def byPos1:Point3 = info.points(1)
 	
-	/** Second control point. */
+	/** Second control point. Works only for curves. */
 	def byPos2:Point3 = info.points(2)
 	
 	/** Destination of the connector. */
-	def toPos:Point3 = info.points(3)
+	def toPos:Point3 = info.points(info.points.size-1)
 	
 	def configureConnectorForGroup( style:Style, camera:Camera ) {
 		size( style, camera )
@@ -510,8 +512,19 @@ trait Connector {
 	def configureConnectorForElement( g2:Graphics2D, camera:Camera, element:GraphicEdge, info:EdgeInfo ) {
 		dynSize( element.getStyle, camera, element )
 		endPoints( element.from, element.to, element.isDirected, camera )
-		position( info, element.from.getStyle, element.from.getX, element.from.getY,
+		
+		if(element.hasAttribute("ui.points")) {
+		    val ref:AnyRef = element.getAttribute("ui.points")
+		    if(ref ne uiPointsRef){	// To avoid recomputing the points everytime.
+		        uiPointsRef = ref
+		        info.points.copy(getPoints(uiPointsRef))
+		    }
+		    
+		    positionForPolyLines(info, element.from.getStyle, element.multi, element.getGroup)
+		} else {
+			positionForLinesAndCurves( info, element.from.getStyle, element.from.getX, element.from.getY,
 				element.to.getX, element.to.getY, element.multi, element.getGroup )
+		}
 	}
 	
 	/** Set the size (`width`) of the connector. */
@@ -583,8 +596,20 @@ trait Connector {
 		isDirected = directed
 	}
 	
+	private def positionForPolyLines(info:EdgeInfo, style:Style, multi:Int, group:GraphicEdge#EdgeGroup) {
+	    this.info = info
+	    
+	    if(group != null) {
+	        info.isMulti = group.getCount
+	    }
+	    
+	    info.isCurve = false
+	    info.isLoop  = false
+	    info.isPoly  = true
+	}
+	
 	/** Give the position of the origin and destination points. */
-	private def position( info:EdgeInfo, style:Style, xFrom:Float, yFrom:Float, xTo:Float, yTo:Float ) { position( info, style, xFrom, yFrom, xTo, yTo, 0, null ) }
+	private def positionForLinesAndCurves( info:EdgeInfo, style:Style, xFrom:Float, yFrom:Float, xTo:Float, yTo:Float ) { positionForLinesAndCurves( info, style, xFrom, yFrom, xTo, yTo, 0, null ) }
 	
 	/**
 	 * Give the position of the origin and destination points, for multi edges.
@@ -594,7 +619,7 @@ trait Connector {
 	 * since we do not know the curves). This is important since arrows and sprites can be attached to edges.
 	 * </p>
 	 */
-	private def position( info:EdgeInfo, style:Style, xFrom:Float, yFrom:Float, xTo:Float, yTo:Float, multi:Int, group:GraphicEdge#EdgeGroup ) {
+	private def positionForLinesAndCurves( info:EdgeInfo, style:Style, xFrom:Float, yFrom:Float, xTo:Float, yTo:Float, multi:Int, group:GraphicEdge#EdgeGroup ) {
 		this.info = info
 		info.points(0).set( xFrom, yFrom )
 		info.points(3).set( xTo, yTo )

@@ -30,7 +30,8 @@
  */
 package org.graphstream.ui.j2dviewer.renderer.shape
 
-import org.graphstream.ui.geom.Point3
+import org.graphstream.ui.util.AttributeUtils
+import org.graphstream.ui.sgeom.Point3
 import java.awt.{Image, Color, Graphics2D}
 import java.awt.geom.{Ellipse2D, Line2D, Path2D, CubicCurve2D, Rectangle2D, RoundRectangle2D, RectangularShape}
 import org.graphstream.ui.geom.Point2
@@ -183,7 +184,7 @@ class CrossShape extends PolygonalShape {
 	}
 }
 
-class PolygonShape extends PolygonalShape {
+class PolygonShape extends PolygonalShape with AttributeUtils {
     var theValues:Array[Point3] = null
     var minPoint:Point3 = null
     var maxPoint:Point3 = null
@@ -201,7 +202,7 @@ class PolygonShape extends PolygonalShape {
 				theValues = getPoints(valuesRef)
 				
 				if(info.isInstanceOf[NodeInfo]) {
-				    val (min, max) = sizeOfPoints(theValues)
+				    val (min, max) = boundingBoxOfPoints(theValues)
 
 				    minPoint = min
 				    maxPoint = max
@@ -245,63 +246,6 @@ class PolygonShape extends PolygonalShape {
         	theShape.closePath
         }
     }
-    
-// utilities
- 	
-    protected def sizeOfPoints(points:Array[Point3]):(Point3, Point3) = {
-        var minx = Float.MaxValue
-        var miny = Float.MaxValue
-        var maxx = Float.MinValue
-        var maxy = Float.MinValue
-        
-        points.foreach { p =>
-        	minx = if(p.x<minx) p.x else minx
-        	miny = if(p.y<miny) p.y else miny
-        	maxx = if(p.x>maxx) p.x else maxx
-        	maxy = if(p.y>maxy) p.y else maxy
-        }
-        
-        (new Point3(minx, miny), new Point3(maxx, maxy))
-    }
-    
- 	/** Try to extract an array of float values from various sources. */
- 	protected def getPoints(values:AnyRef):Array[Point3] = {
- 	    values match {
- 			case b:Array[Point3]  => { b }
- 			case b:Array[AnyRef] => {
- 			    if(b.size>0) {
- 			        if(b(0).isInstanceOf[Point3]) {
- 			            val res = new Array[Point3](b.size)
- 			            for(i<- 0 until b.size) {
- 			                res(i) = b(i).asInstanceOf[Point3]
- 			            }
- 			            res
- 			        } else if(b(0).isInstanceOf[Number]) {
- 			        	val size = b.length/3
- 			        	val res  = new Array[Point3](size)
- 			    
- 			        	for(i <- 0 until size) {
- 			        		res(i) = new Point3(
- 			        		        b(i*3).asInstanceOf[Number].floatValue,
- 			        		        b(i*3+1).asInstanceOf[Number].floatValue,
- 			        		        b(i*3+2).asInstanceOf[Number].floatValue)
- 			        	}
- 			        	res
- 			        } else {
- 			            Console.err.println("Cannot interpret ui.points elements type %s".format(b(0).getClass.getName))
- 			            new Array[Point3](0)
- 			        }
- 			    } else {
- 			        Console.err.println("ui.points array size is zero !!")
- 			        new Array[Point3](0)
- 			    }
- 			}
- 			case x => {
- 			    Console.err.println("Cannot interpret ui.points contents (%s)".format(x.getClass.getName))
- 			    new Array[Point3](0)
- 			}
- 		}
- 	}
 }
 
 class FreePlaneNodeShape extends RectangularAreaShape {

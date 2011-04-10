@@ -117,7 +117,7 @@ class EdgeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
     		case BLOB        => if( oldShape.isInstanceOf[BlobShape] )          oldShape else new BlobShape
 		  	case CUBIC_CURVE => if( oldShape.isInstanceOf[CubicCurveShape] )    oldShape else new CubicCurveShape
 		  	case FREEPLANE   => if( oldShape.isInstanceOf[FreePlaneEdgeShape] ) oldShape else new FreePlaneEdgeShape
-    		case POLYLINE    => Console.err.printf( "** Sorry poly edge shape is not yet implemented **%n" );  new LineShape
+    		case POLYLINE    => if( oldShape.isInstanceOf[PolylineEdgeShape] )  oldShape else new PolylineEdgeShape
 		    case x           => throw new RuntimeException( "%s shape cannot be set for edges".format( x.toString ) )
 		}
 	}

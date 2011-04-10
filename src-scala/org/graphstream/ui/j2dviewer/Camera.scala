@@ -795,6 +795,8 @@ class Camera {
   			pos.x = CubicCurve.eval( p0.x, p1.x, p2.x, p3.x, sprite.getX ) - perp.data(0)
   			pos.y = CubicCurve.eval( p0.y, p1.y, p2.y, p3.y, sprite.getX ) - perp.data(1) 			
   			
+  		} else if(info != null && info.isPoly) {
+Console.err.println("Displacement on a polyline edge TODO !!!")
   		} else {
   			var x  = 0f
   			var y  = 0f
