@@ -91,22 +91,23 @@ class NodeRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup ) 
 	protected def chooseShape( oldShape:Shape ):Shape = {
 		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Shape._
 		group.getShape match {
-			case CIRCLE         => if( oldShape.isInstanceOf[CircleShape] )        oldShape else new CircleShape 
-		  	case BOX            => if( oldShape.isInstanceOf[SquareShape] )        oldShape else new SquareShape
-		  	case ROUNDED_BOX    => if( oldShape.isInstanceOf[RoundedSquareShape] ) oldShape else new RoundedSquareShape
-		  	case DIAMOND        => if( oldShape.isInstanceOf[DiamondShape] )       oldShape else new DiamondShape
-		    case TRIANGLE       => if( oldShape.isInstanceOf[TriangleShape] )      oldShape else new TriangleShape
-		    case CROSS          => if( oldShape.isInstanceOf[CrossShape] )         oldShape else new CrossShape
-		    case FREEPLANE      => if( oldShape.isInstanceOf[FreePlaneNodeShape] ) oldShape else new FreePlaneNodeShape
+			case CIRCLE         => if( oldShape.isInstanceOf[CircleShape] )         oldShape else new CircleShape 
+		  	case BOX            => if( oldShape.isInstanceOf[SquareShape] )         oldShape else new SquareShape
+		  	case ROUNDED_BOX    => if( oldShape.isInstanceOf[RoundedSquareShape] )  oldShape else new RoundedSquareShape
+		  	case DIAMOND        => if( oldShape.isInstanceOf[DiamondShape] )        oldShape else new DiamondShape
+		    case TRIANGLE       => if( oldShape.isInstanceOf[TriangleShape] )       oldShape else new TriangleShape
+		    case CROSS          => if( oldShape.isInstanceOf[CrossShape] )          oldShape else new CrossShape
+		    case FREEPLANE      => if( oldShape.isInstanceOf[FreePlaneNodeShape] )  oldShape else new FreePlaneNodeShape
+		    case PIE_CHART      => if( oldShape.isInstanceOf[PieChartShape] )       oldShape else new PieChartShape
+		  	case POLYGON        => if( oldShape.isInstanceOf[PolygonShape] )        oldShape else new PolygonShape
 		  	// ------------------------------------------
-		  	case POLYGON        => Console.err.printf( "** SORRY polygon shape not yet implemented **%n" );      new CircleShape
 		    case TEXT_BOX       => Console.err.printf( "** SORRY text-box shape not yet implemented **%n" );     new SquareShape
 		    case TEXT_PARAGRAPH => Console.err.printf( "** SORRY text-para shape not yet implemented **%n" );    new SquareShape
 		    case TEXT_CIRCLE    => Console.err.printf( "** SORRY text-circle shape not yet implemented **%n" );  new CircleShape
 		    case TEXT_DIAMOND   => Console.err.printf( "** SORRY text-diamond shape not yet implemented **%n" ); new CircleShape
-		    case PIE_CHART      => Console.err.printf( "** SORRY pie-chart shape not yet implemented **%n" );    new CircleShape
 		    case ARROW          => Console.err.printf( "** SORRY arrow shape not yet implemented **%n" );        new CircleShape
 		    case IMAGES         => Console.err.printf( "** SORRY images shape not yet implemented **%n" );       new SquareShape 
+		  	// ------------------------------------------
 		    case JCOMPONENT     => throw new RuntimeException( "WTF, jcomponent should have its own renderer" )
 		    case x              => throw new RuntimeException( "%s shape cannot be set for nodes".format( x.toString ) )
 		}

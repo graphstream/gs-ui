@@ -673,3 +673,112 @@ class FreePlaneEdgeShape extends LineConnectorShape {
  		decorConnector( g, camera, info.iconAndText, element, theShape )
 	}
 }
+
+object PieChartShape {
+	/** Some predefined colors. */
+	val colors = Array[Color]( Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.MAGENTA,
+			Color.CYAN, Color.ORANGE, Color.PINK )
+}
+
+class PieChartShape
+	extends Shape
+	with Area
+	with FillableMulticolored
+	with Strokable 
+	with Shadowable 
+	with Decorable {
+	
+	val theShape = new Ellipse2D.Float
+	
+	var theValues:Array[Float] = null
+	var valuesRef:AnyRef = null
+
+	def configureForGroup( g:Graphics2D, style:Style, camera:Camera ) {
+		configureAreaForGroup( style, camera )
+		configureFillableMultiColoredForGroup( style, camera )
+		configureStrokableForGroup( style, camera )
+		configureShadowableForGroup( style, camera )
+		configureDecorableForGroup( style, camera )
+	}
+	
+	def configureForElement( g:Graphics2D, element:GraphicElement, info:ElementInfo, camera:Camera ) {
+		configureDecorableForElement( g, camera, element, info )
+		configureAreaForElement( g, camera, info.asInstanceOf[NodeInfo], element, theDecor )
+
+		if( element.hasAttribute( "ui.pie-values" ) ) {
+			val oldRef = valuesRef
+			valuesRef = element.getAttribute( "ui.pie-values" )
+			// We use valueRef to avoid
+			// recreating the values array for nothing.
+			if( ( theValues == null ) || ( oldRef ne valuesRef ) ) {
+				theValues = getPieValues( valuesRef )
+			}
+		}
+	}
+	
+	override def make( g:Graphics2D, camera:Camera ) {
+		theShape.setFrameFromCenter( theCenter.x, theCenter.y, theCenter.x+theSize.x/2, theCenter.y+theSize.y/2 )
+	}
+	
+	override def makeShadow( g:Graphics2D, camera:Camera ) {
+		theShape.setFrameFromCenter( theCenter.x+theShadowOff.x, theCenter.y+theShadowOff.y,
+				theCenter.x+(theSize.x+theShadowWidth.x)/2, theCenter.y+(theSize.y+theShadowWidth.y)/2 )
+	}
+	
+	override def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+		makeShadow( g, camera )
+		cast( g, theShape )
+ 	}
+  
+ 	override def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		make( g, camera )
+ 		fillPies( g, element )
+ 		//fill( g, theSize, theShape )
+ 		stroke( g, theShape )
+ 		decorArea( g, camera, info.iconAndText, element, theShape )
+ 	}
+ 	
+ 	protected def fillPies( g:Graphics2D, element:GraphicElement ) {
+ 		if( theValues != null ) {
+	 		// we assume the pies values sum up to one. And we wont check it, its a mater of speed ;-).
+	 		val arc = new Arc2D.Float
+	 		var beg = 0f
+	 		var end = 0f
+	 		var col = 0
+	 		var sum = 0f
+	 		
+	 		theValues.foreach { value =>
+	 			end = beg + value
+	 			arc.setArcByCenter( theCenter.x, theCenter.y, theSize.x/2, beg*360, value*360, Arc2D.PIE )
+	 			g.setColor( fillColors( col % fillColors.length ) )
+	 			g.fill( arc )
+	 			beg = end
+	 			sum += value
+	 			col += 1
+	 		}
+	 		
+	 		if( sum > 1.01f )
+	 			Console.err.print( "[Sprite %s] The sum of values for ui.pie-value should eval to 1 at max (actually %f)%n".format( element.getId, sum ) )
+ 		}
+ 	}
+ 	
+// utilities
+ 	
+ 	/** Try to extract an array of float values from various sources. */
+ 	protected def getPieValues( values:AnyRef ):Array[Float] = {
+ 		values match {
+ 			case a:Array[AnyRef] => { 
+ 				val result = new Array[Float]( a.length )
+ 				a.map( { _ match {
+ 						case n:Number => n.floatValue
+ 						case s:String => s.toFloat
+ 						case _        => 0f
+ 					}
+ 				} )
+ 			}
+ 			case b:Array[Float]  => { b }
+ 			case c:String          => { c.split(',').map { _.toFloat } }
+ 			case _                 => { Array[Float]( 0 ) }
+ 		}
+ 	}
+}

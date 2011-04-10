@@ -537,7 +537,7 @@ class Camera {
   	 * @return True if the node lies in the given area.
   	 */
   	protected def isNodeIn( node:GraphicNode, X1:Float, Y1:Float, X2:Float, Y2:Float ):Boolean = {
-  		val size = node.getStyle.getSize
+  		val size = getNodeOrSpriteSize(node)//node.getStyle.getSize
   		val w2   = metrics.lengthToPx( size, 0 ) / 2
   		val h2   = if( size.size > 1 ) metrics.lengthToPx( size, 1 )/2 else w2
   		val src  = new Point2D.Float( node.getX, node.getY )
@@ -625,7 +625,7 @@ class Camera {
   		else if( y < y1 ) false
   		else if( x > x2 ) false
   		else if( y > y2 ) false
-  		else true	
+  		else true
   	}
 
   	/**
@@ -660,9 +660,11 @@ class Camera {
   	protected def getNodeOrSpriteSize( elt:GraphicElement ):Values = {
   		val info = elt.getAttribute( ElementInfo.attributeName ).asInstanceOf[NodeInfo]
   		
-  		if( info != null )
+  		if( info != null ) {
   			new Values( Units.GU, info.theSize.x, info.theSize.y )
-  		else elt.getStyle.getSize
+  		} else {
+  		    elt.getStyle.getSize
+  		}
   	}
    
   	protected def styleVisible( element:GraphicElement ):Boolean = {

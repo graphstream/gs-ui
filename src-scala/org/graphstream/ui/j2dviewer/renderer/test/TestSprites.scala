@@ -30,6 +30,7 @@
  */
 package org.graphstream.ui.j2dviewer.renderer.test
 
+import org.graphstream.ui.geom.Point3
 import org.graphstream.graph._
 import org.graphstream.scalags.graph.MultiGraph
 
@@ -73,6 +74,12 @@ class TestSprites extends ViewerListener {
 		val D:Node = graph.addNode( "D" )
 		val E:Node = graph.addNode( "E" )
 
+		D.addAttribute("ui.points",
+		        new Point3(-0.05f, -0.05f, 0f),
+		        new Point3( 0f,    -0.02f, 0f),
+		        new Point3( 0.05f, -0.05f, 0f),
+		        new Point3( 0f,     0.05f, 0f))
+		
 		graph.addEdge( "AB1", "A", "B", true )
 		graph.addEdge( "AB2", "B", "A", true )
 		graph.addEdge( "BC", "B", "C" )
@@ -98,34 +105,55 @@ class TestSprites extends ViewerListener {
  
 //		sman.setSpriteFactory( new MySpriteFactory )
 		
-		val s1 = sman.addSprite( "S1", classOf[MovingEdgeSprite] )
-		val s2 = sman.addSprite( "S2", classOf[MovingEdgeSprite] )
-		val s3 = sman.addSprite( "S3", classOf[MovingEdgeSprite] )
-		val s4 = sman.addSprite( "S4", classOf[MovingEdgeSprite] )
-		val s5 = sman.addSprite( "S5", classOf[DataSprite] )
-		val s6 = sman.addSprite( "S6", classOf[MovingNodeSprite] )
-		val s7 = sman.addSprite( "S7", classOf[MovingEdgeSprite] )
+		val s1 = sman.addSprite("S1", classOf[MovingEdgeSprite])
+		val s2 = sman.addSprite("S2", classOf[MovingEdgeSprite])
+		val s3 = sman.addSprite("S3", classOf[MovingEdgeSprite])
+		val s4 = sman.addSprite("S4", classOf[MovingEdgeSprite])
+		val s5 = sman.addSprite("S5", classOf[DataSprite])
+		val s6 = sman.addSprite("S6", classOf[MovingNodeSprite])
+		val s7 = sman.addSprite("S7", classOf[MovingEdgeSprite])
+		//val s8 = sman.addSprite("S8")
+		val s8 = sman.addSprite("S8", classOf[MovingEdgeSprite])
 			
-		s1.attachToEdge( "AB1" )
-		s2.attachToEdge( "CD" )
-		s3.attachToEdge( "DA" )
-		s4.attachToEdge( "EB" )
-		s5.attachToNode( "A" )
-		s6.attachToNode( "C" )
+		s1.attachToEdge("AB1")
+		s2.attachToEdge("CD")
+		s3.attachToEdge("DA")
+		s4.attachToEdge("EB")
+		s5.attachToNode("A")
+		s6.attachToNode("C")
 		s7.attachToEdge("AB2")
+		s8.attachToEdge("EB")
 		
-		s2.setOffsetPx( 20 )
-		s3.setOffsetPx( 15 )
-		s4.setOffsetPx( 4 )
-		s5.setPosition( Units.PX, 30, 0, 90 )
-		s5.setData( 0.3f, 0.5f, 0.2f )
-		s6.setOffsetPx( 20 )
+		s2.setOffsetPx(20)
+		s3.setOffsetPx(15)
+		s4.setOffsetPx(4)
+		s5.setPosition(Units.PX, 30, 0, 90)
+		s5.setData(0.3f, 0.5f, 0.2f)
+		s6.setOffsetPx(20)
+		s8.setPosition(0.5f, 0.5f, 0f)
 
 		s1.addAttribute("ui.label", "FooBar1")
 		s2.addAttribute("ui.label", "FooBar2")
 		s4.addAttribute("ui.label", "FooBar4")
 		s7.addAttribute("ui.label", "FooBar7")
 		
+		s8.addAttribute("ui.points",
+		        new Point3(-0.02f, -0.02f, 0f),
+		        new Point3( 0f,    -0.01f, 0f),
+		        new Point3( 0.02f, -0.02f, 0f),
+		        new Point3( 0f,     0.02f, 0f))
+
+//		s8.addAttribute("ui.points",
+//		        (-0.05f).asInstanceOf[AnyRef], (-0.05f).asInstanceOf[AnyRef], (0f).asInstanceOf[AnyRef],
+//		        ( 0.05f).asInstanceOf[AnyRef], (-0.05f).asInstanceOf[AnyRef], (0f).asInstanceOf[AnyRef],
+//		        ( 0.00f).asInstanceOf[AnyRef], ( 0.05f).asInstanceOf[AnyRef], (0f).asInstanceOf[AnyRef] )
+
+		E.setAttribute("ui.pie-values",
+		        (0.2f).asInstanceOf[AnyRef],
+		        (0.3f).asInstanceOf[AnyRef],
+		        (0.4f).asInstanceOf[AnyRef],
+		        (0.1f).asInstanceOf[AnyRef])
+		        
 		while( loop ) {
 			pipeIn.pump
 			s1.move
@@ -134,6 +162,7 @@ class TestSprites extends ViewerListener {
 			s4.move
 			s6.move
 			s7.move
+			s8.move
 			sleep( 4 )
 		}
 		
@@ -181,6 +210,17 @@ class TestSprites extends ViewerListener {
 			node:selected {
 				stroke-mode: plain;
 				stroke-color: blue;
+			}
+			node#D {
+				shape: polygon;
+			}
+			node#E {
+				shape: pie-chart;
+				fill-color: red, green, blue, yellow, magenta;
+				size: 30px;
+				stroke-mode: plain;
+				stroke-width: 1px;
+				stroke-color: black;
 			}
 			edge {
 				shape: line;
@@ -240,6 +280,16 @@ class TestSprites extends ViewerListener {
 				fill-image: url('data/container_small.png');
 				fill-color: red;
 				stroke-mode: none;
+			}
+			sprite#S8 {
+				shape: polygon;
+				fill-color: yellow;
+				stroke-mode: plain;
+				stroke-width: 1px;
+				stroke-color: red;
+				shadow-mode: plain;
+				shadow-color: #707070;
+				shadow-offset: 3px, -3px;
 			}
 			"""
 }
