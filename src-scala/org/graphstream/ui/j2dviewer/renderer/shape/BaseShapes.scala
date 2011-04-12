@@ -329,7 +329,7 @@ class LineShape extends LineConnectorShape {
   
 	protected def make( g:Graphics2D, camera:Camera ) {
 		val from = info.points(0)
-		val to   = info.points(3)
+		val to   = info.points(info.points.size-1)
 		if( info.isCurve ) {
 			val ctrl1 = info.points(1)
 			val ctrl2 = info.points(2)
@@ -345,8 +345,8 @@ class LineShape extends LineConnectorShape {
 	protected def makeShadow( g:Graphics2D, camera:Camera ) {
 		var x0 = info.points(0).x + theShadowOff.x
 		var y0 = info.points(0).y + theShadowOff.y
-		var x1 = info.points(3).x + theShadowOff.x
-		var y1 = info.points(3).y + theShadowOff.y
+		var x1 = info.points(info.points.size-1).x + theShadowOff.x
+		var y1 = info.points(info.points.size-1).y + theShadowOff.y
 		
 		if( info.isCurve ) {
 			var ctrlx0 = info.points(1).x + theShadowOff.x
@@ -375,4 +375,51 @@ class LineShape extends LineConnectorShape {
  		fill( g, theSize, theShape )
  		decorConnector( g, camera, info.iconAndText, element, theShape )
 	}
+}
+
+/**
+ * A cubic curve shape.
+ */
+class PolylineEdgeShape extends LineConnectorShape with ShowCubics {
+	protected var theShape = new Path2D.Float
+
+// Command
+ 
+	protected def make( g:Graphics2D, camera:Camera ) {
+		val n = info.points.size
+		
+		theShape.reset
+		theShape.moveTo(info.points(0).x, info.points(0).y)
+		
+		for(i <- 1 until n) {
+			theShape.lineTo(info.points(i).x, info.points(i).y)
+		}		
+	}
+
+	protected def makeShadow( g:Graphics2D, camera:Camera ) {
+	}
+	
+	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		makeShadow( g, camera )
+ 		cast( g, theShape )
+	}
+ 
+	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		make( g, camera )
+ 		stroke( g, theShape )
+ 		fill( g, theSize, theShape )
+ 		decorConnector( g, camera, info.iconAndText, element, theShape )
+// 		showControlPolygon = true
+// 		if( showControlPolygon ) {
+//	 		val c = g.getColor();
+//	 		val s = g.getStroke();
+//	 		g.setStroke( new java.awt.BasicStroke( camera.metrics.px1 ) )
+//	 		g.setColor( Color.red );
+//	 		g.draw( theShape );
+//	 		g.setStroke( s );
+//	 		g.setColor( c );
+//	 		showCtrlPoints( g, camera )
+// 		}
+	}
+
 }
