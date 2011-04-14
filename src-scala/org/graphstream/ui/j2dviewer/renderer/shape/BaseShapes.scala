@@ -66,15 +66,6 @@ trait AreaShape
 		configureFillableForElement( element.getStyle, camera, element )
 		configureDecorableForElement( g, camera, element, info )
 		configureAreaForElement( g, camera, info.asInstanceOf[NodeInfo], element, theDecor )
-//		var pos = camera.getNodeOrSpritePositionGU( element, null )
-//		
-//		if( fit ) {
-//			val decorSize = theDecor.size( g, camera, info.iconAndText )
-//		
-//			configureAreaForElement( g, camera, info.asInstanceOf[NodeInfo], element, pos.x, pos.y, decorSize._1, decorSize._2 )
-//		} else {
-//			configureAreaForElement( g, camera, info.asInstanceOf[NodeInfo], element, pos.x, pos.y )
-//		}
 	}
 }
 
@@ -185,19 +176,6 @@ trait RectangularAreaShape extends AreaShape {
  		stroke( g, theShape )
  		decorArea( g, camera, info.iconAndText, element, theShape )
  	}
- 	
-// 	override def positionAndFit( g:Graphics2D, camera:Camera, info:NodeInfo, element:GraphicElement, x:Float, y:Float ) {
-// 		if( fit ) {
-//			// Compute the real size and propagate it to the node info.
-//			val decorSize = theDecor.size( g, camera, info.iconAndText )
-//
-//			if( decorSize._1 > 0 && decorSize._2 > 0 ) {
-//				theSize.set( decorSize._1, decorSize._2 )
-//			}
-//		}
-//
-//		super.positionAndFit(  g, camera, info, element, x, y )
-//	}
 }
 
 abstract class OrientableRectangularAreaShape extends RectangularAreaShape with Orientable {
@@ -308,19 +286,6 @@ abstract class PolygonalShape extends AreaShape {
  		stroke( g, theShape )
  		decorArea( g, camera, info.iconAndText, element, theShape )
  	}
- 	 	
-// 	override def positionAndFit( g:Graphics2D, camera:Camera, info:NodeInfo, element:GraphicElement, x:Float, y:Float ) {
-//		if( fit ) {
-//			// Compute the real size and propagate it to the node info.
-//			val decorSize = theDecor.size( g, camera, info.iconAndText )
-//			
-//			if( decorSize._1 > 0 && decorSize._2 > 0 ) {
-//				theSize.set( decorSize._1, decorSize._2 )
-//			}
-//		}
-//
-//		super.positionAndFit(  g, camera, info, element, x, y )
-//	}
 }
 
 class LineShape extends LineConnectorShape {
@@ -328,11 +293,11 @@ class LineShape extends LineConnectorShape {
 // Command
   
 	protected def make( g:Graphics2D, camera:Camera ) {
-		val from = info.points(0)
-		val to   = info.points(info.points.size-1)
+		val from = info.from
+		val to   = info.to
 		if( info.isCurve ) {
-			val ctrl1 = info.points(1)
-			val ctrl2 = info.points(2)
+			val ctrl1 = info(1)
+			val ctrl2 = info(2)
 			val curve = new CubicCurve2D.Float
 			theShape = curve
 			curve.setCurve( from.x, from.y, ctrl1.x, ctrl1.y, ctrl2.x, ctrl2.y, to.x, to.y )
@@ -343,16 +308,16 @@ class LineShape extends LineConnectorShape {
 		} 
 	}
 	protected def makeShadow( g:Graphics2D, camera:Camera ) {
-		var x0 = info.points(0).x + theShadowOff.x
-		var y0 = info.points(0).y + theShadowOff.y
-		var x1 = info.points(info.points.size-1).x + theShadowOff.x
-		var y1 = info.points(info.points.size-1).y + theShadowOff.y
+		var x0 = info.from.x + theShadowOff.x
+		var y0 = info.from.y + theShadowOff.y
+		var x1 = info.to.x + theShadowOff.x
+		var y1 = info.to.y + theShadowOff.y
 		
 		if( info.isCurve ) {
-			var ctrlx0 = info.points(1).x + theShadowOff.x
-			var ctrly0 = info.points(1).y + theShadowOff.y
-			var ctrlx1 = info.points(2).x + theShadowOff.x
-			var ctrly1 = info.points(2).y + theShadowOff.y
+			var ctrlx0 = info(1).x + theShadowOff.x
+			var ctrly0 = info(1).y + theShadowOff.y
+			var ctrlx1 = info(2).x + theShadowOff.x
+			var ctrly1 = info(2).y + theShadowOff.y
 			
 			val curve = new CubicCurve2D.Float
 			theShape = curve
@@ -386,13 +351,13 @@ class PolylineEdgeShape extends LineConnectorShape with ShowCubics {
 // Command
  
 	protected def make( g:Graphics2D, camera:Camera ) {
-		val n = info.points.size
+		val n = info.size
 		
 		theShape.reset
-		theShape.moveTo(info.points(0).x, info.points(0).y)
+		theShape.moveTo(info(0).x, info(0).y)
 		
 		for(i <- 1 until n) {
-			theShape.lineTo(info.points(i).x, info.points(i).y)
+			theShape.lineTo(info(i).x, info(i).y)
 		}		
 	}
 
@@ -409,17 +374,5 @@ class PolylineEdgeShape extends LineConnectorShape with ShowCubics {
  		stroke( g, theShape )
  		fill( g, theSize, theShape )
  		decorConnector( g, camera, info.iconAndText, element, theShape )
-// 		showControlPolygon = true
-// 		if( showControlPolygon ) {
-//	 		val c = g.getColor();
-//	 		val s = g.getStroke();
-//	 		g.setStroke( new java.awt.BasicStroke( camera.metrics.px1 ) )
-//	 		g.setColor( Color.red );
-//	 		g.draw( theShape );
-//	 		g.setStroke( s );
-//	 		g.setColor( c );
-//	 		showCtrlPoints( g, camera )
-// 		}
 	}
-
 }

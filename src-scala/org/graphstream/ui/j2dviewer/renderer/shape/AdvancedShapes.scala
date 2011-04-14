@@ -48,41 +48,41 @@ abstract trait ShowCubics {
 	protected var showControlPolygon = false
 	
 	/** Show the control polygons. */
-	protected def showCtrlPoints( g:Graphics2D, camera:Camera, info:EdgeInfo ) {
-		if( showControlPolygon ) {
-			val from   = info.points(0)
-			val ctrl1  = info.points(1)
-			val ctrl2  = info.points(2)
-			val to     = info.points(3)
+	protected def showCtrlPoints(g:Graphics2D, camera:Camera, info:EdgeInfo) {
+		if(showControlPolygon && info.isCurve) {
+			val from   = info.from
+			val ctrl1  = info(1)
+			val ctrl2  = info(2)
+			val to     = info.to
 		   	val oval   = new Ellipse2D.Float
 	 		val color  = g.getColor
 		 	val stroke = g.getStroke
 		 	val px6    = camera.metrics.px1*6;
 		   	val px3    = camera.metrics.px1*3
 	   
-	 		g.setColor( Color.RED )
-	 		oval.setFrame( from.x-px3, from.y-px3, px6, px6 )
-	 		g.fill( oval )
+	 		g.setColor(Color.RED)
+	 		oval.setFrame(from.x-px3, from.y-px3, px6, px6)
+	 		g.fill(oval)
 	
-	 		if( ctrl1 != null ) {
-	 			oval.setFrame( ctrl1.x-px3, ctrl1.y-px3, px6, px6 )
-		 		g.fill( oval )
-		 		oval.setFrame( ctrl2.x-px3, ctrl2.y-px3, px6, px6 )
-		 		g.fill( oval )
+	 		if(ctrl1 != null) {
+	 			oval.setFrame(ctrl1.x-px3, ctrl1.y-px3, px6, px6)
+		 		g.fill(oval)
+		 		oval.setFrame(ctrl2.x-px3, ctrl2.y-px3, px6, px6)
+		 		g.fill(oval)
 		 		val line = new Line2D.Float
-		 		line.setLine( ctrl1.x, ctrl1.y, ctrl2.x, ctrl2.y )
-		 		g.setStroke( new java.awt.BasicStroke( camera.metrics.px1 ) )
-		 		g.draw( line )
-		 		line.setLine( from.x, from.y, ctrl1.x, ctrl1.y )
-		 		g.draw( line )
-		 		line.setLine( ctrl2.x, ctrl2.y, to.x, to.y )
-		 		g.draw( line )
+		 		line.setLine(ctrl1.x, ctrl1.y, ctrl2.x, ctrl2.y)
+		 		g.setStroke(new java.awt.BasicStroke(camera.metrics.px1))
+		 		g.draw(line)
+		 		line.setLine(from.x, from.y, ctrl1.x, ctrl1.y)
+		 		g.draw(line)
+		 		line.setLine(ctrl2.x, ctrl2.y, to.x, to.y)
+		 		g.draw(line)
 	 		}
 	
-	 		oval.setFrame( to.x-px3, to.y-px3, px6, px6 )
-	 		g.fill( oval )
-	 		g.setColor( color )
-		 	g.setStroke( stroke )
+	 		oval.setFrame(to.x-px3, to.y-px3, px6, px6)
+	 		g.fill(oval)
+	 		g.setColor(color)
+		 	g.setStroke(stroke)
 		}
 	}
 }
@@ -95,25 +95,27 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
  
 // Command
  
-	protected def make( g:Graphics2D, camera:Camera ) {
-		make( camera, 0, 0, 0, 0 )
+	protected def make(g:Graphics2D, camera:Camera) {
+		make(camera, 0, 0, 0, 0)
 	}
 	
-	protected def make( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-		if( info.isCurve )
-		     makeOnCurve( camera, sox, soy, swx, swy )
-		else makeOnLine( camera, sox, soy, swx, swy )
+	protected def make(camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float) {
+		if(info.isCurve)
+		     makeOnCurve(camera, sox, soy, swx, swy)
+		else if(info.isPoly)
+		     makeOnPolyline(camera, sox, soy, swx, swy)
+		else makeOnLine(camera, sox, soy, swx, swy)
 	}
  
 	protected def makeOnLine( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-		val fromx = info.points(0).x + sox
-		val fromy = info.points(0).y + soy
-		val tox   = info.points(3).x + sox
-		val toy   = info.points(3).y + soy
-		val dir   = new Vector2( tox - fromx, toy - fromy )
-		val perp1 = new Vector2( dir.y, -dir.x ); perp1.normalize	// 1/2 perp vector to the from point.
-		val perp2 = new Vector2( perp1.x, perp1.y )					// 1/2 perp vector to the to point.
-		val perpm = new Vector2( perp1.x, perp1.y )					// 1/2 perp vector to the middle point on the edge.
+		val fromx = info.from.x + sox
+		val fromy = info.from.y + soy
+		val tox   = info.to.x + sox
+		val toy   = info.to.y + soy
+		val dir   = new Vector2(tox - fromx, toy - fromy)
+		val perp1 = new Vector2(dir.y, -dir.x); perp1.normalize	// 1/2 perp vector to the from point.
+		val perp2 = new Vector2(perp1.x, perp1.y)				// 1/2 perp vector to the to point.
+		val perpm = new Vector2(perp1.x, perp1.y)				// 1/2 perp vector to the middle point on the edge.
 		val srcsz = min( theSourceSizeX, theSourceSizeY )
 		val trgsz = min( theTargetSizeX, theTargetSizeY )
 		
@@ -142,6 +144,11 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
 		                 fromx - perp1.x, fromy - perp1.y )
 		theShape.closePath
 	}
+	
+	protected def makeOnPolyline(camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float) {
+	    // TODO
+	    makeOnLine(camera, sox, soy, swx, swy)
+	}
  
 	protected def makeOnCurve( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
 		if( info.isLoop )
@@ -150,14 +157,14 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
 	}
 	
 	protected def makeMulti( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-		val fromx = info.points(0).x + sox
-		val fromy = info.points(0).y + soy
-		val tox   = info.points(3).x + sox
-		val toy   = info.points(3).y + soy
-		val c1x   = info.points(1).x + sox
-		val c1y   = info.points(1).y + soy
-		val c2x   = info.points(2).x + sox
-		val c2y   = info.points(2).y + soy
+		val fromx = info(0).x + sox
+		val fromy = info(0).y + soy
+		val tox   = info(3).x + sox
+		val toy   = info(3).y + soy
+		val c1x   = info(1).x + sox
+		val c1y   = info(1).y + soy
+		val c2x   = info(2).x + sox
+		val c2y   = info(2).y + soy
 		val srcsz = min( theSourceSizeX, theSourceSizeY )
 		val trgsz = min( theTargetSizeX, theTargetSizeY )
 
@@ -201,14 +208,14 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
 	}
 
 	protected def makeLoop( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-		val fromx = info.points(0).x + sox
-		val fromy = info.points(0).y + soy
-		val tox   = info.points(3).x + sox
-		val toy   = info.points(3).y + soy
-		val c1x   = info.points(1).x + sox
-		val c1y   = info.points(1).y + soy
-		val c2x   = info.points(2).x + sox
-		val c2y   = info.points(2).y + soy
+		val fromx = info(0).x + sox
+		val fromy = info(0).y + soy
+		val tox   = info(3).x + sox
+		val toy   = info(3).y + soy
+		val c1x   = info(1).x + sox
+		val c1y   = info(1).y + soy
+		val c2x   = info(2).x + sox
+		val c2y   = info(2).y + soy
 		val srcsz = min( theSourceSizeX, theSourceSizeY )
 //		val trgsz = min( theTargetSizeX, theTargetSizeY )
 		
@@ -285,23 +292,25 @@ class AngleShape extends AreaConnectorShape {
 	}
   
 	protected def make( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-		if( info.isCurve )
-		     makeOnCurve( camera, sox, soy, swx, swy )
-		else makeOnLine( camera, sox, soy, swx, swy )
+		if(info.isCurve)
+		     makeOnCurve(camera, sox, soy, swx, swy)
+		else if(info.isPoly)
+		     makeOnPolyline(camera, sox, soy, swx, swy)
+		else makeOnLine(camera, sox, soy, swx, swy)
 	}
  
-	protected def makeOnLine( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-		val fromx = info.points(0).x + sox
-		val fromy = info.points(0).y + soy
-		val tox   = info.points(3).x + sox
-		val toy   = info.points(3).y + soy
-		val dir   = new Vector2( tox - fromx, toy - fromy )
-		val perp  = new Vector2( dir.y, -dir.x ); perp.normalize	// 1/2 perp vector to the from point.
+	protected def makeOnLine(camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float) {
+		val fromx = info.from.x + sox
+		val fromy = info.from.y + soy
+		val tox   = info.to.x + sox
+		val toy   = info.to.y + soy
+		val dir   = new Vector2(tox - fromx, toy - fromy)
+		val perp  = new Vector2(dir.y, -dir.x); perp.normalize	// 1/2 perp vector to the from point.
    
-		perp.scalarMult( (theSize+swx)/2f )
+		perp.scalarMult((theSize+swx)/2f)
    
 		theShape.reset
-		theShape.moveTo( fromx + perp.x, fromy + perp.y )
+		theShape.moveTo(fromx + perp.x, fromy + perp.y)
 		if( isDirected ) {
 		     theShape.lineTo( tox, toy )
 		} else {
@@ -311,6 +320,11 @@ class AngleShape extends AreaConnectorShape {
 		theShape.lineTo( fromx - perp.x, fromy - perp.y )
 		theShape.closePath
 	}
+	
+	protected def makeOnPolyline(camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float) {
+	    // TODO
+	    makeOnLine(camera, sox, soy, swx, swy)
+	}
  
 	protected def makeOnCurve( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
 		if( info.isLoop )
@@ -319,14 +333,14 @@ class AngleShape extends AreaConnectorShape {
 	}
 	
 	protected def makeMulti( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-		val fromx   = info.points(0).x + sox
-		val fromy   = info.points(0).y + soy
-		val tox     = info.points(3).x + sox
-		val toy     = info.points(3).y + soy
-		val c1x     = info.points(1).x + sox
-		val c1y     = info.points(1).y + soy
-		val c2x     = info.points(2).x + sox
-		val c2y     = info.points(2).y + soy
+		val fromx   = info(0).x + sox
+		val fromy   = info(0).y + soy
+		val tox     = info(3).x + sox
+		val toy     = info(3).y + soy
+		val c1x     = info(1).x + sox
+		val c1y     = info(1).y + soy
+		val c2x     = info(2).x + sox
+		val c2y     = info(2).y + soy
 		val maindir = new Vector2( c2x - c1x, c2y - c1y )
 		val perp    = new Vector2( maindir.y, -maindir.x ); perp.normalize	// 1/2 perp vector to the from point.
 		val perp1   = new Vector2( perp.x, perp.y )							// 1/2 perp vector to the first control point.
@@ -371,14 +385,14 @@ class AngleShape extends AreaConnectorShape {
 	}
 
 	protected def makeLoop( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-	  	val fromx = info.points(0).x + sox
-		val fromy = info.points(0).y + soy
-		val tox   = info.points(3).x + sox
-		val toy   = info.points(3).y + soy
-		val c1x   = info.points(1).x + sox
-		val c1y   = info.points(1).y + soy
-		val c2x   = info.points(2).x + sox
-		val c2y   = info.points(2).y + soy
+	  	val fromx = info(0).x + sox
+		val fromy = info(0).y + soy
+		val tox   = info(3).x + sox
+		val toy   = info(3).y + soy
+		val c1x   = info(1).x + sox
+		val c1y   = info(1).y + soy
+		val c2x   = info(2).x + sox
+		val c2y   = info(2).y + soy
 
 		val dirFrom  = new Vector2( c1x - fromx, c1y - fromy );
 		val dirTo    = new Vector2( tox - c2x, toy - c2y );
@@ -444,17 +458,17 @@ class CubicCurveShape extends LineConnectorShape with ShowCubics {
 	}
   
 	protected def make( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-		if( info.isMulti > 1 || info.isLoop )	// is a loop or a multi edge
+		if( info.multi > 1 || info.isLoop )	// is a loop or a multi edge
 		     makeMultiOrLoop( camera, sox, soy, swx, swy )
 		else makeSingle( camera, sox, soy, swx, swy )	// is a single edge.
 	}
  
 	protected def makeSingle( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-		val fromx   = info.points(0).x + sox
-		val fromy   = info.points(0).y + soy
-		val tox     = info.points(3).x + sox
-		val toy     = info.points(3).y + soy
-		val mainDir = new Vector2( info.points(0), info.points(3) )
+		val fromx   = info.from.x + sox
+		val fromy   = info.from.y + soy
+		val tox     = info.to.x + sox
+		val toy     = info.to.y + soy
+		val mainDir = new Vector2( info.from, info.to )
 		val length  = mainDir.length
 		val angle   = mainDir.y / length
 		var c1x     = 0f
@@ -483,11 +497,11 @@ class CubicCurveShape extends LineConnectorShape with ShowCubics {
 		// Set the connector as a curve.
 		
 		if( sox == 0 && soy == 0 ) {
-			info.isCurve = true
-			info.points(0).set( fromx, fromy )
-			info.points(1).set( c1x, c1y )
-			info.points(2).set( c2x, c2y )
-			info.points(3).set( tox, toy )
+			info.setCurve(
+				fromx, fromy, 0,
+				c1x, c1y, 0,
+				c2x, c2y, 0,
+				tox, toy, 0 )
 		}
 	}
  
@@ -498,14 +512,14 @@ class CubicCurveShape extends LineConnectorShape with ShowCubics {
 	}
 	
 	protected def makeMulti( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-		val fromx   = info.points(0).x + sox
-		val fromy   = info.points(0).y + soy
-		val tox     = info.points(3).x + sox
-		val toy     = info.points(3).y + soy
-		val c1x     = info.points(1).x + sox
-		val c1y     = info.points(1).y + soy
-		val c2x     = info.points(2).x + sox
-		val c2y     = info.points(2).y + soy
+		val fromx   = info(0).x + sox
+		val fromy   = info(0).y + soy
+		val tox     = info(3).x + sox
+		val toy     = info(3).y + soy
+		val c1x     = info(1).x + sox
+		val c1y     = info(1).y + soy
+		val c2x     = info(2).x + sox
+		val c2y     = info(2).y + soy
 
 		theShape.reset
 		theShape.moveTo( fromx, fromy )
@@ -513,14 +527,14 @@ class CubicCurveShape extends LineConnectorShape with ShowCubics {
 	}
 
 	protected def makeLoop( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-	  	val fromx = info.points(0).x + sox
-		val fromy = info.points(0).y + soy
-		val tox   = info.points(3).x + sox
-		val toy   = info.points(3).y + soy
-		val c1x   = info.points(1).x + sox
-		val c1y   = info.points(1).y + soy
-		val c2x   = info.points(2).x + sox
-		val c2y   = info.points(2).y + soy
+	  	val fromx = info(0).x + sox
+		val fromy = info(0).y + soy
+		val tox   = info(3).x + sox
+		val toy   = info(3).y + soy
+		val c1x   = info(1).x + sox
+		val c1y   = info(1).y + soy
+		val c2x   = info(2).x + sox
+		val c2y   = info(2).y + soy
 
 		theShape.reset
 		theShape.moveTo( fromx, fromy )
@@ -570,23 +584,23 @@ class FreePlaneEdgeShape extends LineConnectorShape {
 	}
   
 	protected def make( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-		if( info.isMulti > 1 || info.isLoop )	// is a loop or a multi edge
+		if( info.multi > 1 || info.isLoop )	// is a loop or a multi edge
 		     makeMultiOrLoop( camera, sox, soy, swx, swy )
 		else makeSingle( camera, sox, soy, swx, swy )	// is a single edge.
 	}
  
 	protected def makeSingle( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-		var fromx   = info.points(0).x + sox
-		val fromy   = info.points(0).y + soy - theSourceSizeY/2
-		var tox     = info.points(3).x + sox
-		val toy     = info.points(3).y + soy - theTargetSizeY/2
-		val length  = abs( info.points(3).x - info.points(0).x )
+		var fromx   = info.from.x + sox
+		val fromy   = info.from.y + soy - theSourceSizeY/2
+		var tox     = info.to.x + sox
+		val toy     = info.to.y + soy - theTargetSizeY/2
+		val length  = abs( info(3).x - info(0).x )
 		var c1x     = 0f
 		var c1y     = 0f
 		var c2x     = 0f
 		var c2y     = 0f
 		
-		if( info.points(0).x < info.points(3).x ) {
+		if( info(0).x < info(3).x ) {
 			// At right.
 			fromx += theSourceSizeX/2
 			tox   -= theTargetSizeX/2
@@ -611,11 +625,11 @@ class FreePlaneEdgeShape extends LineConnectorShape {
 		// Set the connector as a curve.
 		
 		if( sox == 0 && soy == 0 ) {
-			info.isCurve = true
-			info.points(0).set( fromx, fromy )
-			info.points(1).set( c1x, c1y )
-			info.points(2).set( c2x, c2y )
-			info.points(3).set( tox, toy )
+			info.setCurve(
+					fromx, fromy, 0,
+					c1x, c1y, 0,
+					c2x, c2y, 0,
+					tox, toy, 0 )
 		}
 	}
  
@@ -626,14 +640,14 @@ class FreePlaneEdgeShape extends LineConnectorShape {
 	}
 	
 	protected def makeMulti( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-		val fromx   = info.points(0).x + sox
-		val fromy   = info.points(0).y + soy
-		val tox     = info.points(3).x + sox
-		val toy     = info.points(3).y + soy
-		val c1x     = info.points(1).x + sox
-		val c1y     = info.points(1).y + soy
-		val c2x     = info.points(2).x + sox
-		val c2y     = info.points(2).y + soy
+		val fromx   = info(0).x + sox
+		val fromy   = info(0).y + soy
+		val tox     = info(3).x + sox
+		val toy     = info(3).y + soy
+		val c1x     = info(1).x + sox
+		val c1y     = info(1).y + soy
+		val c2x     = info(2).x + sox
+		val c2y     = info(2).y + soy
 
 		theShape.reset
 		theShape.moveTo( fromx, fromy )
@@ -641,14 +655,14 @@ class FreePlaneEdgeShape extends LineConnectorShape {
 	}
 
 	protected def makeLoop( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
-	  	val fromx = info.points(0).x + sox
-		val fromy = info.points(0).y + soy
-		val tox   = info.points(3).x + sox
-		val toy   = info.points(3).y + soy
-		val c1x   = info.points(1).x + sox
-		val c1y   = info.points(1).y + soy
-		val c2x   = info.points(2).x + sox
-		val c2y   = info.points(2).y + soy
+	  	val fromx = info(0).x + sox
+		val fromy = info(0).y + soy
+		val tox   = info(3).x + sox
+		val toy   = info(3).y + soy
+		val c1x   = info(1).x + sox
+		val c1y   = info(1).y + soy
+		val c2x   = info(2).x + sox
+		val c2y   = info(2).y + soy
 
 		theShape.reset
 		theShape.moveTo( fromx, fromy )

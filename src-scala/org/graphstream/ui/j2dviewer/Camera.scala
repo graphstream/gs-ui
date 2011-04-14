@@ -780,23 +780,18 @@ class Camera {
 		
   		val edge = sprite.getEdgeAttachment.asInstanceOf[GraphicEdge]
   		val info = edge.getAttribute( ElementInfo.attributeName ).asInstanceOf[EdgeInfo]
-		
-  		if( info != null && info.isCurve ) {
-  			val p0   = info.points(0)
-  			val p1   = info.points(1)
-  			val p2   = info.points(2)
-  			val p3   = info.points(3)
-  			val perp = CubicCurve.perpendicular( p0, p1, p2, p3, sprite.getX )
-  			val y    = metrics.lengthToGu( sprite.getY, sprite.getUnits )
-  			
-  			perp.normalize
-  			perp.scalarMult( y )
-  			
-  			pos.x = CubicCurve.eval( p0.x, p1.x, p2.x, p3.x, sprite.getX ) - perp.data(0)
-  			pos.y = CubicCurve.eval( p0.y, p1.y, p2.y, p3.y, sprite.getX ) - perp.data(1) 			
-  			
-  		} else if(info != null && info.isPoly) {
-Console.err.println("Displacement on a polyline edge TODO !!!")
+  		
+  		if(info ne null) {
+  			val o  = metrics.lengthToGu( sprite.getY, sprite.getUnits )
+  			if(o==0) {
+  				val p = info.pointOnShape(sprite.getX)
+  				pos.x = p.x
+  				pos.y = p.y
+  			} else {
+  			    val p = info.pointOnShapeAndPerpendicular(sprite.getX, o)
+  			    pos.x = p.x
+  			    pos.y = p.y
+  			}
   		} else {
   			var x  = 0f
   			var y  = 0f
@@ -805,30 +800,25 @@ Console.err.println("Displacement on a polyline edge TODO !!!")
   			var d  = sprite.getX				// Percent on the edge.
   			val o  = metrics.lengthToGu( sprite.getY, sprite.getUnits )	
   												// Offset from the position given by percent, perpendicular to the edge.
-  			if( info != null ) {
-  				x  = info.points(0).x
-  				y  = info.points(0).y
-  				dx = info.points(3).x - x
-  				dy = info.points(3).y - y
-  			} else {
-  				x  = edge.from.x
-  				y  = edge.from.y
-  				dx = edge.to.x - x
-  				dy = edge.to.y - y
-  			}
-			
+  			x  = edge.from.x
+  			y  = edge.from.y
+  			dx = edge.to.x - x
+  			dy = edge.to.y - y
+  			
   			d = if( d > 1 ) 1 else d
   			d = if( d < 0 ) 0 else d
 			
   			x += dx * d
   			y += dy * d
 			
-  			d   = sqrt( dx*dx + dy*dy ).toFloat
-  			dx /= d
-  			dy /= d
+  			if(o != 0) {
+  				d   = sqrt( dx*dx + dy*dy ).toFloat
+  				dx /= d
+  				dy /= d
 			
-  			x += -dy * o
-  			y +=  dx * o
+  				x += -dy * o
+  				y +=  dx * o
+  			}
 			
   			pos.x = x
   			pos.y = y

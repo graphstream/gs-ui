@@ -74,7 +74,7 @@ class TestSprites extends ViewerListener {
 		val D:Node = graph.addNode( "D" )
 		val E:Node = graph.addNode( "E" )
 
-		D.addAttribute("ui.points",
+		C.addAttribute("ui.points",
 		        new Point3(-0.05f, -0.05f, 0f),
 		        new Point3( 0f,    -0.02f, 0f),
 		        new Point3( 0.05f, -0.05f, 0f),
@@ -83,11 +83,17 @@ class TestSprites extends ViewerListener {
 		graph.addEdge( "AB1", "A", "B", true )
 		graph.addEdge( "AB2", "B", "A", true )
 		graph.addEdge( "BC", "B", "C" )
-		graph.addEdge( "CD", "C", "D" )
+		graph.addEdge( "CD", "C", "D", true )
 		graph.addEdge( "DA", "D", "A" )
 		graph.addEdge( "DE", "D", "E", true )
 		graph.addEdge( "EB", "E", "B", true )
 		graph.addEdge( "BB", "B", "B", true )
+		
+		graph.edge("CD").addAttribute("ui.points", 
+		        new Point3(1, 0, 0),
+		        new Point3(0.6f, 0.1f, 0f),
+		        new Point3(0.3f,-0.1f, 0f),
+		        new Point3(0, 0, 0))
 		
 		A("xyz") = ( 0, 1, 0 )
 		B("xyz") = ( 1.5, 1, 0 )
@@ -120,7 +126,7 @@ class TestSprites extends ViewerListener {
 		s3.attachToEdge("DA")
 		s4.attachToEdge("EB")
 		s5.attachToNode("A")
-		s6.attachToNode("C")
+		s6.attachToNode("D")
 		s7.attachToEdge("AB2")
 		s8.attachToEdge("EB")
 		
@@ -211,7 +217,7 @@ class TestSprites extends ViewerListener {
 				stroke-mode: plain;
 				stroke-color: blue;
 			}
-			node#D {
+			node#C {
 				shape: polygon;
 			}
 			node#E {
@@ -235,6 +241,9 @@ class TestSprites extends ViewerListener {
 			}
 			edge#EB {
 				shape: cubic-curve;
+			}
+			edge#CD {
+				shape: polyline;
 			}
 			sprite {
 				shape: circle;

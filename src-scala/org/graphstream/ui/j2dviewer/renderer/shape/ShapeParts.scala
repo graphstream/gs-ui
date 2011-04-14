@@ -345,7 +345,7 @@ trait Decorable {
 trait Orientable {
 	var orientation:StyleConstants.SpriteOrientation = null
 	
-	var target = new Point2
+	var target = new Point3
 	
 	protected def configureOrientableForGroup( style:Style, camera:Camera ) {
 		orientation = style.getSpriteOrientation
@@ -370,7 +370,7 @@ trait Orientable {
 						val ei = ge.getAttribute[EdgeInfo]( ElementInfo.attributeName )
 						
 						if( ei != null )
-						      setTargetOnEdgeInfo( ei, camera, sprite, ge )
+						     ei.pointOnShape(sprite.getX, target)//setTargetOnEdgeInfo( ei, camera, sprite, ge )
 						else setTargetOnLineEdge( camera, sprite, ge ) 
 					}
 				}
@@ -379,13 +379,16 @@ trait Orientable {
 		}
 	}
 	
-	private def setTargetOnEdgeInfo( ei:EdgeInfo, camera:Camera, sprite:GraphicSprite, ge:GraphicEdge ) {
-		if( ei.isCurve  ) {
-			CubicCurve.eval( ei.points(0), ei.points(1), ei.points(2), ei.points(3), sprite.getX, target )
-		} else {
-			setTargetOnLineEdge( camera, sprite, ge )
-		}
-	}
+//	private def setTargetOnEdgeInfo( ei:EdgeInfo, camera:Camera, sprite:GraphicSprite, ge:GraphicEdge ) {
+//	    ei.pointOnShape(sprite.getX, target)
+//		if( ei.isCurve  ) {
+//			CubicCurve.eval( ei(0), ei(1), ei(2), ei(3), sprite.getX, target )
+//		} else if( ei.isPoly ) {
+//		    
+//		} else {
+//			setTargetOnLineEdge( camera, sprite, ge )
+//		}
+//	}
 	
 	private def setTargetOnLineEdge( camera:Camera, sprite:GraphicSprite, ge:GraphicEdge ) {
 		val dir = Vector2( ge.to.getX-ge.from.getX, ge.to.getY-ge.from.getY )
@@ -472,7 +475,7 @@ trait Area {
  * since several parts of the rendering need to access it (for example, sprites retrieve it
  * to follow the correct path when attached to this edge).
  */
-trait Connector extends AttributeUtils {
+trait Connector {
 // Attribute
 	
 	var info:EdgeInfo = null
@@ -488,39 +491,36 @@ trait Connector extends AttributeUtils {
 	/** Is the connector directed ? */
 	var isDirected = false
 	
-	/** Used to avoid recomputing the "ui.points" attribute at each step. */
-	var uiPointsRef:AnyRef = null
-	
 // Command
 	
 	/** Origin point of the connector. */
-	def fromPos:Point3 = info.points(0)
+	def fromPos:Point3 = info.from
 	
 	/** First control point. Works only for curves. */
-	def byPos1:Point3 = info.points(1)
+	def byPos1:Point3 = if(info.isCurve) info(1) else null
 	
 	/** Second control point. Works only for curves. */
-	def byPos2:Point3 = info.points(2)
+	def byPos2:Point3 = if(info.isCurve) info(2) else null
 	
 	/** Destination of the connector. */
-	def toPos:Point3 = info.points(info.points.size-1)
+	def toPos:Point3 = info.to
 	
 	def configureConnectorForGroup( style:Style, camera:Camera ) {
 		size( style, camera )
 	}
 	
 	def configureConnectorForElement( g2:Graphics2D, camera:Camera, element:GraphicEdge, info:EdgeInfo ) {
+	    this.info = info
+	    
 		dynSize( element.getStyle, camera, element )
 		endPoints( element.from, element.to, element.isDirected, camera )
 		
+		if(element.getGroup != null) {
+	        info.setMulti(element.getGroup.getCount)
+	    }
+		
 		if(element.hasAttribute("ui.points")) {
-		    val ref:AnyRef = element.getAttribute("ui.points")
-		    if(ref ne uiPointsRef){	// To avoid recomputing the points everytime.
-		        uiPointsRef = ref
-		        info.points.copy(getPoints(uiPointsRef))
-		    }
-		    
-		    positionForPolyLines(info, element.from.getStyle, element.multi, element.getGroup)
+		    info.setPoly(element.getAttribute("ui.points"))
 		} else {
 			positionForLinesAndCurves( info, element.from.getStyle, element.from.getX, element.from.getY,
 				element.to.getX, element.to.getY, element.multi, element.getGroup )
@@ -596,20 +596,9 @@ trait Connector extends AttributeUtils {
 		isDirected = directed
 	}
 	
-	private def positionForPolyLines(info:EdgeInfo, style:Style, multi:Int, group:GraphicEdge#EdgeGroup) {
-	    this.info = info
-	    
-	    if(group != null) {
-	        info.isMulti = group.getCount
-	    }
-	    
-	    info.isCurve = false
-	    info.isLoop  = false
-	    info.isPoly  = true
-	}
-	
 	/** Give the position of the origin and destination points. */
-	private def positionForLinesAndCurves( info:EdgeInfo, style:Style, xFrom:Float, yFrom:Float, xTo:Float, yTo:Float ) { positionForLinesAndCurves( info, style, xFrom, yFrom, xTo, yTo, 0, null ) }
+	private def positionForLinesAndCurves( info:EdgeInfo, style:Style, xFrom:Float, yFrom:Float, xTo:Float, yTo:Float ) {
+	    positionForLinesAndCurves( info, style, xFrom, yFrom, xTo, yTo, 0, null ) }
 	
 	/**
 	 * Give the position of the origin and destination points, for multi edges.
@@ -620,49 +609,43 @@ trait Connector extends AttributeUtils {
 	 * </p>
 	 */
 	private def positionForLinesAndCurves( info:EdgeInfo, style:Style, xFrom:Float, yFrom:Float, xTo:Float, yTo:Float, multi:Int, group:GraphicEdge#EdgeGroup ) {
-		this.info = info
-		info.points(0).set( xFrom, yFrom )
-		info.points(3).set( xTo, yTo )
+	    
+		//info.points(0).set( xFrom, yFrom )
+		//info.points(3).set( xTo, yTo )
 		if( group != null ) {
-			info.isMulti = group.getCount
-			info.isCurve = true
 			if( xFrom == xTo && yFrom == yTo ) {
-				info.isLoop = true
-				positionEdgeLoop( xFrom, yFrom, multi )
+				positionEdgeLoop(info, xFrom, yFrom, multi)
 			} else {
-				info.isLoop = false
-				positionMultiEdge( xFrom, yFrom, xTo, yTo, multi, group )
+				positionMultiEdge(info, xFrom, yFrom, xTo, yTo, multi, group)
 			}
 		} else {
 			if( xFrom == xTo && yFrom == yTo ) {
-				info.isMulti = 0
-				info.isLoop  = true
-				info.isCurve = true
-				positionEdgeLoop( xFrom, yFrom, 0 )
+				positionEdgeLoop(info, xFrom, yFrom, 0)
 			} else {
-				info.isMulti = 0
-				info.isLoop  = false
-				info.isCurve = false
 				// This does not mean the edge is not a curve, this means
 				// that with what we know actually it is not a curve.
 				// The style mays indicate a curve.
+			    info.setLine(xFrom, yFrom, 0, xTo, yTo, 0)
+			    
+			    // XXX we will have to mutate the info into a curve later.
 			}		  
 		}
 	}
 	
 	/** Define the control points to make the edge a loop. */
-	private def positionEdgeLoop( x:Float, y:Float, multi:Int ) {
+	private def positionEdgeLoop(info:EdgeInfo, x:Float, y:Float, multi:Int) {
 		var m = 1f + multi * 0.2f
 		val s = ( theTargetSizeX + theTargetSizeY ) / 2
 		var d = s / 2 * m + 4 * s * m
 
-		info.points(1).set( x + d, y )
-		info.points(2).set( x, y + d )
-//		to.set( x, y + theTargetNodeSize/2*m )
+		info.setLoop(
+				x, y, 0,
+				x+d, y, 0,
+				x, y+d, 0 )
 	}
 	
 	/** Define the control points to make this edge a part of a multi-edge. */
-	private def positionMultiEdge( x1:Float, y1:Float, x2:Float, y2:Float, multi:Int, group:GraphicEdge#EdgeGroup ) {
+	private def positionMultiEdge(info:EdgeInfo, x1:Float, y1:Float, x2:Float, y2:Float, multi:Int, group:GraphicEdge#EdgeGroup) {
 		var vx  = (  x2 - x1 )
 		var vy  = (  y2 - y1 )
 		var vx2 = (  vy ) * 0.6f
@@ -690,22 +673,30 @@ trait Connector extends AttributeUtils {
 		vx2 *= f
 		vy2 *= f
   
-		info.points(1).set( x1 + vx, y1 + vy )
-		info.points(2).set( x2 - vx, y2 - vy )
+		var xx1 = x1 + vx
+		var yy1 = y1 + vy
+		var xx2 = x2 - vx
+		var yy2 = y2 - vy
   
 		val m = multi + ( if( edge.from eq main.from ) 0 else 1 )
   
 		if( m % 2 == 0 ) {
-			info.points(1).x += ( vx2 + ox )
-			info.points(1).y += ( vy2 + oy )
-			info.points(2).x += ( vx2 + ox )
-			info.points(2).y += ( vy2 + oy )
+			xx1 += ( vx2 + ox )
+			yy1 += ( vy2 + oy )
+			xx2 += ( vx2 + ox )
+			yy2 += ( vy2 + oy )
 		} else {
-			info.points(1).x -= ( vx2 - ox )
-			info.points(1).y -= ( vy2 - oy )
-			info.points(2).x -= ( vx2 - ox ) 
-			info.points(2).y -= ( vy2 - oy )		  
+			xx1 -= ( vx2 - ox )
+			yy1 -= ( vy2 - oy )
+			xx2 -= ( vx2 - ox ) 
+			yy2 -= ( vy2 - oy )		  
 		}
+		
+		info.setCurve(
+		        x1, y1, 0,
+		        xx1, yy1, 0,
+		        xx2, yy2, 0,
+		        x2, y2, 0 )
 	}
 }
 

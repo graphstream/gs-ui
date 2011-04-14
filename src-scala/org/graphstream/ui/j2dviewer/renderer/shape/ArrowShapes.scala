@@ -54,16 +54,21 @@ class ArrowOnEdge extends AreaOnConnectorShape {
 	protected def makeShadow( g:Graphics2D, camera:Camera ) { make( true, camera ) }
   
 	protected def make( forShadow:Boolean, camera:Camera ) {
-		if( theConnector.info.isCurve )
-		     makeOnCurve( forShadow, camera )
-		else makeOnLine(  forShadow, camera )
+		if(theConnector.info.isCurve)
+		     makeOnCurve(forShadow, camera)
+		else makeOnLine(forShadow, camera)
 	}
  
 	protected def makeOnLine( forShadow:Boolean, camera:Camera ) {
 		var off = ShapeUtil.evalTargetRadius2D( theEdge, camera )
-		val theDirection = new Vector2(
-			theConnector.toPos.x - theConnector.fromPos.x,
-			theConnector.toPos.y - theConnector.fromPos.y )
+		var info = theConnector.info
+		val theDirection = if(info.isPoly)
+		    	new Vector2(
+		    	    info.to.x - info(info.size-2).x,
+		    	    info.to.y - info(info.size-2).y )
+			else new Vector2(
+					info.to.x - info.from.x,
+					info.to.y - info.from.y )
 			
 		theDirection.normalize
   
@@ -88,7 +93,7 @@ class ArrowOnEdge extends AreaOnConnectorShape {
 		theShape.lineTo( x - theDirection(0) - perp(0), y - theDirection(1) - perp(1) )
 		theShape.closePath
 	}
-	
+		
 	protected def makeOnCurve( forShadow:Boolean, camera:Camera ) {
 		val (p1,t) = CubicCurve.approxIntersectionPointOnCurve( theEdge, theConnector, camera )
 		val style  = theEdge.getStyle

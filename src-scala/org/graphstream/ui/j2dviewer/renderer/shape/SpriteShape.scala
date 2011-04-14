@@ -147,37 +147,111 @@ class SpriteFlowShape
 	def makeShadow( g:Graphics2D, camera:Camera ) { make( g, camera, theShadowOff.x, theShadowOff.y ) }
 		
 	def make( g:Graphics2D, camera:Camera, shx:Float, shy:Float ) {
-		if( edgeInfo != null ) {
-			var P0  = if( reverse ) edgeInfo.points(3) else edgeInfo.points(0)
-			var P3  = if( reverse ) edgeInfo.points(0) else edgeInfo.points(3)
-			val dir = Vector2( P3.x-P0.x, P3.y-P0.y )
-			val per = Vector2( dir.y + shx, -dir.x + shy )
-			
-			per.normalize
-			per.scalarMult( offset )
-			theShape.reset
-			theShape.moveTo( P0.x + per.x, P0.y + per.y  )
-			
-			if( edgeInfo.isCurve ) {
-				val P1  = if( reverse ) edgeInfo.points(2) else edgeInfo.points(1)
-				val P2  = if( reverse ) edgeInfo.points(1) else edgeInfo.points(2)
+		// EdgeInfo contains a way to compute points perpendicular to the shape, however here
+	    // we only need to compute the perpendicular vector once, hence this code.
+	    
+	    if(edgeInfo ne null) {
+	        if(edgeInfo.isCurve) {
+				var P0  = if(reverse) edgeInfo(3) else edgeInfo(0)
+				val P1  = if(reverse) edgeInfo(2) else edgeInfo(1)
+				val P2  = if(reverse) edgeInfo(1) else edgeInfo(2)
+				var P3  = if(reverse) edgeInfo(0) else edgeInfo(3)
 				val inc = 0.01f
 				var t   = 0f
+				val dir = Vector2(P3.x-P0.x, P3.y-P0.y)
+				val per = Vector2(dir.y + shx, -dir.x + shy)
 				
-				while( t <= along ) {
+				per.normalize
+				per.scalarMult(offset)
+				theShape.reset
+				theShape.moveTo(P0.x + per.x, P0.y + per.y)
+				
+				while(t <= along) {
 					theShape.lineTo(
-						CubicCurve.eval( P0.x + per.x, P1.x + per.x, P2.x + per.x, P3.x + per.x, t ),
-						CubicCurve.eval( P0.y + per.y, P1.y + per.y, P2.y + per.y, P3.y + per.y, t )
+						CubicCurve.eval(P0.x + per.x, P1.x + per.x, P2.x + per.x, P3.x + per.x, t),
+						CubicCurve.eval(P0.y + per.y, P1.y + per.y, P2.y + per.y, P3.y + per.y, t)
 					)
 					
 					t += inc
 				}
-			} else {
-				val dir = Vector2( P3.x-P0.x, P3.y-P0.y )
-				dir.scalarMult( along )
-				theShape.lineTo( P0.x + dir.x + per.x, P0.y + dir.y + per.y )
-			}
-		}
+	        } else if(edgeInfo.isPoly) {
+	            val P0           = if(reverse) edgeInfo.to   else edgeInfo.from
+	            val P1           = if(reverse) edgeInfo.from else edgeInfo.to
+	            var a            = if(reverse) 1-along else along
+	            var (i, sum, ps) = edgeInfo.wichSegment(a)
+				val dir          = Vector2(P1.x-P0.x, P1.y-P0.y)
+				val per          = Vector2(dir.y + shx, -dir.x + shy)
+	            
+				per.normalize
+				per.scalarMult(offset)
+				
+	            theShape.reset
+				if(reverse) {
+Console.err.println("reverse")
+				    val n = edgeInfo.size
+	                sum = edgeInfo.length - sum
+	                ps  = 1-ps
+	                theShape.moveTo(P1.x+per.x, P1.y+per.y)
+	                for(j <- n-2 until i by -1) {
+	                	theShape.lineTo(edgeInfo(j).x + per.x, edgeInfo(j).y + per.y)
+	                }
+	                val PX = edgeInfo.pointOnShape(along)
+	                theShape.lineTo(PX.x+per.x, PX.y+per.y)
+	            } else {
+	                theShape.moveTo(P0.x+per.x, P0.y+per.y)
+	                for(j <- 1 to i) {
+	                	theShape.lineTo(edgeInfo(j).x + per.x, edgeInfo(j).y + per.y)
+	                }
+	                val PX = edgeInfo.pointOnShape(along)
+	                theShape.lineTo(PX.x+per.x, PX.y+per.y)
+	            }
+	        } else {
+	            val P0  = if(reverse) edgeInfo.to   else edgeInfo.from
+	            val P1  = if(reverse) edgeInfo.from else edgeInfo.to
+				val dir = Vector2(P1.x-P0.x, P1.y-P0.y)
+				val per = Vector2(dir.y + shx, -dir.x + shy)
+
+				per.normalize
+				per.scalarMult(offset)
+				dir.scalarMult(along)
+
+				theShape.reset
+				theShape.moveTo(P0.x + per.x, P0.y + per.y)
+				theShape.lineTo(P0.x + dir.x + per.x, P0.y + dir.y + per.y)
+	        }
+	    }
+	    
+//		if( edgeInfo != null ) {
+//			var P0  = if( reverse ) edgeInfo.to else edgeInfo.from
+//			var P3  = if( reverse ) edgeInfo.from else edgeInfo.to
+//			val dir = Vector2( P3.x-P0.x, P3.y-P0.y )
+//			val per = Vector2( dir.y + shx, -dir.x + shy )
+//			
+//			per.normalize
+//			per.scalarMult( offset )
+//			theShape.reset
+//			theShape.moveTo( P0.x + per.x, P0.y + per.y  )
+//			
+//			if( edgeInfo.isCurve ) {
+//				val P1  = if( reverse ) edgeInfo(2) else edgeInfo(1)
+//				val P2  = if( reverse ) edgeInfo(1) else edgeInfo(2)
+//				val inc = 0.01f
+//				var t   = 0f
+//				
+//				while( t <= along ) {
+//					theShape.lineTo(
+//						CubicCurve.eval( P0.x + per.x, P1.x + per.x, P2.x + per.x, P3.x + per.x, t ),
+//						CubicCurve.eval( P0.y + per.y, P1.y + per.y, P2.y + per.y, P3.y + per.y, t )
+//					)
+//					
+//					t += inc
+//				}
+//			} else {
+//				val dir = Vector2( P3.x-P0.x, P3.y-P0.y )
+//				dir.scalarMult( along )
+//				theShape.lineTo( P0.x + dir.x + per.x, P0.y + dir.y + per.y )
+//			}
+//		}
 	}
 	
 	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {

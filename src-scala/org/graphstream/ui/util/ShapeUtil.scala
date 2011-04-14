@@ -49,12 +49,16 @@ object ShapeUtil {
 	 * @param edge The edge (it contains its target node).
 	 * @return The radius.
 	 */
- 	def evalTargetRadius2D(edge:GraphicEdge, camera:Camera):Float = evalTargetRadius2D(
- 	    edge.to.getStyle,
- 		edge.to.getAttribute(ElementInfo.attributeName).asInstanceOf[NodeInfo],
- 		new Point3( edge.from.x, edge.from.y, edge.from.z ),
- 		new Point3( edge.to.x, edge.to.y, edge.to.z ),
- 		camera )
+ 	def evalTargetRadius2D(edge:GraphicEdge, camera:Camera):Float = {
+ 	    val einfo = edge.getAttribute(ElementInfo.attributeName).asInstanceOf[EdgeInfo]
+ 	    
+ 	    evalTargetRadius2D(
+ 	    		edge.to.getStyle,
+ 	    		edge.to.getAttribute(ElementInfo.attributeName).asInstanceOf[NodeInfo],
+ 	    		new Point3( einfo.from.x, einfo.from.y, einfo.from.z ),
+ 	    		new Point3( einfo.to.x, einfo.to.y, einfo.to.z ),
+ 	    		camera )
+ 	}
  
    	def evalTargetRadius2D(style:Style, info:NodeInfo, p0:Point3, p3:Point3, camera:Camera):Float =
    		evalTargetRadius2D(style, info, p0, null, null, p3, camera)
