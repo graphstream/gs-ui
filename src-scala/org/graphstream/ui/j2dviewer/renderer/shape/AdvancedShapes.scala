@@ -54,7 +54,7 @@ abstract trait ShowCubics {
 			val ctrl1  = info(1)
 			val ctrl2  = info(2)
 			val to     = info.to
-		   	val oval   = new Ellipse2D.Float
+		   	val oval   = new Ellipse2D.Double
 	 		val color  = g.getColor
 		 	val stroke = g.getStroke
 		 	val px6    = camera.metrics.px1*6;
@@ -69,9 +69,9 @@ abstract trait ShowCubics {
 		 		g.fill(oval)
 		 		oval.setFrame(ctrl2.x-px3, ctrl2.y-px3, px6, px6)
 		 		g.fill(oval)
-		 		val line = new Line2D.Float
+		 		val line = new Line2D.Double
 		 		line.setLine(ctrl1.x, ctrl1.y, ctrl2.x, ctrl2.y)
-		 		g.setStroke(new java.awt.BasicStroke(camera.metrics.px1))
+		 		g.setStroke(new java.awt.BasicStroke(camera.metrics.px1.toFloat))
 		 		g.draw(line)
 		 		line.setLine(from.x, from.y, ctrl1.x, ctrl1.y)
 		 		g.draw(line)
@@ -91,7 +91,7 @@ abstract trait ShowCubics {
  * A blob-like shape.
  */
 class BlobShape extends AreaConnectorShape with ShowCubics {
-	protected var theShape = new Path2D.Float
+	protected var theShape = new Path2D.Double
  
 // Command
  
@@ -99,7 +99,7 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
 		make(camera, 0, 0, 0, 0)
 	}
 	
-	protected def make(camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float) {
+	protected def make(camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double) {
 		if(info.isCurve)
 		     makeOnCurve(camera, sox, soy, swx, swy)
 		else if(info.isPoly)
@@ -107,7 +107,7 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
 		else makeOnLine(camera, sox, soy, swx, swy)
 	}
  
-	protected def makeOnLine( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
+	protected def makeOnLine( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
 		val fromx = info.from.x + sox
 		val fromy = info.from.y + soy
 		val tox   = info.to.x + sox
@@ -145,18 +145,18 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
 		theShape.closePath
 	}
 	
-	protected def makeOnPolyline(camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float) {
+	protected def makeOnPolyline(camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double) {
 	    // TODO
 	    makeOnLine(camera, sox, soy, swx, swy)
 	}
  
-	protected def makeOnCurve( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
+	protected def makeOnCurve( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
 		if( info.isLoop )
 		     makeLoop( camera, sox, soy, swx, swy )
 		else makeMulti( camera, sox, soy, swx, swy )
 	}
 	
-	protected def makeMulti( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
+	protected def makeMulti( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
 		val fromx = info(0).x + sox
 		val fromy = info(0).y + soy
 		val tox   = info(3).x + sox
@@ -207,7 +207,7 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
         theShape.closePath
 	}
 
-	protected def makeLoop( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
+	protected def makeLoop( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
 		val fromx = info(0).x + sox
 		val fromy = info(0).y + soy
 		val tox   = info(3).x + sox
@@ -269,7 +269,7 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
  		if( showControlPolygon ) {
 	 		val c = g.getColor();
 	 		val s = g.getStroke();
-	 		g.setStroke( new java.awt.BasicStroke( camera.metrics.px1 ) )
+	 		g.setStroke( new java.awt.BasicStroke( camera.metrics.px1.toFloat ) )
 	 		g.setColor( Color.red );
 	 		g.draw( theShape );
 	 		g.setStroke( s );
@@ -283,7 +283,7 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
  * An angular shape.
  */
 class AngleShape extends AreaConnectorShape {
-	protected var theShape = new Path2D.Float
+	protected var theShape = new Path2D.Double
  
 // Command
  
@@ -291,7 +291,7 @@ class AngleShape extends AreaConnectorShape {
 		make( camera, 0, 0, 0, 0 )
 	}
   
-	protected def make( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
+	protected def make( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
 		if(info.isCurve)
 		     makeOnCurve(camera, sox, soy, swx, swy)
 		else if(info.isPoly)
@@ -299,7 +299,7 @@ class AngleShape extends AreaConnectorShape {
 		else makeOnLine(camera, sox, soy, swx, swy)
 	}
  
-	protected def makeOnLine(camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float) {
+	protected def makeOnLine(camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double) {
 		val fromx = info.from.x + sox
 		val fromy = info.from.y + soy
 		val tox   = info.to.x + sox
@@ -321,18 +321,18 @@ class AngleShape extends AreaConnectorShape {
 		theShape.closePath
 	}
 	
-	protected def makeOnPolyline(camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float) {
+	protected def makeOnPolyline(camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double) {
 	    // TODO
 	    makeOnLine(camera, sox, soy, swx, swy)
 	}
  
-	protected def makeOnCurve( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
+	protected def makeOnCurve( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
 		if( info.isLoop )
 		     makeLoop( camera, sox, soy, swx, swy )
 		else makeMulti( camera, sox, soy, swx, swy )
 	}
 	
-	protected def makeMulti( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
+	protected def makeMulti( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
 		val fromx   = info(0).x + sox
 		val fromy   = info(0).y + soy
 		val tox     = info(3).x + sox
@@ -384,7 +384,7 @@ class AngleShape extends AreaConnectorShape {
         theShape.closePath
 	}
 
-	protected def makeLoop( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
+	protected def makeLoop( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
 	  	val fromx = info(0).x + sox
 		val fromy = info(0).y + soy
 		val tox   = info(3).x + sox
@@ -449,7 +449,7 @@ class AngleShape extends AreaConnectorShape {
  * A cubic curve shape.
  */
 class CubicCurveShape extends LineConnectorShape with ShowCubics {
-	protected var theShape = new Path2D.Float
+	protected var theShape = new Path2D.Double
 
 // Command
  
@@ -457,13 +457,13 @@ class CubicCurveShape extends LineConnectorShape with ShowCubics {
 		make( camera, 0, 0, 0, 0 )
 	}
   
-	protected def make( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
+	protected def make( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
 		if( info.multi > 1 || info.isLoop )	// is a loop or a multi edge
 		     makeMultiOrLoop( camera, sox, soy, swx, swy )
 		else makeSingle( camera, sox, soy, swx, swy )	// is a single edge.
 	}
  
-	protected def makeSingle( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
+	protected def makeSingle( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
 		val fromx   = info.from.x + sox
 		val fromy   = info.from.y + soy
 		val tox     = info.to.x + sox
@@ -471,10 +471,10 @@ class CubicCurveShape extends LineConnectorShape with ShowCubics {
 		val mainDir = new Vector2( info.from, info.to )
 		val length  = mainDir.length
 		val angle   = mainDir.y / length
-		var c1x     = 0f
-		var c1y     = 0f
-		var c2x     = 0f
-		var c2y     = 0f
+		var c1x     = 0.0
+		var c1y     = 0.0
+		var c2x     = 0.0
+		var c2y     = 0.0
 		
 		if( angle > 0.707107f || angle < -0.707107f ) {
 			// North or south.
@@ -505,13 +505,13 @@ class CubicCurveShape extends LineConnectorShape with ShowCubics {
 		}
 	}
  
-	protected def makeMultiOrLoop( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
+	protected def makeMultiOrLoop( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
 		if( info.isLoop )
 			 makeLoop( camera, sox, soy, swx, swy )
 		else makeMulti( camera, sox, soy, swx, swy )
 	}
 	
-	protected def makeMulti( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
+	protected def makeMulti( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
 		val fromx   = info(0).x + sox
 		val fromy   = info(0).y + soy
 		val tox     = info(3).x + sox
@@ -526,7 +526,7 @@ class CubicCurveShape extends LineConnectorShape with ShowCubics {
 		theShape.curveTo( c1x, c1y, c2x, c2y, tox, toy )
 	}
 
-	protected def makeLoop( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
+	protected def makeLoop( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
 	  	val fromx = info(0).x + sox
 		val fromy = info(0).y + soy
 		val tox   = info(3).x + sox
@@ -575,7 +575,7 @@ class CubicCurveShape extends LineConnectorShape with ShowCubics {
  * A cubic curve shape that mimics freeplane edges.
  */
 class FreePlaneEdgeShape extends LineConnectorShape {
-	protected var theShape = new Path2D.Float
+	protected var theShape = new Path2D.Double
 
 // Command
  
@@ -583,22 +583,22 @@ class FreePlaneEdgeShape extends LineConnectorShape {
 		make( camera, 0, 0, 0, 0 )
 	}
   
-	protected def make( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
+	protected def make( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
 		if( info.multi > 1 || info.isLoop )	// is a loop or a multi edge
 		     makeMultiOrLoop( camera, sox, soy, swx, swy )
 		else makeSingle( camera, sox, soy, swx, swy )	// is a single edge.
 	}
  
-	protected def makeSingle( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
+	protected def makeSingle( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
 		var fromx   = info.from.x + sox
 		val fromy   = info.from.y + soy - theSourceSizeY/2
 		var tox     = info.to.x + sox
 		val toy     = info.to.y + soy - theTargetSizeY/2
 		val length  = abs( info(3).x - info(0).x )
-		var c1x     = 0f
-		var c1y     = 0f
-		var c2x     = 0f
-		var c2y     = 0f
+		var c1x     = 0.0
+		var c1y     = 0.0
+		var c2x     = 0.0
+		var c2y     = 0.0
 		
 		if( info(0).x < info(3).x ) {
 			// At right.
@@ -633,13 +633,13 @@ class FreePlaneEdgeShape extends LineConnectorShape {
 		}
 	}
  
-	protected def makeMultiOrLoop( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
+	protected def makeMultiOrLoop( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
 		if( info.isLoop )
 			 makeLoop( camera, sox, soy, swx, swy )
 		else makeMulti( camera, sox, soy, swx, swy )
 	}
 	
-	protected def makeMulti( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
+	protected def makeMulti( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
 		val fromx   = info(0).x + sox
 		val fromy   = info(0).y + soy
 		val tox     = info(3).x + sox
@@ -654,7 +654,7 @@ class FreePlaneEdgeShape extends LineConnectorShape {
 		theShape.curveTo( c1x, c1y, c2x, c2y, tox, toy )
 	}
 
-	protected def makeLoop( camera:Camera, sox:Float, soy:Float, swx:Float, swy:Float ) {
+	protected def makeLoop( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
 	  	val fromx = info(0).x + sox
 		val fromy = info(0).y + soy
 		val tox   = info(3).x + sox
@@ -700,11 +700,12 @@ class PieChartShape
 	with FillableMulticolored
 	with Strokable 
 	with Shadowable 
-	with Decorable {
+	with Decorable
+	with AttributeUtils {
 	
-	val theShape = new Ellipse2D.Float
+	val theShape = new Ellipse2D.Double
 	
-	var theValues:Array[Float] = null
+	var theValues:Array[Double] = null
 	var valuesRef:AnyRef = null
 
 	def configureForGroup( g:Graphics2D, style:Style, camera:Camera ) {
@@ -725,7 +726,7 @@ class PieChartShape
 			// We use valueRef to avoid
 			// recreating the values array for nothing.
 			if( ( theValues == null ) || ( oldRef ne valuesRef ) ) {
-				theValues = getPieValues( valuesRef )
+				theValues = getDoubles( valuesRef )
 			}
 		}
 	}
@@ -755,11 +756,11 @@ class PieChartShape
  	protected def fillPies( g:Graphics2D, element:GraphicElement ) {
  		if( theValues != null ) {
 	 		// we assume the pies values sum up to one. And we wont check it, its a mater of speed ;-).
-	 		val arc = new Arc2D.Float
-	 		var beg = 0f
-	 		var end = 0f
+	 		val arc = new Arc2D.Double
+	 		var beg = 0.0
+	 		var end = 0.0
 	 		var col = 0
-	 		var sum = 0f
+	 		var sum = 0.0
 	 		
 	 		theValues.foreach { value =>
 	 			end = beg + value
@@ -777,22 +778,4 @@ class PieChartShape
  	}
  	
 // utilities
- 	
- 	/** Try to extract an array of float values from various sources. */
- 	protected def getPieValues( values:AnyRef ):Array[Float] = {
- 		values match {
- 			case a:Array[AnyRef] => { 
- 				val result = new Array[Float]( a.length )
- 				a.map( { _ match {
- 						case n:Number => n.floatValue
- 						case s:String => s.toFloat
- 						case _        => 0f
- 					}
- 				} )
- 			}
- 			case b:Array[Float]  => { b }
- 			case c:String          => { c.split(',').map { _.toFloat } }
- 			case _                 => { Array[Float]( 0 ) }
- 		}
- 	}
 }

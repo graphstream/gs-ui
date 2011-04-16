@@ -193,10 +193,10 @@ class EdgeInfo extends ElementInfo with AttributeUtils {
 	    kind   = CURVE
 	    points = if(points.size!=4) new EdgePoints(4) else points
 	    ptsRef = null
-	    points(0) = new Point3(x0.toFloat, y0.toFloat, z0.toFloat)
-	    points(1) = new Point3(x1.toFloat, y1.toFloat, z1.toFloat)
-	    points(2) = new Point3(x2.toFloat, y2.toFloat, z2.toFloat)
-	    points(3) = new Point3(x3.toFloat, y3.toFloat, z3.toFloat)
+	    points(0) = new Point3(x0, y0, z0)
+	    points(1) = new Point3(x1, y1, z1)
+	    points(2) = new Point3(x2, y2, z2)
+	    points(3) = new Point3(x3, y3, z3)
 	}
 	
 	def setLine(
@@ -205,8 +205,8 @@ class EdgeInfo extends ElementInfo with AttributeUtils {
 	    kind      = LINE
 	    points    = if(points.size!=2) new EdgePoints(2) else points
 	    ptsRef    = null
-	    points(0) = new Point3(x0.toFloat, y0.toFloat, z0.toFloat)
-	    points(1) = new Point3(x1.toFloat, y1.toFloat, z1.toFloat)
+	    points(0) = new Point3(x0, y0, z0)
+	    points(1) = new Point3(x1, y1, z1)
 	}
 	
 	def setMulti(i:Int) { aMulti = i }
@@ -221,10 +221,10 @@ class EdgeInfo extends ElementInfo with AttributeUtils {
 	    points    = if(points.size!=4) new EdgePoints(4) else points
 	    ptsRef    = null
 	    isALoop   = true
-	    points(0) = new Point3(x0.toFloat, y0.toFloat, z0.toFloat)
-	    points(1) = new Point3(x1.toFloat, y1.toFloat, z1.toFloat)
-	    points(2) = new Point3(x2.toFloat, y2.toFloat, z2.toFloat)
-	    points(3) = new Point3(x0.toFloat, y0.toFloat, z0.toFloat)
+	    points(0) = new Point3(x0, y0, z0)
+	    points(1) = new Point3(x1, y1, z1)
+	    points(2) = new Point3(x2, y2, z2)
+	    points(3) = new Point3(x0, y0, z0)
 	}
 	
 //	def setNotLoop() { isALoop = false }
@@ -298,11 +298,11 @@ class EdgeInfo extends ElementInfo with AttributeUtils {
 	
 	/** Compute a point at the given percent on the shape and return it.
 	 * The percent must be a number between 0 and 1. */
-	def pointOnShape(percent:Float):Point3 = pointOnShape(percent, new Point3)
+	def pointOnShape(percent:Double):Point3 = pointOnShape(percent, new Point3)
 	
 	/** Compute a point at a given percent on the shape and store it in the target,
 	 * also returning it. The percent must be a number between 0 and 1. */
-	def pointOnShape(percent:Float, target:Point3):Point3 = {
+	def pointOnShape(percent:Double, target:Point3):Point3 = {
 		var at = if(percent > 1) 1 else percent
 		at = if(at < 0) 0 else at
 		
@@ -311,7 +311,7 @@ class EdgeInfo extends ElementInfo with AttributeUtils {
 		} else if( isPoly ) {
 		    var (i, sum, ps) = wichSegment(at)
 		    val dir = new Vector3(points(i+1).x-points(i).x, points(i+1).y-points(i).y, 0)
-		    dir.scalarMult(ps.toFloat)
+		    dir.scalarMult(ps)
 		    target.set(points(i).x+dir.data(0), points(i).y+dir.data(1), points(i).z)
 		} else {
 			val dir = new Vector3(to.x-from.x, to.y-from.y, 0)
@@ -325,13 +325,13 @@ class EdgeInfo extends ElementInfo with AttributeUtils {
 	/** Compute a point at a given percent on the shape and push it from the shape perpendicular
 	 * to it at a given distance in GU. The percent must be a number between 0 and 1. The resulting
 	 * points is returned. */
-	def pointOnShapeAndPerpendicular(percent:Float, perpendicular:Float):Point3 =
+	def pointOnShapeAndPerpendicular(percent:Double, perpendicular:Double):Point3 =
 	    pointOnShapeAndPerpendicular(percent, perpendicular, new Point3)
 
 	/** Compute a point at a given percent on the shape and push it from the shape perpendicular
 	 * to it at a given distance in GU. The percent must be a number between 0 and 1. The result
 	 * is stored in target and also returned. */
-	def pointOnShapeAndPerpendicular(percent:Float, perpendicular:Float, target:Point3):Point3 = {
+	def pointOnShapeAndPerpendicular(percent:Double, perpendicular:Double, target:Point3):Point3 = {
 		var at = if(percent > 1) 1 else percent
 		at = if(at < 0) 0 else at
 
@@ -355,7 +355,7 @@ class EdgeInfo extends ElementInfo with AttributeUtils {
 		    
 		    perp.normalize
 		    perp.scalarMult(perpendicular)
-		    dir.scalarMult(ps.toFloat)
+		    dir.scalarMult(ps)
 		    target.set(points(i).x+dir.data(0)+perp.data(0), points(i).y+dir.data(1)+perp.data(1), points(i).z)
 	    } else {
 			val dir  = new Vector3(to.x-from.x, to.y-from.y, 0)
@@ -375,7 +375,7 @@ class EdgeInfo extends ElementInfo with AttributeUtils {
 	 * of points of the shape. The segment 0 is between points 0 and 1. This method both compute
 	 * the index of the segment, but also the sum of the previous segments lengths (not including
 	 * the i-th segment), as well as the percent on the segment (a number in 0..1). */
-	def wichSegment(at:Float):(Int, Double, Double) = {
+	def wichSegment(at:Double):(Int, Double, Double) = {
 	    val n   = size-1		// n-1 segments, for n points
 		val pos = length * at	// Length is the sum of all segments lengths
 		var sum = lengths(0)

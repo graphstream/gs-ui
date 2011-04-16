@@ -112,7 +112,7 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 													
 	protected def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		if( shadow != null ) {
-//			val pos = new Point2D.Float( element.getX, element.getY )
+//			val pos = new Point2D.Double( element.getX, element.getY )
 //
 //			if( element.isInstanceOf[GraphicSprite] ) {
 //				camera.getSpritePosition( element.asInstanceOf[GraphicSprite], pos, StyleConstants.Units.GU )
@@ -269,7 +269,7 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 		}
 		
 		protected def positionSpriteComponent( sprite:GraphicSprite, camera:Camera ) {
-			val pos = camera.getSpritePosition( sprite, new Point2D.Float, StyleConstants.Units.PX )
+			val pos = camera.getSpritePosition( sprite, new Point2D.Double, StyleConstants.Units.PX )
 	
 			setBounds( (pos.x-(width/2)).toInt, (pos.y-(height/2)).toInt, width, height, camera )
 		}

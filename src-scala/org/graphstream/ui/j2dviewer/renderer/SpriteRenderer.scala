@@ -61,7 +61,7 @@ class SpriteRenderer( styleGroup:StyleGroup ) extends StyleRenderer( styleGroup 
 	
 	protected def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
 		val sprite = element.asInstanceOf[GraphicSprite]
-		val pos    = camera.getSpritePosition( sprite, new Point2D.Float, StyleConstants.Units.GU )
+		val pos    = camera.getSpritePosition( sprite, new Point2D.Double, StyleConstants.Units.GU )
 		val info   = getOrSetSpriteInfo( element )
 
 		shape.configureForElement( g, element, info, camera )

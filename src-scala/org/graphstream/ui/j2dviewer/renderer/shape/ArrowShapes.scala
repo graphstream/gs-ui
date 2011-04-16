@@ -46,7 +46,7 @@ import org.graphstream.ui.j2dviewer.renderer._
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 
 class ArrowOnEdge extends AreaOnConnectorShape {
-	val theShape = new Path2D.Float()
+	val theShape = new Path2D.Double()
  
 // Command
  
@@ -128,7 +128,7 @@ class ArrowOnEdge extends AreaOnConnectorShape {
 }
 
 class CircleOnEdge extends AreaOnConnectorShape {
-	val theShape = new Ellipse2D.Float
+	val theShape = new Ellipse2D.Double
  
 // Command
  
@@ -192,7 +192,7 @@ class CircleOnEdge extends AreaOnConnectorShape {
  		fill( g, theShape, camera )
 	}
  
-	protected def lengthOfCurve( c:Connector ):Float = {
+	protected def lengthOfCurve( c:Connector ):Double = {
 		// Computing a curve real length is really heavy.
 		// We approximate it using the length of the 3 line segments of the enclosing
 		// control points.
@@ -201,7 +201,7 @@ class CircleOnEdge extends AreaOnConnectorShape {
 }
 
 class DiamondOnEdge extends AreaOnConnectorShape {
-	val theShape = new Path2D.Float()
+	val theShape = new Path2D.Double()
  
 // Command
  
@@ -286,8 +286,8 @@ class ImageOnEdge extends AreaOnConnectorShape {
 // Command
  
 	var image:BufferedImage = null
-	var p:Point2D.Float = null
-	var angle = 0f
+	var p:Point2D.Double = null
+	var angle = 0.0
 	
 	override def configureForGroup( g:Graphics2D, style:Style, camera:Camera ) {
 		super.configureForGroup( g, style, camera )
@@ -339,10 +339,10 @@ class ImageOnEdge extends AreaOnConnectorShape {
 		}
 		
 		p     = camera.transform( x, y )	// Pass to pixels, the image will be drawn in pixels.
-		angle = acos( theDirection.dotProduct( 1, 0 ) ).toFloat
+		angle = acos( theDirection.dotProduct( 1, 0 ) )
 		
 		if( theDirection.y > 0 )			// The angle is always computed for acute angles
-			angle = ( Pi - angle ).toFloat
+			angle = ( Pi - angle )
 	}
 	
 	protected def makeOnCurve( forShadow:Boolean, camera:Camera ) {
@@ -363,10 +363,10 @@ class ImageOnEdge extends AreaOnConnectorShape {
 		}
 		
 		p     = camera.transform( x, y )
-		angle = acos( dir.dotProduct( 1, 0 ) ).toFloat
+		angle = acos( dir.dotProduct( 1, 0 ) )
 		
 		if( dir.y > 0 )
-			angle = ( Pi - angle ).toFloat
+			angle = ( Pi - angle )
 	}
  
 	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {

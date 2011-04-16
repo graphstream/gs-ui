@@ -36,9 +36,9 @@ trait AttributeUtils {
  			    
  			        	for(i <- 0 until size) {
  			        		res(i) = new Point3(
- 			        		        b(i*3).asInstanceOf[Number].floatValue,
- 			        		        b(i*3+1).asInstanceOf[Number].floatValue,
- 			        		        b(i*3+2).asInstanceOf[Number].floatValue)
+ 			        		        b(i*3).asInstanceOf[Number].doubleValue,
+ 			        		        b(i*3+1).asInstanceOf[Number].doubleValue,
+ 			        		        b(i*3+2).asInstanceOf[Number].doubleValue)
  			        	}
  			        	res
  			        } else {
@@ -56,6 +56,26 @@ trait AttributeUtils {
  			}
  		}
  	}
+ 	 	
+ 	/** Try to extract an array of double values from various sources. */
+ 	protected def getDoubles( values:AnyRef ):Array[Double] = {
+ 		values match {
+ 			case a:Array[AnyRef] => { 
+ 				val result = new Array[Double]( a.length )
+ 				a.map( { _ match {
+ 						case n:Number => n.doubleValue
+ 						case s:String => s.toDouble
+ 						case _        => 0.0
+ 					}
+ 				} )
+ 			}
+ 			case b:Array[Double]  => { b }
+ 			case b:Array[Float]   => { b.map { _.toDouble } }
+ 			case b:Array[Int]     => { b.map { _.toDouble } }
+ 			case c:String         => { c.split(',').map { _.toDouble } }
+ 			case x                => { System.err.println("cannot extract double values from array %s".format(x.getClass.getName)); Array[Double]( 0 ) }
+ 		}
+ 	}
 
  	/**
  	 * Compute the bounding box of the given set of points.
@@ -63,12 +83,12 @@ trait AttributeUtils {
  	 * @return A 2-tuple with the minimum and maximum 3D points.
  	 */
     protected def boundingBoxOfPoints(points:Array[Point3]):(Point3, Point3) = {
-        var minx = Float.MaxValue
-        var miny = Float.MaxValue
-        var minz = Float.MaxValue
-        var maxx = Float.MinValue
-        var maxy = Float.MinValue
-        var maxz = Float.MinValue
+        var minx = Double.MaxValue
+        var miny = Double.MaxValue
+        var minz = Double.MaxValue
+        var maxx = Double.MinValue
+        var maxy = Double.MinValue
+        var maxz = Double.MinValue
         
         points.foreach { p =>
         	minx = if(p.x<minx) p.x else minx

@@ -43,17 +43,17 @@ abstract class ShapePaint {
 }
 
 abstract class ShapeAreaPaint extends ShapePaint with Area {
-	def paint( xFrom:Float, yFrom:Float, xTo:Float, yTo:Float, px2gu:Float ):Paint
-	def paint( shape:java.awt.Shape, px2gu:Float ):Paint = {
+	def paint( xFrom:Double, yFrom:Double, xTo:Double, yTo:Double, px2gu:Double ):Paint
+	def paint( shape:java.awt.Shape, px2gu:Double ):Paint = {
 		val s = shape.getBounds2D
 		
-		paint( s.getMinX.toFloat, s.getMinY.toFloat,
-		       s.getMaxX.toFloat, s.getMaxY.toFloat, px2gu )
+		paint( s.getMinX, s.getMinY,
+		       s.getMaxX, s.getMaxY, px2gu )
 	}
 }
 
 abstract class ShapeColorPaint extends ShapePaint {
-	def paint( value:Float ):Paint
+	def paint( value:Double ):Paint
 }
 
 object ShapePaint {
@@ -144,7 +144,7 @@ object ShapePaint {
 		colors
 	}
 
-	def interpolateColor( colors:Array[Color], value:Float ):Color = {
+	def interpolateColor( colors:Array[Color], value:Double ):Color = {
 		val n = colors.length
 		var c = colors( 0 )
 
@@ -154,7 +154,7 @@ object ShapePaint {
 			if( v == 1 ) {
 				c = colors( n-1 )	// Simplification, faster.
 			} else if( v != 0 ) {	// If value == 0, color is already set above.
-				var div = 1f / (n-1)
+				var div = 1.0 / (n-1)
 				val col = ( value / div ).toInt
 	
 				div = ( value - (div*col) ) / div
@@ -166,7 +166,7 @@ object ShapePaint {
 				val blue   = ( (color0.getBlue() *(1-div)) + (color1.getBlue() *div) ) / 255f
 				val alpha  = ( (color0.getAlpha()*(1-div)) + (color1.getAlpha()*div) ) / 255f
 						
-				c = new Color( red, green, blue, alpha )
+				c = new Color( red.toFloat, green.toFloat, blue.toFloat, alpha.toFloat )
 			}
 		}
  
@@ -210,7 +210,7 @@ object ShapePaint {
 // Real paint implementations
  
  	abstract class ShapeGradientPaint( colors:Array[Color], fractions:Array[Float] ) extends ShapeAreaPaint {
-		def paint( xFrom:Float, yFrom:Float, xTo:Float, yTo:Float, px2gu:Float ):Paint = {
+		def paint( xFrom:Double, yFrom:Double, xTo:Double, yTo:Double, px2gu:Double ):Paint = {
 			if( colors.length > 1 ) {
 				var x0 = xFrom; var y0 = yFrom
 				var x1 = xTo;   var y1 = yTo
@@ -228,138 +228,138 @@ object ShapePaint {
 			}
 		}
   
-		def realPaint( x0:Float, y0:Float, x1:Float, y1:Float ):Paint
+		def realPaint( x0:Double, y0:Double, x1:Double, y1:Double ):Paint
  	}
 	
 	class ShapeVerticalGradientPaint( colors:Array[Color], fractions:Array[Float] ) extends ShapeGradientPaint( colors, fractions ) {
-		def realPaint( x0:Float, y0:Float, x1:Float, y1:Float ):Paint = {
+		def realPaint( x0:Double, y0:Double, x1:Double, y1:Double ):Paint = {
 			if( version16 )
-			     new LinearGradientPaint( x0, y0, x0, y1, fractions, colors )
-			else new GradientPaint( x0, y0, colors(0), x0, y1, colors(1) )
+			     new LinearGradientPaint( x0.toFloat, y0.toFloat, x0.toFloat, y1.toFloat, fractions, colors )
+			else new GradientPaint( x0.toFloat, y0.toFloat, colors(0), x0.toFloat, y1.toFloat, colors(1) )
 		}
 	}
   
 	class ShapeHorizontalGradientPaint( colors:Array[Color], fractions:Array[Float] ) extends ShapeGradientPaint( colors, fractions ) {
-		def realPaint( x0:Float, y0:Float, x1:Float, y1:Float ):Paint = {
+		def realPaint( x0:Double, y0:Double, x1:Double, y1:Double ):Paint = {
 			if( version16 )
-			     new LinearGradientPaint( x0, y0, x1, y0, fractions, colors )
-			else new GradientPaint( x0, y0, colors(0), x1, y0, colors(1) )
+			     new LinearGradientPaint( x0.toFloat, y0.toFloat, x1.toFloat, y0.toFloat, fractions, colors )
+			else new GradientPaint( x0.toFloat, y0.toFloat, colors(0), x1.toFloat, y0.toFloat, colors(1) )
 		}
 	}
   
 	class ShapeDiagonal1GradientPaint( colors:Array[Color], fractions:Array[Float] ) extends ShapeGradientPaint( colors, fractions ) {
-		def realPaint( x0:Float, y0:Float, x1:Float, y1:Float ):Paint = {
+		def realPaint( x0:Double, y0:Double, x1:Double, y1:Double ):Paint = {
 			if( version16 )
-			     new LinearGradientPaint( x0, y0, x1, y1, fractions, colors )
-			else new GradientPaint( x0, y0, colors(0), x1, y1, colors(1) )
+			     new LinearGradientPaint( x0.toFloat, y0.toFloat, x1.toFloat, y1.toFloat, fractions, colors )
+			else new GradientPaint( x0.toFloat, y0.toFloat, colors(0), x1.toFloat, y1.toFloat, colors(1) )
 		}
 	}
   
 	class ShapeDiagonal2GradientPaint( colors:Array[Color], fractions:Array[Float] ) extends ShapeGradientPaint( colors, fractions ) {
-		def realPaint( x0:Float, y0:Float, x1:Float, y1:Float ):Paint = {
+		def realPaint( x0:Double, y0:Double, x1:Double, y1:Double ):Paint = {
 			if( version16 )
-			     new LinearGradientPaint( x0, y1, x1, y0, fractions, colors )
-			else new GradientPaint( x0, y1, colors(0), x1, y0, colors(1) )
+			     new LinearGradientPaint( x0.toFloat, y1.toFloat, x1.toFloat, y0.toFloat, fractions, colors )
+			else new GradientPaint( x0.toFloat, y1.toFloat, colors(0), x1.toFloat, y0.toFloat, colors(1) )
 		}
 	}
  
 	class ShapeRadialGradientPaint( colors:Array[Color], fractions:Array[Float] ) extends ShapeGradientPaint( colors, fractions ) {
-		def realPaint( x0:Float, y0:Float, x1:Float, y1:Float ):Paint = {
+		def realPaint( x0:Double, y0:Double, x1:Double, y1:Double ):Paint = {
     		val w = ( x1 - x0 ) / 2
 			val h = ( y1 - y0 ) / 2
 			val cx = x0 + w
 			val cy = y0 + h
 			if( version16 )
-			     new RadialGradientPaint( cx, cy, if( w > h ) w else h, cx, cy, fractions, colors, MultipleGradientPaint.CycleMethod.NO_CYCLE )
-			else new GradientPaint( x0, y0, colors(0), x1, y1, colors(1) )
+			     new RadialGradientPaint( cx.toFloat, cy.toFloat, if( w > h ) w.toFloat else h.toFloat, cx.toFloat, cy.toFloat, fractions, colors, MultipleGradientPaint.CycleMethod.NO_CYCLE )
+			else new GradientPaint( x0.toFloat, y0.toFloat, colors(0), x1.toFloat, y1.toFloat, colors(1) )
 		}
 	}
 	
 	class ShapePlainColorPaint( val color:Color ) extends ShapeColorPaint {
-		def paint( value:Float ):Paint = color
+		def paint( value:Double ):Paint = color
 	}
  
 	class ShapeDynPlainColorPaint( val colors:Array[Color] ) extends ShapeColorPaint {
-		def paint( value:Float ):Paint = interpolateColor( colors, value )
+		def paint( value:Double ):Paint = interpolateColor( colors, value )
 	}
 	
 	class ShapeImageTiledPaint( val url:String ) extends ShapeAreaPaint {
-		def paint( xFrom:Float, yFrom:Float, xTo:Float, yTo:Float, px2gu:Float ):Paint = {
+		def paint( xFrom:Double, yFrom:Double, xTo:Double, yTo:Double, px2gu:Double ):Paint = {
 			ImageCache.loadImage( url ) match {
 				case x:Some[BufferedImage] => {
 					val img = x.get
-					new TexturePaint( img, new Rectangle2D.Float( xFrom, yFrom, img.getWidth/px2gu, img.getHeight/px2gu ) )
+					new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom, img.getWidth/px2gu, img.getHeight/px2gu ) )
 				}
 				case _ => {
 					val img = ImageCache.dummyImage
-					new TexturePaint( img, new Rectangle2D.Float( xFrom, yFrom, img.getWidth*px2gu, img.getHeight*px2gu ) )
+					new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom, img.getWidth*px2gu, img.getHeight*px2gu ) )
 				}
 			}
 		}
 	}
 	
 	class ShapeImageScaledPaint( val url:String ) extends ShapeAreaPaint {
-		def paint( xFrom:Float, yFrom:Float, xTo:Float, yTo:Float, gu2px:Float ):Paint = {
+		def paint( xFrom:Double, yFrom:Double, xTo:Double, yTo:Double, gu2px:Double ):Paint = {
 			ImageCache.loadImage( url ) match {
 				case x:Some[BufferedImage] => {
 					val img = x.get
-					new TexturePaint( img, new Rectangle2D.Float( xFrom, yFrom, xTo-xFrom, yTo-yFrom ) )
+					new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom, xTo-xFrom, yTo-yFrom ) )
 				}
 				case _ => {
 					val img = ImageCache.dummyImage
-					new TexturePaint( img, new Rectangle2D.Float( xFrom, yFrom, xTo-xFrom, yTo-yFrom ) )
+					new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom, xTo-xFrom, yTo-yFrom ) )
 				}
 			}
 		}
 	}
 
 	class ShapeImageScaledRatioMaxPaint( val url:String ) extends ShapeAreaPaint {
-		def paint( xFrom:Float, yFrom:Float, xTo:Float, yTo:Float, gu2px:Float ):Paint = {
+		def paint( xFrom:Double, yFrom:Double, xTo:Double, yTo:Double, gu2px:Double ):Paint = {
 			ImageCache.loadImage( url ) match {
 				case x:Some[BufferedImage] => {
 					val img = x.get
 					val w = xTo-xFrom
 					val h = yTo-yFrom
-					val ratioi = img.getWidth.toFloat / img.getHeight.toFloat
+					val ratioi = img.getWidth / img.getHeight
 					val ration = w / h
 
 					if( ratioi > ration ) {
 						val neww = h * ratioi
-						new TexturePaint( img, new Rectangle2D.Float( xFrom-((neww-w)/2), yFrom, neww, h ) )
+						new TexturePaint( img, new Rectangle2D.Double( xFrom-((neww-w)/2), yFrom, neww, h ) )
 					} else {
 						val newh = w / ratioi
-						new TexturePaint( img, new Rectangle2D.Float( xFrom, yFrom-((newh-h)/2), w, newh ) )
+						new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom-((newh-h)/2), w, newh ) )
 					}
 				}
 				case _ => {
 					val img = ImageCache.dummyImage
-					new TexturePaint( img, new Rectangle2D.Float( xFrom, yFrom, xTo-xFrom, yTo-yFrom ) )
+					new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom, xTo-xFrom, yTo-yFrom ) )
 				}
 			}
 		}
 	}
 
 	class ShapeImageScaledRatioMinPaint( val url:String ) extends ShapeAreaPaint {
-		def paint( xFrom:Float, yFrom:Float, xTo:Float, yTo:Float, gu2px:Float ):Paint = {
+		def paint( xFrom:Double, yFrom:Double, xTo:Double, yTo:Double, gu2px:Double ):Paint = {
 			ImageCache.loadImage( url ) match {
 				case x:Some[BufferedImage] => {
 					val img = x.get
 					val w = xTo-xFrom
 					val h = yTo-yFrom
-					val ratioi = img.getWidth.toFloat / img.getHeight.toFloat
+					val ratioi = img.getWidth / img.getHeight
 					val ration = w / h
 
 					if( ration > ratioi ) {
 						val neww = h * ratioi
-						new TexturePaint( img, new Rectangle2D.Float( xFrom+((w-neww)/2), yFrom, neww, h ) )
+						new TexturePaint( img, new Rectangle2D.Double( xFrom+((w-neww)/2), yFrom, neww, h ) )
 					} else {
 						val newh = w / ratioi
-						new TexturePaint( img, new Rectangle2D.Float( xFrom, yFrom-((h-newh)/2), w, newh ) )
+						new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom-((h-newh)/2), w, newh ) )
 					}
 				}
 				case _ => {
 					val img = ImageCache.dummyImage
-					new TexturePaint( img, new Rectangle2D.Float( xFrom, yFrom, xTo-xFrom, yTo-yFrom ) )
+					new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom, xTo-xFrom, yTo-yFrom ) )
 				}
 			}
 		}

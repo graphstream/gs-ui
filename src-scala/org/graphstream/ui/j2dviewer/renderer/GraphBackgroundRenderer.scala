@@ -140,8 +140,8 @@ class GraphBackgroundRenderer( val graph:GraphicGraph, val style:StyleGroup ) ex
 		val gh    = ( metrics.graphHeightGU * px2gu )// + ( pady * 2 )	// probably not.
 		val x     = ( metrics.viewport.data(0) / 2 ) - ( gw / 2 )
 		val y     = metrics.viewport.data(1) - ( metrics.viewport.data(1) / 2 ) - ( gh / 2 )
-		val paint = new TexturePaint( img, new Rectangle2D.Float( x, y, img.getWidth, img.getHeight) )
-		val rect  = new Rectangle2D.Float( 0, 0, metrics.viewport.data(0), metrics.viewport.data(1) );
+		val paint = new TexturePaint( img, new Rectangle2D.Double( x, y, img.getWidth, img.getHeight) )
+		val rect  = new Rectangle2D.Double( 0, 0, metrics.viewport.data(0), metrics.viewport.data(1) );
 		
 		g.setPaint( paint )
 		g.fill( rect );
@@ -172,7 +172,7 @@ class GraphBackgroundRenderer( val graph:GraphicGraph, val style:StyleGroup ) ex
 					0, 0, img.getWidth, img.getHeight, null )
 			}
 			case 1 => {	// Ratio-max
-				val ratioi = img.getWidth.toFloat / img.getHeight.toFloat
+				val ratioi = img.getWidth / img.getHeight
 				val ratiog = gw / gh
 				
 				if( ratioi > ratiog ) {
@@ -190,7 +190,7 @@ class GraphBackgroundRenderer( val graph:GraphicGraph, val style:StyleGroup ) ex
 				}
 			}
 			case 2 => {	// Ratio-min
-				val ratioi = img.getWidth.toFloat / img.getHeight.toFloat
+				val ratioi = img.getWidth / img.getHeight
 				val ratiog = gw / gh
 				
 				if( ratiog > ratioi ) {
@@ -215,7 +215,7 @@ class GraphBackgroundRenderer( val graph:GraphicGraph, val style:StyleGroup ) ex
 
 		if( style.getStrokeMode != StyleConstants.StrokeMode.NONE && style.getStrokeWidth.value > 0 ) {
 			g.setColor( style.getStrokeColor( 0 ) )
-			g.setStroke( new BasicStroke( metrics.lengthToGu( style.getStrokeWidth ) ) );
+			g.setStroke( new BasicStroke( metrics.lengthToGu( style.getStrokeWidth ).toFloat ) );
 			val padx = metrics.lengthToPx( style.getPadding, 0 ).toInt
 			val pady = if( style.getPadding.size > 1 ) metrics.lengthToPx( style.getPadding, 1 ).toInt else padx
 			g.drawRect( padx, pady,

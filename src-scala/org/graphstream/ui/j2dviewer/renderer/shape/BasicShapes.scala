@@ -43,15 +43,15 @@ import org.graphstream.ui.util.GraphMetrics
 import org.graphstream.ui.j2dviewer.renderer.{ElementInfo, NodeInfo, EdgeInfo}
 
 class CircleShape extends RectangularAreaShape {
-	val theShape = new Ellipse2D.Float
+	val theShape = new Ellipse2D.Double
 }
 
 class SquareShape extends RectangularAreaShape {
-	val theShape = new Rectangle2D.Float
+	val theShape = new Rectangle2D.Double
 }
 
 class RoundedSquareShape extends RectangularAreaShape {
-	val theShape = new RoundRectangle2D.Float
+	val theShape = new RoundRectangle2D.Double
  
 	override def make( g:Graphics2D, camera:Camera ) {
 		var w = theSize.x
@@ -249,8 +249,8 @@ class PolygonShape extends PolygonalShape with AttributeUtils {
 }
 
 class FreePlaneNodeShape extends RectangularAreaShape {
-	val theShape = new Rectangle2D.Float
-	val theLineShape = new Line2D.Float 
+	val theShape = new Rectangle2D.Double
+	val theLineShape = new Line2D.Double 
  
 	override def make( g:Graphics2D, camera:Camera ) {
 		var w = theSize.x

@@ -55,18 +55,18 @@ abstract class ShapeDecor {
 	 * indicates the lower-left and upper-right coordinates of the area where the decor should be
 	 * drawn. 
 	 */
-	def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Float, y0:Float, x1:Float, y1:Float )
+	def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double )
 
 	/**
 	 * Render along the given line coordinates. The shape decor contains all the metrics
 	 * to render the `iconAndText` icon and text. The coordinates (`x0`, `y0`) and (`x1`, `y1`)
 	 * indicates the start and end points of the line to draw the text on.
 	 */
-	def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Float, y0:Float, x1:Float, y1:Float  )
+	def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double  )
 	
 	/** Overall size (width and height) of the decor, taking into account the `iconAndText` as
 	 *  well as the various metrics specified by the style. */
-	def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Float,Float)
+	def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Double,Double)
 }
 
 /**
@@ -101,9 +101,9 @@ object ShapeDecor {
 	
 	/** A decor that does nothing. */
 	class EmptyShapeDecor extends ShapeDecor {
-		def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Float, y0:Float, x1:Float, y1:Float ) {}
-		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Float, y0:Float, x1:Float, y1:Float ) {}
-		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Float,Float) = ( 0, 0 )
+		def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {}
+		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {}
+		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Double,Double) = ( 0, 0 )
     }
  
 	/** Base for shape decors that work in pixels units, not GU. */
@@ -113,8 +113,8 @@ object ShapeDecor {
 		 * font size to render the text at the correct size ? How to handle the icon in
 		 * this case ? 
 		 */
-		protected def renderGu2Px( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x:Float, y:Float, angle:Float,
-				positionPx:(Graphics2D, Point2D.Float,IconAndText,Float)=>Point2D.Float ) {
+		protected def renderGu2Px( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x:Double, y:Double, angle:Double,
+				positionPx:(Graphics2D, Point2D.Double,IconAndText,Double)=>Point2D.Double ) {
 			var p  = camera.transform( x, y )
 			val Tx = g.getTransform
 			
@@ -128,44 +128,44 @@ object ShapeDecor {
 	}
  
 	class CenteredShapeDecor extends PxShapeDecor {
-		def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Float, y0:Float, x1:Float, y1:Float ) {
+		def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
 			val cx = x0 + (x1 - x0) / 2
 			val cy = y0 + (y1 - y0) / 2
 
 			renderGu2Px( g, camera, iconAndText, cx, cy, 0, positionTextAndIconPx )
 		}
-		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Float, y0:Float, x1:Float, y1:Float ) {
+		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
 			val dir = Vector2( x1-x0, y1-y0 )
 			dir.scalarMult( 0.5f )
 			
 			renderGu2Px( g, camera, iconAndText, x0 + dir.x, y0 + dir.y, 0, positionTextAndIconPx )
 		}
-		protected def positionTextAndIconPx( g:Graphics2D, p:Point2D.Float, iconAndText:IconAndText, angle:Float ):Point2D.Float = {
+		protected def positionTextAndIconPx( g:Graphics2D, p:Point2D.Double, iconAndText:IconAndText, angle:Double ):Point2D.Double = {
 			p.x = p.x - ( iconAndText.width / 2 + 1 ) + iconAndText.padx
 			p.y = p.y + ( iconAndText.height / 2 ) - iconAndText.pady
 			p
 		}
-		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Float,Float) = {
+		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Double,Double) = {
 				( camera.metrics.lengthToGu( iconAndText.width, Units.PX ),
 				  camera.metrics.lengthToGu( iconAndText.height, Units.PX ) )
 		}
 	}
  
  	class AtLeftShapeDecor extends PxShapeDecor {
-		def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Float, y0:Float, x1:Float, y1:Float ) {
+		def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
 			val cx = x0
 			val cy = y0 + ( y1 - y0 ) / 2
 
 			renderGu2Px( g, camera, iconAndText, cx, cy, 0, positionTextAndIconPx )
 		}
-		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Float, y0:Float, x1:Float, y1:Float ) {
+		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
 			val cx = x0
 			val cy = y0
 			
 			renderGu2Px( g, camera, iconAndText, cx, cy, 0, positionTextAndIconPx )
 		}
-		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Float,Float) = ( 0, 0 )
-		protected def positionTextAndIconPx( g:Graphics2D, p:Point2D.Float, iconAndText:IconAndText, angle:Float ):Point2D.Float = {
+		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Double,Double) = ( 0, 0 )
+		protected def positionTextAndIconPx( g:Graphics2D, p:Point2D.Double, iconAndText:IconAndText, angle:Double ):Point2D.Double = {
 			p.x = p.x - ( iconAndText.width + 2 ) + iconAndText.padx
 			p.y = p.y + ( iconAndText.height / 2 ) - iconAndText.pady
 			p
@@ -173,138 +173,138 @@ object ShapeDecor {
 	}
  
  	class AtRightShapeDecor extends PxShapeDecor {
-		def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Float, y0:Float, x1:Float, y1:Float ) {
+		def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
 			val cx = x1
 			val cy = y0 + ( y1 - y0 ) / 2
 
 			renderGu2Px( g, camera, iconAndText, cx, cy, 0, positionTextAndIconPx )
 		}
-		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Float, y0:Float, x1:Float, y1:Float ) {
+		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
 			val cx = x1
 			val cy = y1
 			
 			renderGu2Px( g, camera, iconAndText, cx, cy, 0, positionTextAndIconPx )
 		}
-		protected def positionTextAndIconPx( g:Graphics2D, p:Point2D.Float, iconAndText:IconAndText, angle:Float ):Point2D.Float = {
+		protected def positionTextAndIconPx( g:Graphics2D, p:Point2D.Double, iconAndText:IconAndText, angle:Double ):Point2D.Double = {
 			p.x = p.x + iconAndText.padx
 			p.y = p.y + ( iconAndText.height / 2 ) - iconAndText.pady
 			p
 		}
-		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Float,Float) = ( 0, 0 )
+		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Double,Double) = ( 0, 0 )
 	}
  
  	class LeftShapeDecor extends PxShapeDecor {
-		def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Float, y0:Float, x1:Float, y1:Float ) {
+		def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
 			val cx = x0 + ( x1 - x0 ) / 2
 			val cy = y0 + ( y1 - y0 ) / 2
 
 			renderGu2Px( g, camera, iconAndText, cx, cy, 0, positionTextAndIconAreaPx )
 		}
-		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Float, y0:Float, x1:Float, y1:Float ) {
+		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
 			renderGu2Px( g, camera, iconAndText, x0, y0,  0, positionTextAndIconAlongPx )
 		}
-		protected def positionTextAndIconAreaPx( g:Graphics2D, p:Point2D.Float, iconAndText:IconAndText, angle:Float ):Point2D.Float = {
+		protected def positionTextAndIconAreaPx( g:Graphics2D, p:Point2D.Double, iconAndText:IconAndText, angle:Double ):Point2D.Double = {
 			p.x = p.x - ( iconAndText.width + 2 ) + iconAndText.padx
 			p.y = p.y + ( iconAndText.height / 2 ) - iconAndText.pady
 			p
 		}
-		protected def positionTextAndIconAlongPx( g:Graphics2D, p:Point2D.Float, iconAndText:IconAndText, angle:Float ):Point2D.Float = {
+		protected def positionTextAndIconAlongPx( g:Graphics2D, p:Point2D.Double, iconAndText:IconAndText, angle:Double ):Point2D.Double = {
 			p.x = p.x + iconAndText.padx
 			p.y = p.y + ( iconAndText.height / 2 ) - iconAndText.pady
 			p
 		}
-		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Float,Float) = ( 0, 0 )
+		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Double,Double) = ( 0, 0 )
 	}
  
  	class RightShapeDecor extends PxShapeDecor {
-		def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Float, y0:Float, x1:Float, y1:Float ) {
+		def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
 			val cx = x0 + ( x1 - x0 ) / 2
 			val cy = y0 + ( y1 - y0 ) / 2
 
 			renderGu2Px( g, camera, iconAndText, cx, cy, 0, positionTextAndIconAreaPx )
 		}
-		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Float, y0:Float, x1:Float, y1:Float ) {
+		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
 			renderGu2Px( g, camera, iconAndText, x1, y1, 0, positionTextAndIconAlongPx )
 		}
-		protected def positionTextAndIconAreaPx( g:Graphics2D, p:Point2D.Float, iconAndText:IconAndText, angle:Float ):Point2D.Float = {
+		protected def positionTextAndIconAreaPx( g:Graphics2D, p:Point2D.Double, iconAndText:IconAndText, angle:Double ):Point2D.Double = {
 			p.x = p.x + iconAndText.padx
 			p.y = p.y + ( iconAndText.height / 2 ) - iconAndText.pady
 			p
 		}
-		protected def positionTextAndIconAlongPx( g:Graphics2D, p:Point2D.Float, iconAndText:IconAndText, angle:Float ):Point2D.Float = {
+		protected def positionTextAndIconAlongPx( g:Graphics2D, p:Point2D.Double, iconAndText:IconAndText, angle:Double ):Point2D.Double = {
 			p.x = p.x - ( iconAndText.width + 2 + iconAndText.padx )
 			p.y = p.y + ( iconAndText.height / 2 ) - iconAndText.pady
 			p
 		}
-		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Float,Float) = ( 0, 0 )
+		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Double,Double) = ( 0, 0 )
 	}
  
  	class UnderShapeDecor extends PxShapeDecor {
-		def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Float, y0:Float, x1:Float, y1:Float ) {
+		def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
 			val cx = x0 + ( x1 - x0 ) / 2
 			val cy = y0
 
 			renderGu2Px( g, camera, iconAndText, cx, cy, 0, positionTextAndIconPx )
 		}
-		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Float, y0:Float, x1:Float, y1:Float ) {
+		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
 			val dir = Vector2( x1-x0, y1-y0 )
 			dir.scalarMult( 0.5f )
 
 			renderGu2Px( g, camera, iconAndText, x0+dir.x, y0+dir.y, 0, positionTextAndIconPx )
 		}
-		protected def positionTextAndIconPx( g:Graphics2D, p:Point2D.Float, iconAndText:IconAndText, angle:Float ):Point2D.Float = {
+		protected def positionTextAndIconPx( g:Graphics2D, p:Point2D.Double, iconAndText:IconAndText, angle:Double ):Point2D.Double = {
 			p.x = p.x - ( iconAndText.width / 2 + 1 ) + iconAndText.padx
 			p.y = p.y + ( iconAndText.height ) - iconAndText.pady
 			p
 		}
-		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Float,Float) = ( 0, 0 )
+		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Double,Double) = ( 0, 0 )
 	}
  
  	class AboveShapeDecor extends PxShapeDecor {
-		def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Float, y0:Float, x1:Float, y1:Float ) {
+		def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
 			val cx = x0 + ( x1 - x0 ) / 2
 			val cy = y1
 
 			renderGu2Px( g, camera, iconAndText, cx, cy, 0, positionTextAndIconPx )
 		}
-		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Float, y0:Float, x1:Float, y1:Float ) {
+		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
 			val dir = Vector2( x1-x0, y1-y0 )
 			dir.scalarMult( 0.5f )
 
 			renderGu2Px( g, camera, iconAndText, x0+dir.x, y0+dir.y, 0, positionTextAndIconPx )
 		}
-		protected def positionTextAndIconPx( g:Graphics2D, p:Point2D.Float, iconAndText:IconAndText, angle:Float ):Point2D.Float = {
+		protected def positionTextAndIconPx( g:Graphics2D, p:Point2D.Double, iconAndText:IconAndText, angle:Double ):Point2D.Double = {
 			p.x = p.x - ( iconAndText.width / 2 + 1 ) + iconAndText.padx
 			p.y = p.y - iconAndText.pady
 			p
 		}
-		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Float,Float) = ( 0, 0 )
+		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Double,Double) = ( 0, 0 )
 	}
  	
  	class AlongShapeDecor extends PxShapeDecor {
-		def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Float, y0:Float, x1:Float, y1:Float ) {}
-		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Float, y0:Float, x1:Float, y1:Float ) {
+		def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {}
+		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
 			val dir = Vector2( x1-x0, y1-y0 )
 			dir.scalarMult( 0.5f )
 			val cx = x0 + dir.x
 			val cy = y0 + dir.y
 			dir.normalize
-			var angle = acos( dir.dotProduct( 1, 0 ) ).toFloat
+			var angle = acos( dir.dotProduct( 1, 0 ) )
 		
 			if( dir.y > 0 )			// The angle is always computed for acute angles
-				angle = ( Pi - angle ).toFloat
+				angle = ( Pi - angle )
 				
-			if( angle > Pi/2 ) angle = ( Pi + angle ).toFloat
+			if( angle > Pi/2 ) angle = ( Pi + angle )
 				
 			renderGu2Px( g, camera, iconAndText, cx, cy, angle, positionTextAndIconPx )
 		}
-		protected def positionTextAndIconPx( g:Graphics2D, p:Point2D.Float, iconAndText:IconAndText, angle:Float ):Point2D.Float = {
+		protected def positionTextAndIconPx( g:Graphics2D, p:Point2D.Double, iconAndText:IconAndText, angle:Double ):Point2D.Double = {
 			g.translate( p.x, p.y )
 			g.rotate( angle )
 			g.translate( -iconAndText.width/2, +iconAndText.height/2 )
-			new Point2D.Float( 0, 0 )
+			new Point2D.Double( 0, 0 )
 		}
-		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Float,Float) = ( 0, 0 )
+		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Double,Double) = ( 0, 0 )
  	}
 }
 
@@ -317,15 +317,15 @@ object ShapeDecor {
  * taken from the "ui.icon" attribute of the element.
  * </p>
  */
-abstract class IconAndText( val text:TextBox, val padx:Float, val pady:Float ) {
+abstract class IconAndText( val text:TextBox, val padx:Double, val pady:Double ) {
 	// padx and pady are in pixels.
 	def setText( g:Graphics2D, text:String )
 	def setIcon( g:Graphics2D, url:String )
-	def render( g:Graphics2D, camera:Camera, xLeft:Float, yBottom:Float )
-	def width:Float
-	def height:Float
-	def descent:Float = text.descent
-	def ascent:Float = text.ascent
+	def render( g:Graphics2D, camera:Camera, xLeft:Double, yBottom:Double )
+	def width:Double
+	def height:Double
+	def descent:Double = text.descent
+	def ascent:Double = text.ascent
 }
 
 /**
@@ -374,17 +374,17 @@ object IconAndText {
 		}
 	}
  
-	class IconAndTextOnlyText( text:TextBox, padx:Float, pady:Float ) extends IconAndText( text, padx, pady ) {
+	class IconAndTextOnlyText( text:TextBox, padx:Double, pady:Double ) extends IconAndText( text, padx, pady ) {
 		def setText( g:Graphics2D, text:String ) { this.text.setText( text, g ) }
 		def setIcon( g:Graphics2D, url:String ) {}
-		def render( g:Graphics2D, camera:Camera, xLeft:Float, yBottom:Float ) {
+		def render( g:Graphics2D, camera:Camera, xLeft:Double, yBottom:Double ) {
 			this.text.render( g, xLeft, yBottom - descent )
 		}
-		def width:Float = text.width + padx*2
-		def height:Float = text.ascent + text.descent + pady*2
+		def width:Double = text.width + padx*2
+		def height:Double = text.ascent + text.descent + pady*2
 	}
  
-	class IconAtLeftAndText( var icon:BufferedImage, text:TextBox, padx:Float, pady:Float ) extends IconAndText( text, padx, pady ) {
+	class IconAtLeftAndText( var icon:BufferedImage, text:TextBox, padx:Double, pady:Double ) extends IconAndText( text, padx, pady ) {
 		def setText( g:Graphics2D, text:String ) { this.text.setText( text, g ) }
 		def setIcon( g:Graphics2D, url:String ) {
 			icon = ImageCache.loadImage( url ) match {
@@ -392,14 +392,14 @@ object IconAndText {
 				case _         => ImageCache.dummyImage
 			}
 		}
-		def render( g:Graphics2D, camera:Camera, xLeft:Float, yBottom:Float ) {
+		def render( g:Graphics2D, camera:Camera, xLeft:Double, yBottom:Double ) {
 			g.drawImage( icon, new AffineTransform( 1f, 0f, 0f, 1f, xLeft, (yBottom-(height/2))-(icon.getHeight/2) ), null )
 			val th = text.ascent + text.descent
-			val dh = if( icon.getHeight > th ) ( ( icon.getHeight.toFloat - th ) / 2f ) else 0f
+			val dh = if( icon.getHeight > th ) ( ( icon.getHeight - th ) / 2f ) else 0f
 			this.text.render( g, xLeft + icon.getWidth + 5, yBottom - dh - descent )
 		}
-		def width:Float = text.width + icon.getWidth(null) + 5 + padx*2
-		def height:Float = max( icon.getHeight(null), text.ascent + text.descent ) + pady*2
+		def width:Double = text.width + icon.getWidth(null) + 5 + padx*2
+		def height:Double = max( icon.getHeight(null), text.ascent + text.descent ) + pady*2
 	}
 }
 
@@ -415,7 +415,7 @@ class TextBox( val font:Font, val textColor:Color, val bgColor:Color ) {
 	protected var textData:String = null
 	
 	/** The bounds of the text stored when the text is changed. */
-	var bounds:Rectangle2D = new Rectangle2D.Float( 0, 0, 0, 0 )
+	var bounds:Rectangle2D = new Rectangle2D.Double( 0, 0, 0, 0 )
 	
 	/** Changes the text and compute its bounds. This method tries to avoid recomputing bounds
 	 *  if the text does not really changed. */
@@ -430,34 +430,34 @@ class TextBox( val font:Font, val textColor:Color, val bgColor:Color ) {
 	  	} else {
 	  		this.textData = null
 	  		this.text     = null
-	  		this.bounds   = new Rectangle2D.Float( 0, 0, 0, 0 )
+	  		this.bounds   = new Rectangle2D.Double( 0, 0, 0, 0 )
 	  	}
 	}
 	
 	/** Width of the text. */
- 	def width:Float   = if( bounds != null ) bounds.getWidth.toFloat else 0
+ 	def width:Double   = if( bounds != null ) bounds.getWidth else 0
  	
  	/** Height of the text. */
- 	def height:Float  = if( bounds != null ) bounds.getHeight.toFloat else 0
+ 	def height:Double  = if( bounds != null ) bounds.getHeight else 0
  	
  	/** Descent of the text. */
- 	def descent:Float = if( text != null ) text.getDescent else 0
+ 	def descent:Double = if( text != null ) text.getDescent else 0
  	
  	/** Ascent of the text. */
- 	def ascent:Float  = if( text != null ) text.getAscent else 0
+ 	def ascent:Double  = if( text != null ) text.getAscent else 0
  	
  	/** Renders the text at the given coordinates. */
- 	def render( g:Graphics2D, xLeft:Float, yBottom:Float ) {
+ 	def render( g:Graphics2D, xLeft:Double, yBottom:Double ) {
 		if( text != null ) {
 			if( bgColor ne null ) {
 				val a = ascent
 				val h = a + descent
 				g.setColor( bgColor )
-				g.fill( new Rectangle2D.Float( xLeft, yBottom-a, width+1, h ) )
+				g.fill( new Rectangle2D.Double( xLeft, yBottom-a, width+1, h ) )
 			}
 			
 			g.setColor( textColor )
-			text.draw( g, xLeft, yBottom )
+			text.draw( g, xLeft.toFloat, yBottom.toFloat )
 		}
  	}
 }

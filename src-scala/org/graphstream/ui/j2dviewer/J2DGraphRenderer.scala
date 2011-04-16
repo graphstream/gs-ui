@@ -119,15 +119,15 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 
   	def getViewCenter():Point3 = camera.viewCenter
 
-  	def getViewPercent():Float = camera.viewPercent
+  	def getViewPercent():Double = camera.viewPercent
 
-  	def getViewRotation():Float = camera.viewRotation
+  	def getViewRotation():Double = camera.viewRotation
 
-  	def getGraphDimension():Float = camera.metrics.diagonal
+  	def getGraphDimension():Double = camera.metrics.diagonal
 
-  	def findNodeOrSpriteAt( x:Float, y:Float ):GraphicElement = camera.findNodeOrSpriteAt( graph, x, y )
+  	def findNodeOrSpriteAt( x:Double, y:Double ):GraphicElement = camera.findNodeOrSpriteAt( graph, x, y )
  
-  	def allNodesOrSpritesIn( x1:Float, y1:Float, x2:Float, y2:Float ):ArrayList[GraphicElement] = camera.allNodesOrSpritesIn( graph, x1, y1, x2, y2 )
+  	def allNodesOrSpritesIn( x1:Double, y1:Double, x2:Double, y2:Double ):ArrayList[GraphicElement] = camera.allNodesOrSpritesIn( graph, x1, y1, x2, y2 )
   
   	/**
   	 * The rendering surface this renderer uses.
@@ -156,19 +156,19 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
     
 // Command
 
-	def setBounds( minx:Float, miny:Float, minz:Float, maxx:Float, maxy:Float, maxz:Float ) { camera.setBounds( minx, miny, minz, maxx, maxy, maxz ) }
+	def setBounds( minx:Double, miny:Double, minz:Double, maxx:Double, maxy:Double, maxz:Double ) { camera.setBounds( minx, miny, minz, maxx, maxy, maxz ) }
  
   	def resetView() {
   		camera.setAutoFitView( true )
   		camera.viewRotation = 0
   	}
  
-  	def setViewCenter( x:Float, y:Float, z:Float ) {
+  	def setViewCenter( x:Double, y:Double, z:Double ) {
   		camera.setAutoFitView( false )
   		camera.setViewCenter( x, y )
   	}
   	
-  	def setGraphViewport( minx:Float, miny:Float, maxx:Float, maxy:Float ) {
+  	def setGraphViewport( minx:Double, miny:Double, maxx:Double, maxy:Double ) {
 		camera.setAutoFitView( false )
 		camera.setViewCenter( minx + ( maxx - minx ), miny + ( maxy - miny ) )
 		camera.setGraphViewport( minx, miny, maxx, maxy )
@@ -181,28 +181,28 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   		resetView();
   	}
 
-  	def setViewPercent( percent:Float ) {
+  	def setViewPercent( percent:Double ) {
   		camera.setAutoFitView( false )
   		camera.viewPercent = percent
   	}
 
-  	def setViewRotation( theta:Float ) { camera.viewRotation = theta }
+  	def setViewRotation( theta:Double ) { camera.viewRotation = theta }
 
-  	def beginSelectionAt( x:Float, y:Float ) {
+  	def beginSelectionAt( x:Double, y:Double ) {
   		selection.active = true
   		selection.begins( x, y )
   	}
 
-  	def selectionGrowsAt( x:Float, y:Float ) {
+  	def selectionGrowsAt( x:Double, y:Double ) {
   		selection.grows( x, y )
   	}
 
-  	def endSelectionAt( x:Float, y:Float ) {
+  	def endSelectionAt( x:Double, y:Double ) {
   		selection.grows( x, y )
   		selection.active = false
   	}
 
-  	def moveElementAtPx( element:GraphicElement, x:Float, y:Float ) {
+  	def moveElementAtPx( element:GraphicElement, x:Double, y:Double ) {
   		val p = camera.inverseTransform( x, y )
   		element.move( p.x, p.y, element.getZ )
   	}

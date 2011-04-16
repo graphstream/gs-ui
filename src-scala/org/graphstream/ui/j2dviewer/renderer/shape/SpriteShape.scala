@@ -91,11 +91,11 @@ class SpriteArrowShape extends PolygonalShape with Orientable {
 }
 
 class OrientableSquareShape extends OrientableRectangularAreaShape {
-	val theShape:RectangularShape = new Rectangle2D.Float
+	val theShape:RectangularShape = new Rectangle2D.Double
 }
 /*
 class OrientableRoundedSquareShape extends OrientableRectangularAreaShape {
-	var theShape = new RoundRectangle2D.Float
+	var theShape = new RoundRectangle2D.Double
 }
 */
 class SpriteFlowShape
@@ -105,9 +105,9 @@ class SpriteFlowShape
 	with ShadowableLine
 	with Decorable {
 	
-	var theSize = 0f
-	var along = 0f
-	var offset = 0f
+	var theSize = 0.0
+	var along = 0.0
+	var offset = 0.0
 	var edgeInfo:EdgeInfo = null
 	var theShape = new GeneralPath
 	var reverse = false
@@ -146,7 +146,7 @@ class SpriteFlowShape
 	
 	def makeShadow( g:Graphics2D, camera:Camera ) { make( g, camera, theShadowOff.x, theShadowOff.y ) }
 		
-	def make( g:Graphics2D, camera:Camera, shx:Float, shy:Float ) {
+	def make( g:Graphics2D, camera:Camera, shx:Double, shy:Double ) {
 		// EdgeInfo contains a way to compute points perpendicular to the shape, however here
 	    // we only need to compute the perpendicular vector once, hence this code.
 	    
@@ -156,8 +156,8 @@ class SpriteFlowShape
 				val P1  = if(reverse) edgeInfo(2) else edgeInfo(1)
 				val P2  = if(reverse) edgeInfo(1) else edgeInfo(2)
 				var P3  = if(reverse) edgeInfo(0) else edgeInfo(3)
-				val inc = 0.01f
-				var t   = 0f
+				val inc = 0.01
+				var t   = 0.0
 				val dir = Vector2(P3.x-P0.x, P3.y-P0.y)
 				val per = Vector2(dir.y + shx, -dir.x + shy)
 				

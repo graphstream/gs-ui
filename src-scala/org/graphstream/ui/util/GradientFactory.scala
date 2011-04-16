@@ -85,12 +85,12 @@ import org.graphstream.ScalaGS._
 	 * @return A paint for the gradient or null if the style specifies no gradient (the fill mode
 	 * is not a linear gradient or there is only one fill colour).
 	 */
-	def linearGradientFromStyle( x0:Float, y0:Float, x1:Float, y1:Float, style:Style ):Paint = {
+	def linearGradientFromStyle( x0:Double, y0:Double, x1:Double, y1:Double, style:Style ):Paint = {
 		var paint:Paint = null
 		val gradientPaint = () => {
 			if( version16 )
-			     new LinearGradientPaint( x0, y0, x1, y1, createFractions( style ), createColors( style ) )
-			else new GradientPaint( x0, y0, style.getFillColor( 0 ), x1, y1, style.getFillColor( 1 ) )
+			     new LinearGradientPaint( x0.toFloat, y0.toFloat, x1.toFloat, y1.toFloat, createFractions( style ), createColors( style ) )
+			else new GradientPaint( x0.toFloat, y0.toFloat, style.getFillColor( 0 ), x1.toFloat, y1.toFloat, style.getFillColor( 1 ) )
 		}
   
 		if( style.getFillColorCount > 1 ) {
@@ -106,7 +106,7 @@ import org.graphstream.ScalaGS._
 		paint
 	}
 
-	def radialGradientFromStyle( cx:Float, cy:Float, radius:Float, style:Style ):Paint = radialGradientFromStyle( cx, cy, radius, cx, cy, style )
+	def radialGradientFromStyle( cx:Double, cy:Double, radius:Double, style:Style ):Paint = radialGradientFromStyle( cx, cy, radius, cx, cy, style )
 	
 	/**
 	 * Generate a radial gradient whose center is at (cx,cy) with the given radius. The
@@ -120,14 +120,14 @@ import org.graphstream.ScalaGS._
 	 * @return A paint for the gradient or null if the style specifies no gradient (the fill mode
 	 * is not a radial gradient or there is only one fill colour).
 	 */
-	def radialGradientFromStyle( cx:Float, cy:Float, radius:Float, fx:Float, fy:Float, style:Style ):Paint = {
+	def radialGradientFromStyle( cx:Double, cy:Double, radius:Double, fx:Double, fy:Double, style:Style ):Paint = {
 		var paint:Paint = null
 
 		if( version16 ) {
 			if( style.getFillColorCount > 1 && style.getFillMode == FillMode.GRADIENT_RADIAL ) {
 				val fractions = createFractions( style )
 				val colors    = createColors( style )
-				paint         = new RadialGradientPaint( cx, cy, radius, fx, fy, fractions, colors,
+				paint         = new RadialGradientPaint( cx.toFloat, cy.toFloat, radius.toFloat, fx.toFloat, fy.toFloat, fractions, colors,
 						MultipleGradientPaint.CycleMethod.NO_CYCLE )
 			}
 		}

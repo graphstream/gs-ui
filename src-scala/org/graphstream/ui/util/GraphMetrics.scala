@@ -66,16 +66,16 @@ class GraphMetrics {
   	val size = new Vector3
 	
   	/** The graph diagonal. */
-  	var diagonal:Float = 1f
+  	var diagonal:Double = 1f
 	
   	/** The view port size. */
   	val viewport = new Vector3
 	
   	/** The scaling factor to pass from graph units to pixels. */
-  	private[this] var ratioPx2Gu_p:Float = 1f
+  	private[this] var ratioPx2Gu_p:Double = 1f
 	
   	/** The length for one pixel, according to the current transformation. */
-  	private[this] var px1_p:Float = 1f
+  	private[this] var px1_p:Double = 1f
 	
 // Construction
 	
@@ -102,7 +102,7 @@ class GraphMetrics {
   	 * @param units The units the value to convert is expressed in.
   	 * @return The value converted to GU.
   	 */
-  	def lengthToGu(value:Float, units:Units):Float = units match {
+  	def lengthToGu(value:Double, units:Units):Double = units match {
   		case Units.PX       => (value-0.01f) / ratioPx2Gu
   		case Units.PERCENTS => ( diagonal * value )
   		case _              => value
@@ -112,14 +112,14 @@ class GraphMetrics {
   	 * Convert a value in a given units to graph units.
   	 * @param value The value to convert (it contains its own units).
   	 */
-  	def lengthToGu(value:Value):Float = lengthToGu( value.value, value.units )
+  	def lengthToGu(value:Value):Double = lengthToGu( value.value, value.units )
 	
   	/**
   	 * Convert one of the given values in a given units to graph units.
   	 * @param values The values set containing the value to convert (it contains its own units).
   	 * @param index Index of the value to convert.
   	 */
-  	def lengthToGu(values:Values, index:Int):Float = lengthToGu( values.get( index ), values.units ) 
+  	def lengthToGu(values:Values, index:Int):Double = lengthToGu( values.get( index ), values.units ) 
 
   	/**
   	 * Convert a value in a given units to pixels.
@@ -127,7 +127,7 @@ class GraphMetrics {
   	 * @param units The units the value to convert is expressed in.
   	 * @return The value converted in pixels.
   	 */
-  	def lengthToPx(value:Float, units:Units):Float = units match {
+  	def lengthToPx(value:Double, units:Units):Double = units match {
   		case Units.GU       => (value-0.01f) * ratioPx2Gu
   		case Units.PERCENTS => (diagonal * value) * ratioPx2Gu
   		case _              => value
@@ -137,18 +137,18 @@ class GraphMetrics {
   	 * Convert a value in a given units to pixels.
   	 * @param value The value to convert (it contains its own units).
   	 */
-  	def lengthToPx(value:Value):Float = lengthToPx( value.value, value.units )
+  	def lengthToPx(value:Value):Double = lengthToPx( value.value, value.units )
 	
   	/**
   	 * Convert one of the given values in a given units pixels.
   	 * @param values The values set containing the value to convert (it contains its own units).
   	 * @param index Index of the value to convert.
   	 */
-  	def lengthToPx(values:Values, index:Int ):Float = lengthToPx( values.get( index ), values.units )
+  	def lengthToPx(values:Values, index:Int ):Double = lengthToPx( values.get( index ), values.units )
 
-  	def graphWidthGU:Float  = hi.x - lo.x
-  	def graphHeightGU:Float = hi.y - lo.y
-    def graphDepthGU:Float  = hi.z - lo.z
+  	def graphWidthGU:Double  = hi.x - lo.x
+  	def graphHeightGU:Double = hi.y - lo.y
+    def graphDepthGU:Double  = hi.z - lo.z
    
   	override def toString():String = {
   		val builder = new StringBuilder( "Graph Metrics :%n".format() )
@@ -167,12 +167,12 @@ class GraphMetrics {
   	/**
   	 * The scaling factor to pass from graph units to pixels.
   	 */
-  	def ratioPx2Gu:Float = ratioPx2Gu_p
+  	def ratioPx2Gu:Double = ratioPx2Gu_p
   
   	/**
   	 * The length for one pixel, according to the current transformation.
   	 */
-  	def px1:Float = px1_p
+  	def px1:Double = px1_p
 	
 // Command
 
@@ -181,7 +181,7 @@ class GraphMetrics {
   	 * @param viewportWidth The width in pixels of the view port.
   	 * @param viewportHeight The width in pixels of the view port.
   	 */
-  	def setViewport(viewportWidth:Float, viewportHeight:Float) {
+  	def setViewport(viewportWidth:Double, viewportHeight:Double) {
   		viewport.set( viewportWidth, viewportHeight, 0 );
   	}
 	
@@ -190,7 +190,7 @@ class GraphMetrics {
   	 * than zero, else nothing is changed.
   	 * @param ratio The ratio.
   	 */
-  	def ratioPx2Gu_=(ratio:Float) {
+  	def ratioPx2Gu_=(ratio:Double) {
   		if( ratio > 0 ) {
   			ratioPx2Gu_p = ratio
   			px1_p        = 0.95f / ratioPx2Gu_p
@@ -206,7 +206,7 @@ class GraphMetrics {
   	 * @param maxy Highest ordinate.
   	 * @param maxz Highest depth.
   	 */
-  	def setBounds(minx:Float, miny:Float, minz:Float, maxx:Float, maxy:Float, maxz:Float) = {
+  	def setBounds(minx:Double, miny:Double, minz:Double, maxx:Double, maxy:Double, maxz:Double) = {
   		lo.x = minx
   		lo.y = miny
   		lo.z = minz
@@ -217,6 +217,6 @@ class GraphMetrics {
   		size.data(0) = hi.x - lo.x
   		size.data(1) = hi.y - lo.y
   		size.data(2) = hi.z - lo.z
-  		diagonal     = Math.sqrt( size.data(0) * size.data(0) + size.data(1) * size.data(1) + size.data(2) * size.data(2) ).toFloat
+  		diagonal     = Math.sqrt( size.data(0) * size.data(0) + size.data(1) * size.data(1) + size.data(2) * size.data(2) )
   	}
 }

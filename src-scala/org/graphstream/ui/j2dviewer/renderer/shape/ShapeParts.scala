@@ -49,7 +49,7 @@ trait Fillable {
 	var fillPaint:ShapePaint = null
  
 	/** Value in [0..1] for dyn-colors. */
-	var theFillPercent = 0f;
+	var theFillPercent = 0.0;
 
     /**
      * Fill the shape.
@@ -57,7 +57,7 @@ trait Fillable {
      * @param dynColor The value between 0 and 1 allowing to know the dynamic plain color, if any.
      * @param shape The awt shape to fill.
      */
-	def fill( g:Graphics2D, dynColor:Float, shape:java.awt.Shape, camera:Camera ) {
+	def fill( g:Graphics2D, dynColor:Double, shape:java.awt.Shape, camera:Camera ) {
 		fillPaint match {
 		  case p:ShapeAreaPaint  => g.setPaint( p.paint( shape, camera.metrics.ratioPx2Gu ) );    g.fill( shape )
 		  case p:ShapeColorPaint => g.setPaint( p.paint( dynColor ) ); g.fill( shape )
@@ -118,9 +118,9 @@ trait FillableMulticolored {
 trait FillableLine {
 	var fillColors:Array[Color] = null
 	var fillStroke:ShapeStroke = null
-	var theFillPercent = 0f;
+	var theFillPercent = 0.0;
   
-	def fill( g:Graphics2D, width:Float, dynColor:Float, shape:java.awt.Shape ) {
+	def fill( g:Graphics2D, width:Double, dynColor:Double, shape:java.awt.Shape ) {
 		if( fillStroke != null ) {
 			val stroke = fillStroke.stroke( width )
    
@@ -130,7 +130,7 @@ trait FillableLine {
 		}
 	}
  
-	def fill( g:Graphics2D, width:Float, shape:java.awt.Shape ) { fill( g, width, theFillPercent, shape ) }
+	def fill( g:Graphics2D, width:Double, shape:java.awt.Shape ) { fill( g, width, theFillPercent, shape ) }
  
 	protected def configureFillableLineForGroup( style:Style, camera:Camera ) {
 		fillStroke = ShapeStroke.strokeForConnectorFill( style )
@@ -169,7 +169,7 @@ trait Strokable {
 	var theStroke:ShapeStroke = null
  	
 	/** The stroke width. */
-	var theStrokeWidth = 0f
+	var theStrokeWidth = 0.0
 
  	/** Paint the stroke of the shape. */
 	def stroke( g:Graphics2D, shape:java.awt.Shape ) {
@@ -212,10 +212,10 @@ trait Shadowable {
 	protected val theShadowOff = new Point2
 
 	/** Sety the shadow width added to the shape width. */
-	def shadowWidth( width:Float, height:Float ) { theShadowWidth.set( width, height ) }
+	def shadowWidth( width:Double, height:Double ) { theShadowWidth.set( width, height ) }
  
  	/** Set the shadow offset according to the shape. */ 
-	def shadowOffset( xoff:Float, yoff:Float ) { theShadowOff.set( xoff, yoff ) }
+	def shadowOffset( xoff:Double, yoff:Double ) { theShadowOff.set( xoff, yoff ) }
  
  	/**
      * Render the shadow.
@@ -245,7 +245,7 @@ trait ShadowableLine {
 	var shadowStroke:ShapeStroke = null
 
 	/** Additional width of a shadow (added to the shape size). */
-	protected var theShadowWidth = 0f
+	protected var theShadowWidth = 0.0
  
 	/** Offset of the shadow according to the shape center. */
 	protected val theShadowOff = new Point2
@@ -253,10 +253,10 @@ trait ShadowableLine {
 	protected var theShadowColor:Color = null
  
 	/** Sety the shadow width added to the shape width. */
-	def shadowWidth( width:Float ) { theShadowWidth = width }
+	def shadowWidth( width:Double ) { theShadowWidth = width }
  
  	/** Set the shadow offset according to the shape. */ 
-	def shadowOffset( xoff:Float, yoff:Float ) { theShadowOff.set( xoff, yoff ) }
+	def shadowOffset( xoff:Double, yoff:Double ) { theShadowOff.set( xoff, yoff ) }
   
  	/**
      * Render the shadow.
@@ -295,7 +295,7 @@ trait Decorable {
  	  	if( element != null ) visible = camera.isTextVisible( element )
  	  	if( theDecor != null && visible ) {
  	  		val bounds = shape.getBounds2D
- 	  		theDecor.renderInside( g, camera, iconAndText, bounds.getMinX.toFloat, bounds.getMinY.toFloat, bounds.getMaxX.toFloat, bounds.getMaxY.toFloat )
+ 	  		theDecor.renderInside( g, camera, iconAndText, bounds.getMinX, bounds.getMinY, bounds.getMaxX, bounds.getMaxY )
  	  	}
  	}
 	
@@ -309,7 +309,7 @@ trait Decorable {
  	  			}
  	  			case _ => {
  	  				val bounds = shape.getBounds2D
- 	  				theDecor.renderAlong( g, camera, iconAndText, bounds.getMinX.toFloat, bounds.getMinY.toFloat, bounds.getMaxX.toFloat, bounds.getMaxY.toFloat )
+ 	  				theDecor.renderAlong( g, camera, iconAndText, bounds.getMinX, bounds.getMinY, bounds.getMaxX, bounds.getMaxY )
  	  			}
  	  		}
  	  	}
@@ -409,12 +409,12 @@ trait Area {
 		size( style, camera )
 	}
 	
-	protected def configureAreaForElement( g:Graphics2D, camera:Camera, info:NodeInfo, element:GraphicElement, x:Float, y:Float ) {
+	protected def configureAreaForElement( g:Graphics2D, camera:Camera, info:NodeInfo, element:GraphicElement, x:Double, y:Double ) {
 		dynSize( element.getStyle, camera, element )
 		positionAndFit( g, camera, info, element, x, y, 0, 0 )
 	}
 	
-	protected def configureAreaForElement( g:Graphics2D, camera:Camera, info:NodeInfo, element:GraphicElement, x:Float, y:Float, contentOverallWidth:Float, contentOverallHeight:Float ) {
+	protected def configureAreaForElement( g:Graphics2D, camera:Camera, info:NodeInfo, element:GraphicElement, x:Double, y:Double, contentOverallWidth:Double, contentOverallHeight:Double ) {
 		dynSize( element.getStyle, camera, element )
 		positionAndFit( g, camera, info, element, x, y, contentOverallWidth, contentOverallHeight )
 	}
@@ -431,7 +431,7 @@ trait Area {
 		}
 	}
 	
-	private def size( width:Float, height:Float ) { theSize.set( width, height ) }
+	private def size( width:Double, height:Double ) { theSize.set( width, height ) }
 	
 	private def size( style:Style, camera:Camera ) { 
 		val w = camera.metrics.lengthToGu( style.getSize, 0 )
@@ -454,7 +454,7 @@ trait Area {
 		theSize.set( w, h )
 	}
 	
-	protected def positionAndFit( g:Graphics2D, camera:Camera, info:NodeInfo, element:GraphicElement, x:Float, y:Float, contentOverallWidth:Float, contentOverallHeight:Float ) {
+	protected def positionAndFit( g:Graphics2D, camera:Camera, info:NodeInfo, element:GraphicElement, x:Double, y:Double, contentOverallWidth:Double, contentOverallHeight:Double ) {
 		if( info != null ) {
 			if( contentOverallWidth > 0 && contentOverallHeight > 0 )
 				theSize.set( contentOverallWidth, contentOverallHeight )
@@ -481,12 +481,12 @@ trait Connector {
 	var info:EdgeInfo = null
 	
 	/** Width of the connector. */
-	protected var theSize:Float = 0
+	protected var theSize:Double = 0
 	
-	protected var theTargetSizeX = 0f
-	protected var theTargetSizeY = 0f
-	protected var theSourceSizeX = 0f
-	protected var theSourceSizeY = 0f
+	protected var theTargetSizeX = 0.0
+	protected var theTargetSizeY = 0.0
+	protected var theSourceSizeX = 0.0
+	protected var theSourceSizeY = 0.0
 	
 	/** Is the connector directed ? */
 	var isDirected = false
@@ -528,7 +528,7 @@ trait Connector {
 	}
 	
 	/** Set the size (`width`) of the connector. */
-	private def size( width:Float ) { theSize = width }
+	private def size( width:Double ) { theSize = width }
 	
 	/** Set the size of the connector using a predefined style. */
 	private def size( style:Style, camera:Camera ) { size( camera.metrics.lengthToGu( style.getSize, 0 ) ) }
@@ -562,7 +562,7 @@ trait Connector {
 	}
 	
 	/** Define the two end points sizes (does not use the style nor the fit size). */
-	private def endPoints( sourceWidth:Float, targetWidth:Float, directed:Boolean ) {
+	private def endPoints( sourceWidth:Double, targetWidth:Double, directed:Boolean ) {
 		theSourceSizeX = sourceWidth
 		theSourceSizeY = sourceWidth
 		theTargetSizeX = targetWidth
@@ -571,7 +571,7 @@ trait Connector {
 	}
 	
 	/** Define the two end points sizes (does not use the style nor the fit size). */
-	private def endPoints( sourceWidth:Float, sourceHeight:Float, targetWidth:Float, targetHeight:Float, directed:Boolean ) {
+	private def endPoints( sourceWidth:Double, sourceHeight:Double, targetWidth:Double, targetHeight:Double, directed:Boolean ) {
 		theSourceSizeX = sourceWidth
 		theSourceSizeY = sourceHeight
 		theTargetSizeX = targetWidth
@@ -597,7 +597,7 @@ trait Connector {
 	}
 	
 	/** Give the position of the origin and destination points. */
-	private def positionForLinesAndCurves( info:EdgeInfo, style:Style, xFrom:Float, yFrom:Float, xTo:Float, yTo:Float ) {
+	private def positionForLinesAndCurves( info:EdgeInfo, style:Style, xFrom:Double, yFrom:Double, xTo:Double, yTo:Double ) {
 	    positionForLinesAndCurves( info, style, xFrom, yFrom, xTo, yTo, 0, null ) }
 	
 	/**
@@ -608,7 +608,7 @@ trait Connector {
 	 * since we do not know the curves). This is important since arrows and sprites can be attached to edges.
 	 * </p>
 	 */
-	private def positionForLinesAndCurves( info:EdgeInfo, style:Style, xFrom:Float, yFrom:Float, xTo:Float, yTo:Float, multi:Int, group:GraphicEdge#EdgeGroup ) {
+	private def positionForLinesAndCurves( info:EdgeInfo, style:Style, xFrom:Double, yFrom:Double, xTo:Double, yTo:Double, multi:Int, group:GraphicEdge#EdgeGroup ) {
 	    
 		//info.points(0).set( xFrom, yFrom )
 		//info.points(3).set( xTo, yTo )
@@ -633,7 +633,7 @@ trait Connector {
 	}
 	
 	/** Define the control points to make the edge a loop. */
-	private def positionEdgeLoop(info:EdgeInfo, x:Float, y:Float, multi:Int) {
+	private def positionEdgeLoop(info:EdgeInfo, x:Double, y:Double, multi:Int) {
 		var m = 1f + multi * 0.2f
 		val s = ( theTargetSizeX + theTargetSizeY ) / 2
 		var d = s / 2 * m + 4 * s * m
@@ -645,18 +645,18 @@ trait Connector {
 	}
 	
 	/** Define the control points to make this edge a part of a multi-edge. */
-	private def positionMultiEdge(info:EdgeInfo, x1:Float, y1:Float, x2:Float, y2:Float, multi:Int, group:GraphicEdge#EdgeGroup) {
+	private def positionMultiEdge(info:EdgeInfo, x1:Double, y1:Double, x2:Double, y2:Double, multi:Int, group:GraphicEdge#EdgeGroup) {
 		var vx  = (  x2 - x1 )
 		var vy  = (  y2 - y1 )
-		var vx2 = (  vy ) * 0.6f
-		var vy2 = ( -vx ) * 0.6f
-		val gap = 0.2f
-		var ox  = 0f
-		var oy  = 0f
-		val f   = ( ( 1 + multi ) / 2 ).toFloat * gap // (1+multi)/2 must be done on integers.
+		var vx2 = (  vy ) * 0.6
+		var vy2 = ( -vx ) * 0.6
+		val gap = 0.2
+		var ox  = 0.0
+		var oy  = 0.0
+		val f   = ( ( 1 + multi ) / 2 ) * gap // (1+multi)/2 must be done on integers.
   
-		vx *= 0.2f
-		vy *= 0.2f
+		vx *= 0.2
+		vy *= 0.2
   
 		val main = group.getEdge( 0 )
 		val edge = group.getEdge( multi )

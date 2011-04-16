@@ -49,7 +49,7 @@ object ShapeUtil {
 	 * @param edge The edge (it contains its target node).
 	 * @return The radius.
 	 */
- 	def evalTargetRadius2D(edge:GraphicEdge, camera:Camera):Float = {
+ 	def evalTargetRadius2D(edge:GraphicEdge, camera:Camera):Double = {
  	    val einfo = edge.getAttribute(ElementInfo.attributeName).asInstanceOf[EdgeInfo]
  	    
  	    evalTargetRadius2D(
@@ -60,20 +60,20 @@ object ShapeUtil {
  	    		camera )
  	}
  
-   	def evalTargetRadius2D(style:Style, info:NodeInfo, p0:Point3, p3:Point3, camera:Camera):Float =
+   	def evalTargetRadius2D(style:Style, info:NodeInfo, p0:Point3, p3:Point3, camera:Camera):Double =
    		evalTargetRadius2D(style, info, p0, null, null, p3, camera)
   
-  	def evalTargetRadius2D(edge:GraphicEdge, p0:Point3, p1:Point3, p2:Point3, p3:Point3, camera:Camera):Float = 
+  	def evalTargetRadius2D(edge:GraphicEdge, p0:Point3, p1:Point3, p2:Point3, p3:Point3, camera:Camera):Double = 
   		evalTargetRadius2D(edge.to.getStyle,
   			edge.to.getAttribute(ElementInfo.attributeName).asInstanceOf[NodeInfo],
   			p0, p1, p2, p3, camera)
   		
-  	def evalTargetRadius2D(style:Style, info:NodeInfo, p0:Point3, p1:Point3, p2:Point3, p3:Point3, camera:Camera):Float = { 
+  	def evalTargetRadius2D(style:Style, info:NodeInfo, p0:Point3, p1:Point3, p2:Point3, p3:Point3, camera:Camera):Double = { 
 		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.StrokeMode
 		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Shape._
 
-  	  	var w = 0f 
-  	  	var h = 0f
+  	  	var w = 0.0
+  	  	var h = 0.0
   	  	val s = if( style.getStrokeMode != StrokeMode.NONE ) camera.metrics.lengthToGu(style.getStrokeWidth) else 0f
 
   	  	if( info != null ) {
@@ -98,7 +98,7 @@ object ShapeUtil {
 		}
 	}
   
-  	protected def evalEllipseRadius2D(p0:Point3, p1:Point3, p2:Point3, p3:Point3, w:Float, h:Float, s:Float):Float = {
+  	protected def evalEllipseRadius2D(p0:Point3, p1:Point3, p2:Point3, p3:Point3, w:Double, h:Double, s:Double):Double = {
   	  	if( w == h )
   	  	     w / 2 + s	// Welcome simplification for circles ...
   	  	else evalEllipseRadius2D(p0, p1, p2, p3, w/2 + s, h/2 + s)
@@ -112,11 +112,11 @@ object ShapeUtil {
 	 * @param h The ellipse second radius (height/2).
 	 * @return The length of the radius along the edge vector.
 	 */
-	protected def evalEllipseRadius2D(p0:Point3, p1:Point3, p2:Point3, p3:Point3, w:Float, h:Float):Float = {
+	protected def evalEllipseRadius2D(p0:Point3, p1:Point3, p2:Point3, p3:Point3, w:Double, h:Double):Double = {
 		// Vector of the entering edge.
 
-		var dx = 0f
-		var dy = 0f
+		var dx = 0.0
+		var dy = 0.0
 
 		if( p1 != null && p2 != null ) {
 			dx = p3.x - p2.x //( p2.x + ((p1.x-p2.x)/4) )	// Use the line going from the last control-point to target
@@ -132,19 +132,19 @@ object ShapeUtil {
 
 		// Find the angle of the entering vector with (1,0).
 
-		val d  = sqrt( dx*dx + dy*dy ).toFloat
+		val d  = sqrt( dx*dx + dy*dy )
 		var a  = dx / d
 
 		// Compute the coordinates at which the entering vector and the ellipse cross.
 
-		a  = acos( a ).toFloat
-		dx = ( cos( a ) * w ).toFloat
-		dy = ( sin( a ) * h ).toFloat
+		a  = acos( a )
+		dx = ( cos( a ) * w )
+		dy = ( sin( a ) * h )
 
 		// The distance from the ellipse centre to the crossing point of the ellipse and
 		// vector. Yo !
 
-		sqrt( dx*dx + dy*dy ).toFloat
+		sqrt( dx*dx + dy*dy )
 	}
 
  	/**
@@ -155,17 +155,17 @@ object ShapeUtil {
 	 * @param h The box second radius (height/2).
 	 * @return The length of the radius along the edge vector.
 	 */
-	def evalBoxRadius2D(p0:Point3, p1:Point3, p2:Point3, p3:Point3, w:Float, h:Float):Float = {
+	def evalBoxRadius2D(p0:Point3, p1:Point3, p2:Point3, p3:Point3, w:Double, h:Double):Double = {
 
 		// Pythagora : Angle at which we compute the intersection with the height or the width.
 	
-		var da = w / ( sqrt( w*w + h*h ).toFloat )
+		var da = w / ( sqrt( w*w + h*h ).toDouble )
 		
 		da = if( da < 0 ) -da else da
 		
 		// Angle of the incident vector.
-		var dx = 0f
-		var dy = 0f
+		var dx = 0.0
+		var dy = 0.0
 
 		if( p1 != null && p2 != null ) {
 			dx = p3.x - p2.x // ( p2.x + ((p1.x-p2.x)/4) )	// Use the line going from the last control-point to target
@@ -175,7 +175,7 @@ object ShapeUtil {
 			dy = p3.y - p0.y
 		}
   
-		val d = sqrt( dx*dx + dy*dy ).toFloat
+		val d = sqrt( dx*dx + dy*dy ).toDouble
 		var a = dx/d
 		
 		a = if( a < 0 ) -a else a
@@ -192,7 +192,7 @@ object ShapeUtil {
 	}
 	
 	/** Compute if point `p`  is inside of the shape of `elt` whose overall size is `w` x `h`. */
-	def isPointIn(elt:GraphicElement, p:Point3, w:Float, h:Float):Boolean = {
+	def isPointIn(elt:GraphicElement, p:Point3, w:Double, h:Double):Boolean = {
 		import ShapeKind._
 		elt.getStyle.getShape.kind match {
 			case RECTANGULAR => isPointIn2DBox( p, elt.getX, elt.getY, w, h )
@@ -202,14 +202,14 @@ object ShapeUtil {
 	}
 	
 	/** Compute if point `p`  is inside of a rectangular shape of overall size `w` x `h`. */
-	def isPointIn2DBox(p:Point3, x:Float, y:Float, w:Float, h:Float):Boolean = {
+	def isPointIn2DBox(p:Point3, x:Double, y:Double, w:Double, h:Double):Boolean = {
 		val w2 = w/2
 		val h2 = h/2
 		( p.x > (x-w2) && p.x < (x+w2) && p.y > (y-h2) && p.y < (y+h2) )
 	}
 	
 	/** Compute if point `p`  is inside of a ellipsoid shape of overall size `w` x `h`. */
-	def isPointIn2DEllipse(p:Point3, x:Float, y:Float, w:Float, h:Float):Boolean = {
+	def isPointIn2DEllipse(p:Point3, x:Double, y:Double, w:Double, h:Double):Boolean = {
 		val xx = p.x - x
 		val yy = p.y - y
 		val w2 = w/2

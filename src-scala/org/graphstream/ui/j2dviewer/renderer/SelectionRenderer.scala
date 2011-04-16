@@ -37,7 +37,7 @@ import org.graphstream.ui.j2dviewer.Camera
 import org.graphstream.ui.util.Selection
 
 class SelectionRenderer( val selection:Selection, val graph:GraphicGraph ) {
-	protected val shape        = new Rectangle2D.Float
+	protected val shape        = new Rectangle2D.Double
 	protected val linesColor   = new Color( 240, 240, 240 )
 	protected val linesColorQ  = new Color(   0,   0,   0, 64 )
 	protected val fillColor    = new Color(  50,  50, 200, 32 )
@@ -52,7 +52,7 @@ class SelectionRenderer( val selection:Selection, val graph:GraphicGraph ) {
 			var y1 = selection.y1
 			var x2 = selection.x2
 			var y2 = selection.y2
-			var t = 0f
+			var t = 0.0
 			
 			if( x1 > x2 ) { t = x1; x1 = x2; x2 = t }
 			if( y1 > y2 ) { t = y1; y1 = y2; y2 = t }

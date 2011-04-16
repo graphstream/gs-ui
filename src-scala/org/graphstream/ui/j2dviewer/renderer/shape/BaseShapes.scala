@@ -180,10 +180,10 @@ trait RectangularAreaShape extends AreaShape {
 
 abstract class OrientableRectangularAreaShape extends RectangularAreaShape with Orientable {
 	 
-	var p:Point2D.Float = null
-	var angle = 0f
-	var w = 0f
-	var h = 0f
+	var p:Point2D.Double = null
+	var angle = 0.0
+	var w = 0.0
+	var h = 0.0
 	var oriented = false
 	
 	override def configureForGroup( g:Graphics2D, style:Style, camera:Camera ) {
@@ -217,10 +217,10 @@ abstract class OrientableRectangularAreaShape extends RectangularAreaShape with 
 			}
 		
 			p     = camera.transform( x, y )	// Pass to pixels, the image will be drawn in pixels.
-			angle = acos( theDirection.dotProduct( 1, 0 ) ).toFloat
+			angle = acos( theDirection.dotProduct( 1, 0 ) )
 		
 			if( theDirection.y > 0 )			// The angle is always computed for acute angles
-				angle = ( Pi - angle ).toFloat
+				angle = ( Pi - angle )
 	
 			w = camera.metrics.lengthToPx(theSize.x, Units.GU)
 			h = camera.metrics.lengthToPx(theSize.y, Units.GU)
@@ -273,7 +273,7 @@ abstract class OrientableRectangularAreaShape extends RectangularAreaShape with 
 }
 
 abstract class PolygonalShape extends AreaShape {
-	var theShape = new Path2D.Float
+	var theShape = new Path2D.Double
  
  	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
  		makeShadow( g, camera )
@@ -289,7 +289,7 @@ abstract class PolygonalShape extends AreaShape {
 }
 
 class LineShape extends LineConnectorShape {
-	protected var theShape:java.awt.Shape = new Line2D.Float 
+	protected var theShape:java.awt.Shape = new Line2D.Double 
 // Command
   
 	protected def make( g:Graphics2D, camera:Camera ) {
@@ -298,11 +298,11 @@ class LineShape extends LineConnectorShape {
 		if( info.isCurve ) {
 			val ctrl1 = info(1)
 			val ctrl2 = info(2)
-			val curve = new CubicCurve2D.Float
+			val curve = new CubicCurve2D.Double
 			theShape = curve
 			curve.setCurve( from.x, from.y, ctrl1.x, ctrl1.y, ctrl2.x, ctrl2.y, to.x, to.y )
 		} else {
-			val line = new Line2D.Float
+			val line = new Line2D.Double
 			theShape = line
 			line.setLine( from.x, from.y, to.x, to.y )
 		} 
@@ -319,11 +319,11 @@ class LineShape extends LineConnectorShape {
 			var ctrlx1 = info(2).x + theShadowOff.x
 			var ctrly1 = info(2).y + theShadowOff.y
 			
-			val curve = new CubicCurve2D.Float
+			val curve = new CubicCurve2D.Double
 			theShape = curve
 			curve.setCurve( x0, y0, ctrlx0, ctrly0, ctrlx1, ctrly1, x1, y1 )
 		} else {
-			val line = new Line2D.Float
+			val line = new Line2D.Double
 			theShape = line
 			line.setLine( x0, y0, x1, y1 )
 		} 
@@ -346,7 +346,7 @@ class LineShape extends LineConnectorShape {
  * A cubic curve shape.
  */
 class PolylineEdgeShape extends LineConnectorShape with ShowCubics {
-	protected var theShape = new Path2D.Float
+	protected var theShape = new Path2D.Double
 
 // Command
  

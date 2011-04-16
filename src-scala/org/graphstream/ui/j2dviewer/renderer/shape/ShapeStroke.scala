@@ -34,7 +34,7 @@ import java.awt.{Stroke, BasicStroke, Color}
 import org.graphstream.ui.graphicGraph.stylesheet.Style
 
 abstract class ShapeStroke {
-	def stroke( width:Float ):Stroke
+	def stroke( width:Double ):Stroke
 }
 
 object ShapeStroke {
@@ -70,16 +70,16 @@ object ShapeStroke {
 	}
  
 	class PlainShapeStroke extends ShapeStroke {
-		private[this] var oldWidth = 0f
+		private[this] var oldWidth = 0.0
 		private[this] var oldStroke:Stroke = null
 		
-		def stroke( width:Float ):Stroke = {
+		def stroke( width:Double ):Stroke = {
 			if( width == oldWidth ) {
-				if( oldStroke == null ) oldStroke = new BasicStroke( width/*, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL*/ )	// WTF ??
+				if( oldStroke == null ) oldStroke = new BasicStroke( width.toFloat/*, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL*/ )	// WTF ??
 				oldStroke
 			} else {
 				oldWidth  = width
-				oldStroke = new BasicStroke( width/*, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL*/ )
+				oldStroke = new BasicStroke( width.toFloat/*, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL*/ )
 				oldStroke
 			}
 		}

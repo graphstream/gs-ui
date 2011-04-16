@@ -43,22 +43,22 @@ class Selection {
 	private[this] val lo:Point3 = new Point3
 	private[this] val hi:Point3 = new Point3
 	
-	def begins( x:Float, y:Float ) {
+	def begins( x:Double, y:Double ) {
 		lo.x = x
 		lo.y = y
 		hi.x = x
 		hi.y = y
 	}
  
- 	def grows( x:Float, y:Float ) {
+ 	def grows( x:Double, y:Double ) {
  		hi.x = x
  		hi.y = y
  	}
   
- 	def x1:Float = lo.x
- 	def y1:Float = lo.y
- 	def z1:Float = lo.z
- 	def x2:Float = hi.x
- 	def y2:Float = hi.y
- 	def z2:Float = hi.z
+ 	def x1:Double = lo.x
+ 	def y1:Double = lo.y
+ 	def z1:Double = lo.z
+ 	def x2:Double = hi.x
+ 	def y2:Double = hi.y
+ 	def z2:Double = hi.z
 }
