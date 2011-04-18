@@ -95,7 +95,7 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
  
 // Command
  
-	protected def make(g:Graphics2D, camera:Camera) {
+	protected def make(bck:Backend, camera:Camera) {
 		make(camera, 0, 0, 0, 0)
 	}
 	
@@ -251,17 +251,18 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
 		theShape.closePath
 	}
 
-	protected def makeShadow( g:Graphics2D, camera:Camera ) {
+	protected def makeShadow(bck:Backend, camera:Camera ) {
 		make( camera, theShadowOff.x, theShadowOff.y, theShadowWidth.x, theShadowWidth.y )
 	}
 	
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		makeShadow( g, camera )
- 		cast( g, theShape )
+	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		makeShadow(bck, camera )
+ 		cast(bck.graphics2D, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		make( g, camera )
+	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	    val g = bck.graphics2D
+ 		make(bck, camera )
  		stroke( g, theShape )
  		fill( g, theSize, theShape, camera )
  		decorConnector( g, camera, info.iconAndText, element, theShape )
@@ -287,8 +288,8 @@ class AngleShape extends AreaConnectorShape {
  
 // Command
  
-	protected def make( g:Graphics2D, camera:Camera ) {
-		make( camera, 0, 0, 0, 0 )
+	protected def make(bck:Backend, camera:Camera) {
+		make(camera, 0, 0, 0, 0)
 	}
   
 	protected def make( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
@@ -426,19 +427,20 @@ class AngleShape extends AreaConnectorShape {
 		theShape.closePath
 	}
 
-	protected def makeShadow( g:Graphics2D, camera:Camera ) {
+	protected def makeShadow(bck:Backend, camera:Camera ) {
 		if( info.isCurve )
 		     makeOnCurve( camera, theShadowOff.x, theShadowOff.y, theShadowWidth.x, theShadowWidth.y )
 		else makeOnLine( camera, theShadowOff.x, theShadowOff.y, theShadowWidth.x, theShadowWidth.y )
 	}
  
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		makeShadow( g, camera )
- 		cast( g, theShape )
+	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		makeShadow(bck, camera )
+ 		cast(bck.graphics2D, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		make( g, camera )
+	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	    val g = bck.graphics2D
+ 		make(bck, camera )
  		stroke( g, theShape )
  		fill( g, theSize, theShape, camera )
  		decorConnector( g, camera, info.iconAndText, element, theShape )
@@ -453,7 +455,7 @@ class CubicCurveShape extends LineConnectorShape with ShowCubics {
 
 // Command
  
-	protected def make( g:Graphics2D, camera:Camera ) {
+	protected def make(bck:Backend, camera:Camera ) {
 		make( camera, 0, 0, 0, 0 )
 	}
   
@@ -541,19 +543,20 @@ class CubicCurveShape extends LineConnectorShape with ShowCubics {
 		theShape.curveTo( c1x, c1y, c2x, c2y, tox, toy )
 	}
 
-	protected def makeShadow( g:Graphics2D, camera:Camera ) {
+	protected def makeShadow(bck:Backend, camera:Camera ) {
 		if( info.isCurve )
 		     makeMultiOrLoop( camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth )
 		else makeSingle( camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth )
 	}
 	
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		makeShadow( g, camera )
- 		cast( g, theShape )
+	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		makeShadow(bck, camera )
+ 		cast(bck.graphics2D, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		make( g, camera )
+	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	    val g = bck.graphics2D
+ 		make(bck, camera )
  		stroke( g, theShape )
  		fill( g, theSize, theShape )
  		decorConnector( g, camera, info.iconAndText, element, theShape )
@@ -579,7 +582,7 @@ class FreePlaneEdgeShape extends LineConnectorShape {
 
 // Command
  
-	protected def make( g:Graphics2D, camera:Camera ) {
+	protected def make(bck:Backend, camera:Camera ) {
 		make( camera, 0, 0, 0, 0 )
 	}
   
@@ -594,13 +597,13 @@ class FreePlaneEdgeShape extends LineConnectorShape {
 		val fromy   = info.from.y + soy - theSourceSizeY/2
 		var tox     = info.to.x + sox
 		val toy     = info.to.y + soy - theTargetSizeY/2
-		val length  = abs( info(3).x - info(0).x )
+		val length  = abs( info.to.x - info.from.x )
 		var c1x     = 0.0
 		var c1y     = 0.0
 		var c2x     = 0.0
 		var c2y     = 0.0
 		
-		if( info(0).x < info(3).x ) {
+		if( info.from.x < info.to.x ) {
 			// At right.
 			fromx += theSourceSizeX/2
 			tox   -= theTargetSizeX/2
@@ -669,19 +672,20 @@ class FreePlaneEdgeShape extends LineConnectorShape {
 		theShape.curveTo( c1x, c1y, c2x, c2y, tox, toy )
 	}
 
-	protected def makeShadow( g:Graphics2D, camera:Camera ) {
+	protected def makeShadow(bck:Backend, camera:Camera ) {
 		if( info.isCurve )
 		     makeMultiOrLoop( camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth )
 		else makeSingle( camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth )
 	}
 	
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		makeShadow( g, camera )
- 		cast( g, theShape )
+	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		makeShadow(bck, camera )
+ 		cast(bck.graphics2D, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		make( g, camera )
+	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	    val g = bck.graphics2D
+ 		make(bck, camera )
  		stroke( g, theShape )
  		fill( g, theSize, theShape )
  		decorConnector( g, camera, info.iconAndText, element, theShape )
@@ -708,7 +712,7 @@ class PieChartShape
 	var theValues:Array[Double] = null
 	var valuesRef:AnyRef = null
 
-	def configureForGroup( g:Graphics2D, style:Style, camera:Camera ) {
+	def configureForGroup(bck:Backend, style:Style, camera:Camera ) {
 		configureAreaForGroup( style, camera )
 		configureFillableMultiColoredForGroup( style, camera )
 		configureStrokableForGroup( style, camera )
@@ -716,7 +720,8 @@ class PieChartShape
 		configureDecorableForGroup( style, camera )
 	}
 	
-	def configureForElement( g:Graphics2D, element:GraphicElement, info:ElementInfo, camera:Camera ) {
+	def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera ) {
+	    val g = bck.graphics2D
 		configureDecorableForElement( g, camera, element, info )
 		configureAreaForElement( g, camera, info.asInstanceOf[NodeInfo], element, theDecor )
 
@@ -731,22 +736,23 @@ class PieChartShape
 		}
 	}
 	
-	override def make( g:Graphics2D, camera:Camera ) {
+	override def make(bck:Backend, camera:Camera ) {
 		theShape.setFrameFromCenter( theCenter.x, theCenter.y, theCenter.x+theSize.x/2, theCenter.y+theSize.y/2 )
 	}
 	
-	override def makeShadow( g:Graphics2D, camera:Camera ) {
+	override def makeShadow(bck:Backend, camera:Camera ) {
 		theShape.setFrameFromCenter( theCenter.x+theShadowOff.x, theCenter.y+theShadowOff.y,
 				theCenter.x+(theSize.x+theShadowWidth.x)/2, theCenter.y+(theSize.y+theShadowWidth.y)/2 )
 	}
 	
-	override def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
-		makeShadow( g, camera )
-		cast( g, theShape )
+	override def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+		makeShadow(bck, camera )
+		cast(bck.graphics2D, theShape )
  	}
   
- 	override def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		make( g, camera )
+ 	override def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 	    val g = bck.graphics2D
+ 		make(bck, camera )
  		fillPies( g, element )
  		//fill( g, theSize, theShape )
  		stroke( g, theShape )
@@ -776,6 +782,4 @@ class PieChartShape
 	 			Console.err.print( "[Sprite %s] The sum of values for ui.pie-value should eval to 1 at max (actually %f)%n".format( element.getId, sum ) )
  		}
  	}
- 	
-// utilities
 }

@@ -30,38 +30,50 @@
  */
 package org.graphstream.ui.j2dviewer.renderer
 
-import java.awt.Graphics2D
+//import java.awt.Graphics2D
 
 import org.graphstream.graph.Element
 import org.graphstream.ui.graphicGraph.{GraphicElement, GraphicNode, GraphicEdge, GraphicSprite, GraphicGraph, StyleGroup}
 import org.graphstream.ui.graphicGraph.GraphicElement.SwingElementRenderer
 import org.graphstream.ui.graphicGraph.StyleGroup.ElementEvents
 
-import org.graphstream.ui.j2dviewer.{Camera, J2DGraphRenderer}
+import org.graphstream.ui.j2dviewer.{Backend, Camera, J2DGraphRenderer}
 import org.graphstream.ScalaGS._
 
 import scala.collection.JavaConversions._
 
-abstract class StyleRenderer( val group:StyleGroup ) extends GraphicElement.SwingElementRenderer {
+/**
+ * Style renderer companion object, acts as a factory for renderers. 
+ */
+object StyleRenderer {
+	import org.graphstream.ui.graphicGraph.stylesheet.Selector.Type._
+	def apply(style:StyleGroup, mainRenderer:J2DGraphRenderer):StyleRenderer = {
+		style.getType match {
+		  case NODE   => NodeRenderer(style, mainRenderer) 
+		  case EDGE   => EdgeRenderer(style, mainRenderer)
+		  case SPRITE => SpriteRenderer(style, mainRenderer)
+		  case GRAPH  => printf("we got a graph%n"); null
+		  case _      => throw new RuntimeException("WTF?")
+		}
+	}
+}
+
+/**
+ * Base class for style renderers.
+ */
+abstract class StyleRenderer(val group:StyleGroup) extends GraphicElement.SwingElementRenderer {
 // Attribute
 	
+    /** True if some event is taking place actually. */
 	protected var hadEvents:Boolean = false;
 	
 // Command
 	
- 	/**
- 	 * Render the shadow of all (visible) elements of the group.  
-     */
-   def renderShadow( g:Graphics2D, camera:Camera ) {
-     	render( g, camera, true, renderShadow _ )
-   }
+ 	/** Render the shadow of all (visible) elements of the group. */
+	def renderShadow(bck:Backend, camera:Camera) { render(bck, camera, true, renderShadow _) }
  
-	/**
-	 * Render all the (visible) elements of the group.
-	 */
-	def render( g:Graphics2D, camera:Camera ) {
-		render( g, camera, false, renderElement _ )
-	}
+	/** Render all the (visible) elements of the group. */
+	def render(bck:Backend, camera:Camera) { render(bck, camera, false, renderElement _) }
  
 	/**
      * Main rendering method.
@@ -77,8 +89,8 @@ abstract class StyleRenderer( val group:StyleGroup ) extends GraphicElement.Swin
      * run. Then for each dynamic element in phase 2, before calling renderElement, for each element
      * the pushDynStyle() method is called.
      * Then for each element modified by an event, in phase 3, the before drawing the element, the
-     * event is activated, then pushStyle() is called, then the element is drawn, and finally the
-     * event is deactivated.
+     * event is enabled, then pushStyle() is called, then the element is drawn, and finally the
+     * event is disabled.
      * </p>
      * 
      * <p>
@@ -87,43 +99,44 @@ abstract class StyleRenderer( val group:StyleGroup ) extends GraphicElement.Swin
      * method to use (renderElement() or renderShadow()).
      * </p>
 	 */
-	protected def render( g:Graphics2D, camera:Camera, shadow:Boolean, render:(Graphics2D,Camera,GraphicElement)=>Unit ) {
-		setupRenderingPass( g, camera, shadow )
-		pushStyle( g, camera, shadow )
+	protected def render(bck:Backend, camera:Camera, shadow:Boolean, render:(Backend,Camera,GraphicElement)=>Unit ) {
+		setupRenderingPass(bck, camera, shadow)
+		pushStyle(bck, camera, shadow)
 
 		group.bulkElements.foreach { e =>
 			val ge = e.asInstanceOf[GraphicElement]
 	
-			if( camera.isVisible( ge ) )
-			     render( g, camera, ge )
-			else elementInvisible( g, camera, ge );
+			if(camera.isVisible(ge))
+			     render(bck, camera, ge)
+			else elementInvisible(bck, camera, ge);
 		}
 			
-		if( group.hasDynamicElements ) {
+		if(group.hasDynamicElements) {
 			group.dynamicElements.foreach { e =>
-				val ge = e.asInstanceOf[GraphicElement];
-				if( camera.isVisible( ge ) ) {
-					if( ! group.elementHasEvents( ge ) ) {
-						pushDynStyle( g, camera, ge )
-						render( g, camera, ge )
+				val ge = e.asInstanceOf[GraphicElement]
+
+				if(camera.isVisible(ge)) {
+					if(! group.elementHasEvents(ge)) {
+						pushDynStyle(bck, camera, ge)
+						render(bck, camera, ge)
 					}
 				} else {
-					elementInvisible( g, camera, ge )
+					elementInvisible(bck, camera, ge)
 				}
 			}
 		}
 			
-		if( group.hasEventElements() ) {
+		if(group.hasEventElements) {
 			group.elementsEvents.foreach { event =>
 				val ge = event.getElement.asInstanceOf[GraphicElement]
 				
-				if( camera.isVisible( ge ) ) {
-					event.activate()
-					pushStyle( g, camera, shadow )
-					render( g, camera, ge )
-					event.deactivate()
+				if(camera.isVisible(ge)) {
+					event.activate
+					pushStyle(bck, camera, shadow)
+					render(bck, camera, ge)
+					event.deactivate
 				} else {
-					elementInvisible( g, camera, ge )
+					elementInvisible(bck, camera, ge)
 				}
 			}
 			
@@ -134,83 +147,70 @@ abstract class StyleRenderer( val group:StyleGroup ) extends GraphicElement.Swin
 			hadEvents = false;
 		}
   
-		endRenderingPass( g, camera, shadow )
+		endRenderingPass(bck, camera, shadow)
     }
 
 // Methods to implement in each renderer
  
 	/**
 	 * Called before the whole rendering pass for all elements.
-	 * @param g The Swing graphics.
+	 * @param bck The rendering back-end.
 	 * @param camera The camera.
+	 * @param forShadow true if we are in the shadow rendering pass.
 	 */
-	protected def setupRenderingPass( g:Graphics2D, camera:Camera, forShadow:Boolean )
+	protected def setupRenderingPass(bck:Backend, camera:Camera, forShadow:Boolean)
 	
 	/**
 	 * Called before the rendering of bulk and event elements.
-	 * @param g The Swing graphics.
+	 * @param bck The rendering back-end.
 	 * @param camera The camera.
+	 * @param forShadow true if we are in the shadow rendering pass.
 	 */
-	protected def pushStyle( g:Graphics2D, camera:Camera, forShadow:Boolean )
+	protected def pushStyle(bck:Backend, camera:Camera, forShadow:Boolean)
 	
 	/**
 	 * Called before the rendering of elements on dynamic styles. This must only change the style
 	 * properties that can change dynamically.
-	 * @param g The Swing graphics.
+	 * @param bck The rendering back-end.
 	 * @param camera The camera.
 	 * @param element The graphic element concerned by the dynamic style change.
 	 */
-	protected def pushDynStyle( g:Graphics2D, camera:Camera, element:GraphicElement )
+	protected def pushDynStyle(bck:Backend, camera:Camera, element:GraphicElement)
 	
 	/**
 	 * Render a single element knowing the style is already prepared. Elements that are not visible
 	 * are not drawn.
-	 * @param g The Swing graphics.
+	 * @param bck The rendering back-end.
 	 * @param camera The camera.
 	 * @param element The element to render.
 	 */
-	protected def renderElement( g:Graphics2D, camera:Camera, element:GraphicElement )
+	protected def renderElement(bck:Backend, camera:Camera, element:GraphicElement)
 	
  	/**
      * Render the shadow of the element. 
-	 * @param g The Swing graphics.
+	 * @param bck The rendering back-end.
 	 * @param camera The camera.
 	 * @param element The element to render.
      */
-	protected def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement )
+	protected def renderShadow(bck:Backend, camera:Camera, element:GraphicElement)
  
 	/**
 	 * Called during rendering in place of {@link #renderElement(Graphics2D, Camera, GraphicElement)}
 	 * to signal that the given element is not inside the view. The renderElement() method will be
 	 * called as soon as the element becomes visible anew.
-	 * @param g The Swing graphics.
+	 * @param bck The rendering back-end.
 	 * @param camera The camera.
 	 * @param element The element to render.
 	 */
-	protected def elementInvisible( g:Graphics2D, camera:Camera, element:GraphicElement )
+	protected def elementInvisible(bck:Backend, camera:Camera, element:GraphicElement)
  
 	/**
 	 * Called at the end of the rendering pass. 
-	 * @param g The Swing graphics.
+	 * @param bck The rendering back-end.
 	 * @param camera The camera.
+	 * @param forShadow true if we are in the shadow rendering pass.
      */
-	protected def endRenderingPass( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
+	protected def endRenderingPass(bck:Backend, camera:Camera, forShadow:Boolean) {
 		// NOP by default.
-	}
-}
-
-/**
- * Style renderer companion object, acts as a factory for renderers. 
- */
-object StyleRenderer {
-	import org.graphstream.ui.graphicGraph.stylesheet.Selector.Type._
-	def apply( style:StyleGroup, mainRenderer:J2DGraphRenderer ):StyleRenderer = {
-		style.getType match {
-		  case NODE   => NodeRenderer( style, mainRenderer ) 
-		  case EDGE   => EdgeRenderer( style, mainRenderer )
-		  case SPRITE => SpriteRenderer( style, mainRenderer )
-		  case GRAPH  => printf( "we got a graph%n" ); null
-		  case _      => throw new RuntimeException( "WTF?" )
-		}
 	}
 }

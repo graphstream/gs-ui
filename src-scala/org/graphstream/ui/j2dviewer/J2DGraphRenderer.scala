@@ -30,7 +30,7 @@
  */
 package org.graphstream.ui.j2dviewer
   
-import java.awt.{Container, Graphics2D, RenderingHints}
+import java.awt.{Container, Graphics2D}//, RenderingHints}
 import java.util.ArrayList
 import java.io.{File, IOException}
 import java.awt.image.BufferedImage
@@ -46,13 +46,14 @@ import org.graphstream.ui.graphicGraph.{GraphicGraph, GraphicElement, StyleGroup
 import org.graphstream.ui.graphicGraph.stylesheet.Selector
 
 import org.graphstream.ui.util.Selection
-
 import org.graphstream.ui.j2dviewer.renderer._
-
 import org.graphstream.ScalaGS._
 
 import javax.imageio.ImageIO
 
+object J2DGraphRenderer {
+	val DEFAULT_RENDERER = "j2d_def_rndr";
+}
 
 /**
  * 2D renderer using Swing and Java2D to render the graph.
@@ -95,21 +96,24 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 	/** The layer renderer for the foreground (above the graph), can be null. */
 	protected var foreRenderer:LayerRenderer = null
 	
+	/** The rendering backend. */
+	protected var backend:Backend = null
+	
 // Construction
   
-  	def open( graph:GraphicGraph, drawingSurface:Container ) {
+  	def open(graph:GraphicGraph, drawingSurface:Container) {
 	  	if( this.graph == null ) {
 		  	this.graph   = graph
 		  	this.surface = drawingSurface
-		  	graph.getStyleGroups.addListener( this )
+		  	graph.getStyleGroups.addListener(this)
 	  	} else {
-	  		throw new RuntimeException( "renderer already open, use close() first" )
+	  		throw new RuntimeException("renderer already open, use close() first")
 	  	}
   	}
 	
   	def close() {
-  		if( graph != null ) {
-  			graph.getStyleGroups.removeListener( this )
+  		if(graph != null) {
+  			graph.getStyleGroups.removeListener(this)
   			graph   = null
   			surface = null
   		}
@@ -125,214 +129,201 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 
   	def getGraphDimension():Double = camera.metrics.diagonal
 
-  	def findNodeOrSpriteAt( x:Double, y:Double ):GraphicElement = camera.findNodeOrSpriteAt( graph, x, y )
+  	def findNodeOrSpriteAt(x:Double, y:Double):GraphicElement =
+  	    camera.findNodeOrSpriteAt(graph, x, y)
  
-  	def allNodesOrSpritesIn( x1:Double, y1:Double, x2:Double, y2:Double ):ArrayList[GraphicElement] = camera.allNodesOrSpritesIn( graph, x1, y1, x2, y2 )
+  	def allNodesOrSpritesIn(x1:Double, y1:Double, x2:Double, y2:Double):ArrayList[GraphicElement] =
+  	    camera.allNodesOrSpritesIn(graph, x1, y1, x2, y2)
   
-  	/**
-  	 * The rendering surface this renderer uses.
-  	 */
+  	/** The rendering surface this renderer uses. */
    	def renderingSurface:Container = surface
 	
 // Access -- Renderer bindings
    	
-    protected def getStyleRenderer( graph:GraphicGraph ):GraphBackgroundRenderer = {
-  		if( graph.getStyle.getRenderer( "dr" ) == null )
-  			graph.getStyle.addRenderer( "dr", new GraphBackgroundRenderer( graph, graph.getStyle ) )
+    protected def getStyleRenderer(graph:GraphicGraph):GraphBackgroundRenderer = {
+  		if(graph.getStyle.getRenderer("dr") == null)
+  			graph.getStyle.addRenderer("dr", new GraphBackgroundRenderer(graph, graph.getStyle))
   		
-  		graph.getStyle.getRenderer( "dr" ).asInstanceOf[GraphBackgroundRenderer]
+  		graph.getStyle.getRenderer("dr").asInstanceOf[GraphBackgroundRenderer]
     }
     
-    protected def getStyleRenderer( style:StyleGroup ):StyleRenderer = {
-  		if( style.getRenderer( "dr" ) == null )
-  			style.addRenderer( "dr", StyleRenderer( style, this ) )
+    protected def getStyleRenderer(style:StyleGroup):StyleRenderer = {
+  		if( style.getRenderer("dr") == null)
+  			style.addRenderer("dr", StyleRenderer(style, this))
     
-  		style.getRenderer( "dr" ).asInstanceOf[StyleRenderer]
+  		style.getRenderer("dr").asInstanceOf[StyleRenderer]
     }
     
-    protected def getStyleRenderer( element:GraphicElement ):StyleRenderer = {
-  		getStyleRenderer( element.getStyle )
+    protected def getStyleRenderer(element:GraphicElement):StyleRenderer = {
+  		getStyleRenderer(element.getStyle)
     }
     
 // Command
 
-	def setBounds( minx:Double, miny:Double, minz:Double, maxx:Double, maxy:Double, maxz:Double ) { camera.setBounds( minx, miny, minz, maxx, maxy, maxz ) }
+	def setBounds(minx:Double, miny:Double, minz:Double, maxx:Double, maxy:Double, maxz:Double) {
+	    camera.setBounds(minx, miny, minz, maxx, maxy, maxz)
+	}
  
   	def resetView() {
-  		camera.setAutoFitView( true )
+  		camera.setAutoFitView(true)
   		camera.viewRotation = 0
   	}
  
-  	def setViewCenter( x:Double, y:Double, z:Double ) {
-  		camera.setAutoFitView( false )
-  		camera.setViewCenter( x, y )
+  	def setViewCenter(x:Double, y:Double, z:Double) {
+  		camera.setAutoFitView(false)
+  		camera.setViewCenter(x, y)
   	}
   	
-  	def setGraphViewport( minx:Double, miny:Double, maxx:Double, maxy:Double ) {
-		camera.setAutoFitView( false )
-		camera.setViewCenter( minx + ( maxx - minx ), miny + ( maxy - miny ) )
-		camera.setGraphViewport( minx, miny, maxx, maxy )
+  	def setGraphViewport(minx:Double, miny:Double, maxx:Double, maxy:Double) {
+		camera.setAutoFitView(false)
+		camera.setViewCenter(minx + (maxx - minx), miny + (maxy - miny))
+		camera.setGraphViewport(minx, miny, maxx, maxy)
 		camera.viewPercent = 1
 	}
   	
-  	def removeGraphViewport()
-  	{
+  	def removeGraphViewport() {
   		camera.removeGraphViewport
   		resetView();
   	}
 
-  	def setViewPercent( percent:Double ) {
-  		camera.setAutoFitView( false )
+  	def setViewPercent(percent:Double) {
+  		camera.setAutoFitView(false)
   		camera.viewPercent = percent
   	}
 
-  	def setViewRotation( theta:Double ) { camera.viewRotation = theta }
+  	def setViewRotation(theta:Double) { camera.viewRotation = theta }
 
-  	def beginSelectionAt( x:Double, y:Double ) {
+  	def beginSelectionAt(x:Double, y:Double) {
   		selection.active = true
-  		selection.begins( x, y )
+  		selection.begins(x, y)
   	}
 
-  	def selectionGrowsAt( x:Double, y:Double ) {
-  		selection.grows( x, y )
+  	def selectionGrowsAt(x:Double, y:Double) {
+  		selection.grows(x, y)
   	}
 
-  	def endSelectionAt( x:Double, y:Double ) {
-  		selection.grows( x, y )
+  	def endSelectionAt(x:Double, y:Double) {
+  		selection.grows(x, y)
   		selection.active = false
   	}
 
-  	def moveElementAtPx( element:GraphicElement, x:Double, y:Double ) {
-  		val p = camera.inverseTransform( x, y )
-  		element.move( p.x, p.y, element.getZ )
+  	def moveElementAtPx(element:GraphicElement, x:Double, y:Double) {
+  		val p = camera.inverseTransform(x, y)
+  		element.move(p.x, p.y, element.getZ)
   	}
 
 // Commands -- Rendering
   
-  	def render( g:Graphics2D, width:Int, height:Int ) {
-  		if( graph != null ) { // not closed, the Swing repaint mechanism may trigger 1 or 2 calls to this after being closed.
+  	def render(g:Graphics2D, width:Int, height:Int) {
+  		if(graph != null) {
+  		    // Verify this view is not closed, the Swing repaint mechanism may trigger 1 or 2
+  		    // calls to this after being closed.
+
+  		    if(backend eq null)
+  		        backend = new BackendJ2D // TODO choose it according to some setting ...
+  		    
+  		    backend.prepareNewFrame(g)
+  		    camera.setBackend(backend)
+  		        
   			val sgs = graph.getStyleGroups
-	
-  			setupGraphics( g )
+  			
+  			setupGraphics
   			graph.computeBounds
-  			camera.setBounds( graph )
-  			camera.setViewport( width, height )
-  			getStyleRenderer(graph).render( g, camera, width, height )
-  			renderBackLayer( g )
+  			camera.setBounds(graph)
+  			camera.setViewport(width, height)
+  			getStyleRenderer(graph).render(backend, camera, width, height)
+  			renderBackLayer
   
-  			camera.pushView( g, graph )
-  			sgs.shadows.foreach { group =>
-		  		val renderer = getStyleRenderer( group )
-		  		renderer.renderShadow( g, camera )
+  			camera.pushView(graph)
+  			sgs.shadows.foreach {
+		  		getStyleRenderer(_).renderShadow(backend, camera)
   			}
   
   			sgs.zIndex.foreach { groups =>
   				groups.foreach { group =>
-		  	  		if( group.getType != Selector.Type.GRAPH ) {
-		  	  			val renderer = getStyleRenderer( group )
-		  	  			renderer.render( g, camera )
+		  	  		if(group.getType != Selector.Type.GRAPH) {
+		  	  			getStyleRenderer(group).render(backend, camera)
 		  	  		}
   				}
   			}
  
-  			camera.popView( g )
-  			renderForeLayer( g )
+  			camera.popView
+  			renderForeLayer
   
   			if( selection.renderer == null ) selection.renderer = new SelectionRenderer( selection, graph )
-  			selection.renderer.render( g, camera, width, height )
+  			selection.renderer.render(backend, camera, width, height )
   		}
   	}
    	
-	protected def renderBackLayer( g:Graphics2D ) { if( backRenderer != null ) renderLayer( g, backRenderer ) }
+	protected def renderBackLayer() { if(backRenderer ne null) renderLayer(backRenderer) }
 	
-	protected def renderForeLayer( g:Graphics2D ) { if( foreRenderer != null ) renderLayer( g, foreRenderer ) }
+	protected def renderForeLayer() { if(foreRenderer ne null) renderLayer(foreRenderer) }
 	
-	protected def renderLayer( g:Graphics2D, renderer:LayerRenderer ) {
+	protected def renderLayer(renderer:LayerRenderer) {
 		val metrics = camera.metrics
 		
-		renderer.render( g, graph, metrics.ratioPx2Gu,
+		renderer.render(backend.graphics2D, graph, metrics.ratioPx2Gu,
 			metrics.viewport.data(0).toInt,
 			metrics.viewport.data(1).toInt,
 			metrics.loVisible.x,
 			metrics.loVisible.y,
 			metrics.hiVisible.x,
-			metrics.hiVisible.y )
+			metrics.hiVisible.y)
 	}
 
-   protected def setupGraphics( g:Graphics2D ) {
-	   g.setRenderingHint( RenderingHints.KEY_STROKE_CONTROL,      RenderingHints.VALUE_STROKE_PURE )
-	   
-	   if( graph.hasAttribute( "ui.antialias" ) ) {
-		   g.setRenderingHint( RenderingHints.KEY_TEXT_ANTIALIASING,   RenderingHints.VALUE_TEXT_ANTIALIAS_ON )
-		   g.setRenderingHint( RenderingHints.KEY_ANTIALIASING,        RenderingHints.VALUE_ANTIALIAS_ON )
-	   } else {
-		   g.setRenderingHint( RenderingHints.KEY_TEXT_ANTIALIASING,   RenderingHints.VALUE_TEXT_ANTIALIAS_OFF )
-		   g.setRenderingHint( RenderingHints.KEY_ANTIALIASING,        RenderingHints.VALUE_ANTIALIAS_OFF )
-	   }
-    
-	   if( graph.hasAttribute( "ui.quality" ) ) {
-		   g.setRenderingHint( RenderingHints.KEY_RENDERING,           RenderingHints.VALUE_RENDER_SPEED )
-		   g.setRenderingHint( RenderingHints.KEY_INTERPOLATION,       RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR )
-		   g.setRenderingHint( RenderingHints.KEY_COLOR_RENDERING,     RenderingHints.VALUE_COLOR_RENDER_SPEED )
-		   g.setRenderingHint( RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED )
-	   } else {
-		   g.setRenderingHint( RenderingHints.KEY_RENDERING,           RenderingHints.VALUE_RENDER_QUALITY )
-		   g.setRenderingHint( RenderingHints.KEY_INTERPOLATION,       RenderingHints.VALUE_INTERPOLATION_BICUBIC )
-		   g.setRenderingHint( RenderingHints.KEY_COLOR_RENDERING,     RenderingHints.VALUE_COLOR_RENDER_QUALITY )
-		   g.setRenderingHint( RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY )
-	   }
+   protected def setupGraphics() {
+       backend.setAntialias(graph.hasAttribute("ui.antialias"))
+       backend.setQuality(graph.hasAttribute("ui.quality"))
    }
 
-   def screenshot( filename:String, width:Int, height:Int ) {
-	   	if( filename.endsWith( "png" ) || filename.endsWith( "PNG" ) ) {
-			val img = new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB )
-			render( img.createGraphics(), width, height )
+   def screenshot(filename:String, width:Int, height:Int) {
+	   	if(filename.endsWith("png") || filename.endsWith("PNG")) {
+	   	    
+			val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
+			render(img.createGraphics, width, height)
+			val file = new File(filename)
+			ImageIO.write(img, "png", file)
 
-			val file = new File( filename )
- 
-			//try { ImageIO.write( img, "png", file ) } catch { case e => e.printStackTrace() }
-			ImageIO.write( img, "png", file )
-		}
-		else if( filename.endsWith( "bmp" ) || filename.endsWith( "BMP" ) ) {
-			val img = new BufferedImage( width, height, BufferedImage.TYPE_INT_RGB )
-			render( img.createGraphics(), width, height )
-
-			val file = new File( filename )
-
-//			try { ImageIO.write( img, "bmp", file ) } catch { case e => e.printStackTrace() }
-			ImageIO.write( img, "bmp", file )
-		}
-		else if( filename.endsWith( "jpg" ) || filename.endsWith( "JPG" ) || filename.endsWith( "jpeg" ) || filename.endsWith( "JPEG" ) ) {
-			val img = new BufferedImage( width, height, BufferedImage.TYPE_INT_RGB )
-			render( img.createGraphics(), width, height )
-
-			val file = new File( filename )
-
-//			try { ImageIO.write( img, "jpg", file ) } catch { case e => e.printStackTrace() }
-			ImageIO.write( img, "jpg", file )
+	   	} else if(filename.endsWith("bmp") || filename.endsWith("BMP")) {
+			
+	   	    val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
+			render(img.createGraphics, width, height)
+			val file = new File(filename)
+			ImageIO.write(img, "bmp", file)
+			
+		} else if(filename.endsWith("jpg")  || filename.endsWith("JPG")
+		       || filename.endsWith("jpeg") || filename.endsWith("JPEG")) {
+			
+		    val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
+			render(img.createGraphics, width, height)
+			val file = new File(filename)
+			ImageIO.write(img, "jpg", file)
+			
+		} else {
+		    System.err.println("unknown screenshot filename extension %s, saving to jpeg".format(filename))
+		    val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
+			render(img.createGraphics, width, height)
+			val file = new File(filename+".jpg")
+			ImageIO.write(img, "jpg", file)
 		}
    }
    
-	def setBackLayerRenderer( renderer:LayerRenderer ) { backRenderer = renderer }
+	def setBackLayerRenderer(renderer:LayerRenderer) { backRenderer = renderer }
 
-	def setForeLayoutRenderer( renderer:LayerRenderer ) { foreRenderer = renderer }
+	def setForeLayoutRenderer(renderer:LayerRenderer) { foreRenderer = renderer }
    
 // Commands -- Style group listener
   
-    def elementStyleChanged( element:Element, oldStyle:StyleGroup, style:StyleGroup ) {
+    def elementStyleChanged(element:Element, oldStyle:StyleGroup, style:StyleGroup) {
     	// XXX The element renderer should be the listener, not this. ... XXX
 
-    	if( oldStyle == null ) {
+    	if(oldStyle ne null) {
     		
-    	} else if( oldStyle != null ) {
-    		val renderer = oldStyle.getRenderer( J2DGraphRenderer.DEFAULT_RENDERER )
+    	} else if(oldStyle ne null) {
+    		val renderer = oldStyle.getRenderer(J2DGraphRenderer.DEFAULT_RENDERER)
 
-	    	if( renderer != null && renderer.isInstanceOf[JComponentRenderer] )
-	    		renderer.asInstanceOf[JComponentRenderer].unequipElement( element.asInstanceOf[GraphicElement] )
+	    	if((renderer ne null ) && renderer.isInstanceOf[JComponentRenderer])
+	    		renderer.asInstanceOf[JComponentRenderer].unequipElement(element.asInstanceOf[GraphicElement])
     	}
     }
-}
-
-object J2DGraphRenderer {
-	val DEFAULT_RENDERER = "j2d_def_rndr";
 }

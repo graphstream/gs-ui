@@ -114,7 +114,7 @@ object ShapeDecor {
 		 * this case ? 
 		 */
 		protected def renderGu2Px( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x:Double, y:Double, angle:Double,
-				positionPx:(Graphics2D, Point2D.Double,IconAndText,Double)=>Point2D.Double ) {
+				positionPx:(Graphics2D, Point3, IconAndText, Double)=>Point3) {
 			var p  = camera.transform( x, y )
 			val Tx = g.getTransform
 			
@@ -140,7 +140,7 @@ object ShapeDecor {
 			
 			renderGu2Px( g, camera, iconAndText, x0 + dir.x, y0 + dir.y, 0, positionTextAndIconPx )
 		}
-		protected def positionTextAndIconPx( g:Graphics2D, p:Point2D.Double, iconAndText:IconAndText, angle:Double ):Point2D.Double = {
+		protected def positionTextAndIconPx( g:Graphics2D, p:Point3, iconAndText:IconAndText, angle:Double ):Point3 = {
 			p.x = p.x - ( iconAndText.width / 2 + 1 ) + iconAndText.padx
 			p.y = p.y + ( iconAndText.height / 2 ) - iconAndText.pady
 			p
@@ -165,7 +165,7 @@ object ShapeDecor {
 			renderGu2Px( g, camera, iconAndText, cx, cy, 0, positionTextAndIconPx )
 		}
 		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Double,Double) = ( 0, 0 )
-		protected def positionTextAndIconPx( g:Graphics2D, p:Point2D.Double, iconAndText:IconAndText, angle:Double ):Point2D.Double = {
+		protected def positionTextAndIconPx( g:Graphics2D, p:Point3, iconAndText:IconAndText, angle:Double ):Point3 = {
 			p.x = p.x - ( iconAndText.width + 2 ) + iconAndText.padx
 			p.y = p.y + ( iconAndText.height / 2 ) - iconAndText.pady
 			p
@@ -185,7 +185,7 @@ object ShapeDecor {
 			
 			renderGu2Px( g, camera, iconAndText, cx, cy, 0, positionTextAndIconPx )
 		}
-		protected def positionTextAndIconPx( g:Graphics2D, p:Point2D.Double, iconAndText:IconAndText, angle:Double ):Point2D.Double = {
+		protected def positionTextAndIconPx( g:Graphics2D, p:Point3, iconAndText:IconAndText, angle:Double ):Point3 = {
 			p.x = p.x + iconAndText.padx
 			p.y = p.y + ( iconAndText.height / 2 ) - iconAndText.pady
 			p
@@ -203,12 +203,12 @@ object ShapeDecor {
 		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
 			renderGu2Px( g, camera, iconAndText, x0, y0,  0, positionTextAndIconAlongPx )
 		}
-		protected def positionTextAndIconAreaPx( g:Graphics2D, p:Point2D.Double, iconAndText:IconAndText, angle:Double ):Point2D.Double = {
+		protected def positionTextAndIconAreaPx( g:Graphics2D, p:Point3, iconAndText:IconAndText, angle:Double ):Point3 = {
 			p.x = p.x - ( iconAndText.width + 2 ) + iconAndText.padx
 			p.y = p.y + ( iconAndText.height / 2 ) - iconAndText.pady
 			p
 		}
-		protected def positionTextAndIconAlongPx( g:Graphics2D, p:Point2D.Double, iconAndText:IconAndText, angle:Double ):Point2D.Double = {
+		protected def positionTextAndIconAlongPx( g:Graphics2D, p:Point3, iconAndText:IconAndText, angle:Double ):Point3 = {
 			p.x = p.x + iconAndText.padx
 			p.y = p.y + ( iconAndText.height / 2 ) - iconAndText.pady
 			p
@@ -226,12 +226,12 @@ object ShapeDecor {
 		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
 			renderGu2Px( g, camera, iconAndText, x1, y1, 0, positionTextAndIconAlongPx )
 		}
-		protected def positionTextAndIconAreaPx( g:Graphics2D, p:Point2D.Double, iconAndText:IconAndText, angle:Double ):Point2D.Double = {
+		protected def positionTextAndIconAreaPx( g:Graphics2D, p:Point3, iconAndText:IconAndText, angle:Double ):Point3 = {
 			p.x = p.x + iconAndText.padx
 			p.y = p.y + ( iconAndText.height / 2 ) - iconAndText.pady
 			p
 		}
-		protected def positionTextAndIconAlongPx( g:Graphics2D, p:Point2D.Double, iconAndText:IconAndText, angle:Double ):Point2D.Double = {
+		protected def positionTextAndIconAlongPx( g:Graphics2D, p:Point3, iconAndText:IconAndText, angle:Double ):Point3 = {
 			p.x = p.x - ( iconAndText.width + 2 + iconAndText.padx )
 			p.y = p.y + ( iconAndText.height / 2 ) - iconAndText.pady
 			p
@@ -252,7 +252,7 @@ object ShapeDecor {
 
 			renderGu2Px( g, camera, iconAndText, x0+dir.x, y0+dir.y, 0, positionTextAndIconPx )
 		}
-		protected def positionTextAndIconPx( g:Graphics2D, p:Point2D.Double, iconAndText:IconAndText, angle:Double ):Point2D.Double = {
+		protected def positionTextAndIconPx( g:Graphics2D, p:Point3, iconAndText:IconAndText, angle:Double ):Point3 = {
 			p.x = p.x - ( iconAndText.width / 2 + 1 ) + iconAndText.padx
 			p.y = p.y + ( iconAndText.height ) - iconAndText.pady
 			p
@@ -273,7 +273,7 @@ object ShapeDecor {
 
 			renderGu2Px( g, camera, iconAndText, x0+dir.x, y0+dir.y, 0, positionTextAndIconPx )
 		}
-		protected def positionTextAndIconPx( g:Graphics2D, p:Point2D.Double, iconAndText:IconAndText, angle:Double ):Point2D.Double = {
+		protected def positionTextAndIconPx( g:Graphics2D, p:Point3, iconAndText:IconAndText, angle:Double ):Point3 = {
 			p.x = p.x - ( iconAndText.width / 2 + 1 ) + iconAndText.padx
 			p.y = p.y - iconAndText.pady
 			p
@@ -298,11 +298,11 @@ object ShapeDecor {
 				
 			renderGu2Px( g, camera, iconAndText, cx, cy, angle, positionTextAndIconPx )
 		}
-		protected def positionTextAndIconPx( g:Graphics2D, p:Point2D.Double, iconAndText:IconAndText, angle:Double ):Point2D.Double = {
+		protected def positionTextAndIconPx( g:Graphics2D, p:Point3, iconAndText:IconAndText, angle:Double ):Point3 = {
 			g.translate( p.x, p.y )
 			g.rotate( angle )
 			g.translate( -iconAndText.width/2, +iconAndText.height/2 )
-			new Point2D.Double( 0, 0 )
+			new Point3( 0, 0, 0 )
 		}
 		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Double,Double) = ( 0, 0 )
  	}

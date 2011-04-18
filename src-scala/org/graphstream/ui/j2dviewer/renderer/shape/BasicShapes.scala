@@ -38,7 +38,7 @@ import org.graphstream.ui.geom.Point2
 import org.graphstream.ui.graphicGraph.GraphicElement
 import org.graphstream.ui.graphicGraph.stylesheet.Style
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
-import org.graphstream.ui.j2dviewer.Camera
+import org.graphstream.ui.j2dviewer.{Camera, Backend}
 import org.graphstream.ui.util.GraphMetrics
 import org.graphstream.ui.j2dviewer.renderer.{ElementInfo, NodeInfo, EdgeInfo}
 
@@ -53,14 +53,14 @@ class SquareShape extends RectangularAreaShape {
 class RoundedSquareShape extends RectangularAreaShape {
 	val theShape = new RoundRectangle2D.Double
  
-	override def make( g:Graphics2D, camera:Camera ) {
+	override def make(bck:Backend, camera:Camera ) {
 		var w = theSize.x
 		var h = theSize.y
 		var r = if( h/8 > w/8 ) w/8 else h/8 
   
 		theShape.setRoundRect( theCenter.x-w/2, theCenter.y-h/2, w, h, r, r )
 	}
-	override def makeShadow( g:Graphics2D, camera:Camera ) {
+	override def makeShadow(bck:Backend, camera:Camera ) {
 		var x = theCenter.x + theShadowOff.x
 		var y = theCenter.y + theShadowOff.y
 		var w = theSize.x + theShadowWidth.x * 2
@@ -72,7 +72,7 @@ class RoundedSquareShape extends RectangularAreaShape {
 }
 
 class DiamondShape extends PolygonalShape {
-	def make( g:Graphics2D, camera:Camera ) {
+	def make(bck:Backend, camera:Camera ) {
 		val x  = theCenter.x
 		val y  = theCenter.y
 		val w2 = theSize.x / 2
@@ -86,7 +86,7 @@ class DiamondShape extends PolygonalShape {
 		theShape.closePath
 	}
 	
-	def makeShadow( g:Graphics2D, camera:Camera ) {
+	def makeShadow(bck:Backend, camera:Camera ) {
 
 		val x  = theCenter.x + theShadowOff.x
 		val y  = theCenter.y + theShadowOff.y
@@ -103,7 +103,7 @@ class DiamondShape extends PolygonalShape {
 }
 
 class TriangleShape extends PolygonalShape {
-	def make( g:Graphics2D, camera:Camera ) {
+	def make(bck:Backend, camera:Camera ) {
 		val x  = theCenter.x
 		val y  = theCenter.y
 		val w2 = theSize.x / 2
@@ -116,7 +116,7 @@ class TriangleShape extends PolygonalShape {
 		theShape.closePath
 	}
 	
-	def makeShadow( g:Graphics2D, camera:Camera ) {
+	def makeShadow(bck:Backend, camera:Camera ) {
 		val x  = theCenter.x + theShadowOff.x
 		val y  = theCenter.y + theShadowOff.y
 		val w2 = ( theSize.x + theShadowWidth.x ) / 2
@@ -131,7 +131,7 @@ class TriangleShape extends PolygonalShape {
 }
 
 class CrossShape extends PolygonalShape {
-	def make( g:Graphics2D, camera:Camera ) {
+	def make(bck:Backend, camera:Camera ) {
 		val x  = theCenter.x
 		val y  = theCenter.y
 		val h2 = theSize.x / 2
@@ -157,7 +157,7 @@ class CrossShape extends PolygonalShape {
 		theShape.closePath
 	}
 	
-	def makeShadow( g:Graphics2D, camera:Camera ) {
+	def makeShadow(bck:Backend, camera:Camera ) {
 		val x  = theCenter.x + theShadowOff.x
 		val y  = theCenter.y + theShadowOff.y
 		val h2 = ( theSize.x + theShadowWidth.x ) / 2
@@ -190,8 +190,8 @@ class PolygonShape extends PolygonalShape with AttributeUtils {
     var maxPoint:Point3 = null
 	var valuesRef:AnyRef = null
     
-    override def configureForElement( g:Graphics2D, element:GraphicElement, info:ElementInfo, camera:Camera ) {
-        super.configureForElement(g, element, info, camera)
+    override def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera ) {
+        super.configureForElement(bck, element, info, camera)
         
         if(element.hasAttribute( "ui.points" )) {
 			val oldRef = valuesRef
@@ -215,7 +215,7 @@ class PolygonShape extends PolygonalShape with AttributeUtils {
 		}
     }
     
-    def make(g:Graphics2D, camera:Camera) {
+    def make(bck:Backend, camera:Camera) {
         val x = theCenter.x
         val y = theCenter.y
         val n = theValues.size
@@ -231,7 +231,7 @@ class PolygonShape extends PolygonalShape with AttributeUtils {
         }
     }
     
-    def makeShadow(g:Graphics2D, camera:Camera) {
+    def makeShadow(bck:Backend, camera:Camera) {
         val n = theValues.size
         val x  = theCenter.x + theShadowOff.x
 		val y  = theCenter.y + theShadowOff.y
@@ -252,7 +252,7 @@ class FreePlaneNodeShape extends RectangularAreaShape {
 	val theShape = new Rectangle2D.Double
 	val theLineShape = new Line2D.Double 
  
-	override def make( g:Graphics2D, camera:Camera ) {
+	override def make(bck:Backend, camera:Camera ) {
 		var w = theSize.x
 		val h = theSize.y
 		val x = theCenter.x
@@ -265,7 +265,7 @@ class FreePlaneNodeShape extends RectangularAreaShape {
 		theLineShape.setLine( x-w/2, y-h/2, x+w/2, y-h/2 )
 	}
 
-	override def makeShadow( g:Graphics2D, camera:Camera ) {
+	override def makeShadow(bck:Backend, camera:Camera ) {
 		var x = theCenter.x + theShadowOff.x
 		var y = theCenter.y + theShadowOff.y
 		var w = theSize.x + theShadowWidth.x * 2
@@ -275,8 +275,9 @@ class FreePlaneNodeShape extends RectangularAreaShape {
 		theLineShape.setLine( x-w/2, y-h/2, x+w/2, y-h/2 )
 	}
 
-	override def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		make( g, camera )
+	override def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	    val g = bck.graphics2D
+ 		make(bck, camera )
  		fill( g, theShape, camera )
  		stroke( g, theLineShape )
  		decorArea( g, camera, info.iconAndText, element, theShape )

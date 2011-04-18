@@ -37,25 +37,27 @@ import java.awt.geom.{RectangularShape, Rectangle2D}
 
 import org.graphstream.ui.graphicGraph.{StyleGroup, GraphicGraph, GraphicElement}
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
-import org.graphstream.ui.j2dviewer.Camera
+import org.graphstream.ui.j2dviewer.{Camera, Backend}
 import org.graphstream.ui.util.{GradientFactory, ImageCache}
 
 /**
  * Renderer for the graph background.
  * 
- * <p>
  * This class is not a StyleRenderer because the graph is not a GraphicElement.
- * </p>
+ * 
+ * TODO XXX make this class an abstract one, and create several distinct back-ends.
  */
-class GraphBackgroundRenderer( val graph:GraphicGraph, val style:StyleGroup ) extends GraphicElement.SwingElementRenderer {
+class GraphBackgroundRenderer(val graph:GraphicGraph, val style:StyleGroup)
+	extends GraphicElement.SwingElementRenderer {
 
 	/**
      * Render a background indicating there is nothing to draw. 
 	 */
-	protected def displayNothingToDo( g:Graphics2D, w:Int, h:Int ) {
+	protected def displayNothingToDo(bck:Backend, w:Int, h:Int) {
 		val msg1 = "Graph width/height/depth is zero !!"
 		val msg2 = "Place components using the 'xyz' attribute."
-		
+		val g    = bck.graphics2D
+		    
 		g.setColor( Color.WHITE )
 		g.fillRect( 0, 0, w, h )
 		g.setColor( Color.RED )
@@ -75,35 +77,38 @@ class GraphBackgroundRenderer( val graph:GraphicGraph, val style:StyleGroup ) ex
 	/**
      * Render the graph background. 
      */
-	def render( g:Graphics2D, camera:Camera, w:Int, h:Int ) {
-		if( camera.graphViewport == null && camera.metrics.diagonal == 0 && ( graph.getNodeCount == 0 && graph.getSpriteCount == 0 ) ) {
-			displayNothingToDo( g, w, h )
+	def render(bck:Backend, camera:Camera, w:Int, h:Int) {
+		if((camera.graphViewport eq null) && camera.metrics.diagonal == 0
+		&& (graph.getNodeCount == 0 && graph.getSpriteCount == 0)) {
+			displayNothingToDo(bck, w, h)
 		} else {
-			renderGraphBackground( g, camera )
-			strokeGraph( g, camera )
+			renderGraphBackground(bck, camera)
+			strokeGraph(bck, camera)
 		}
 	}
 
-	protected def renderGraphBackground( g:Graphics2D, camera:Camera ) {
+	protected def renderGraphBackground(bck:Backend, camera:Camera) {
 		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.FillMode._
 
+		val g = bck.graphics2D
+		
 		graph.getStyle.getFillMode match {
 			case NONE                   => {}
-			case IMAGE_TILED            => fillImageTiled( g, camera )
-			case IMAGE_SCALED           => fillImageScaled( g, camera, 0 )
-			case IMAGE_SCALED_RATIO_MAX => fillImageScaled( g, camera, 1 )
-			case IMAGE_SCALED_RATIO_MIN => fillImageScaled( g, camera, 2 )
-			case GRADIENT_DIAGONAL1     => fillGradient( g, camera )
-			case GRADIENT_DIAGONAL2     => fillGradient( g, camera )
-			case GRADIENT_HORIZONTAL    => fillGradient( g, camera )
-			case GRADIENT_VERTICAL      => fillGradient( g, camera )
-			case GRADIENT_RADIAL        => fillGradient( g, camera )
-			case DYN_PLAIN              => fillBackground( g, camera )
-			case _                      => fillBackground( g, camera )
+			case IMAGE_TILED            => fillImageTiled(g, camera)
+			case IMAGE_SCALED           => fillImageScaled(g, camera, 0)
+			case IMAGE_SCALED_RATIO_MAX => fillImageScaled(g, camera, 1)
+			case IMAGE_SCALED_RATIO_MIN => fillImageScaled(g, camera, 2)
+			case GRADIENT_DIAGONAL1     => fillGradient(g, camera)
+			case GRADIENT_DIAGONAL2     => fillGradient(g, camera)
+			case GRADIENT_HORIZONTAL    => fillGradient(g, camera)
+			case GRADIENT_VERTICAL      => fillGradient(g, camera)
+			case GRADIENT_RADIAL        => fillGradient(g, camera)
+			case DYN_PLAIN              => fillBackground(g, camera)
+			case _                      => fillBackground(g, camera)
 		}
 	}
 
-	protected def fillBackground( g:Graphics2D, camera:Camera ) {
+	protected def fillBackground(g:Graphics2D, camera:Camera) {
 		val metrics = camera.metrics
 
 		g.setColor( style.getFillColor( 0 ) )
@@ -112,7 +117,7 @@ class GraphBackgroundRenderer( val graph:GraphicGraph, val style:StyleGroup ) ex
 			metrics.viewport.data(1).toInt )
 	}
 	
-	protected def fillCanvasBackground( g:Graphics2D, camera:Camera ) {
+	protected def fillCanvasBackground(g:Graphics2D, camera:Camera) {
 		val metrics = camera.metrics
 
 		g.setColor( style.getCanvasColor( 0 ) )
@@ -121,7 +126,7 @@ class GraphBackgroundRenderer( val graph:GraphicGraph, val style:StyleGroup ) ex
 			metrics.viewport.data(1).toInt )
 	}
 	
-	protected def fillImageTiled( g:Graphics2D, camera:Camera ) {
+	protected def fillImageTiled(g:Graphics2D, camera:Camera) {
 		val metrics = camera.metrics
 		val px2gu   = metrics.ratioPx2Gu
 		var img:BufferedImage = null
@@ -210,8 +215,9 @@ class GraphBackgroundRenderer( val graph:GraphicGraph, val style:StyleGroup ) ex
 		}
 	}
  
-	protected def strokeGraph( g:Graphics2D, camera:Camera ) {
+	protected def strokeGraph(bck:Backend, camera:Camera) {
 		val metrics = camera.metrics
+		val g = bck.graphics2D
 
 		if( style.getStrokeMode != StyleConstants.StrokeMode.NONE && style.getStrokeWidth.value > 0 ) {
 			g.setColor( style.getStrokeColor( 0 ) )
@@ -224,7 +230,7 @@ class GraphBackgroundRenderer( val graph:GraphicGraph, val style:StyleGroup ) ex
 		}
 	}
 
-	protected def fillGradient( g:Graphics2D, camera:Camera ) {
+	protected def fillGradient(g:Graphics2D, camera:Camera) {
 		// TODO use a Shape of the Shape library to do this.
 	  
 		val metrics = camera.metrics

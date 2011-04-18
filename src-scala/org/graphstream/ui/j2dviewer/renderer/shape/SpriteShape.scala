@@ -47,17 +47,17 @@ import scala.math._
 
 class SpriteArrowShape extends PolygonalShape with Orientable {
 	
-	override def configureForGroup( g:Graphics2D, style:Style, camera:Camera ) {
-		super.configureForGroup( g, style, camera )
+	override def configureForGroup(bck:Backend, style:Style, camera:Camera ) {
+		super.configureForGroup(bck, style, camera )
 		configureOrientableForGroup( style, camera )
 	}
  
-	override def configureForElement( g:Graphics2D, element:GraphicElement, info:ElementInfo, camera:Camera ) {
-		super.configureForElement( g, element, info, camera )
+	override def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera ) {
+		super.configureForElement(bck, element, info, camera )
 		configureOrientableForElement( camera, element.asInstanceOf[GraphicSprite] /* Check This XXX TODO !*/ );
 	}
 
-	def make( g:Graphics2D, camera:Camera ) {
+	def make(bck:Backend, camera:Camera ) {
 		var x   = theCenter.x
 		var y   = theCenter.y
 		val dir = Vector2( target.x - x, target.y - y ); dir.normalize
@@ -73,7 +73,7 @@ class SpriteArrowShape extends PolygonalShape with Orientable {
 		theShape.closePath
 	}
 	
-	def makeShadow( g:Graphics2D, camera:Camera ) {
+	def makeShadow(bck:Backend, camera:Camera ) {
 		val x   = theCenter.x + theShadowOff.x
 		val y   = theCenter.y + theShadowOff.y
 		val dir = Vector2( target.x - x, target.y - y ); dir.normalize
@@ -112,7 +112,7 @@ class SpriteFlowShape
 	var theShape = new GeneralPath
 	var reverse = false
 	
-	def configureForGroup( g:Graphics2D, style:Style, camera:Camera ) {
+	def configureForGroup(bck:Backend, style:Style, camera:Camera ) {
 		configureFillableLineForGroup( style, camera )
 		configureStrokableForGroup( style, camera )
 		configureShadowableLineForGroup( style, camera )
@@ -122,14 +122,14 @@ class SpriteFlowShape
 		reverse = ( style.getSpriteOrientation == SpriteOrientation.FROM )
 	}
 	
-	def configureForElement( g:Graphics2D, element:GraphicElement, info:ElementInfo, camera:Camera ) {
+	def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera ) {
 		val sprite = element.asInstanceOf[GraphicSprite]
 		
 		if( sprite.isAttachedToEdge ) {
 			val edge = sprite.getEdgeAttachment
 			
 			configureFillableLineForElement( element.getStyle, camera, element )
-			configureDecorableForElement( g, camera, element, info )
+			configureDecorableForElement( bck.graphics2D, camera, element, info )
 		
 			if( element.hasAttribute( "ui.size" ) )
 				theSize = camera.metrics.lengthToGu( StyleConstants.convertValue( element.getAttribute( "ui.size" ) ) )
@@ -142,9 +142,9 @@ class SpriteFlowShape
 		}
 	}
 	
-	def make( g:Graphics2D, camera:Camera ) { make( g, camera, 0, 0 ) }
+	def make(bck:Backend, camera:Camera ) { make(bck.graphics2D, camera, 0, 0 ) }
 	
-	def makeShadow( g:Graphics2D, camera:Camera ) { make( g, camera, theShadowOff.x, theShadowOff.y ) }
+	def makeShadow(bck:Backend, camera:Camera ) { make(bck.graphics2D, camera, theShadowOff.x, theShadowOff.y ) }
 		
 	def make( g:Graphics2D, camera:Camera, shx:Double, shy:Double ) {
 		// EdgeInfo contains a way to compute points perpendicular to the shape, however here
@@ -254,16 +254,17 @@ Console.err.println("reverse")
 //		}
 	}
 	
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
 		if( edgeInfo != null ) {
-			makeShadow( g, camera )
-			cast( g, theShape )
+			makeShadow(bck, camera )
+			cast(bck.graphics2D, theShape )
 		}
  	}
   
- 	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
  		if( edgeInfo != null ) {
- 			make( g, camera )
+ 		    val g = bck.graphics2D
+ 			make(bck, camera )
  			stroke( g, theShape )
  			fill( g, theSize, theShape )
  			decorConnector( g, camera, info.iconAndText, element, theShape )

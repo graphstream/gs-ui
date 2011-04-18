@@ -173,6 +173,12 @@ class GraphMetrics {
   	 * The length for one pixel, according to the current transformation.
   	 */
   	def px1:Double = px1_p
+  	
+  	/** Components of the view-port. */
+  	def viewport(i:Int):Double = viewport.data(i)
+  	
+  	/** Components of the size. */
+  	def size(i:Int):Double = size.data(i)
 	
 // Command
 

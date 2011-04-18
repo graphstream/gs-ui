@@ -50,8 +50,8 @@ class ArrowOnEdge extends AreaOnConnectorShape {
  
 // Command
  
-	protected def make( g:Graphics2D, camera:Camera ) { make( false, camera ) }
-	protected def makeShadow( g:Graphics2D, camera:Camera ) { make( true, camera ) }
+	protected def make(bck:Backend, camera:Camera ) { make( false, camera ) }
+	protected def makeShadow(bck:Backend, camera:Camera ) { make( true, camera ) }
   
 	protected def make( forShadow:Boolean, camera:Camera ) {
 		if(theConnector.info.isCurve)
@@ -115,12 +115,13 @@ class ArrowOnEdge extends AreaOnConnectorShape {
 		theShape.closePath		
 	}
  
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
  		make( true, camera )
- 		cast( g, theShape )
+ 		cast(bck.graphics2D, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	    val g = bck.graphics2D
  		make( false, camera )
  		stroke( g, theShape )
  		fill( g, theShape, camera )
@@ -132,8 +133,8 @@ class CircleOnEdge extends AreaOnConnectorShape {
  
 // Command
  
-	protected def make( g:Graphics2D, camera:Camera )       { make( false, camera ) }
-	protected def makeShadow( g:Graphics2D, camera:Camera ) { make( true, camera ) }
+	protected def make(bck:Backend, camera:Camera )       { make( false, camera ) }
+	protected def makeShadow(bck:Backend, camera:Camera ) { make( true, camera ) }
   
 	protected def make( forShadow:Boolean, camera:Camera ) {
 		if( theConnector.info.isCurve )
@@ -181,12 +182,13 @@ class CircleOnEdge extends AreaOnConnectorShape {
 		theShape.setFrame( (p1.x-dir.x)-(theSize.x/2), (p1.y-dir.y)-(theSize.y/2), theSize.x, theSize.y )
 	}
  
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
  		make( true, camera )
- 		cast( g, theShape )
+ 		cast(bck.graphics2D, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	    val g = bck.graphics2D
  		make( false, camera )
  		stroke( g, theShape )
  		fill( g, theShape, camera )
@@ -205,8 +207,8 @@ class DiamondOnEdge extends AreaOnConnectorShape {
  
 // Command
  
-	protected def make( g:Graphics2D, camera:Camera ) { make( false, camera ) }
-	protected def makeShadow( g:Graphics2D, camera:Camera ) { make( true, camera ) }
+	protected def make(bck:Backend, camera:Camera ) { make( false, camera ) }
+	protected def makeShadow(bck:Backend, camera:Camera ) { make( true, camera ) }
   
 	protected def make( forShadow:Boolean, camera:Camera ) {
 		if( theConnector.info.isCurve )
@@ -267,12 +269,13 @@ class DiamondOnEdge extends AreaOnConnectorShape {
 		theShape.closePath
 	}
  
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
  		make( true, camera )
- 		cast( g, theShape )
+ 		cast(bck.graphics2D, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	    val g = bck.graphics2D
  		make( false, camera )
  		stroke( g, theShape )
  		fill( g, theShape, camera )
@@ -286,15 +289,15 @@ class ImageOnEdge extends AreaOnConnectorShape {
 // Command
  
 	var image:BufferedImage = null
-	var p:Point2D.Double = null
+	var p:Point3 = null
 	var angle = 0.0
 	
-	override def configureForGroup( g:Graphics2D, style:Style, camera:Camera ) {
-		super.configureForGroup( g, style, camera )
+	override def configureForGroup(bck:Backend, style:Style, camera:Camera ) {
+		super.configureForGroup(bck, style, camera )
 	}
 	
-	override def configureForElement( g:Graphics2D, element:GraphicElement, info:ElementInfo, camera:Camera ) {
-		super.configureForElement( g, element, info, camera )
+	override def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera ) {
+		super.configureForElement(bck, element, info, camera )
 		
 		var url = element.getStyle.getArrowImage
 		
@@ -312,8 +315,8 @@ class ImageOnEdge extends AreaOnConnectorShape {
 		}
 	}
 	
-	protected def make( g:Graphics2D, camera:Camera ) { make( false, camera ) }
-	protected def makeShadow( g:Graphics2D, camera:Camera ) { make( true, camera ) }
+	protected def make(bck:Backend, camera:Camera ) { make( false, camera ) }
+	protected def makeShadow(bck:Backend, camera:Camera ) { make( true, camera ) }
   
 	protected def make( forShadow:Boolean, camera:Camera ) {
 		if( theConnector.info.isCurve )
@@ -369,12 +372,14 @@ class ImageOnEdge extends AreaOnConnectorShape {
 			angle = ( Pi - angle )
 	}
  
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
 // 		make( true, camera )
 // 		cast( g, theShape )
 	}
  
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	    val g = bck.graphics2D
+
  		make( false, camera )
 // 		stroke( g, theShape )
 // 		fill( g, theShape, camera )

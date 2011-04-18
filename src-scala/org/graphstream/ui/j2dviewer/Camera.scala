@@ -32,8 +32,8 @@ package org.graphstream.ui.j2dviewer
 
 import org.graphstream.ui.sgeom.Point3
 
-import java.awt.Graphics2D
-import java.awt.geom.{AffineTransform, Point2D}
+//import java.awt.Graphics2D
+//import java.awt.geom.{AffineTransform, Point2D}
 import java.util.ArrayList
 
 import scala.collection.mutable.HashSet
@@ -106,14 +106,17 @@ class Camera {
   	/** The camera zoom. */
   	protected var zoom:Double = 1
 	
+  	/** The rendering back-end. */
+  	protected var bck:Backend = null
+  	
   	/** The graph-space -> pixel-space transformation. */
-  	protected var Tx = new AffineTransform
+//  	protected var Tx = new AffineTransform
 
   	/** The inverse transform of Tx. */
-  	protected var xT:AffineTransform = null
+//  	protected var xT:AffineTransform = null
 	
   	/** The previous affine transform. */
-  	protected var oldTx:AffineTransform = null
+//  	protected var oldTx:AffineTransform = null
 	
   	/** The rotation angle. */
   	protected var rotation:Double = 0
@@ -195,25 +198,13 @@ class Camera {
   	 * @param y The source point ordinate in pixels.
   	 * @return The resulting points in graph units.
   	 */
-  	def inverseTransform(x:Double, y:Double):Point2D.Double = {
-  		val p = new Point2D.Double( x, y )
-		
-  		xT.transform( p, p );
- 
-  		p
-  	}
+  	def inverseTransform(x:Double, y:Double):Point3 = bck.inverseTransform(x, y, 0)
 	
   	/**
   	 * Transform a point in graph units into pixels.
   	 * @return The transformed point.
   	 */
-  	def transform(x:Double, y:Double):Point2D.Double = {
-  		val p = new Point2D.Double( x, y )
-		
-  		Tx.transform( p, p )
- 
-  		p
-  	}
+  	def transform(x:Double, y:Double):Point3 = bck.transform(x, y, 0)
 	
   	/**
   	 * Search for the first node or sprite (in that order) that contains the point at coordinates
@@ -250,17 +241,17 @@ class Camera {
   	 * @param y2 The rectangle highest point ordinate.
   	 * @return The set of sprites and nodes in the given rectangle.
   	 */
-  	def allNodesOrSpritesIn( graph:GraphicGraph, x1:Double, y1:Double, x2:Double, y2:Double ):ArrayList[GraphicElement] = {
+  	def allNodesOrSpritesIn(graph:GraphicGraph, x1:Double, y1:Double, x2:Double, y2:Double):ArrayList[GraphicElement] = {
   		val elts = new ArrayList[GraphicElement]
 	
         graph.getEachNode.foreach { node:Node =>	
-  			if( isNodeIn( node.asInstanceOf[GraphicNode], x1, y1, x2, y2 ) )
-  				elts.add( node.asInstanceOf[GraphicNode] )
+  			if(isNodeIn(node.asInstanceOf[GraphicNode], x1, y1, x2, y2))
+  				elts.add( node.asInstanceOf[GraphicNode])
   		}
 		
   		graph.spriteSet.foreach { sprite:GraphicSprite =>
-  			if( isSpriteIn( sprite, x1, y1, x2, y2 ) )
-  				elts.add( sprite )
+  			if(isSpriteIn(sprite, x1, y1, x2, y2))
+  				elts.add(sprite)
   		}
 		
   		elts
@@ -274,17 +265,21 @@ class Camera {
   	 * @return The same instance as the one given by parameter pos or a new one if pos was null,
   	 * containing the computed position in the given units.
   	 */
-  	def getSpritePosition( sprite:GraphicSprite, pos:Point2D.Double, units:Units ):Point2D.Double = {
-  		if(      sprite.isAttachedToNode() ) getSpritePositionNode( sprite, pos, units )
-  		else if( sprite.isAttachedToEdge() ) getSpritePositionEdge( sprite, pos, units )
-  		else                                 getSpritePositionFree( sprite, pos, units )
+  	def getSpritePosition(sprite:GraphicSprite, pos:Point3, units:Units):Point3 = {
+  		if(      sprite.isAttachedToNode() ) getSpritePositionNode(sprite, pos, units)
+  		else if( sprite.isAttachedToEdge() ) getSpritePositionEdge(sprite, pos, units)
+  		else                                 getSpritePositionFree(sprite, pos, units)
   	 }
   	
   	def graphViewport = gviewport
   	
 // Command
+  	
+  	def setBackend(backend:Backend) { bck = backend }
 
-  	def setGraphViewport( minx:Double, miny:Double, maxx:Double, maxy:Double ) { gviewport = Array( minx, miny, maxx, maxy ) }
+  	def setGraphViewport(minx:Double, miny:Double, maxx:Double, maxy:Double) {
+  	    gviewport = Array( minx, miny, maxx, maxy )
+  	}
   	
   	def removeGraphViewport() { gviewport = null }
 
@@ -295,31 +290,22 @@ class Camera {
   	 * @param g2 The Swing graphics to change.
   	 * @param graph The graphic graph (used to check element visibility).
   	 */
-  	def pushView( g2:Graphics2D, graph:GraphicGraph ) {
-  		 if( oldTx == null ) {
-  			 oldTx = g2.getTransform
-  			 
-  			 setPadding( graph )
+  	def pushView(graph:GraphicGraph) {
+  		bck.pushTransform
+  		setPadding(graph)
 			
-  			 if( autoFit )
-  			      Tx = autoFitView( g2, Tx )
-  			 else Tx = userView( g2, Tx )
+  		if(autoFit)
+  		     autoFitView
+  		else userView
 			
-  			 g2.setTransform( Tx )
-  			 checkVisibility( graph )
-  		 }
+  		checkVisibility(graph)
   	}
 	
   	/**
   	 * Restore the transform that was used before {@link #pushView(Graphics2D)} is used.
      * @param g2 The Swing graphics to restore.
      */
-    def popView( g2:Graphics2D ) {
-  		 if( oldTx != null ) {
-  			 g2.setTransform( oldTx )
-  			 oldTx = null
-  		 }
-  	}
+    def popView() { bck.popTransform }
 	
   	/**
   	 * Compute a transformation matrix that pass from graph units (user space) to pixel units
@@ -328,7 +314,7 @@ class Camera {
   	 * @param Tx The transformation to modify.
   	 * @return The transformation modified.
   	 */
-  	protected def autoFitView( g2:Graphics2D, Tx:AffineTransform ):AffineTransform = {
+  	protected def autoFitView() {
   		var sx = 0.0; var sy = 0.0
   		var tx = 0.0; var ty = 0.0
   		val padXgu = paddingXgu * 2
@@ -336,34 +322,43 @@ class Camera {
   		val padXpx = paddingXpx * 2
   		val padYpx = paddingYpx * 2
 		
-  		sx = ( metrics.viewport.data(0) - padXpx ) / ( metrics.size.data(0) + padXgu )	// Ratio along X
-  		sy = ( metrics.viewport.data(1) - padYpx ) / ( metrics.size.data(1) + padYgu )	// Ratio along Y
-  		tx = metrics.lo.x + ( metrics.size.data(0) / 2 )								// Centre of graph in X
-  		ty = metrics.lo.y + ( metrics.size.data(1) / 2 )								// Centre of graph in Y
+  		sx = (metrics.viewport(0) - padXpx) / (metrics.size(0) + padXgu)	// Ratio along X
+  		sy = (metrics.viewport(1) - padYpx) / (metrics.size(1) + padYgu)	// Ratio along Y
+  		tx = metrics.lo.x + (metrics.size(0) / 2)								// Centre of graph in X
+  		ty = metrics.lo.y + (metrics.size(1) / 2)								// Centre of graph in Y
 		
-  		if( sx > sy )	// The least ratio.
+  		if(sx > sy)	// The least ratio.
   		     sx = sy
   		else sy = sx
 		
-  		Tx.setToIdentity
-  		Tx.translate( metrics.viewport.data(0) / 2,
-  		              metrics.viewport.data(1) / 2 )	// 4. Place the whole result at the centre of the view port.		
-  		if( rotation != 0 )
-  			Tx.rotate( rotation/(180/Pi) )				// 3. Eventually apply a rotation.
-  		Tx.scale( sx, -sy )								// 2. Scale the graph to pixels. Scale -y since we reverse the view (top-left to bottom-left).
-  		Tx.translate( -tx, -ty )						// 1. Move the graph so that its real centre is at (0,0).
-		
-  		xT = new AffineTransform( Tx )
-  		try { xT.invert } catch { case _ => System.err.printf( "cannot inverse gu2px matrix...%n" ) }
+  		bck.beginTransform
+  		bck.setIdentity
+  		bck.translate(metrics.viewport(0)/2,
+  		              metrics.viewport(1)/2, 0)			// 4. Place the whole result at the centre of the view port.
+  		if(rotation != 0)
+  		    bck.rotate(rotation/(180.0/Pi), 0, 0, 1)	// 3. Eventually apply a Z axis rotation.
+  		bck.scale(sx, -sy, 0)							// 2. Scale the graph to pixels. Scale -y since we reverse the view (top-left to bottom-keft).
+  		bck.translate(-tx, -ty, 0)						// 1. Move the graph so that its real centre is at (0,0).
+  		bck.endTransform
+//  		Tx.setToIdentity
+//  		Tx.translate( metrics.viewport.data(0) / 2,
+//  		              metrics.viewport.data(1) / 2 )	// 4. Place the whole result at the centre of the view port.		
+//  		if( rotation != 0 )
+//  			Tx.rotate( rotation/(180/Pi) )				// 3. Eventually apply a rotation.
+//  		Tx.scale( sx, -sy )								// 2. Scale the graph to pixels. Scale -y since we reverse the view (top-left to bottom-left).
+//  		Tx.translate( -tx, -ty )						// 1. Move the graph so that its real centre is at (0,0).
+//		
+//  		xT = new AffineTransform( Tx )
+//  		try { xT.invert } catch { case _ => System.err.printf( "cannot inverse gu2px matrix...%n" ) }
 		
   		zoom = 1
 
-  		center.set( tx, ty, 0 )
+  		center.set(tx, ty, 0)
   		metrics.ratioPx2Gu = sx
-  		metrics.loVisible.copy( metrics.lo )
-  		metrics.hiVisible.copy( metrics.hi )
+  		metrics.loVisible.copy(metrics.lo)
+  		metrics.hiVisible.copy(metrics.hi)
 		
-  		Tx
+//  		Tx
   	}
 
   	/**
@@ -373,63 +368,72 @@ class Camera {
   	 * @param Tx The transformation to modify.
   	 * @return The transformation modified.
   	 */
-  	protected def userView( g2:Graphics2D, Tx:AffineTransform ):AffineTransform = {
+  	protected def userView() {
   		var sx = 0.0; var sy = 0.0
   		var tx = 0.0; var ty = 0.0
   		val padXgu = paddingXgu * 2
   		val padYgu = paddingYgu * 2
   		val padXpx = paddingXpx * 2
   		val padYpx = paddingYpx * 2
-  		val gw     = if( gviewport != null ) gviewport(2)-gviewport(0) else metrics.size.data(0)
-  		val gh     = if( gviewport != null ) gviewport(3)-gviewport(1) else metrics.size.data(1)
+  		val gw     = if(gviewport ne null) gviewport(2)-gviewport(0) else metrics.size(0)
+  		val gh     = if(gviewport ne null) gviewport(3)-gviewport(1) else metrics.size(1)
 //		val diag   = Math.max( metrics.size.data(0)+padXgu, metrics.size.data(1)+padYgu ) * zoom 
 //		
-//		sx = ( metrics.viewport.data(0) - padXpx ) / diag 
-//		sy = ( metrics.viewport.data(1) - padYpx ) / diag
-  		sx = ( metrics.viewport.data(0) - padXpx ) / (( gw + padXgu ) * zoom ) 
-		sy = ( metrics.viewport.data(1) - padYpx ) / (( gh + padYgu ) * zoom )
+//		sx = (metrics.viewport(0) - padXpx) / diag 
+//		sy = (metrics.viewport(1) - padYpx) / diag
+  		sx = (metrics.viewport(0) - padXpx) / ((gw + padXgu) * zoom) 
+		sy = (metrics.viewport(1) - padYpx) / ((gh + padYgu) * zoom)
   		
 		tx = center.x
 		ty = center.y
 		
-		if( sx > sy )	// The least ratio.
+		if(sx > sy)	// The least ratio.
 		     sx = sy;
 		else sy = sx;
-		
-  		Tx.setToIdentity
-  		Tx.translate( metrics.viewport.data(0) / 2,
-		              metrics.viewport.data(1) / 2 )	// 4. Place the whole result at the centre of the view port.			
-		if( rotation != 0 )
-			Tx.rotate( rotation/(180/Pi) );				// 3. Eventually apply a rotation.
-		Tx.scale( sx, -sy )								// 2. Scale the graph to pixels. Scale -y since we reverse the view (top-left to bottom-left).
-		Tx.translate( -tx, -ty )						// 1. Move the graph so that the given centre is at (0,0).
-		
-		xT = new AffineTransform( Tx )
-		try { xT.invert } catch { case _ => System.err.printf( "cannot inverse gu2px matrix...%n" ) }
+	
+  		bck.beginTransform
+  		bck.setIdentity
+  		bck.translate(metrics.viewport(0)/2,
+  		              metrics.viewport(1)/2, 0)			// 4. Place the whole result at the centre of the view port.
+  		if(rotation != 0)
+  		    bck.rotate(rotation/(180.0/Pi), 0, 0, 1)	// 3. Eventually apply a rotation.
+  		bck.scale(sx, -sy, 0)							// 2. Scale the graph to pixels. Scale -y since we reverse the view (top-left to bottom-left).
+  		bck.translate(-tx, -ty, 0)						// 1. Move the graph so that the give centre is at (0,0).
+  		bck.endTransform
+//  		Tx.setToIdentity
+//  		Tx.translate( metrics.viewport.data(0) / 2,
+//		              metrics.viewport.data(1) / 2 )	// 4. Place the whole result at the centre of the view port.			
+//		if( rotation != 0 )
+//			Tx.rotate( rotation/(180/Pi) );				// 3. Eventually apply a rotation.
+//		Tx.scale( sx, -sy )								// 2. Scale the graph to pixels. Scale -y since we reverse the view (top-left to bottom-left).
+//		Tx.translate( -tx, -ty )						// 1. Move the graph so that the given centre is at (0,0).
+//		
+//		xT = new AffineTransform( Tx )
+//		try { xT.invert } catch { case _ => System.err.printf( "cannot inverse gu2px matrix...%n" ) }
 		
 		metrics.ratioPx2Gu = sx
 
-		val w2 = ( metrics.viewport.data(0) / sx ) / 2f
-		val h2 = ( metrics.viewport.data(1) / sx ) / 2f
+		val w2 = (metrics.viewport(0) / sx) / 2f
+		val h2 = (metrics.viewport(1) / sx) / 2f
 		
-		metrics.loVisible.set( center.x-w2, center.y-h2 )
-		metrics.hiVisible.set( center.x+w2, center.y+h2 )
+		metrics.loVisible.set(center.x-w2, center.y-h2)
+		metrics.hiVisible.set(center.x+w2, center.y+h2)
 		
-		Tx
+//		Tx
   	}
 
   	/**
      * Enable or disable automatic adjustment of the view to see the entire graph.
      * @param on If true, automatic adjustment is enabled.
      */
-    def setAutoFitView( on:Boolean ) {
-  		if( autoFit && ( ! on ) ) {
+    def setAutoFitView(on:Boolean) {
+  		if(autoFit && (! on)) {
   			// We go from autoFit to user view, ensure the current centre is at the
   			// middle of the graph, and the zoom is at one.
 			
   			zoom = 1
-  			center.set( metrics.lo.x + ( metrics.size.data(0) / 2 ),
-  			            metrics.lo.y + ( metrics.size.data(1) / 2 ), 0 );
+  			center.set(metrics.lo.x + (metrics.size(0) / 2),
+  			           metrics.lo.y + (metrics.size(1) / 2), 0);
   		}
 
   		autoFit = on
@@ -441,26 +445,26 @@ class Camera {
   	 * @param x The new position abscissa.
   	 * @param y The new position ordinate.
   	 */
-  	def setViewCenter( x:Double, y:Double ) { center.set( x, y, 0 ) }
+  	def setViewCenter(x:Double, y:Double) { center.set(x, y, 0) }
 	
   	/**
      * Set the zoom (or percent of the graph visible), 1 means the graph is fully visible.
      * @param z The zoom.
      */
-    def viewPercent_=( z:Double ) { zoom = z }
+    def viewPercent_=(z:Double) { zoom = z }
 	
   	/**
   	 * Set the rotation angle around the centre.
   	 * @param angle The rotation angle in degrees.
   	 */
-  	def viewRotation_=( angle:Double ) { rotation = angle }
+  	def viewRotation_=(angle:Double) { rotation = angle }
 
   	/**
   	 * Set the output view port size in pixels. 
   	 * @param viewportWidth The width in pixels of the view port.
   	 * @param viewportHeight The width in pixels of the view port.
   	 */
-  	def setViewport( viewportWidth:Double, viewportHeight:Double ) { metrics.setViewport( viewportWidth, viewportHeight ) }
+  	def setViewport(viewportWidth:Double, viewportHeight:Double) { metrics.setViewport(viewportWidth, viewportHeight) }
 	
   	/**
   	 * Set the graphic graph bounds (the lowest and highest points).
@@ -471,10 +475,13 @@ class Camera {
   	 * @param maxy Highest ordinate.
   	 * @param maxz Highest depth.
   	 */
-  	def setBounds( minx:Double, miny:Double, minz:Double, maxx:Double, maxy:Double, maxz:Double ) = metrics.setBounds( minx, miny, minz, maxx, maxy, maxz )
+  	def setBounds(minx:Double, miny:Double, minz:Double, maxx:Double, maxy:Double, maxz:Double) =
+  	    metrics.setBounds(minx, miny, minz, maxx, maxy, maxz)
   
   	/** Set the graphic graph bounds from the graphic graph. */
-  	def setBounds( graph:GraphicGraph ) { setBounds( graph.getMinPos.x, graph.getMinPos.y, 0, graph.getMaxPos.x, graph.getMaxPos.y, 0 ) }
+  	def setBounds(graph:GraphicGraph) {
+  	    setBounds(graph.getMinPos.x, graph.getMinPos.y, 0, graph.getMaxPos.x, graph.getMaxPos.y, 0)
+  	}
    
 // Utility
 	
@@ -482,49 +489,50 @@ class Camera {
   	 * Set the graph padding. Called in pushView.
   	 * @param graph The graphic graph.
   	 */
-  	protected def setPadding( graph:GraphicGraph ) { padding.copy( graph.getStyle().getPadding() ) }
+  	protected def setPadding(graph:GraphicGraph) { padding.copy(graph.getStyle.getPadding) }
   	
   	/**
   	 * Process each node to check if it is in the actual view port, and mark invisible nodes. This
   	 * method allows for fast node, sprite and edge visibility checking when drawing. This must be
   	 * called before each rendering (if the view port changed). Called in pushView.
   	 */
-  	protected def checkVisibility( graph:GraphicGraph ) {
-  		val W:Double = metrics.viewport.data( 0 )
-  		val H:Double = metrics.viewport.data( 1 )
+  	protected def checkVisibility(graph:GraphicGraph) {
+  		val W:Double = metrics.viewport(0)
+  		val H:Double = metrics.viewport(1)
 		
   		nodeInvisible.clear
 	
   		graph.getEachNode.foreach { node =>
   			val visible = isNodeIn( node.asInstanceOf[GraphicNode], 0, 0, W, H );
 			
-  			if( ! visible )
+  			if(! visible)
   				nodeInvisible += node.getId
   		}
   	}
 
-  	protected def paddingXgu:Double = if( padding.units == Units.GU && padding.size > 0 ) padding.get( 0 ) else 0
-  	protected def paddingYgu:Double = if( padding.units == Units.GU && padding.size > 1 ) padding.get( 1 ) else paddingXgu
-  	protected def paddingXpx:Double = if( padding.units == Units.PX && padding.size > 0 ) padding.get( 0 ) else 0
-  	protected def paddingYpx:Double = if( padding.units == Units.PX && padding.size > 1 ) padding.get( 1 ) else paddingXpx
+  	protected def paddingXgu:Double = if(padding.units == Units.GU && padding.size > 0) padding.get( 0 ) else 0
+  	protected def paddingYgu:Double = if(padding.units == Units.GU && padding.size > 1) padding.get( 1 ) else paddingXgu
+  	protected def paddingXpx:Double = if(padding.units == Units.PX && padding.size > 0) padding.get( 0 ) else 0
+  	protected def paddingYpx:Double = if(padding.units == Units.PX && padding.size > 1) padding.get( 1 ) else paddingXpx
 
   	/**
   	 * Check if a sprite is visible in the current view port.
   	 * @param sprite The sprite to check.
   	 * @return True if visible.
   	 */
-  	protected def isSpriteVisible( sprite:GraphicSprite ):Boolean = isSpriteIn( sprite, 0, 0, metrics.viewport.data(0), metrics.viewport.data(1) )
+  	protected def isSpriteVisible(sprite:GraphicSprite):Boolean =
+  	    isSpriteIn(sprite, 0, 0, metrics.viewport(0), metrics.viewport(1))
 
   	/**
   	 * Check if an edge is visible in the current view port.
   	 * @param edge The edge to check.
   	 * @return True if visible.
   	 */
-  	protected def isEdgeVisible( edge:GraphicEdge ):Boolean = {
-  		val node0Invis = nodeInvisible.contains( edge.getNode0[Node].getId )
-  		val node1Invis = nodeInvisible.contains( edge.getNode1[Node].getId )
+  	protected def isEdgeVisible(edge:GraphicEdge):Boolean = {
+  		val node0Invis = nodeInvisible.contains(edge.getNode0[Node].getId)
+  		val node1Invis = nodeInvisible.contains(edge.getNode1[Node].getId)
 		
-  		! ( node0Invis && node1Invis )
+  		! (node0Invis && node1Invis)
   	}
 
   	/**
@@ -536,24 +544,25 @@ class Camera {
   	 * @param Y2 The max ordinate of the area.
   	 * @return True if the node lies in the given area.
   	 */
-  	protected def isNodeIn( node:GraphicNode, X1:Double, Y1:Double, X2:Double, Y2:Double ):Boolean = {
+  	protected def isNodeIn(node:GraphicNode, X1:Double, Y1:Double, X2:Double, Y2:Double):Boolean = {
   		val size = getNodeOrSpriteSize(node)//node.getStyle.getSize
-  		val w2   = metrics.lengthToPx( size, 0 ) / 2
-  		val h2   = if( size.size > 1 ) metrics.lengthToPx( size, 1 )/2 else w2
-  		val src  = new Point2D.Double( node.getX, node.getY )
+  		val w2   = metrics.lengthToPx(size, 0) / 2
+  		val h2   = if(size.size > 1) metrics.lengthToPx(size, 1)/2 else w2
+  		val src  = new Point3(node.getX, node.getY, 0)
 		
-  		Tx.transform( src, src )
+  		bck.transform(src)
+//  		Tx.transform( src, src )
 
   		val x1 = src.x - w2
   		val x2 = src.x + w2
   		val y1 = src.y - h2
   		val y2 = src.y + h2
 		
-  		if(      x2 < X1 ) false
-  		else if( y2 < Y1 ) false
-  		else if( x1 > X2 ) false
-  		else if( y1 > Y2 ) false
-  		else               true
+  		if(     x2 < X1) false
+  		else if(y2 < Y1) false
+  		else if(x1 > X2) false
+  		else if(y1 > Y2) false
+  		else             true
   	}
 	
   	/**
@@ -589,10 +598,8 @@ class Camera {
   		}
   	}
    
-  	protected def spritePositionPx( sprite:GraphicSprite ):Point2D.Double = {
-  		val pos = new Point2D.Double
-  		
-  		getSpritePosition( sprite, pos, Units.PX )
+  	protected def spritePositionPx(sprite:GraphicSprite):Point3 = {
+  		getSpritePosition(sprite, new Point3, Units.PX)
 //  		sprite.getUnits match {
 //  			case Units.PX       => { new Point2D.Double( sprite.getX, sprite.getY ) }
 //  			case Units.GU       => { val pos = new Point2D.Double( sprite.getX, sprite.getY ); Tx.transform( pos, pos ).asInstanceOf[Point2D.Double] }
@@ -607,25 +614,22 @@ class Camera {
   	 * @param y The point ordinate.
   	 * @return True if (x,y) is in the given element.
   	 */
-  	protected def nodeContains( elt:GraphicElement, x:Double, y:Double ):Boolean = {
-  		val size = getNodeOrSpriteSize( elt )	//  elt.getStyle.getSize	// TODO use nodeinfo
-  		val w2   = metrics.lengthToPx( size, 0 ) / 2
-  		val h2   = if( size.size() > 1 ) metrics.lengthToPx( size, 1 )/2 else w2
-  		val src  = new Point2D.Double( elt.getX(), elt.getY() )
-  		val dst  = new Point2D.Double
+  	protected def nodeContains(elt:GraphicElement, x:Double, y:Double):Boolean = {
+  		val size = getNodeOrSpriteSize(elt)	//  elt.getStyle.getSize	// TODO use nodeinfo
+  		val w2   = metrics.lengthToPx(size, 0) / 2
+  		val h2   = if(size.size() > 1) metrics.lengthToPx(size, 1)/2 else w2
+  		val dst  = bck.transform(elt.getX, elt.getY, 0)
 		
-  		Tx.transform( src, dst )
-
   		val x1 = dst.x - w2
   		val x2 = dst.x + w2
   		val y1 = dst.y - h2
   		val y2 = dst.y + h2
 		
-  		if( x < x1 )      false
-  		else if( y < y1 ) false
-  		else if( x > x2 ) false
-  		else if( y > y2 ) false
-  		else true
+  		if(     x < x1) false
+  		else if(y < y1) false
+  		else if(x > x2) false
+  		else if(y > y2) false
+  		else            true
   	}
 
   	/**
@@ -635,12 +639,12 @@ class Camera {
   	 * @param y The point ordinate.
   	 * @return True if (x,y) is in the given element.
   	 */
-  	protected def spriteContains( elt:GraphicElement, x:Double, y:Double ):Boolean = {
+  	protected def spriteContains(elt:GraphicElement, x:Double, y:Double):Boolean = {
   		val sprite = elt.asInstanceOf[GraphicSprite]
-  		val size   = getNodeOrSpriteSize( elt ) //sprite.getStyle.getSize // TODO use nodeinfo
-  		val w2     = metrics.lengthToPx( size, 0 ) / 2
-  		val h2     = if( size.size() > 1 ) metrics.lengthToPx( size, 1 )/2 else w2
-  		val dst    = spritePositionPx( sprite ) // new Point2D.Double( sprite.getX(), sprite.getY() )
+  		val size   = getNodeOrSpriteSize(elt) //sprite.getStyle.getSize // TODO use nodeinfo
+  		val w2     = metrics.lengthToPx(size, 0) / 2
+  		val h2     = if(size.size() > 1) metrics.lengthToPx(size, 1)/2 else w2
+  		val dst    = spritePositionPx(sprite) // new Point2D.Double( sprite.getX(), sprite.getY() )
 //  		val dst    = new Point2D.Double
 //	
 //  		Tx.transform( src, dst )
@@ -650,55 +654,55 @@ class Camera {
   		val y1 = dst.y - h2
   		val y2 = dst.y + h2
 		
-  		if( x < x1 )      false
-  		else if( y < y1 ) false
-  		else if( x > x2 ) false
-  		else if( y > y2 ) false
-  		else true	
+  		if(     x < x1) false
+  		else if(y < y1) false
+  		else if(x > x2) false
+  		else if(y > y2) false
+  		else            true	
   	}
   	
-  	protected def getNodeOrSpriteSize( elt:GraphicElement ):Values = {
-  		val info = elt.getAttribute( ElementInfo.attributeName ).asInstanceOf[NodeInfo]
+  	protected def getNodeOrSpriteSize(elt:GraphicElement):Values = {
+  		val info = elt.getAttribute(ElementInfo.attributeName).asInstanceOf[NodeInfo]
   		
-  		if( info != null ) {
-  			new Values( Units.GU, info.theSize.x, info.theSize.y )
+  		if(info ne null) {
+  			new Values(Units.GU, info.theSize.x, info.theSize.y)
   		} else {
   		    elt.getStyle.getSize
   		}
   	}
    
-  	protected def styleVisible( element:GraphicElement ):Boolean = {
+  	protected def styleVisible(element:GraphicElement):Boolean = {
   		val visibility = element.getStyle.getVisibility
   		element.getStyle.getVisibilityMode match {
   			case VisibilityMode.HIDDEN     => false
-  			case VisibilityMode.AT_ZOOM    => ( zoom == visibility( 0 ) )
-  			case VisibilityMode.UNDER_ZOOM => ( zoom <= visibility( 0 ) )
-  			case VisibilityMode.OVER_ZOOM  => ( zoom >= visibility( 0 ) )
-  			case VisibilityMode.ZOOM_RANGE => if( visibility.size > 1 ) ( zoom >= visibility( 0 ) && zoom <= visibility( 1 ) ) else true
-  			case VisibilityMode.ZOOMS      => values.contains( visibility( 0 ) )
+  			case VisibilityMode.AT_ZOOM    => (zoom == visibility(0))
+  			case VisibilityMode.UNDER_ZOOM => (zoom <= visibility(0))
+  			case VisibilityMode.OVER_ZOOM  => (zoom >= visibility(0))
+  			case VisibilityMode.ZOOM_RANGE => if(visibility.size > 1) (zoom >= visibility(0) && zoom <= visibility(1)) else true
+  			case VisibilityMode.ZOOMS      => values.contains(visibility(0))
   			case _                         => true
   		}
   	}
 
-  	def isTextVisible( element:GraphicElement ):Boolean = {
+  	def isTextVisible(element:GraphicElement):Boolean = {
   		val visibility = element.getStyle.getTextVisibility
   		element.getStyle.getTextVisibilityMode match {
   			case TextVisibilityMode.HIDDEN     => false
-  			case TextVisibilityMode.AT_ZOOM    => ( zoom == visibility( 0 ) )
-  			case TextVisibilityMode.UNDER_ZOOM => ( zoom <= visibility( 0 ) )
-  			case TextVisibilityMode.OVER_ZOOM  => ( zoom >= visibility( 0 ) )
-  			case TextVisibilityMode.ZOOM_RANGE => if( visibility.size > 1 ) ( zoom >= visibility( 0 ) && zoom <= visibility( 1 ) ) else true
-  			case TextVisibilityMode.ZOOMS      => values.contains( visibility( 0 ) )
-  			case _                         => true
+  			case TextVisibilityMode.AT_ZOOM    => (zoom == visibility(0))
+  			case TextVisibilityMode.UNDER_ZOOM => (zoom <= visibility(0))
+  			case TextVisibilityMode.OVER_ZOOM  => (zoom >= visibility(0))
+  			case TextVisibilityMode.ZOOM_RANGE => if(visibility.size > 1) (zoom >= visibility(0) && zoom <= visibility(1)) else true
+  			case TextVisibilityMode.ZOOMS      => values.contains(visibility(0))
+  			case _                             => true
   		}
   	}
   	
-  	def getNodeOrSpritePositionGU( elt:GraphicElement, pos:Point2D.Double ):Point2D.Double = {
+  	def getNodeOrSpritePositionGU(elt:GraphicElement, pos:Point3):Point3 = {
   		var p = pos
-  		if( p == null ) p = new Point2D.Double
+  		if(p eq null) p = new Point3
   		elt match {
   			case node:GraphicNode     => { p.x = node.getX; p.y = node.getY; p }
-  			case sprite:GraphicSprite => { getSpritePosition( sprite, p, Units.GU ) }
+  			case sprite:GraphicSprite => { getSpritePosition(sprite, p, Units.GU) }
   		}
   	}
    
@@ -709,31 +713,31 @@ class Camera {
   	 * @param units The units the computed position must be given into. 
   	 * @return The same instance as pos, or a new one if pos was null.
   	 */
-  	protected def getSpritePositionFree( sprite:GraphicSprite, position:Point2D.Double, units:Units ):Point2D.Double = {
+  	protected def getSpritePositionFree(sprite:GraphicSprite, position:Point3, units:Units):Point3 = {
   		var pos = position
   
-  		if( pos == null )
-  			pos = new Point2D.Double
+  		if(pos eq null)
+  			pos = new Point3
 		
-  		if( sprite.getUnits == units ) {
+  		if(sprite.getUnits == units) {
   			pos.x = sprite.getX
   			pos.y = sprite.getY
-  		} else if( units == Units.GU && sprite.getUnits == Units.PX ) {
+  		} else if(units == Units.GU && sprite.getUnits == Units.PX) {
   			pos.x = sprite.getX
   			pos.y = sprite.getY
-  			xT.transform( pos, pos )
-  		} else if( units == Units.PX && sprite.getUnits == Units.GU ) {
+  			bck.transform(pos)
+  		} else if(units == Units.PX && sprite.getUnits == Units.GU) {
   			pos.x = sprite.getX
   			pos.y = sprite.getY
-  			Tx.transform( pos, pos )
-  		} else if( units == Units.GU && sprite.getUnits == Units.PERCENTS ) {
+  			bck.transform(pos)
+  		} else if(units == Units.GU && sprite.getUnits == Units.PERCENTS) {
   			pos.x = metrics.lo.x + (sprite.getX/100f) * metrics.graphWidthGU
   			pos.y = metrics.lo.y + (sprite.getY/100f) * metrics.graphHeightGU
-  		} else if( units == Units.PX && sprite.getUnits == Units.PERCENTS ) {
+  		} else if(units == Units.PX && sprite.getUnits == Units.PERCENTS) {
   			pos.x = (sprite.getX/100f) * metrics.viewport.data(0)
   			pos.y = (sprite.getY/100f) * metrics.viewport.data(1)
   		} else {
-  			throw new RuntimeException( "Unhandled yet sprite positioning convertion %s to %s.".format( sprite.getUnits, units ) );
+  			throw new RuntimeException("Unhandled yet sprite positioning convertion %s to %s.".format(sprite.getUnits, units))
   		}
 		
   		pos
@@ -746,21 +750,21 @@ class Camera {
      * @param units The units the computed position must be given into. 
      * @return The same instance as pos, or a new one if pos was null.
      */
-    protected def getSpritePositionNode( sprite:GraphicSprite, position:Point2D.Double, units:Units ):Point2D.Double = {
+    protected def getSpritePositionNode(sprite:GraphicSprite, position:Point3, units:Units):Point3 = {
     	var pos = position
 
-    	if( pos == null )
-    		pos = new Point2D.Double
+    	if(pos eq null)
+    		pos = new Point3
 		
     	val node   = sprite.getNodeAttachment
     	val radius = metrics.lengthToGu( sprite.getX, sprite.getUnits )
-    	val z      = sprite.getZ * ( Pi / 180f )
+    	val z      = sprite.getZ * (Pi / 180.0)
 		
-    	pos.x = node.x + ( cos( z ) * radius )
-    	pos.y = node.y + ( sin( z ) * radius )
+    	pos.x = node.x + (cos(z) * radius)
+    	pos.y = node.y + (sin(z) * radius)
 
-    	if( units == Units.PX )
-    		Tx.transform( pos, pos )
+    	if(units == Units.PX)
+    		bck.transform(pos)
 
     	pos
     }
@@ -772,17 +776,17 @@ class Camera {
   	 * @param units The units the computed position must be given into. 
   	 * @return The same instance as pos, or a new one if pos was null.
   	 */
-  	protected def getSpritePositionEdge( sprite:GraphicSprite, position:Point2D.Double, units:Units ):Point2D.Double = {
+  	protected def getSpritePositionEdge(sprite:GraphicSprite, position:Point3, units:Units):Point3 = {
   		var pos = position
 
-  		if( pos == null )
-  			pos = new Point2D.Double
+  		if(pos eq null)
+  			pos = new Point3
 		
   		val edge = sprite.getEdgeAttachment.asInstanceOf[GraphicEdge]
-  		val info = edge.getAttribute( ElementInfo.attributeName ).asInstanceOf[EdgeInfo]
+  		val info = edge.getAttribute(ElementInfo.attributeName).asInstanceOf[EdgeInfo]
   		
   		if(info ne null) {
-  			val o  = metrics.lengthToGu( sprite.getY, sprite.getUnits )
+  			val o  = metrics.lengthToGu(sprite.getY, sprite.getUnits)
   			if(o==0) {
   				val p = info.pointOnShape(sprite.getX)
   				pos.x = p.x
@@ -798,7 +802,7 @@ class Camera {
   			var dx = 0.0
   			var dy = 0.0
   			var d  = sprite.getX				// Percent on the edge.
-  			val o  = metrics.lengthToGu( sprite.getY, sprite.getUnits )	
+  			val o  = metrics.lengthToGu(sprite.getY, sprite.getUnits)	
   												// Offset from the position given by percent, perpendicular to the edge.
   			x  = edge.from.x
   			y  = edge.from.y
@@ -824,8 +828,8 @@ class Camera {
   			pos.y = y
   		}
 			
-  		if( units == Units.PX )
-  			Tx.transform( pos, pos )
+  		if(units == Units.PX)
+  			bck.transform(pos)
 
   		pos
   	}

@@ -54,18 +54,18 @@ trait AreaShape
 	with Shadowable 
 	with Decorable {
  	
-	def configureForGroup( g:Graphics2D, style:Style, camera:Camera ) {
- 	  	configureFillableForGroup( style, camera )
- 	  	configureStrokableForGroup( style, camera )
- 	  	configureShadowableForGroup( style, camera )
- 	  	configureDecorableForGroup( style, camera )
- 	  	configureAreaForGroup( style, camera )
+	def configureForGroup(bck:Backend, style:Style, camera:Camera) {
+ 	  	configureFillableForGroup(style, camera)
+ 	  	configureStrokableForGroup(style, camera)
+ 	  	configureShadowableForGroup(style, camera)
+ 	  	configureDecorableForGroup(style, camera)
+ 	  	configureAreaForGroup(style, camera)
  	}
  
-	def configureForElement( g:Graphics2D, element:GraphicElement, info:ElementInfo, camera:Camera ) {
-		configureFillableForElement( element.getStyle, camera, element )
-		configureDecorableForElement( g, camera, element, info )
-		configureAreaForElement( g, camera, info.asInstanceOf[NodeInfo], element, theDecor )
+	def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera) {
+		configureFillableForElement(element.getStyle, camera, element)
+		configureDecorableForElement(bck.graphics2D, camera, element, info)
+		configureAreaForElement(bck.graphics2D, camera, info.asInstanceOf[NodeInfo], element, theDecor)
 	}
 }
 
@@ -76,16 +76,16 @@ trait AreaOnConnectorShape
 	with Strokable
 	with Shadowable {
 	
-	def configureForGroup( g:Graphics2D, style:Style, camera:Camera ) {
-		configureFillableForGroup( style, camera )
-		configureStrokableForGroup( style, camera )
-		configureShadowableForGroup( style, camera )
-		configureAreaOnConnectorForGroup( style, camera )
+	def configureForGroup(bck:Backend, style:Style, camera:Camera) {
+		configureFillableForGroup(style, camera)
+		configureStrokableForGroup(style, camera)
+		configureShadowableForGroup(style, camera)
+		configureAreaOnConnectorForGroup(style, camera)
 	}
 	
-	def configureForElement( g:Graphics2D, element:GraphicElement, info:ElementInfo, camera:Camera ) {
-		configureFillableForElement( element.getStyle, camera, element )
-		configureAreaOnConnectorForElement( element.asInstanceOf[GraphicEdge], element.getStyle, camera )
+	def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera) {
+		configureFillableForElement(element.getStyle, camera, element)
+		configureAreaOnConnectorForElement(element.asInstanceOf[GraphicEdge], element.getStyle, camera)
 	}
 }
  
@@ -97,14 +97,14 @@ trait ConnectorShape
 	with Connector
 	with Decorable {
 	
-	def configureForGroup( g:Graphics2D, style:Style, camera:Camera ) {
-		configureDecorableForGroup( style, camera )
-		configureConnectorForGroup( style, camera )
+	def configureForGroup(bck:Backend, style:Style, camera:Camera) {
+		configureDecorableForGroup(style, camera)
+		configureConnectorForGroup(style, camera)
 	}
 	
-	def configureForElement( g:Graphics2D, element:GraphicElement, info:ElementInfo, camera:Camera ) {
-		configureDecorableForElement( g, camera, element, info )
-		configureConnectorForElement( g, camera, element.asInstanceOf[GraphicEdge], info.asInstanceOf[EdgeInfo] /* TODO check this ! */ )
+	def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera) {
+		configureDecorableForElement(bck.graphics2D, camera, element, info)
+		configureConnectorForElement(bck.graphics2D, camera, element.asInstanceOf[GraphicEdge], info.asInstanceOf[EdgeInfo] /* TODO check this ! */)
 	}
 }
  
@@ -114,16 +114,16 @@ trait LineConnectorShape
 	with StrokableLine
 	with ShadowableLine {
 	
-	override def configureForGroup( g:Graphics2D, style:Style, camera:Camera ) {
-		configureFillableLineForGroup( style, camera )
-		configureStrokableLineForGroup( style, camera )
-		configureShadowableLineForGroup( style, camera )
-		super.configureForGroup( g, style, camera )
+	override def configureForGroup(bck:Backend, style:Style, camera:Camera) {
+		configureFillableLineForGroup(style, camera)
+		configureStrokableLineForGroup(style, camera)
+		configureShadowableLineForGroup(style, camera)
+		super.configureForGroup(bck, style, camera)
 	}
 	
-	override def configureForElement( g:Graphics2D, element:GraphicElement, info:ElementInfo, camera:Camera ) {
-		configureFillableLineForElement( element.getStyle, camera, element )
-		super.configureForElement( g, element, info, camera )
+	override def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera) {
+		configureFillableLineForElement(element.getStyle, camera, element)
+		super.configureForElement(bck, element, info, camera)
 	}
 }
 
@@ -133,74 +133,74 @@ trait AreaConnectorShape
 	with Strokable
 	with Shadowable {
 	
-	override def configureForGroup( g:Graphics2D, style:Style, camera:Camera ) {
-		configureFillableForGroup( style, camera )
-		configureStrokableForGroup( style, camera )
-		configureShadowableForGroup( style, camera )
-		super.configureForGroup( g, style, camera )
+	override def configureForGroup(bck:Backend, style:Style, camera:Camera) {
+		configureFillableForGroup(style, camera)
+		configureStrokableForGroup(style, camera)
+		configureShadowableForGroup(style, camera)
+		super.configureForGroup(bck, style, camera)
 	}
 	
-	override def configureForElement( g:Graphics2D, element:GraphicElement, info:ElementInfo, camera:Camera ) {
-		configureFillableForElement( element.getStyle, camera, element )
-		super.configureForElement( g, element, info, camera )
+	override def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera) {
+		configureFillableForElement(element.getStyle, camera, element)
+		super.configureForElement(bck, element, info, camera)
 	}}
 
 	
 trait RectangularAreaShape extends AreaShape {
 	val theShape:RectangularShape
  
- 	protected def make( g:Graphics2D, camera:Camera ) {
+ 	protected def make(bck:Backend, camera:Camera) {
 		val w = theSize.x
 		val h = theSize.y
 		
-		theShape.setFrame( theCenter.x-w/2, theCenter.y-h/2, w, h )
+		theShape.setFrame(theCenter.x-w/2, theCenter.y-h/2, w, h)
  	}
  
- 	protected def makeShadow( g:Graphics2D, camera:Camera ) {
+ 	protected def makeShadow(bck:Backend, camera:Camera) {
 		val x = theCenter.x + theShadowOff.x
 		val y = theCenter.y + theShadowOff.y
 		val w = theSize.x + theShadowWidth.x * 2
 		val h = theSize.y + theShadowWidth.y * 2
 		
-		theShape.setFrame( x-w/2, y-h/2, w, h )
+		theShape.setFrame(x-w/2, y-h/2, w, h)
  	}
   
- 	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		makeShadow( g, camera )
- 		cast( g, theShape )
+ 	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo) {
+ 		makeShadow(bck, camera)
+ 		cast(bck.graphics2D, theShape)
  	}
   
- 	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		make( g, camera )
- 		fill( g, theShape, camera )
- 		stroke( g, theShape )
- 		decorArea( g, camera, info.iconAndText, element, theShape )
+ 	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 		make(bck, camera )
+ 		fill(bck.graphics2D, theShape, camera)
+ 		stroke(bck.graphics2D, theShape)
+ 		decorArea(bck.graphics2D, camera, info.iconAndText, element, theShape)
  	}
 }
 
 abstract class OrientableRectangularAreaShape extends RectangularAreaShape with Orientable {
 	 
-	var p:Point2D.Double = null
+	var p:Point3 = null
 	var angle = 0.0
 	var w = 0.0
 	var h = 0.0
 	var oriented = false
 	
-	override def configureForGroup( g:Graphics2D, style:Style, camera:Camera ) {
-		super.configureForGroup( g, style, camera )
-		configureOrientableForGroup( style, camera )
+	override def configureForGroup(bck:Backend, style:Style, camera:Camera) {
+		super.configureForGroup(bck, style, camera)
+		configureOrientableForGroup(style, camera)
 		oriented = (style.getSpriteOrientation != StyleConstants.SpriteOrientation.NONE)
 	}
  
-	override def configureForElement( g:Graphics2D, element:GraphicElement, info:ElementInfo, camera:Camera ) {
-		super.configureForElement( g, element, info, camera )
-		configureOrientableForElement( camera, element.asInstanceOf[GraphicSprite] /* Check This XXX TODO !*/ );
+	override def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera) {
+		super.configureForElement(bck, element, info, camera)
+		configureOrientableForElement(camera, element.asInstanceOf[GraphicSprite] /* Check This XXX TODO !*/);
 	}
 	
-	protected override def make( g:Graphics2D, camera:Camera ) { make( g, false, camera ) }
-	protected override def makeShadow( g:Graphics2D, camera:Camera ) { make( g, true, camera ) }
+	protected override def make(bck:Backend, camera:Camera) { make(bck, false, camera) }
+	protected override def makeShadow(bck:Backend, camera:Camera) { make(bck, true, camera) }
 
-	protected def make( g:Graphics2D, forShadow:Boolean, camera:Camera ) {
+	protected def make(bck:Backend, forShadow:Boolean, camera:Camera) {
 		if (oriented) {
 			val theDirection = new Vector2(
 					target.x - theCenter.x,
@@ -216,8 +216,8 @@ abstract class OrientableRectangularAreaShape extends RectangularAreaShape with 
 				y += theShadowOff.y
 			}
 		
-			p     = camera.transform( x, y )	// Pass to pixels, the image will be drawn in pixels.
-			angle = acos( theDirection.dotProduct( 1, 0 ) )
+			p     = camera.transform(x, y)	// Pass to pixels, the image will be drawn in pixels.
+			angle = acos(theDirection.dotProduct( 1, 0 ))
 		
 			if( theDirection.y > 0 )			// The angle is always computed for acute angles
 				angle = ( Pi - angle )
@@ -227,15 +227,17 @@ abstract class OrientableRectangularAreaShape extends RectangularAreaShape with 
 			theShape.setFrame(0, 0, w, h)
 		} else {
 			if (forShadow)
-				super.makeShadow(g, camera)
+				super.makeShadow(bck, camera)
 			else
-				super.make(g, camera)
+				super.make(bck, camera)
 		}
 	}
 	
  
-	override def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		make(g, true, camera)
+	override def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo) {
+ 		make(bck, true, camera)
+ 		
+ 		val g = bck.graphics2D
  		
  		if (oriented) {
 	 		val Tx = g.getTransform
@@ -247,13 +249,15 @@ abstract class OrientableRectangularAreaShape extends RectangularAreaShape with 
  			cast(g, theShape)
 	 		g.setTransform( Tx )									// Restore the original transform
  		} else {
- 			super.renderShadow(g, camera, element, info)
+ 			super.renderShadow(bck, camera, element, info)
  		}
 	}
  
-	override def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		make(g, false, camera)
+	override def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo) {
+ 		make(bck, false, camera)
 		
+ 		val g = bck.graphics2D
+ 		
  		if (oriented) {
 	 		val Tx = g.getTransform
 	 		val Tr = new AffineTransform
@@ -267,7 +271,7 @@ abstract class OrientableRectangularAreaShape extends RectangularAreaShape with 
 	 		theShape.setFrame(theCenter.x-w/2, theCenter.y-h/2, w, h)
 	 		decorArea(g, camera, info.iconAndText, element, theShape)
  		} else {
- 			super.render(g, camera, element, info)
+ 			super.render(bck, camera, element, info)
  		}
  	}
 }
@@ -275,16 +279,17 @@ abstract class OrientableRectangularAreaShape extends RectangularAreaShape with 
 abstract class PolygonalShape extends AreaShape {
 	var theShape = new Path2D.Double
  
- 	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		makeShadow( g, camera )
- 		cast( g, theShape )
+ 	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo) {
+ 		makeShadow(bck, camera)
+ 		cast(bck.graphics2D, theShape)
  	}
   
- 	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		make( g, camera )
- 		fill( g, theShape, camera )
- 		stroke( g, theShape )
- 		decorArea( g, camera, info.iconAndText, element, theShape )
+ 	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo) {
+ 	    val g = bck.graphics2D
+ 		make(bck, camera)
+ 		fill(g, theShape, camera)
+ 		stroke(g, theShape)
+ 		decorArea(g, camera, info.iconAndText, element, theShape)
  	}
 }
 
@@ -292,7 +297,7 @@ class LineShape extends LineConnectorShape {
 	protected var theShape:java.awt.Shape = new Line2D.Double 
 // Command
   
-	protected def make( g:Graphics2D, camera:Camera ) {
+	protected def make(bck:Backend, camera:Camera) {
 		val from = info.from
 		val to   = info.to
 		if( info.isCurve ) {
@@ -307,7 +312,7 @@ class LineShape extends LineConnectorShape {
 			line.setLine( from.x, from.y, to.x, to.y )
 		} 
 	}
-	protected def makeShadow( g:Graphics2D, camera:Camera ) {
+	protected def makeShadow(bck:Backend, camera:Camera) {
 		var x0 = info.from.x + theShadowOff.x
 		var y0 = info.from.y + theShadowOff.y
 		var x1 = info.to.x + theShadowOff.x
@@ -329,16 +334,17 @@ class LineShape extends LineConnectorShape {
 		} 
 	}
  
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		makeShadow( g, camera )
- 		cast( g, theShape )
+	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo) {
+ 		makeShadow(bck, camera)
+ 		cast(bck.graphics2D, theShape)
 	}
  
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		make( g, camera )
- 		stroke( g, theShape )
- 		fill( g, theSize, theShape )
- 		decorConnector( g, camera, info.iconAndText, element, theShape )
+	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo) {
+	    val g = bck.graphics2D
+ 		make(bck, camera)
+ 		stroke(g, theShape )
+ 		fill(g, theSize, theShape)
+ 		decorConnector(g, camera, info.iconAndText, element, theShape)
 	}
 }
 
@@ -350,7 +356,7 @@ class PolylineEdgeShape extends LineConnectorShape with ShowCubics {
 
 // Command
  
-	protected def make( g:Graphics2D, camera:Camera ) {
+	protected def make(bck:Backend, camera:Camera) {
 		val n = info.size
 		
 		theShape.reset
@@ -361,18 +367,19 @@ class PolylineEdgeShape extends LineConnectorShape with ShowCubics {
 		}		
 	}
 
-	protected def makeShadow( g:Graphics2D, camera:Camera ) {
+	protected def makeShadow(bck:Backend, camera:Camera) {
 	}
 	
-	def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		makeShadow( g, camera )
- 		cast( g, theShape )
+	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo) {
+ 		makeShadow(bck, camera)
+ 		cast(bck.graphics2D, theShape)
 	}
  
-	def render( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		make( g, camera )
- 		stroke( g, theShape )
- 		fill( g, theSize, theShape )
- 		decorConnector( g, camera, info.iconAndText, element, theShape )
+	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo) {
+	    val g = bck.graphics2D
+ 		make(bck, camera)
+ 		stroke(g, theShape)
+ 		fill(g, theSize, theShape)
+ 		decorConnector(g, camera, info.iconAndText, element, theShape)
 	}
 }

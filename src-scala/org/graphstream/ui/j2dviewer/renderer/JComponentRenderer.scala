@@ -30,6 +30,7 @@
  */
 package org.graphstream.ui.j2dviewer.renderer
 
+import org.graphstream.ui.geom.Point3
 import java.awt.{Graphics, Graphics2D, Font, Color, RenderingHints}
 import java.awt.event.{ActionListener, ActionEvent}
 import java.awt.geom.{Point2D}
@@ -37,14 +38,14 @@ import javax.swing.{JComponent, JPanel, BorderFactory, JTextField, JButton, Swin
 import javax.swing.border.Border
 import org.graphstream.ui.graphicGraph.{GraphicElement, GraphicNode, GraphicSprite, StyleGroup}
 import org.graphstream.ui.graphicGraph.stylesheet.{Values, StyleConstants}
-import org.graphstream.ui.j2dviewer.{J2DGraphRenderer, Camera}
+import org.graphstream.ui.j2dviewer.{J2DGraphRenderer, Camera, Backend}
 import org.graphstream.ui.util.{FontCache, ImageCache}
 import org.graphstream.ui.j2dviewer.renderer.shape._
 
 /**
  * Renderer for nodes and sprites represented as Swing components.
  */
-class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRenderer ) extends StyleRenderer( styleGroup ) {
+class JComponentRenderer(styleGroup:StyleGroup, val mainRenderer:J2DGraphRenderer) extends StyleRenderer(styleGroup) {
 // Attribute
 
 	/** The size of components. */
@@ -66,14 +67,15 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 
 // Command
   
-	protected def setupRenderingPass( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
+	protected def setupRenderingPass(bck:Backend, camera:Camera, forShadow:Boolean) {
 		val metrics = camera.metrics
-		
+		val g       = bck.graphics2D
+
 		size   = group.getSize
-		width  = metrics.lengthToPx( size, 0 ).toInt
-		height = if( size.size() > 1 ) metrics.lengthToPx( size, 1 ).toInt else width
+		width  = metrics.lengthToPx(size, 0).toInt
+		height = if(size.size > 1) metrics.lengthToPx(size, 1).toInt else width
   
-		if( group.getShadowMode != StyleConstants.ShadowMode.NONE )
+		if(group.getShadowMode != StyleConstants.ShadowMode.NONE)
 		     shadow = new SquareShape
 		else shadow = null
 		
@@ -81,37 +83,37 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 		g.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF )
 	}
  
-	override protected def endRenderingPass( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
-		g.setRenderingHint( RenderingHints.KEY_ANTIALIASING, antialiasSetting )
+	override protected def endRenderingPass(bck:Backend, camera:Camera, forShadow:Boolean) {
+		bck.graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, antialiasSetting)
 	} 
 	
-	protected def pushStyle( g:Graphics2D, camera:Camera, forShadow:Boolean ) {
-		if( shadow != null ) {
-			shadow.configureForGroup( g, group, camera )
-//		  	shadow.configure( g, group, camera, null )
-//		  	shadow.size( group, camera )
+	protected def pushStyle(bck:Backend, camera:Camera, forShadow:Boolean) {
+		if(shadow ne null) {
+			shadow.configureForGroup(bck, group, camera)
+//		  	shadow.configure(bck, group, camera, null)
+//		  	shadow.size(group, camera)
 		}
 	}
 	
-	protected def pushDynStyle( g:Graphics2D, camera:Camera, element:GraphicElement ) {
+	protected def pushDynStyle(bck:Backend, camera:Camera, element:GraphicElement) {
 	}
 	
-	protected def renderElement( g:Graphics2D, camera:Camera, element:GraphicElement ) {
-		val ce = getOrEquipWithJComponent( element )
+	protected def renderElement(bck:Backend, camera:Camera, element:GraphicElement) {
+		val ce = getOrEquipWithJComponent(element)
 
-		ce.setVisible( true )
-		ce.updatePosition( camera )
+		ce.setVisible(true)
+		ce.updatePosition(camera)
 		ce.updateLabel
 
-		if( ce.init == false )
-		     checkStyle( camera, ce, true )
-		else if( group.hasEventElements )
-		     checkStyle( camera, ce, ! hadEvents )	// hadEvents allows to know if we just
-		else checkStyle( camera, ce, hadEvents )	// changed the style due to an event	
+		if(ce.init == false)
+		     checkStyle(camera, ce, true)
+		else if(group.hasEventElements)
+		     checkStyle(camera, ce, ! hadEvents)	// hadEvents allows to know if we just
+		else checkStyle(camera, ce, hadEvents)		// changed the style due to an event	
 	}												// and therefore must change the style.
 													
-	protected def renderShadow( g:Graphics2D, camera:Camera, element:GraphicElement ) {
-		if( shadow != null ) {
+	protected def renderShadow(bck:Backend, camera:Camera, element:GraphicElement) {
+		if(shadow ne null) {
 //			val pos = new Point2D.Double( element.getX, element.getY )
 //
 //			if( element.isInstanceOf[GraphicSprite] ) {
@@ -120,19 +122,19 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 //			
 ////			shadow.setupContents( g, camera, element, null )
 //			shadow.positionAndFit( g, camera, null, element, pos.x, pos.y )
-			shadow.configureForElement( g, element, null, camera )
-			shadow.renderShadow( g, camera, element, null )
+			shadow.configureForElement(bck, element, null, camera)
+			shadow.renderShadow(bck, camera, element, null)
 		}
 	}
  
-	protected def elementInvisible( g:Graphics2D, camera:Camera, element:GraphicElement ) {
-		getOrEquipWithJComponent( element ).setVisible( false )
+	protected def elementInvisible(bck:Backend, camera:Camera, element:GraphicElement) {
+		getOrEquipWithJComponent(element).setVisible(false)
 	}
  
 // Utility
 	
- 	def unequipElement( element:GraphicElement ) {
-		compToElement.get( element.getComponent.asInstanceOf[JComponent] ) match {
+ 	def unequipElement(element:GraphicElement) {
+		compToElement.get(element.getComponent.asInstanceOf[JComponent]) match {
 			case e:ComponentElement => { e.detach }
 			case _                  => {}
 		}
@@ -142,33 +144,33 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 	 * Get the pair (swing component, graph element) corresponding to the given element. If the
 	 * element is not yet associated with a Swing component, the binding is done.
 	 */
-	protected def getOrEquipWithJComponent( element:GraphicElement ):ComponentElement = {
+	protected def getOrEquipWithJComponent(element:GraphicElement):ComponentElement = {
 		import StyleConstants.JComponents._ 
 
 		val component = element.getComponent.asInstanceOf[JComponent]
 		var ce:ComponentElement = null
 		
-		if( component == null ) {
+		if(component eq null) {
 			group.getJComponent match {
-				case BUTTON     => ce = new ButtonComponentElement( element, new JButton( "" ) )
-				case TEXT_FIELD => ce = new TextFieldComponentElement( element, new JTextField( "" ) )
-				case PANEL      => throw new RuntimeException( "panel not yet available" )
-				case _          => throw new RuntimeException( "WTF ?!?" )
+				case BUTTON     => ce = new ButtonComponentElement(element, new JButton(""))
+				case TEXT_FIELD => ce = new TextFieldComponentElement(element, new JTextField(""))
+				case PANEL      => throw new RuntimeException("panel not yet available")
+				case _          => throw new RuntimeException("WTF ?!?")
 			}
 			
 			if( ce != null )
-				compToElement.put( ce.jComponent, ce )
+				compToElement.put(ce.jComponent, ce)
 		} else {
-			ce = compToElement.get( component ).get
+			ce = compToElement.get(component).get
 		}
 		
 		ce
 	}
 
-	protected def checkStyle( camera:Camera, ce:ComponentElement, force:Boolean ) {
-		if( force ) {
-			ce.checkIcon( camera )
-			ce.checkBorder( camera, force )
+	protected def checkStyle(camera:Camera, ce:ComponentElement, force:Boolean) {
+		if(force) {
+			ce.checkIcon(camera)
+			ce.checkBorder(camera, force)
 			ce.setFill
 			ce.setTextAlignment
 			ce.setTextFont
@@ -187,7 +189,7 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 	 * These elements also allow to push and remove the style to Swing components. We try to do this
 	 * only when the style potentially changed, not at each redraw.
 	 */
- 	abstract class ComponentElement( val element:GraphicElement ) extends JPanel {
+ 	abstract class ComponentElement(val element:GraphicElement) extends JPanel {
  	// Attribute
  	  
 		/** Set to true if the element is not yet initialised with its style. */
@@ -195,8 +197,8 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 
 	// Construction
  	
-		setLayout( null )	// No layout in this panel, we set the component bounds ourselves.
- 		mainRenderer.renderingSurface.add( this )
+		setLayout(null)	// No layout in this panel, we set the component bounds ourselves.
+ 		mainRenderer.renderingSurface.add(this)
   
 	// Access
 
@@ -220,15 +222,15 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 		/** Set or reset the label of the component. */
 		def updateLabel()
 	
-		def setBounds( x:Int, y:Int, width:Int, height:Int, camera:Camera  ) {
-			setBounds( x, y, width, height )
+		def setBounds(x:Int, y:Int, width:Int, height:Int, camera:Camera) {
+			setBounds(x, y, width, height)
 			
 			var borderWidth:Int = 0
 			
-			if( group.getStrokeMode != StyleConstants.StrokeMode.NONE && group.getStrokeWidth().value > 0 )
-				borderWidth = camera.metrics.lengthToPx( group.getStrokeWidth ).toInt
+			if(group.getStrokeMode != StyleConstants.StrokeMode.NONE && group.getStrokeWidth.value > 0)
+				borderWidth = camera.metrics.lengthToPx(group.getStrokeWidth).toInt
 
-			jComponent.setBounds( borderWidth, borderWidth, width-(borderWidth*2), height-(borderWidth*2) )
+			jComponent.setBounds(borderWidth, borderWidth, width-(borderWidth*2), height-(borderWidth*2))
 		}
 	
 		/**
@@ -236,53 +238,51 @@ class JComponentRenderer( styleGroup:StyleGroup, val mainRenderer:J2DGraphRender
 		 * Swing container and remove any listeners on the Swing component. The ComponentElement
 		 * is not usable after this.
 		 */
-		def detach {
-			mainRenderer.renderingSurface.remove( this );
-		}
+		def detach { mainRenderer.renderingSurface.remove(this) }
 
 		/**
 		 * Check the swing component follows the graph element position.
 		 * @param camera The transformation from GU to PX.
 		 */
-		def updatePosition( camera:Camera ) {
+		def updatePosition(camera:Camera) {
 			element match {
-				case e:GraphicNode   => positionNodeComponent(   element.asInstanceOf[GraphicNode],   camera )
-				case e:GraphicSprite => positionSpriteComponent( element.asInstanceOf[GraphicSprite], camera )
-				case _               => throw new RuntimeException( "WTF ?" )
+				case e:GraphicNode   => positionNodeComponent(  element.asInstanceOf[GraphicNode],   camera)
+				case e:GraphicSprite => positionSpriteComponent(element.asInstanceOf[GraphicSprite], camera)
+				case _               => throw new RuntimeException("WTF ?")
 			}
 		}
 
 	// Custom painting
 	
-		override def paint( g:Graphics ) {
-			paintComponent( g )	// XXX Remove this ??? XXX
-			paintBorder( g )
-			paintChildren( g )
+		override def paint(g:Graphics) {
+			paintComponent(g)	// XXX Remove this ??? XXX
+			paintBorder(g)
+			paintChildren(g)
 		}
 		
 	// Command -- Utility, positioning
 		
-		protected def positionNodeComponent( node:GraphicNode, camera:Camera ) {
-			val pos = camera.transform( node.getX, node.getY )
+		protected def positionNodeComponent(node:GraphicNode, camera:Camera) {
+			val pos = camera.transform(node.getX, node.getY)
 	
-			setBounds( (pos.x-(width/2)).toInt, (pos.y-(height/2)).toInt, width, height, camera )
+			setBounds((pos.x-(width/2)).toInt, (pos.y-(height/2)).toInt, width, height, camera)
 		}
 		
 		protected def positionSpriteComponent( sprite:GraphicSprite, camera:Camera ) {
-			val pos = camera.getSpritePosition( sprite, new Point2D.Double, StyleConstants.Units.PX )
+			val pos = camera.getSpritePosition( sprite, new Point3, StyleConstants.Units.PX)
 	
-			setBounds( (pos.x-(width/2)).toInt, (pos.y-(height/2)).toInt, width, height, camera )
+			setBounds((pos.x-(width/2)).toInt, (pos.y-(height/2)).toInt, width, height, camera)
 		}
 
 	// Command -- Utility, applying CSS style to Swing components
 		
-		def checkBorder( camera:Camera, force:Boolean ) {
-			if( force ) {
-				if( group.getStrokeMode != StyleConstants.StrokeMode.NONE && group.getStrokeWidth().value > 0 )
-			         setBorder( createBorder( camera ) )
-				else setBorder( null )
+		def checkBorder(camera:Camera, force:Boolean) {
+			if(force) {
+				if(group.getStrokeMode != StyleConstants.StrokeMode.NONE && group.getStrokeWidth().value > 0)
+			         setBorder(createBorder(camera))
+				else setBorder(null)
 			} else {
-				updateBorder( camera )
+				updateBorder(camera)
 			}
 		}
 		
