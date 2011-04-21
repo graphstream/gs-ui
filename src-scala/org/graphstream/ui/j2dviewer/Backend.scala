@@ -84,12 +84,13 @@ abstract class Backend {
     
     /**
      * End the work on the actual transformation matrix, installing it as the actual modelview
-     * matrix.
+     * matrix. If you do not call this method, all the scaling, translation and rotation are
+     * lost.
      */
     def endTransform
     
     /**
-     * Pop the actual transformation of the matrix stack, installing
+     * Pop the actual transformation of the matrix stack, restoring
      * the previous one in the stack.
      */
     def popTransform()
@@ -225,9 +226,11 @@ class BackendJ2D extends Backend {
     def setAntialias(on:Boolean) {
        import RenderingHints._
 	   if(on) {
+		   g2.setRenderingHint(KEY_STROKE_CONTROL,    VALUE_STROKE_PURE)
 		   g2.setRenderingHint(KEY_TEXT_ANTIALIASING, VALUE_TEXT_ANTIALIAS_ON)
 		   g2.setRenderingHint(KEY_ANTIALIASING,      VALUE_ANTIALIAS_ON)
 	   } else {
+		   g2.setRenderingHint(KEY_STROKE_CONTROL,    VALUE_STROKE_DEFAULT)
 		   g2.setRenderingHint(KEY_TEXT_ANTIALIASING, VALUE_TEXT_ANTIALIAS_OFF)
 		   g2.setRenderingHint(KEY_ANTIALIASING,      VALUE_ANTIALIAS_OFF)
 	   }
@@ -236,9 +239,6 @@ class BackendJ2D extends Backend {
     
     def setQuality(on:Boolean) {
        import RenderingHints._
-       
-       g2.setRenderingHint(KEY_STROKE_CONTROL, VALUE_STROKE_PURE)
-
        if(on) {
 		   g2.setRenderingHint(KEY_RENDERING,           VALUE_RENDER_SPEED)
 		   g2.setRenderingHint(KEY_INTERPOLATION,       VALUE_INTERPOLATION_NEAREST_NEIGHBOR)

@@ -138,7 +138,7 @@ class Camera {
   	 * dimensions.
   	 */
   	protected var gviewport:Array[Double] = null
-	
+  		
 // Access
 	
   	/**
@@ -502,8 +502,8 @@ class Camera {
 		
   		nodeInvisible.clear
 	
-  		graph.getEachNode.foreach { node =>
-  			val visible = isNodeIn( node.asInstanceOf[GraphicNode], 0, 0, W, H );
+  		graph.getEachNode.foreach { node:Node =>
+  			val visible = isNodeIn(node.asInstanceOf[GraphicNode], 0, 0, W, H) && (!node.asInstanceOf[GraphicNode].hidden) && node.asInstanceOf[GraphicNode].positionned;
 			
   			if(! visible)
   				nodeInvisible += node.getId
@@ -529,10 +529,15 @@ class Camera {
   	 * @return True if visible.
   	 */
   	protected def isEdgeVisible(edge:GraphicEdge):Boolean = {
-  		val node0Invis = nodeInvisible.contains(edge.getNode0[Node].getId)
-  		val node1Invis = nodeInvisible.contains(edge.getNode1[Node].getId)
+  	    if((!edge.getNode0[GraphicNode].positionned)
+  	    || (!edge.getNode1[GraphicNode].positionned)) {
+  	        false
+  	    } else {
+  	    	val node0Invis = nodeInvisible.contains(edge.getNode0[Node].getId)
+  			val node1Invis = nodeInvisible.contains(edge.getNode1[Node].getId)
 		
-  		! (node0Invis && node1Invis)
+  			! (node0Invis && node1Invis)
+  	    }
   	}
 
   	/**
