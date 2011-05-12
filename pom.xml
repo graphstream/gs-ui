@@ -83,22 +83,6 @@
 		</developer>
 	</developers>
 
-	<contributors>
-		<contributor>
-			<name>Frédéric Guinand</name>
-			<email>frederic.guinand@univ-lehavre.fr</email>
-			<organization>LITIS</organization>
-			<organizationUrl>http://www.litislab.eu</organizationUrl>
-		</contributor>
-
-		<contributor>
-			<name>Guillaume-Jean Herbiet</name>
-			<email>guillaume.jean@herbiet.net</email>
-			<organization>University of Luxembourg</organization>
-			<organizationUrl>http://www.uni.lu</organizationUrl>
-		</contributor>
-	</contributors>
-
 	<licenses>
 		<license>
 			<name>LGPL3</name>
