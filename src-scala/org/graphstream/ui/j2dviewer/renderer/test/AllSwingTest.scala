@@ -28,7 +28,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
  */
-package org.graphstream.ui.j2dviewer
+package org.graphstream.ui.j2dviewer.renderer.test
 
 import org.graphstream.graph._
 import org.graphstream.scalags.graph.MultiGraph
@@ -39,16 +39,16 @@ import java.awt._
 
 object AllSwingTest {
 	def main( args:Array[String] ):Unit = {
-		val test = new AllInSwing
+		val test = new AllSwingTest
 		test.run
 	}
 }
 
-class AllInSwing extends JFrame {
+class AllSwingTest extends JFrame {
 	def run {
 		val graph  = new MultiGraph( "mg" )
 		val viewer = new Viewer( graph, Viewer.ThreadingModel.GRAPH_IN_SWING_THREAD )
-   
+		
 		graph.addNodes( "A", "B", "C" )
 		graph.addEdges( "A", "B", "C", "A" )
 		graph.addAttribute( "ui.antialias" )
@@ -60,7 +60,13 @@ class AllInSwing extends JFrame {
 		graph.getNode[Node]("B")("xyz") = (  1, 0, 0 )
   		graph.getNode[Node]("C")("xyz") = (  0, 1, 0 )
    
-		add( viewer.addDefaultView( false ), BorderLayout.CENTER )
+		val view = viewer.addDefaultView(false)
+		
+		add( view, BorderLayout.CENTER )
+		
+		view.setViewPercent(0.5)
+		view.setViewCenter(-1, 0, 0)
+		
 		setSize( 800, 600 )
 		setVisible( true )
 	}

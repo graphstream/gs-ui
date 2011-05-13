@@ -163,6 +163,20 @@ class EdgeInfo extends ElementInfo with AttributeUtils {
         	lengths = null
         }
     }
+    
+    def setPoly(aSetOfPoints:Point3*) {
+        if((points eq null) || (points.size != aSetOfPoints.size)) {
+            points = new EdgePoints(aSetOfPoints.size)
+        }
+        
+        kind = POLYLINE
+        var i=0
+        
+        aSetOfPoints.foreach { point =>
+        	points.set(i, point.x, point.y, point.z)
+        	i += 1
+        }
+    }
 	
 	def setCurve(
 	        x0:Double, y0:Double, z0:Double,

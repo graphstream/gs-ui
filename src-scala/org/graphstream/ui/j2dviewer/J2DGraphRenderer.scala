@@ -278,7 +278,6 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 
    def screenshot(filename:String, width:Int, height:Int) {
 	   	if(filename.endsWith("png") || filename.endsWith("PNG")) {
-	   	    
 			val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
 			render(img.createGraphics, width, height)
 			val file = new File(filename)

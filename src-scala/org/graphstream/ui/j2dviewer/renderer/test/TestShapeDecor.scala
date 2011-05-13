@@ -57,6 +57,8 @@ class TestShapeDecor extends ViewerListener {
 		val view   = viewer.addView( "view1", new J2DGraphRenderer )
 //		val view   = viewer.addDefaultView( true )
   
+		view.resizeFrame(500, 430)
+		
 		pipeIn.addAttributeSink( graph )
 		pipeIn.addViewerListener( this )
 		pipeIn.pump
@@ -158,7 +160,9 @@ class TestShapeDecor extends ViewerListener {
 		fz("label") = "Under"
 		gt("label") = "Above"
 		ij("label") = "Along"
-			
+
+		graph.addAttribute("ui.screenshot", "text_align.png")
+		    
 		while( loop ) {
 			pipeIn.pump
 			sleep( 40 )
@@ -188,9 +192,9 @@ class TestShapeDecor extends ViewerListener {
 	val styleSheet = """
 			graph {
 				canvas-color: white;
- 				fill-mode: gradient-radial;
- 				fill-color: white, #EEEEEE;
- 				padding: 60px;
+ 				fill-mode: plain;
+ 				fill-color: white;
+ 				padding: 30px;
  			} 
 			node {
 				shape: circle;
@@ -218,7 +222,7 @@ class TestShapeDecor extends ViewerListener {
 			}
 			node#D {
 				text-alignment: left;
-				text-color: #FF0;
+				text-color: #FA0;
 			}
 			node#E {
 				text-alignment: right;
@@ -236,43 +240,43 @@ class TestShapeDecor extends ViewerListener {
 				text-alignment: center;
 				text-color: #F00;
 				icon-mode: at-left;
-				icon: url('file:///home/antoine/Documents/Perso/Art/Icons/GSLogo11d24.png');
+				icon: url('data/Smiley_016.png');
 			}
 			node#V {
 				text-alignment: at-left;
 				text-color: #0F0;
 				icon-mode: at-left;
-				icon: url('file:///home/antoine/Documents/Perso/Art/Icons/GSLogo11d24.png');
+				icon: url('data/Smiley_016.png');
 			}
 			node#W {
 				text-alignment: at-right;
 				text-color: #00F;
 				icon-mode: at-left;
-				icon: url('file:///home/antoine/Documents/Perso/Art/Icons/GSLogo11d24.png');
+				icon: url('data/Smiley_016.png');
 			}
 			node#X {
 				text-alignment: left;
-				text-color: #FF0;
+				text-color: #FA0;
 				icon-mode: at-left;
-				icon: url('file:///home/antoine/Documents/Perso/Art/Icons/GSLogo11d24.png');
+				icon: url('data/Smiley_016.png');
 			}
 			node#Y {
 				text-alignment: right;
 				text-color: #0FF;
 				icon-mode: at-left;
-				icon: url('file:///home/antoine/Documents/Perso/Art/Icons/GSLogo11d24.png');
+				icon: url('data/Smiley_016.png');
 			}
 			node#Z {
 				text-alignment: under;
 				text-color: #F0F;
 				icon-mode: at-left;
-				icon: url('file:///home/antoine/Documents/Perso/Art/Icons/GSLogo11d24.png');
+				icon: url('data/Smiley_016.png');
 			}
 			node#K {
 				text-alignment: above;
 				text-color: #999;
 				icon-mode: at-left;
-				icon: url('file:///home/antoine/Documents/Perso/Art/Icons/GSLogo11d24.png');
+				icon: url('data/Smiley_016.png');
 			}
 			edge {
 				fill-color: #0004;

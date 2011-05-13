@@ -212,6 +212,7 @@ class GraphBackgroundRenderer(val graph:GraphicGraph, val style:StyleGroup)
 							0, 0, img.getWidth, img.getHeight, null )
 				}
 			}
+			case _ => { throw new RuntimeException("WTF??") }
 		}
 	}
  

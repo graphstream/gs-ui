@@ -59,6 +59,14 @@ object ShapeUtil {
  	    		new Point3( einfo.to.x, einfo.to.y, einfo.to.z ),
  	    		camera )
  	}
+ 	
+ 	/**
+ 	 * Consider the edge as going from `from` to `to`.
+ 	 */
+ 	def evalTargetRadius2D(from:Point3, to:Point3, node:GraphicNode, camera:Camera):Double = {
+ 	    evalTargetRadius2D(node.getStyle, node.getAttribute(ElementInfo.attributeName).asInstanceOf[NodeInfo],
+ 	            from, null, null, to, camera)
+ 	}
  
    	def evalTargetRadius2D(style:Style, info:NodeInfo, p0:Point3, p3:Point3, camera:Camera):Double =
    		evalTargetRadius2D(style, info, p0, null, null, p3, camera)

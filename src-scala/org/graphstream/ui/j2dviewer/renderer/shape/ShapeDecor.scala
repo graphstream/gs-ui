@@ -317,8 +317,8 @@ object ShapeDecor {
  * taken from the "ui.icon" attribute of the element.
  * </p>
  */
-abstract class IconAndText( val text:TextBox, val padx:Double, val pady:Double ) {
-	// padx and pady are in pixels.
+abstract class IconAndText( val text:TextBox, val offx:Double, val offy:Double, val padx:Double, val pady:Double ) {
+	// offx, offy, padx and pady are in pixels.
 	def setText( g:Graphics2D, text:String )
 	def setIcon( g:Graphics2D, url:String )
 	def render( g:Graphics2D, camera:Camera, xLeft:Double, yBottom:Double )
@@ -339,10 +339,13 @@ object IconAndText {
 	def apply( style:Style, camera:Camera, element:GraphicElement ):IconAndText = {
 		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.IconMode._
 		var icon:BufferedImage = null
-		val text = TextBox( style )
+		val text = TextBox( camera, style )
 		val padd = style.getPadding
-		val padx = camera.metrics.lengthToPx( padd, 0 )
+		val off  = style.getTextOffset
+		val padx = camera.metrics.lengthToPx(padd, 0)
 		val pady = if(padd.size>1) camera.metrics.lengthToPx(padd,1) else padx
+		val offx = camera.metrics.lengthToPx(off, 0)
+		val offy = if(padd.size>1) camera.metrics.lengthToPx(off,1) else padx
 		
 		if( style.getIconMode != IconMode.NONE ) {
 			var url = style.getIcon
@@ -362,29 +365,29 @@ object IconAndText {
 		}
   
 		if( icon == null ) {
-			new IconAndTextOnlyText( text, padx, pady )
+			new IconAndTextOnlyText( text, offx, offy, padx, pady )
 		} else {
 			style.getIconMode match {
-			  case AT_LEFT  => new IconAtLeftAndText( icon, text, padx, pady )
-			  case AT_RIGHT => new IconAtLeftAndText( icon, text, padx, pady )//IconAtRightAndText( icon, text ) TODO
-			  case ABOVE    => new IconAtLeftAndText( icon, text, padx, pady )//IconAboveAndText( icon, text ) TODO
-			  case UNDER    => new IconAtLeftAndText( icon, text, padx, pady )//IconUnderAndText( icon, text ) TODO
+			  case AT_LEFT  => new IconAtLeftAndText( icon, text, offx, offy, padx, pady )
+			  case AT_RIGHT => new IconAtLeftAndText( icon, text, offx, offy, padx, pady )//IconAtRightAndText( icon, text ) TODO
+			  case ABOVE    => new IconAtLeftAndText( icon, text, offx, offy, padx, pady )//IconAboveAndText( icon, text ) TODO
+			  case UNDER    => new IconAtLeftAndText( icon, text, offx, offy, padx, pady )//IconUnderAndText( icon, text ) TODO
 			  case _        => throw new RuntimeException( "WTF ?" )
 			}
 		}
 	}
  
-	class IconAndTextOnlyText( text:TextBox, padx:Double, pady:Double ) extends IconAndText( text, padx, pady ) {
+	class IconAndTextOnlyText( text:TextBox, offx:Double, offy:Double, padx:Double, pady:Double ) extends IconAndText( text, offx, offy, padx, pady ) {
 		def setText( g:Graphics2D, text:String ) { this.text.setText( text, g ) }
 		def setIcon( g:Graphics2D, url:String ) {}
 		def render( g:Graphics2D, camera:Camera, xLeft:Double, yBottom:Double ) {
-			this.text.render( g, xLeft, yBottom - descent )
+			this.text.render( g, offx+xLeft, offy+yBottom - descent )
 		}
 		def width:Double = text.width + padx*2
 		def height:Double = text.ascent + text.descent + pady*2
 	}
  
-	class IconAtLeftAndText( var icon:BufferedImage, text:TextBox, padx:Double, pady:Double ) extends IconAndText( text, padx, pady ) {
+	class IconAtLeftAndText(var icon:BufferedImage, text:TextBox, offx:Double, offy:Double, padx:Double, pady:Double ) extends IconAndText( text, offx, offy, padx, pady ) {
 		def setText( g:Graphics2D, text:String ) { this.text.setText( text, g ) }
 		def setIcon( g:Graphics2D, url:String ) {
 			icon = ImageCache.loadImage( url ) match {
@@ -393,10 +396,12 @@ object IconAndText {
 			}
 		}
 		def render( g:Graphics2D, camera:Camera, xLeft:Double, yBottom:Double ) {
-			g.drawImage( icon, new AffineTransform( 1f, 0f, 0f, 1f, xLeft, (yBottom-(height/2))-(icon.getHeight/2) ), null )
+			g.drawImage( icon, new AffineTransform( 1f, 0f, 0f, 1f, offx+xLeft, offy+(yBottom-(height/2))-(icon.getHeight/2)+pady ), null )
+		//	g.setColor(new Color(255,0,0,128))
+		//	g.fillRect(xLeft.toInt, (yBottom-height).toInt, width.toInt, height.toInt)
 			val th = text.ascent + text.descent
 			val dh = if( icon.getHeight > th ) ( ( icon.getHeight - th ) / 2f ) else 0f
-			this.text.render( g, xLeft + icon.getWidth + 5, yBottom - dh - descent )
+			this.text.render( g, offx+xLeft + icon.getWidth + 5, offy+yBottom - dh - descent )
 		}
 		def width:Double = text.width + icon.getWidth(null) + 5 + padx*2
 		def height:Double = max( icon.getHeight(null), text.ascent + text.descent ) + pady*2
@@ -406,7 +411,7 @@ object IconAndText {
 /**
  * A simple wrapper for a font and a text string.
  */
-class TextBox( val font:Font, val textColor:Color, val bgColor:Color ) {
+class TextBox(val font:Font, val textColor:Color, val bgColor:Color, val rounded:Boolean, val padx:Double, val pady:Double) {
 	
 	/** The text stored as a text layout. */
 	var text:TextLayout = null
@@ -415,49 +420,51 @@ class TextBox( val font:Font, val textColor:Color, val bgColor:Color ) {
 	protected var textData:String = null
 	
 	/** The bounds of the text stored when the text is changed. */
-	var bounds:Rectangle2D = new Rectangle2D.Double( 0, 0, 0, 0 )
+	var bounds:Rectangle2D = new Rectangle2D.Double(0, 0, 0, 0)
 	
 	/** Changes the text and compute its bounds. This method tries to avoid recomputing bounds
 	 *  if the text does not really changed. */
 	def setText( text:String, g:Graphics2D ) {
-	  	if( text != null ) {
-	  		if( ( textData ne text ) || ( textData != text ) ) {
+	  	if(text ne null) {
+	  		if( (textData ne text) || (textData != text) ) {
 //Console.err.printf( "recomputing text '%s' != '%s' length%n", text, textData )
 				textData    = text
-	  			this.text   = new TextLayout( text, font, g.getFontRenderContext )
+	  			this.text   = new TextLayout(text, font, g.getFontRenderContext)
 	  			this.bounds = this.text.getBounds
 	  	  	}
 	  	} else {
 	  		this.textData = null
 	  		this.text     = null
-	  		this.bounds   = new Rectangle2D.Double( 0, 0, 0, 0 )
+	  		this.bounds   = new Rectangle2D.Double(0, 0, 0, 0)
 	  	}
 	}
 	
 	/** Width of the text. */
- 	def width:Double   = if( bounds != null ) bounds.getWidth else 0
+ 	def width:Double   = if(bounds ne null) bounds.getWidth else 0
  	
  	/** Height of the text. */
- 	def height:Double  = if( bounds != null ) bounds.getHeight else 0
+ 	def height:Double  = if(bounds ne null) bounds.getHeight else 0
  	
  	/** Descent of the text. */
- 	def descent:Double = if( text != null ) text.getDescent else 0
+ 	def descent:Double = if(text ne null) text.getDescent else 0
  	
  	/** Ascent of the text. */
- 	def ascent:Double  = if( text != null ) text.getAscent else 0
+ 	def ascent:Double  = if(text ne null) text.getAscent else 0
  	
  	/** Renders the text at the given coordinates. */
- 	def render( g:Graphics2D, xLeft:Double, yBottom:Double ) {
-		if( text != null ) {
-			if( bgColor ne null ) {
+ 	def render(g:Graphics2D, xLeft:Double, yBottom:Double) {
+		if(text ne null) {
+			if(bgColor ne null) {
 				val a = ascent
 				val h = a + descent
-				g.setColor( bgColor )
-				g.fill( new Rectangle2D.Double( xLeft, yBottom-a, width+1, h ) )
+				g.setColor(bgColor)
+				if(rounded)
+				     g.fill(new RoundRectangle2D.Double( xLeft-padx, yBottom-(a+pady), width+1+(padx+padx), h+(pady+pady), 6, 6))
+				else g.fill(new Rectangle2D.Double(xLeft-padx, yBottom-(a+pady), width+1+(padx+padx), h+(pady+pady)))
 			}
 			
 			g.setColor( textColor )
-			text.draw( g, xLeft.toFloat, yBottom.toFloat )
+			text.draw(g, xLeft.toFloat, yBottom.toFloat)
 		}
  	}
 }
@@ -466,24 +473,30 @@ class TextBox( val font:Font, val textColor:Color, val bgColor:Color ) {
  * Factory companion object for text boxes.
  */
 object TextBox {
-	def apply( style:Style ):TextBox = {
+	def apply(camera:Camera, style:Style):TextBox = {
 		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.TextBackgroundMode._
 		
 		val fontName  = style.getTextFont
 		val fontStyle = style.getTextStyle
 		val fontSize  = style.getTextSize
-		val textColor = style.getTextColor( 0 )
+		val textColor = style.getTextColor(0)
 		var bgColor:Color = null
+		var rounded = false
 
 		style.getTextBackgroundMode match {
-			case NONE  => {}
-			case PLAIN => { bgColor = style.getTextBackgroundColor( 0 ) }
+			case NONE       => {}
+			case PLAIN      => { rounded = false; bgColor = style.getTextBackgroundColor(0) }
+			case ROUNDEDBOX => { rounded = true;  bgColor = style.getTextBackgroundColor(0) }
 		}
 		
-		TextBox( fontName, fontStyle, fontSize.value.toInt, textColor, bgColor )
+		val padding = style.getTextPadding
+		val padx    = camera.metrics.lengthToPx(padding, 0)
+		val pady    = if(padding.size>1) camera.metrics.lengthToPx(padding, 1) else padx
+		
+		TextBox(fontName, fontStyle, fontSize.value.toInt, textColor, bgColor, rounded, padx, pady)
 	}
 
-	def apply( fontName:String, style:TextStyle, fontSize:Int, textColor:Color, bgColor:Color ):TextBox = {
-		new TextBox( FontCache.getFont( fontName, style, fontSize ), textColor, bgColor )
+	def apply(fontName:String, style:TextStyle, fontSize:Int, textColor:Color, bgColor:Color, rounded:Boolean, padx:Double, pady:Double):TextBox = {
+		new TextBox(FontCache.getFont( fontName, style, fontSize ), textColor, bgColor, rounded, padx, pady)
 	}
 }

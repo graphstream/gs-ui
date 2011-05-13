@@ -45,6 +45,10 @@ import org.graphstream.ui.util._
 import org.graphstream.ui.j2dviewer.renderer._
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 
+
+// TODO all those classes share a lot of code, make this more generic !!!! XXX
+
+
 class ArrowOnEdge extends AreaOnConnectorShape {
 	val theShape = new Path2D.Double()
  
@@ -60,15 +64,19 @@ class ArrowOnEdge extends AreaOnConnectorShape {
 	}
  
 	protected def makeOnLine( forShadow:Boolean, camera:Camera ) {
-		var off = ShapeUtil.evalTargetRadius2D( theEdge, camera )
 		var info = theConnector.info
-		val theDirection = if(info.isPoly)
+		var off:Double = 0
+		val theDirection = if(info.isPoly) {
+				off = ShapeUtil.evalTargetRadius2D( info(info.size-2), info.to, theEdge.to, camera )
 		    	new Vector2(
 		    	    info.to.x - info(info.size-2).x,
 		    	    info.to.y - info(info.size-2).y )
-			else new Vector2(
+			} else {
+				off = ShapeUtil.evalTargetRadius2D( info.from, info.to, theEdge.to, camera )
+				new Vector2(
 					info.to.x - info.from.x,
 					info.to.y - info.from.y )
+			}
 			
 		theDirection.normalize
   

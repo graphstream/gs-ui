@@ -282,12 +282,16 @@ class BackendJ2D extends Backend {
         import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Shape._
         import org.graphstream.ui.j2dviewer.renderer.shape._
 		group.getShape match {
-			case LINE        => if(oldShape.isInstanceOf[LineShape])          oldShape else new LineShape
-		  	case ANGLE       => if(oldShape.isInstanceOf[AngleShape])         oldShape else new AngleShape
-    		case BLOB        => if(oldShape.isInstanceOf[BlobShape])          oldShape else new BlobShape
-		  	case CUBIC_CURVE => if(oldShape.isInstanceOf[CubicCurveShape])    oldShape else new CubicCurveShape
-		  	case FREEPLANE   => if(oldShape.isInstanceOf[FreePlaneEdgeShape]) oldShape else new FreePlaneEdgeShape
-    		case POLYLINE    => if(oldShape.isInstanceOf[PolylineEdgeShape])  oldShape else new PolylineEdgeShape
+			case LINE        => if(oldShape.isInstanceOf[LineShape])                 oldShape else new LineShape
+		  	case ANGLE       => if(oldShape.isInstanceOf[AngleShape])                oldShape else new AngleShape
+    		case BLOB        => if(oldShape.isInstanceOf[BlobShape])                 oldShape else new BlobShape
+		  	case CUBIC_CURVE => if(oldShape.isInstanceOf[CubicCurveShape])           oldShape else new CubicCurveShape
+		  	case FREEPLANE   => if(oldShape.isInstanceOf[FreePlaneEdgeShape])        oldShape else new FreePlaneEdgeShape
+    		case POLYLINE    => if(oldShape.isInstanceOf[PolylineEdgeShape])         oldShape else new PolylineEdgeShape
+    		case SQUARELINE  => Console.err.printf("** SORRY square-line shape not yet implemented **"); new HorizontalSquareEdgeShape 
+    		case LSQUARELINE => if(oldShape.isInstanceOf[HorizontalSquareEdgeShape]) oldShape else new LSquareEdgeShape 
+    		case HSQUARELINE => if(oldShape.isInstanceOf[HorizontalSquareEdgeShape]) oldShape else new HorizontalSquareEdgeShape 
+    		case VSQUARELINE => Console.err.printf("** SORRY square-line shape not yet implemented **"); new HorizontalSquareEdgeShape 
 		    case x           => throw new RuntimeException("%s shape cannot be set for edges".format(x.toString))
 		}
 

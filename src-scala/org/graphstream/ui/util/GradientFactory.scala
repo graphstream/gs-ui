@@ -44,7 +44,8 @@ import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.FillMode._
 import scala.collection.JavaConversions._
 import org.graphstream.ScalaGS._
 
-@deprecated( "Use the ShapePaint class instead." ) object GradientFactory {
+@deprecated( "Use the ShapePaint class instead." )
+object GradientFactory {
 //@deprecated object GradientFactory {
 // Access
   
@@ -61,13 +62,13 @@ import org.graphstream.ScalaGS._
 	def gradientInArea( x0:Int, y0:Int, width:Int, height:Int, style:Style ):Paint = {
 		style.getFillMode match {
 			case GRADIENT_VERTICAL =>
-				linearGradientFromStyle( x0, y0, x0, y0+height, style )
+				linearGradientFromStyle( x0, y0+height, x0, y0, style )
 			case GRADIENT_HORIZONTAL =>
 				linearGradientFromStyle( x0, y0, x0+width, y0, style )
 			case GRADIENT_DIAGONAL1 =>
-				linearGradientFromStyle( x0, y0, x0+width, y0+height, style )
+				linearGradientFromStyle( x0, y0+height, x0+width, y0, style )
 			case GRADIENT_DIAGONAL2 =>
-				linearGradientFromStyle( x0+width, y0, x0, y0+height, style )
+				linearGradientFromStyle( x0, y0, x0+width, y0+height, style )
 			case GRADIENT_RADIAL =>
 				radialGradientFromStyle( x0+(width/2), y0+(height/2),
 						if( width > height ) width/2 else height/2, style )

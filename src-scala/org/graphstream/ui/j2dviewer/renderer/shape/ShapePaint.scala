@@ -288,11 +288,11 @@ object ShapePaint {
 			ImageCache.loadImage( url ) match {
 				case x:Some[BufferedImage] => {
 					val img = x.get
-					new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom, img.getWidth/px2gu, img.getHeight/px2gu ) )
+					new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom, img.getWidth/px2gu, -(img.getHeight/px2gu) ) )
 				}
 				case _ => {
 					val img = ImageCache.dummyImage
-					new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom, img.getWidth*px2gu, img.getHeight*px2gu ) )
+					new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom, img.getWidth*px2gu, -(img.getHeight*px2gu) ) )
 				}
 			}
 		}
@@ -303,11 +303,11 @@ object ShapePaint {
 			ImageCache.loadImage( url ) match {
 				case x:Some[BufferedImage] => {
 					val img = x.get
-					new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom, xTo-xFrom, yTo-yFrom ) )
+					new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom, xTo-xFrom, -(yTo-yFrom) ) )
 				}
 				case _ => {
 					val img = ImageCache.dummyImage
-					new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom, xTo-xFrom, yTo-yFrom ) )
+					new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom, xTo-xFrom, -(yTo-yFrom) ) )
 				}
 			}
 		}
@@ -325,15 +325,15 @@ object ShapePaint {
 
 					if( ratioi > ration ) {
 						val neww = h * ratioi
-						new TexturePaint( img, new Rectangle2D.Double( xFrom-((neww-w)/2), yFrom, neww, h ) )
+						new TexturePaint( img, new Rectangle2D.Double( xFrom-((neww-w)/2), yFrom, neww, -h ) )
 					} else {
 						val newh = w / ratioi
-						new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom-((newh-h)/2), w, newh ) )
+						new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom-((newh-h)/2), w, -newh ) )
 					}
 				}
 				case _ => {
 					val img = ImageCache.dummyImage
-					new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom, xTo-xFrom, yTo-yFrom ) )
+					new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom, xTo-xFrom, -(yTo-yFrom) ) )
 				}
 			}
 		}
@@ -351,15 +351,15 @@ object ShapePaint {
 
 					if( ration > ratioi ) {
 						val neww = h * ratioi
-						new TexturePaint( img, new Rectangle2D.Double( xFrom+((w-neww)/2), yFrom, neww, h ) )
+						new TexturePaint( img, new Rectangle2D.Double( xFrom+((w-neww)/2), yFrom, neww, -h ) )
 					} else {
 						val newh = w / ratioi
-						new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom-((h-newh)/2), w, newh ) )
+						new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom-((h-newh)/2), w, -newh ) )
 					}
 				}
 				case _ => {
 					val img = ImageCache.dummyImage
-					new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom, xTo-xFrom, yTo-yFrom ) )
+					new TexturePaint( img, new Rectangle2D.Double( xFrom, yFrom, xTo-xFrom, -(yTo-yFrom) ) )
 				}
 			}
 		}
