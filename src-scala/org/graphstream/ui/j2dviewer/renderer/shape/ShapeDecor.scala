@@ -31,19 +31,17 @@
 package org.graphstream.ui.j2dviewer.renderer.shape
 
 import scala.math._
-
 import java.awt._
 import java.awt.geom._
 import java.awt.font.TextLayout
 import java.awt.image.BufferedImage
-
 import org.graphstream.ui.j2dviewer.Camera
 import org.graphstream.ui.util._
 import org.graphstream.ui.sgeom._
-
 import org.graphstream.ui.graphicGraph.GraphicElement
 import org.graphstream.ui.graphicGraph.stylesheet.Style
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
+import java.awt.font.FontRenderContext
 
 /**
  * Representation of the icon and text that can decorate any "decorated" shape.
@@ -117,9 +115,9 @@ object ShapeDecor {
 				positionPx:(Graphics2D, Point3, IconAndText, Double)=>Point3) {
 			var p  = camera.transform( x, y )
 			val Tx = g.getTransform
-			
+
 			g.setTransform( new AffineTransform )
-		
+
 			p = positionPx( g, p, iconAndText, angle )
    
 			iconAndText.render( g, camera, p.x, p.y )
@@ -421,15 +419,19 @@ class TextBox(val font:Font, val textColor:Color, val bgColor:Color, val rounded
 	
 	/** The bounds of the text stored when the text is changed. */
 	var bounds:Rectangle2D = new Rectangle2D.Double(0, 0, 0, 0)
-	
+
 	/** Changes the text and compute its bounds. This method tries to avoid recomputing bounds
 	 *  if the text does not really changed. */
 	def setText( text:String, g:Graphics2D ) {
 	  	if(text ne null) {
 	  		if( (textData ne text) || (textData != text) ) {
 //Console.err.printf( "recomputing text '%s' != '%s' length%n", text, textData )
+	  		    // As the text is not rendered using the default affine transform, but using
+	  		    // the identity transform, and as the FontRenderContext uses the current
+	  		    // transform, we use a predefined default font render context initialized
+	  		    // with an identity transform here.
 				textData    = text
-	  			this.text   = new TextLayout(text, font, g.getFontRenderContext)
+	  			this.text   = new TextLayout(text, font, TextBox.defaultFontRenderContext)
 	  			this.bounds = this.text.getBounds
 	  	  	}
 	  	} else {
@@ -473,6 +475,8 @@ class TextBox(val font:Font, val textColor:Color, val bgColor:Color, val rounded
  * Factory companion object for text boxes.
  */
 object TextBox {
+    val defaultFontRenderContext = new FontRenderContext(new AffineTransform, true, true)
+    
 	def apply(camera:Camera, style:Style):TextBox = {
 		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.TextBackgroundMode._
 		

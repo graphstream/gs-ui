@@ -22,7 +22,7 @@ class TestStars2 {
         val x1     = 0.0
         val width  = 100.0
         val height = 20.0
-        val n      = 300
+        val n      = 500
         val random = new Random
         val minDis = 4.0
         val sizeMx = 10.0
@@ -59,7 +59,7 @@ class TestStars2 {
             }
         }
         
-        graph.addAttribute("ui.screenshot", "stars.png")
+        //graph.addAttribute("ui.screenshot", "stars.png")
     }
     
     val styleSheet = """
@@ -88,7 +88,7 @@ class TestStars2 {
 				fill-color: #00FA, #00F0;
 			}
 			edge {
-				shape: line;
+				shape: L-square-line;
 				size: 1px;
 				fill-color: #FFF3;
 				fill-mode: plain;

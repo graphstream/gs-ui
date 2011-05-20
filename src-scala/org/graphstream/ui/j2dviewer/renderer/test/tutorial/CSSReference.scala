@@ -105,10 +105,12 @@ class CSSReference {
 //	    genericTest("arrow_shape3", "edge { arrow-shape: diamond; fill-color: #444; arrow-size: 8px, 4px; } edge#\"C--A\" {fill-color: #0AF;} edge#\"B--C\" {fill-color: #555;} edge#\"A--B\" {fill-color: #FA0;} node { stroke-mode: plain; stroke-color: #333; fill-color: #CCC; }", addDirection)
 //	    genericTest("arrow_shape4", "node { size: 25px; stroke-mode: plain; stroke-color: #444; fill-color: #777; } edge { size: 2px; fill-color: #444; arrow-shape: image; arrow-image: url('data/Smiley_016.png'); }", addDirection)
 	    
-	    genericTest("sprite_shape1", "sprite { shape: pie-chart; fill-color: #FC0, #F00, #03F, #A0F; size: 20px; }", addSprites)
-	    genericTest("sprite_shape2", "sprite { shape: flow; size: 5px; z-index: 0; } sprite#S1 { fill-color: #373; } sprite#S2 { fill-color: #393; } sprite#S3 { fill-color: #3B3; }", addSprites)
-	    genericTest("sprite_shape3", "sprite { shape: flow; size: 5px; z-index: 0; } sprite#S1 { fill-color: #DA3; } sprite#S4 { fill-color: #FF3; } sprite#S2 { fill-color: #5FA; } sprite#S5 { fill-color: #3FF; } sprite#S3 { fill-color: #57F; } sprite#S6 { fill-color: #93F; }", addSprites, moveSprites, addMoreSprites)
-	    genericTest("sprite_shape4", "sprite { shape: arrow; sprite-orientation: projection; fill-color: #C816; size: 20px; stroke-mode: plain; stroke-color: #333; } sprite#S4 { fill-color: #922; sprite-orientation: projection; size: 16px, 8px; } sprite#S5 { fill-color: #922; size: 16px, 8px; sprite-orientation: to; } sprite#S6 { fill-color: #922; size: 16px, 8px; sprite-orientation: from; }", addSprites, addMoreSprites, moveMoreSprites)
+//	    genericTest("sprite_shape1", "sprite { shape: pie-chart; fill-color: #FC0, #F00, #03F, #A0F; size: 20px; }", addSprites)
+//	    genericTest("sprite_shape2", "sprite { shape: flow; size: 5px; z-index: 0; } sprite#S1 { fill-color: #373; } sprite#S2 { fill-color: #393; } sprite#S3 { fill-color: #3B3; }", addSprites)
+//	    genericTest("sprite_shape3", "sprite { shape: flow; size: 5px; z-index: 0; } sprite#S1 { fill-color: #DA3; } sprite#S4 { fill-color: #FF3; } sprite#S2 { fill-color: #5FA; } sprite#S5 { fill-color: #3FF; } sprite#S3 { fill-color: #57F; } sprite#S6 { fill-color: #93F; }", addSprites, moveSprites, addMoreSprites)
+//	    genericTest("sprite_shape4", "sprite { shape: arrow; sprite-orientation: projection; fill-color: #C816; size: 20px; stroke-mode: plain; stroke-color: #333; } sprite#S4 { fill-color: #922; sprite-orientation: projection; size: 16px, 8px; } sprite#S5 { fill-color: #922; size: 16px, 8px; sprite-orientation: to; } sprite#S6 { fill-color: #922; size: 16px, 8px; sprite-orientation: from; }", addSprites, addMoreSprites, moveMoreSprites)
+	    
+	    genericTest("firstStyleSheet", "node#A { shape: box; size: 15px, 20px; fill-mode: plain; fill-color: red; stroke-mode: plain; stroke-color: blue; text-alignment: center; }", addSimpleLabels)
 	}
 	
 	type MoreActions = (Graph,Viewer,View)=>Unit
@@ -117,6 +119,12 @@ class CSSReference {
 	     g.node("A")("ui.label") = "Node A"
 	     g.node("B")("ui.label") = "Node B"
 	     g.node("C")("ui.label") = "Node C"
+	}
+	
+	def addSimpleLabels(g:Graph, vv:Viewer, v:View) {
+	     g.node("A")("ui.label") = "A"
+	     g.node("B")("ui.label") = "B"
+	     g.node("C")("ui.label") = "C"
 	}
 	
 	def enlarge(g:Graph, vv:Viewer, v:View) {

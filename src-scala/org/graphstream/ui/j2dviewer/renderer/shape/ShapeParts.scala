@@ -520,7 +520,7 @@ trait Connector {
 	    }
 		
 		if(element.hasAttribute("ui.points")) {
-		    info.setPoly(element.getAttribute("ui.points"))
+		    info.setPoly(element.getAttribute("ui.points").asInstanceOf[AnyRef])
 		} else {
 			positionForLinesAndCurves( info, element.from.getStyle, element.from.getX, element.from.getY,
 				element.to.getX, element.to.getY, element.multi, element.getGroup )
