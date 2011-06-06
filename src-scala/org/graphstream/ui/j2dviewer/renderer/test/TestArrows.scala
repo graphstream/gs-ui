@@ -92,7 +92,7 @@ class TestArrows extends ViewerListener {
 		B("label") = "Long label ..."
 		C("label") = "C"
 		D("label") = "A long label ..."
-		E("label") = "Another long label"
+		E("label") = "Another very long label"
 		F("label") = "F"
 		
 		var size = 20f
@@ -158,6 +158,7 @@ class TestArrows extends ViewerListener {
 				stroke-color: blue;
 			}
 			node#A {
+				shape: rounded-box;
 				size-mode: dyn-size;
 				size: 10px;
 			}

@@ -238,7 +238,6 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   			sgs.shadows.foreach {
 		  		getStyleRenderer(_).renderShadow(backend, camera)
   			}
-  
   			sgs.zIndex.foreach { groups =>
   				groups.foreach { group =>
 		  	  		if(group.getType != Selector.Type.GRAPH) {

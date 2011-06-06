@@ -32,8 +32,6 @@ package org.graphstream.ui.j2dviewer
 
 import org.graphstream.ui.sgeom.Point3
 
-//import java.awt.Graphics2D
-//import java.awt.geom.{AffineTransform, Point2D}
 import java.util.ArrayList
 
 import scala.collection.mutable.HashSet
@@ -109,15 +107,6 @@ class Camera {
   	/** The rendering back-end. */
   	protected var bck:Backend = null
   	
-  	/** The graph-space -> pixel-space transformation. */
-//  	protected var Tx = new AffineTransform
-
-  	/** The inverse transform of Tx. */
-//  	protected var xT:AffineTransform = null
-	
-  	/** The previous affine transform. */
-//  	protected var oldTx:AffineTransform = null
-	
   	/** The rotation angle. */
   	protected var rotation:Double = 0
 	
@@ -340,16 +329,6 @@ class Camera {
   		bck.scale(sx, -sy, 0)							// 2. Scale the graph to pixels. Scale -y since we reverse the view (top-left to bottom-keft).
   		bck.translate(-tx, -ty, 0)						// 1. Move the graph so that its real centre is at (0,0).
   		bck.endTransform
-//  		Tx.setToIdentity
-//  		Tx.translate( metrics.viewport.data(0) / 2,
-//  		              metrics.viewport.data(1) / 2 )	// 4. Place the whole result at the centre of the view port.		
-//  		if( rotation != 0 )
-//  			Tx.rotate( rotation/(180/Pi) )				// 3. Eventually apply a rotation.
-//  		Tx.scale( sx, -sy )								// 2. Scale the graph to pixels. Scale -y since we reverse the view (top-left to bottom-left).
-//  		Tx.translate( -tx, -ty )						// 1. Move the graph so that its real centre is at (0,0).
-//		
-//  		xT = new AffineTransform( Tx )
-//  		try { xT.invert } catch { case _ => System.err.printf( "cannot inverse gu2px matrix...%n" ) }
 		
   		zoom = 1
 
@@ -400,16 +379,6 @@ class Camera {
   		bck.scale(sx, -sy, 0)							// 2. Scale the graph to pixels. Scale -y since we reverse the view (top-left to bottom-left).
   		bck.translate(-tx, -ty, 0)						// 1. Move the graph so that the give centre is at (0,0).
   		bck.endTransform
-//  		Tx.setToIdentity
-//  		Tx.translate( metrics.viewport.data(0) / 2,
-//		              metrics.viewport.data(1) / 2 )	// 4. Place the whole result at the centre of the view port.			
-//		if( rotation != 0 )
-//			Tx.rotate( rotation/(180/Pi) );				// 3. Eventually apply a rotation.
-//		Tx.scale( sx, -sy )								// 2. Scale the graph to pixels. Scale -y since we reverse the view (top-left to bottom-left).
-//		Tx.translate( -tx, -ty )						// 1. Move the graph so that the given centre is at (0,0).
-//		
-//		xT = new AffineTransform( Tx )
-//		try { xT.invert } catch { case _ => System.err.printf( "cannot inverse gu2px matrix...%n" ) }
 		
 		metrics.ratioPx2Gu = sx
 
