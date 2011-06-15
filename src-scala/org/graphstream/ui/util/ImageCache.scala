@@ -87,7 +87,7 @@ object ImageCache {
 	def loadImage(fileNameOrUrl:String, forceTryReload:Boolean):Option[BufferedImage] = {
 		imageCache.get( fileNameOrUrl ) match {
 			case None => {
-				val url = ClassLoader.getSystemClassLoader.getResource( fileNameOrUrl )
+				val url = getClass().getClassLoader().getResource( fileNameOrUrl )
 				var image:BufferedImage = null
 				
 				if( url != null ) {			// The image is in the class path.
