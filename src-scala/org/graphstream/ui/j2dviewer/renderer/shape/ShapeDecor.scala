@@ -140,7 +140,7 @@ object ShapeDecor {
 		}
 		protected def positionTextAndIconPx( g:Graphics2D, p:Point3, iconAndText:IconAndText, angle:Double ):Point3 = {
 			p.x = p.x - ( iconAndText.width / 2 + 1 ) + iconAndText.padx
-			p.y = p.y + ( iconAndText.height / 2 ) - iconAndText.pady
+			p.y = p.y + ( iconAndText.height / 2 ) - iconAndText.pady*2
 			p
 		}
 		def size( g:Graphics2D, camera:Camera, iconAndText:IconAndText ):(Double,Double) = {
@@ -461,10 +461,10 @@ class TextBox(val font:Font, val textColor:Color, val bgColor:Color, val rounded
 				val h = a + descent
 				g.setColor(bgColor)
 				if(rounded)
-				     g.fill(new RoundRectangle2D.Double( xLeft-padx, yBottom-(a+pady), width+1+(padx+padx), h+(pady+pady), 6, 6))
+				     g.fill(new RoundRectangle2D.Double(xLeft-padx, yBottom-(a+pady), width+1+(padx+padx), h+(pady+pady), 6, 6))
 				else g.fill(new Rectangle2D.Double(xLeft-padx, yBottom-(a+pady), width+1+(padx+padx), h+(pady+pady)))
 			}
-			
+
 			g.setColor( textColor )
 			text.draw(g, xLeft.toFloat, yBottom.toFloat)
 		}
@@ -496,7 +496,6 @@ object TextBox {
 		val padding = style.getTextPadding
 		val padx    = camera.metrics.lengthToPx(padding, 0)
 		val pady    = if(padding.size>1) camera.metrics.lengthToPx(padding, 1) else padx
-		
 		TextBox(fontName, fontStyle, fontSize.value.toInt, textColor, bgColor, rounded, padx, pady)
 	}
 

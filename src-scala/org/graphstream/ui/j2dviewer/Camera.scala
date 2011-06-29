@@ -501,6 +501,8 @@ class Camera {
   	    if((!edge.getNode0[GraphicNode].positionned)
   	    || (!edge.getNode1[GraphicNode].positionned)) {
   	        false
+  	    } else if(edge.hidden) {
+  	        false
   	    } else {
   	    	val node0Invis = nodeInvisible.contains(edge.getNode0[Node].getId)
   			val node1Invis = nodeInvisible.contains(edge.getNode1[Node].getId)

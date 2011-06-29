@@ -9,7 +9,7 @@ import org.graphstream.graph.Graph
 
 object TestRandomWalk {
 	def main(args:Array[String]) {
-	    (new TestRandomWalk).test
+		(new TestRandomWalk).test
 	}
 }
 
@@ -37,7 +37,10 @@ class TestRandomWalk {
     	rwalk.init(graph)
     	for(i <- 0 until 3000) {
     	    rwalk.compute
-    	    if(i%100==0) Console.err.println("step %d".format(i))
+    	    if(i%100==0){
+    	        Console.err.println("step %d".format(i))
+    	    	updateGraph(graph, rwalk)
+    	    }
     	//    Thread.sleep(100)
     	}
     	rwalk.terminate

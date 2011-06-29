@@ -234,21 +234,20 @@ class BackendJ2D extends Backend {
 		   g2.setRenderingHint(KEY_TEXT_ANTIALIASING, VALUE_TEXT_ANTIALIAS_OFF)
 		   g2.setRenderingHint(KEY_ANTIALIASING,      VALUE_ANTIALIAS_OFF)
 	   }
-        
     }
     
     def setQuality(on:Boolean) {
        import RenderingHints._
        if(on) {
-		   g2.setRenderingHint(KEY_RENDERING,           VALUE_RENDER_SPEED)
-		   g2.setRenderingHint(KEY_INTERPOLATION,       VALUE_INTERPOLATION_NEAREST_NEIGHBOR)
-		   g2.setRenderingHint(KEY_COLOR_RENDERING,     VALUE_COLOR_RENDER_SPEED)
-		   g2.setRenderingHint(KEY_ALPHA_INTERPOLATION, VALUE_ALPHA_INTERPOLATION_SPEED)
-	   } else {
 		   g2.setRenderingHint(KEY_RENDERING,           VALUE_RENDER_QUALITY)
 		   g2.setRenderingHint(KEY_INTERPOLATION,       VALUE_INTERPOLATION_BICUBIC)
 		   g2.setRenderingHint(KEY_COLOR_RENDERING,     VALUE_COLOR_RENDER_QUALITY)
 		   g2.setRenderingHint(KEY_ALPHA_INTERPOLATION, VALUE_ALPHA_INTERPOLATION_QUALITY)
+	   } else {
+		   g2.setRenderingHint(KEY_RENDERING,           VALUE_RENDER_SPEED)
+		   g2.setRenderingHint(KEY_INTERPOLATION,       VALUE_INTERPOLATION_NEAREST_NEIGHBOR)
+		   g2.setRenderingHint(KEY_COLOR_RENDERING,     VALUE_COLOR_RENDER_SPEED)
+		   g2.setRenderingHint(KEY_ALPHA_INTERPOLATION, VALUE_ALPHA_INTERPOLATION_SPEED)
 	   }
     }
     
