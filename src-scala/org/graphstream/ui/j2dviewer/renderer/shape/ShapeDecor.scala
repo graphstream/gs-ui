@@ -423,7 +423,7 @@ class TextBox(val font:Font, val textColor:Color, val bgColor:Color, val rounded
 	/** Changes the text and compute its bounds. This method tries to avoid recomputing bounds
 	 *  if the text does not really changed. */
 	def setText( text:String, g:Graphics2D ) {
-	  	if(text ne null) {
+	  	if((text ne null) && (text.length > 0)) {
 	  		if( (textData ne text) || (textData != text) ) {
 //Console.err.printf( "recomputing text '%s' != '%s' length%n", text, textData )
 	  		    // As the text is not rendered using the default affine transform, but using
