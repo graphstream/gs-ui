@@ -42,8 +42,8 @@ object ShapeStroke {
 		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.StrokeMode._
 		style.getStrokeMode match {
 			case PLAIN  => new PlainShapeStroke
-			case DOTS   => new PlainShapeStroke //DotsShapeStroke
-			case DASHES => new PlainShapeStroke //DashesShapeStroke
+			case DOTS   => new DotsShapeStroke
+			case DASHES => new DashesShapeStroke
 			case _      => null
 		}
 	}
@@ -53,6 +53,7 @@ object ShapeStroke {
 		style.getFillMode match {
 			case PLAIN     => new PlainShapeStroke
 			case DYN_PLAIN => new PlainShapeStroke
+			case NONE      => null	// Gracefully handled by the drawing part.
 			case _         => new PlainShapeStroke
 		}
 	}
@@ -80,6 +81,38 @@ object ShapeStroke {
 			} else {
 				oldWidth  = width
 				oldStroke = new BasicStroke( width.toFloat/*, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL*/ )
+				oldStroke
+			}
+		}
+	}
+	
+	class DotsShapeStroke extends ShapeStroke {
+		private[this] var oldWidth = 0.0
+		private[this] var oldStroke:Stroke = null
+		
+		def stroke( width:Double ):Stroke = {
+			if( width == oldWidth ) {
+				if( oldStroke == null ) oldStroke = new BasicStroke( width.toFloat, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 10, Array[Float](width.toFloat, width.toFloat), 0)	// WTF ??
+				oldStroke
+			} else {
+				oldWidth  = width
+				oldStroke = new BasicStroke( width.toFloat, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 10, Array[Float](width.toFloat, width.toFloat), 0)
+				oldStroke
+			}
+		}
+	}
+
+	class DashesShapeStroke extends ShapeStroke {
+		private[this] var oldWidth = 0.0
+		private[this] var oldStroke:Stroke = null
+		
+		def stroke( width:Double ):Stroke = {
+			if( width == oldWidth ) {
+				if( oldStroke == null ) oldStroke = new BasicStroke( width.toFloat, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 10, Array[Float]((3*width).toFloat, (3*width).toFloat), 0)	// WTF ??
+				oldStroke
+			} else {
+				oldWidth  = width
+				oldStroke = new BasicStroke( width.toFloat, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 10, Array[Float]((3*width).toFloat, (3*width).toFloat), 0)
 				oldStroke
 			}
 		}
