@@ -1,6 +1,8 @@
 package org.graphstream.ui.j2dviewer.renderer.test
 
 import org.graphstream.graph.implementations.MultiGraph
+import scala.collection.JavaConversions._
+import org.graphstream.graph.Node
 
 object TestStrokeMode {
     def main(args:Array[String]) {
@@ -12,7 +14,7 @@ object TestStrokeMode {
     		node {
     			fill-color: white;
     			fill-mode: plain;
-    			stroke-mode: dots;
+    			stroke-mode: dashes;
     			stroke-width: 1px;
     			stroke-color: red;
     			size: 20px;
@@ -20,7 +22,7 @@ object TestStrokeMode {
     		edge {
     			fill-mode: none;
     			size: 0px;
-    			stroke-mode: dots;
+    			stroke-mode: dashes;
     			stroke-width: 1px;
     			stroke-color: red;
     		}
@@ -41,5 +43,8 @@ class TestStrokeMode {
 	    graph.addEdge("AB", "A", "B")
 	    graph.addEdge("BC", "B", "C")
 	    graph.addEdge("CA", "C", "A")
+	    graph.foreach { node:Node =>
+	        node.setAttribute("ui.label", node.getId)
+	    }
 	}
 }
