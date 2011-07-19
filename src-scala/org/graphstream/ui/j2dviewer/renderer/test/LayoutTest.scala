@@ -33,7 +33,7 @@ package org.graphstream.ui.j2dviewer.renderer.test
 import scala.collection.JavaConversions._
 
 import org.graphstream.graph.Graph
-import org.graphstream.scalags.graph.MultiGraph
+import org.graphstream.graph.implementations.MultiGraph
 
 import org.graphstream.ui.swingViewer.{Viewer, DefaultView, ViewerPipe, ViewerListener}
 import org.graphstream.ui.layout.Layout;
@@ -41,7 +41,7 @@ import org.graphstream.ui.layout.springbox.SpringBox;
 
 import org.graphstream.algorithm.generator.{DorogovtsevMendesGenerator, Generator}
 
-import org.graphstream.ScalaGS._
+//import org.graphstream.ScalaGS._
 
 object LayoutTest {
 	def main( args:Array[String] ) {

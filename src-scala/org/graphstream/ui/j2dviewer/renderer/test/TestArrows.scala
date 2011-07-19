@@ -31,7 +31,7 @@
 package org.graphstream.ui.j2dviewer.renderer.test
 
 import org.graphstream.graph._
-import org.graphstream.scalags.graph.MultiGraph
+import org.graphstream.graph.implementations.MultiGraph
 
 import org.graphstream.algorithm.Toolkit._
 
@@ -41,7 +41,7 @@ import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
 import org.graphstream.ui.spriteManager._
 import org.graphstream.ui.j2dviewer._
 
-import org.graphstream.ScalaGS._
+//import org.graphstream.ScalaGS._
 
 object TestArrows {
 	def main( args:Array[String] ) { (new TestArrows).run } 
@@ -81,19 +81,19 @@ class TestArrows extends ViewerListener {
 		val DF:Edge = graph.addEdge( "DF", "D", "F", true )
 		val CF:Edge = graph.addEdge( "CF", "C", "F", true )
 		
-		A("xyz") = ( 0, 1, 0 )
-		B("xyz") = ( 1, 0.8, 0 )
-		C("xyz") = ( 0.8, 0, 0 )
-		D("xyz") = ( 0, 0, 0 )
-		E("xyz") = ( 0.5, 0.5, 0 )
-		F("xyz") = ( 0.5, 0.25, 0 )
+		A.setAttribute("xyz", Array[Double]( 0, 1, 0 ))
+		B.setAttribute("xyz", Array[Double]( 1, 0.8, 0 ))
+		C.setAttribute("xyz", Array[Double]( 0.8, 0, 0 ))
+		D.setAttribute("xyz", Array[Double]( 0, 0, 0 ))
+		E.setAttribute("xyz", Array[Double]( 0.5, 0.5, 0 ))
+		F.setAttribute("xyz", Array[Double]( 0.5, 0.25, 0 ))
 		
-		A("label") = "A"
-		B("label") = "Long label ..."
-		C("label") = "C"
-		D("label") = "A long label ..."
-		E("label") = "Another very long label"
-		F("label") = "F"
+		A.setAttribute("label", "A")
+		B.setAttribute("label", "Long label ...")
+		C.setAttribute("label", "C")
+		D.setAttribute("label", "A long label ...")
+		E.setAttribute("label", "Another very long label")
+		F.setAttribute("label", "F")
 		
 		var size = 20f
 		var sizeInc = 1f

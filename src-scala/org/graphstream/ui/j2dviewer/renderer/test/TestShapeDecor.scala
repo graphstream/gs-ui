@@ -31,7 +31,7 @@
 package org.graphstream.ui.j2dviewer.renderer.test
 
 import org.graphstream.graph._
-import org.graphstream.scalags.graph.MultiGraph
+import org.graphstream.graph.implementations.MultiGraph
 
 import org.graphstream.algorithm.Toolkit._
 
@@ -41,7 +41,7 @@ import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
 import org.graphstream.ui.spriteManager._
 import org.graphstream.ui.j2dviewer._
 
-import org.graphstream.ScalaGS._
+//import org.graphstream.ScalaGS._
 
 object TestShapeDecor {
 	def main( args:Array[String] ) { (new TestShapeDecor).run } 
@@ -83,7 +83,26 @@ class TestShapeDecor extends ViewerListener {
 		val Z:Node = graph.addNode( "Z" )
 		val T:Node = graph.addNode( "T" )
 
-		graph.addNodes( "a", "b", "c", "d", "e", "f", "g",   "u", "v", "w", "x", "y", "z", "t",   "i", "j" )
+		//graph.addNodes( "a", "b", "c", "d", "e", "f", "g",   "u", "v", "w", "x", "y", "z", "t",   "i", "j" )
+		graph.addNode("a")
+		graph.addNode("b")
+		graph.addNode("c")
+		graph.addNode("d")
+		graph.addNode("e")
+		graph.addNode("f")
+		graph.addNode("g")
+
+		graph.addNode("u")
+		graph.addNode("v")
+		graph.addNode("w")
+		graph.addNode("x")
+		graph.addNode("y")
+		graph.addNode("z")
+		graph.addNode("t")
+
+		graph.addNode("i")
+		graph.addNode("j")
+
 		val au:Edge = graph.addEdge( "au", "a", "u" )
 		val bv:Edge = graph.addEdge( "bv", "b", "v" )
 		val cw:Edge = graph.addEdge( "cw", "c", "w" )
@@ -101,65 +120,65 @@ class TestShapeDecor extends ViewerListener {
 		val FZ:Edge = graph.addEdge( "FZ", "F", "Z" )
 		val GT:Edge = graph.addEdge( "GT", "G", "T" )
 		
-		A("xyz") = ( 0, 6, 0 )
-		B("xyz") = ( 0, 5, 0 )
-		C("xyz") = ( 0, 4, 0 )
-		D("xyz") = ( 0, 3, 0 )
-		E("xyz") = ( 0, 2, 0 )
-		F("xyz") = ( 0, 1, 0 )
-		G("xyz") = ( 0, 0, 0 )
+		A.setAttribute("xyz", Array[Double]( 0, 6, 0 ))
+		B.setAttribute("xyz", Array[Double]( 0, 5, 0 ))
+		C.setAttribute("xyz", Array[Double]( 0, 4, 0 ))
+		D.setAttribute("xyz", Array[Double]( 0, 3, 0 ))
+		E.setAttribute("xyz", Array[Double]( 0, 2, 0 ))
+		F.setAttribute("xyz", Array[Double]( 0, 1, 0 ))
+		G.setAttribute("xyz", Array[Double]( 0, 0, 0 ))
 		
-		U("xyz") = ( 3, 5, 0 )
-		V("xyz") = ( 3, 4, 0 )
-		W("xyz") = ( 3, 3, 0 )
-		X("xyz") = ( 3, 2, 0 )
-		Y("xyz") = ( 3, 1, 0 )
-		Z("xyz") = ( 3, 0, 0 )
-		T("xyz") = ( 3,-1, 0 )
+		U.setAttribute("xyz", Array[Double]( 3, 5, 0 ))
+		V.setAttribute("xyz", Array[Double]( 3, 4, 0 ))
+		W.setAttribute("xyz", Array[Double]( 3, 3, 0 ))
+		X.setAttribute("xyz", Array[Double]( 3, 2, 0 ))
+		Y.setAttribute("xyz", Array[Double]( 3, 1, 0 ))
+		Z.setAttribute("xyz", Array[Double]( 3, 0, 0 ))
+		T.setAttribute("xyz", Array[Double]( 3,-1, 0 ))
 		
-		graph.getNode[Node]("a")("xyz") = ( 6, 5, 0 )
-		graph.getNode[Node]("b")("xyz") = ( 6, 4, 0 )
-		graph.getNode[Node]("c")("xyz") = ( 6, 3, 0 )
-		graph.getNode[Node]("d")("xyz") = ( 6, 2, 0 )
-		graph.getNode[Node]("e")("xyz") = ( 6, 1, 0 )
-		graph.getNode[Node]("f")("xyz") = ( 6, 0, 0 )
-		graph.getNode[Node]("g")("xyz") = ( 6,-1, 0 )
+		graph.getNode[Node]("a").setAttribute("xyz", Array[Double]( 6, 5, 0 ))
+		graph.getNode[Node]("b").setAttribute("xyz", Array[Double]( 6, 4, 0 ))
+		graph.getNode[Node]("c").setAttribute("xyz", Array[Double]( 6, 3, 0 ))
+		graph.getNode[Node]("d").setAttribute("xyz", Array[Double]( 6, 2, 0 ))
+		graph.getNode[Node]("e").setAttribute("xyz", Array[Double]( 6, 1, 0 ))
+		graph.getNode[Node]("f").setAttribute("xyz", Array[Double]( 6, 0, 0 ))
+		graph.getNode[Node]("g").setAttribute("xyz", Array[Double]( 6,-1, 0 ))
 		
-		graph.getNode[Node]("u")("xyz") = ( 9, 6, 0 )
-		graph.getNode[Node]("v")("xyz") = ( 9, 5, 0 )
-		graph.getNode[Node]("w")("xyz") = ( 9, 4, 0 )
-		graph.getNode[Node]("x")("xyz") = ( 9, 3, 0 )
-		graph.getNode[Node]("y")("xyz") = ( 9, 2, 0 )
-		graph.getNode[Node]("z")("xyz") = ( 9, 1, 0 )
-		graph.getNode[Node]("t")("xyz") = ( 9, 0, 0 )
+		graph.getNode[Node]("u").setAttribute("xyz", Array[Double]( 9, 6, 0 ))
+		graph.getNode[Node]("v").setAttribute("xyz", Array[Double]( 9, 5, 0 ))
+		graph.getNode[Node]("w").setAttribute("xyz", Array[Double]( 9, 4, 0 ))
+		graph.getNode[Node]("x").setAttribute("xyz", Array[Double]( 9, 3, 0 ))
+		graph.getNode[Node]("y").setAttribute("xyz", Array[Double]( 9, 2, 0 ))
+		graph.getNode[Node]("z").setAttribute("xyz", Array[Double]( 9, 1, 0 ))
+		graph.getNode[Node]("t").setAttribute("xyz", Array[Double]( 9, 0, 0 ))
 		
-		graph.getNode[Node]("i")("xyz") = ( 3, 7, 0 )
-		graph.getNode[Node]("j")("xyz") = ( 6, 8, 0 )
+		graph.getNode[Node]("i").setAttribute("xyz", Array[Double]( 3, 7, 0 ))
+		graph.getNode[Node]("j").setAttribute("xyz", Array[Double]( 6, 8, 0 ))
 		
-		A("label") = "Center"
-		B("label") = "AtLeft"
-		C("label") = "AtRight"
-		D("label") = "Left"
-		E("label") = "Right"
-		F("label") = "Under"
-		G("label") = "Above"
+		A.setAttribute("label", "Center")
+		B.setAttribute("label", "AtLeft")
+		C.setAttribute("label", "AtRight")
+		D.setAttribute("label", "Left")
+		E.setAttribute("label", "Right")
+		F.setAttribute("label", "Under")
+		G.setAttribute("label", "Above")
 		
-		U("label") = "Center"
-		V("label") = "AtLeft"
-		W("label") = "AtRight"
-		X("label") = "Left"
-		Y("label") = "Right"
-		Z("label") = "Under"
-		T("label") = "Above"
+		U.setAttribute("label", "Center")
+		V.setAttribute("label", "AtLeft")
+		W.setAttribute("label", "AtRight")
+		X.setAttribute("label", "Left")
+		Y.setAttribute("label", "Right")
+		Z.setAttribute("label", "Under")
+		T.setAttribute("label", "Above")
 		
-		au("label") = "Center"
-		bv("label") = "AtLeft"
-		cw("label") = "AtRight"
-		dx("label") = "Left"
-		ey("label") = "Right"
-		fz("label") = "Under"
-		gt("label") = "Above"
-		ij("label") = "Along"
+		au.setAttribute("label", "Center")
+		bv.setAttribute("label", "AtLeft")
+		cw.setAttribute("label", "AtRight")
+		dx.setAttribute("label", "Left")
+		ey.setAttribute("label", "Right")
+		fz.setAttribute("label", "Under")
+		gt.setAttribute("label", "Above")
+		ij.setAttribute("label", "Along")
 
 		graph.addAttribute("ui.screenshot", "text_align.png")
 		    

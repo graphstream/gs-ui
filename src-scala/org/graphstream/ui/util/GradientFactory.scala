@@ -42,7 +42,6 @@ import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.FillMode
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.FillMode._
 
 import scala.collection.JavaConversions._
-import org.graphstream.ScalaGS._
 
 @deprecated( "Use the ShapePaint class instead." )
 object GradientFactory {

@@ -37,7 +37,7 @@ import java.awt.geom.{RectangularShape, Rectangle2D}
 import org.graphstream.ui.graphicGraph.stylesheet.{Style, Colors}
 import org.graphstream.ui.util.ImageCache
 import scala.collection.JavaConversions._
-import org.graphstream.ScalaGS._
+//import org.graphstream.ScalaGS._
 
 abstract class ShapePaint {
 }

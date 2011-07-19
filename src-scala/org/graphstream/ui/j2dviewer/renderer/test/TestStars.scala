@@ -41,7 +41,7 @@ import org.graphstream.ui.swingViewer._
 import org.graphstream.ui.spriteManager._
 import org.graphstream.ui.j2dviewer._
 
-import org.graphstream.ScalaGS._
+//import org.graphstream.ScalaGS._
 
 object TestStars { def main( args:Array[String] ) { (new TestStars).run } }
 
@@ -75,11 +75,11 @@ class TestStars extends ViewerListener {
 		graph.addEdge( "DE", "D", "E" )
 		graph.addEdge( "EB", "E", "B" )
 		
-		A("xyz") = ( 0, 1, 0 )
-		B("xyz") = ( 1.5, 1, 0 )
-		C("xyz") = ( 1, 0, 0 )
-		D("xyz") = ( 0, 0, 0 )
-		E("xyz") = ( 0.4, 0.6, 0 )
+		A.setAttribute("xyz", Array[Double]( 0, 1, 0 ))
+		B.setAttribute("xyz", Array[Double]( 1.5, 1, 0 ))
+		C.setAttribute("xyz", Array[Double]( 1, 0, 0 ))
+		D.setAttribute("xyz", Array[Double]( 0, 0, 0 ))
+		E.setAttribute("xyz", Array[Double]( 0.4, 0.6, 0 ))
 		
 		val sman = new SpriteManager( graph )
  

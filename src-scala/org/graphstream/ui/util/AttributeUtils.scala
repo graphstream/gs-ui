@@ -1,8 +1,8 @@
 package org.graphstream.ui.util
 
 import scala.collection.mutable.WrappedArray
-import org.graphstream.ui.sgeom.Point3
-import org.graphstream.ui.geom.{Point3 => OldPoint3}
+//import org.graphstream.ui.sgeom.Point3
+import org.graphstream.ui.geom.Point3 //{Point3 => OldPoint3}
 
 trait AttributeUtils {
 	
@@ -15,19 +15,19 @@ trait AttributeUtils {
  	protected def getPoints(values:AnyRef):Array[Point3] = {
  	    values match {
  			case b:Array[Point3]  => { if(b.size==0) Console.err.println("0 ui.point"); b }
- 			case b:Array[OldPoint3] => {
- 			    if(b.size==0) Console.err.println("0 ui.point");
- 			    b.map { p => new Point3(p) }
- 			}
+// 			case b:Array[OldPoint3] => {
+// 			    if(b.size==0) Console.err.println("0 ui.point");
+// 			    b.map { p => new Point3(p) }
+// 			}
  			case b:WrappedArray[AnyRef] => {
  			    getPoints(b.toArray)
  			}
  			case b:Array[AnyRef] => {
  			    if(b.size>0) {
- 			        if(b(0).isInstanceOf[OldPoint3]) {
+ 			        if(b(0).isInstanceOf[Point3]) {
  			            val res = new Array[Point3](b.size)
  			            for(i<- 0 until b.size) {
- 			                res(i) = b(i).asInstanceOf[OldPoint3]
+ 			                res(i) = b(i).asInstanceOf[Point3]
  			            }
  			            res
  			        } else if(b(0).isInstanceOf[Number]) {

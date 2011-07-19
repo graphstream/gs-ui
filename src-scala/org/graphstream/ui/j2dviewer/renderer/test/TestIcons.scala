@@ -31,14 +31,14 @@
 package org.graphstream.ui.j2dviewer.renderer.test
 
 import org.graphstream.graph._
-import org.graphstream.scalags.graph.MultiGraph
+import org.graphstream.graph.implementations.MultiGraph
 
 import org.graphstream.ui.swingViewer.{Viewer, DefaultView, ViewerPipe, ViewerListener}
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
 import org.graphstream.ui.spriteManager._
 import org.graphstream.ui.j2dviewer._
 
-import org.graphstream.ScalaGS._
+//import org.graphstream.ScalaGS._
 
 object TestIcons {
 	def main( args:Array[String] ) { (new TestIcons).run( args ) }
@@ -74,17 +74,17 @@ private class TestIcons extends ViewerListener {
 		graph.addEdge( "CD", "C", "D" )
 		graph.addEdge( "DA", "D", "A" )
 		
-		A("xyz") = ( 0.0, 1.0, 0 )
-		B("xyz") = ( 3.2, 1.5, 0 )
-		C("xyz") = ( 0.2, 0.0, 0 )
-		D("xyz") = ( 3.0,-0.5, 0 )
+		A.setAttribute("xyz", Array[Double]( 0.0, 1.0, 0 ))
+		B.setAttribute("xyz", Array[Double]( 3.2, 1.5, 0 ))
+		C.setAttribute("xyz", Array[Double]( 0.2, 0.0, 0 ))
+		D.setAttribute("xyz", Array[Double]( 3.0,-0.5, 0 ))
 		
-		A("label") = "Topic1"
-		B("label") = "Topic2"
-		C("label") = "Topic3"
-		D("label") = "Topic4"
+		A.setAttribute("label", "Topic1")
+		B.setAttribute("label", "Topic2")
+		C.setAttribute("label", "Topic3")
+		D.setAttribute("label", "Topic4")
 		
-		A("ui.icon") = icon1
+		A.setAttribute("ui.icon",  icon1)
 		
 		var i=0;
 			
@@ -96,13 +96,13 @@ private class TestIcons extends ViewerListener {
 			
 			if( i > 26 ) i = 1
 			
-			if( A("ui.icon") == icon1 )
-			     A("ui.icon") = icon2
-			else A("ui.icon") = icon1
+			if( A.getAttribute("ui.icon") == icon1 )
+			     A.setAttribute("ui.icon", icon2)
+			else A.setAttribute("ui.icon", icon1)
 			
-			B("ui.icon") = "data/cube/3anidot5a_%d.png".format( i )
-			C("ui.icon") = "data/cube/3anidot5a_%d.png".format( i )
-			D("ui.icon") = "data/cube/3anidot5a_%d.png".format( i )
+			B.setAttribute("ui.icon", "data/cube/3anidot5a_%d.png".format( i ))
+			C.setAttribute("ui.icon", "data/cube/3anidot5a_%d.png".format( i ))
+			D.setAttribute("ui.icon", "data/cube/3anidot5a_%d.png".format( i ))
 		}
 		
 		printf( "bye bye" )

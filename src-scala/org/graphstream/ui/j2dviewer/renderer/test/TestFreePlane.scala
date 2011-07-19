@@ -31,14 +31,14 @@
 package org.graphstream.ui.j2dviewer.renderer.test
 
 import org.graphstream.graph._
-import org.graphstream.scalags.graph.MultiGraph
+import org.graphstream.graph.implementations.MultiGraph
 
 import org.graphstream.ui.swingViewer.{Viewer, DefaultView, ViewerPipe, ViewerListener}
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
 import org.graphstream.ui.spriteManager._
 import org.graphstream.ui.j2dviewer._
 
-import org.graphstream.ScalaGS._
+//import org.graphstream.ScalaGS._
 
 object TestFreePlane {
 	def main( args:Array[String] ):Unit = {
@@ -83,25 +83,25 @@ private class TestFreePlane extends ViewerListener {
 		graph.addEdge( "CG", "C", "G" )
 		graph.addEdge( "DH", "D", "H" )
 		
-		root("xyz") = ( 0, 0, 0 )
-		A("xyz")    = ( 1, 1, 0 )
-		B("xyz")    = ( 1, 0, 0 )
-		C("xyz")    = (-1, 1, 0 )
-		D("xyz")    = (-1, 0, 0 )
-		E("xyz")    = (-1,-1, 0 )
-		F("xyz")    = ( 2, 1.2, 0 )
-		G("xyz")    = (-2, 1.2, 0 )
-		H("xyz")    = (-2,-.5, 0 )
+		root.setAttribute("xyz", Array[Double]( 0, 0, 0 ))
+		A.setAttribute("xyz"   , Array[Double]( 1, 1, 0 ))
+		B.setAttribute("xyz"   , Array[Double]( 1, 0, 0 ))
+		C.setAttribute("xyz"   , Array[Double](-1, 1, 0 ))
+		D.setAttribute("xyz"   , Array[Double](-1, 0, 0 ))
+		E.setAttribute("xyz"   , Array[Double](-1,-1, 0 ))
+		F.setAttribute("xyz"   , Array[Double]( 2, 1.2, 0 ))
+		G.setAttribute("xyz"   , Array[Double](-2, 1.2, 0 ))
+		H.setAttribute("xyz"   , Array[Double](-2,-.5, 0 ))
 		
-		root("label") = "Idea"
-		A("label")    = "Topic1"
-		B("label")    = "Topic2"
-		C("label")    = "Topic3"
-		D("label")    = "Topic4"
-		E("label")    = "Topic5"
-		F("label")    = "SubTopic1"
-		G("label")    = "SubTopic2"
-		H("label")    = "Very Long Sub Topic ..."
+		root.setAttribute("label", "Idea")
+		A.setAttribute("label", "Topic1")
+		B.setAttribute("label", "Topic2")
+		C.setAttribute("label", "Topic3")
+		D.setAttribute("label", "Topic4")
+		E.setAttribute("label", "Topic5")
+		F.setAttribute("label", "SubTopic1")
+		G.setAttribute("label", "SubTopic2")
+		H.setAttribute("label", "Very Long Sub Topic ...")
 		
 		while( loop ) {
 			pipeIn.pump

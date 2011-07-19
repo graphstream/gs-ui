@@ -37,7 +37,7 @@ import org.graphstream.ui.j2dviewer._
 import org.graphstream.ui.j2dviewer.renderer._
 import org.graphstream.ui.util._
 import org.graphstream.ui.geom.Point2
-import org.graphstream.ui.sgeom._
+import org.graphstream.ui.geom._
 import org.graphstream.ui.graphicGraph._
 import org.graphstream.ui.graphicGraph.stylesheet._
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._

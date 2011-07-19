@@ -37,7 +37,7 @@ import java.awt.image._
 import scala.math._
 
 import org.graphstream.ui.geom.Point2
-import org.graphstream.ui.sgeom._
+import org.graphstream.ui.geom._
 import org.graphstream.ui.graphicGraph._
 import org.graphstream.ui.graphicGraph.stylesheet._
 import org.graphstream.ui.j2dviewer._
@@ -80,9 +80,9 @@ class ArrowOnEdge extends AreaOnConnectorShape {
 			
 		theDirection.normalize
   
-		var x    = theCenter.x - ( theDirection(0) * off )
-		var y    = theCenter.y - ( theDirection(1) * off )
-		val perp = new Vector2( theDirection(1), -theDirection(0) )
+		var x    = theCenter.x - ( theDirection.x * off )
+		var y    = theCenter.y - ( theDirection.y * off )
+		val perp = new Vector2( theDirection.y, -theDirection.x )
 		
 		perp.normalize
 		theDirection.scalarMult( theSize.x )
@@ -97,8 +97,8 @@ class ArrowOnEdge extends AreaOnConnectorShape {
 		
 		theShape.reset
 		theShape.moveTo( x , y )
-		theShape.lineTo( x - theDirection(0) + perp(0), y - theDirection(1) + perp(1) )		
-		theShape.lineTo( x - theDirection(0) - perp(0), y - theDirection(1) - perp(1) )
+		theShape.lineTo( x - theDirection.x + perp.x, y - theDirection.y + perp.y )		
+		theShape.lineTo( x - theDirection.x - perp.x, y - theDirection.y - perp.y )
 		theShape.closePath
 	}
 		
@@ -107,10 +107,10 @@ class ArrowOnEdge extends AreaOnConnectorShape {
 		val style  = theEdge.getStyle
 		
 		val p2 = CubicCurve.eval( theConnector.fromPos, theConnector.byPos1, theConnector.byPos2, theConnector.toPos, t-0.05f )
-		var dir = Vector2( p1.x - p2.x, p1.y - p2.y )			// XXX The choice of the number above (0.05f) is problematic
+		var dir = new Vector2( p1.x - p2.x, p1.y - p2.y )		// XXX The choice of the number above (0.05f) is problematic
 		dir.normalize											// Clearly it should be chosen according to the length
 		dir.scalarMult( theSize.x )								// of the arrow compared to the length of the curve, however
-		var per = Vector2( dir(1), -dir(0) )					// computing the curve length (see CubicCurve) is costly. XXX
+		var per = new Vector2( dir.y, -dir.x )				// computing the curve length (see CubicCurve) is costly. XXX
 		per.normalize
 		per.scalarMult( theSize.y )
 		
@@ -118,8 +118,8 @@ class ArrowOnEdge extends AreaOnConnectorShape {
 
 		theShape.reset
 		theShape.moveTo( p1.x , p1.y )
-		theShape.lineTo( p1.x - dir(0) + per(0), p1.y - dir(1) + per(1) )		
-		theShape.lineTo( p1.x - dir(0) - per(0), p1.y - dir(1) - per(1) )
+		theShape.lineTo( p1.x - dir.x + per.x, p1.y - dir.y + per.y )		
+		theShape.lineTo( p1.x - dir.x - per.x, p1.y - dir.y - per.y )
 		theShape.closePath		
 	}
  
@@ -158,8 +158,8 @@ class CircleOnEdge extends AreaOnConnectorShape {
 			
 		theDirection.normalize
   
-		var x    = theCenter.x - ( theDirection(0) * off )
-		var y    = theCenter.y - ( theDirection(1) * off )
+		var x    = theCenter.x - ( theDirection.x * off )
+		var y    = theCenter.y - ( theDirection.y * off )
 		//val perp = new Vector2( theDirection(1), -theDirection(0) )
 		
 		//perp.normalize
@@ -181,7 +181,7 @@ class CircleOnEdge extends AreaOnConnectorShape {
 		val style  = theEdge.getStyle
 		
 		val p2 = CubicCurve.eval( theConnector.fromPos, theConnector.byPos1, theConnector.byPos2, theConnector.toPos, t-0.1f )
-		var dir = Vector2( p1.x - p2.x, p1.y - p2.y )
+		var dir = new Vector2( p1.x - p2.x, p1.y - p2.y )
 		dir.normalize
 		dir.scalarMult( theSize.x/2 )
 
@@ -232,9 +232,9 @@ class DiamondOnEdge extends AreaOnConnectorShape {
 			
 		theDirection.normalize
   
-		var x    = theCenter.x - ( theDirection(0) * off )
-		var y    = theCenter.y - ( theDirection(1) * off )
-		val perp = new Vector2( theDirection(1), -theDirection(0) )
+		var x    = theCenter.x - ( theDirection.x * off )
+		var y    = theCenter.y - ( theDirection.y * off )
+		val perp = new Vector2( theDirection.y, -theDirection.x )
 		
 		perp.normalize
 		theDirection.scalarMult( theSize.x / 2 )
@@ -249,9 +249,9 @@ class DiamondOnEdge extends AreaOnConnectorShape {
 		
 		theShape.reset
 		theShape.moveTo( x , y )
-		theShape.lineTo( x - theDirection(0) + perp(0), y - theDirection(1) + perp(1) )	
-		theShape.lineTo( x - theDirection(0)*2, y - theDirection(1)*2 )
-		theShape.lineTo( x - theDirection(0) - perp(0), y - theDirection(1) - perp(1) )
+		theShape.lineTo( x - theDirection.x + perp.x, y - theDirection.y + perp.y )	
+		theShape.lineTo( x - theDirection.x*2, y - theDirection.y*2 )
+		theShape.lineTo( x - theDirection.x - perp.x, y - theDirection.y - perp.y )
 		theShape.closePath
 	}
 	
@@ -260,10 +260,10 @@ class DiamondOnEdge extends AreaOnConnectorShape {
 		val style  = theEdge.getStyle
 		
 		val p2  = CubicCurve.eval( theConnector.fromPos, theConnector.byPos1, theConnector.byPos2, theConnector.toPos, t-0.1f )
-		var dir = Vector2( p1.x - p2.x, p1.y - p2.y )
+		var dir = new Vector2( p1.x - p2.x, p1.y - p2.y )
 		dir.normalize
 		dir.scalarMult( theSize.x )
-		var per = Vector2( dir(1), -dir(0) )
+		var per = new Vector2( dir.y, -dir.x )
 		per.normalize
 		per.scalarMult( theSize.y )
 		
@@ -271,9 +271,9 @@ class DiamondOnEdge extends AreaOnConnectorShape {
 
 		theShape.reset
 		theShape.moveTo( p1.x , p1.y )
-		theShape.lineTo( p1.x - dir(0)/2 + per(0), p1.y - dir(1)/2 + per(1) )
-		theShape.lineTo( p1.x - dir(0), p1.y - dir(1) )
-		theShape.lineTo( p1.x - dir(0)/2 - per(0), p1.y - dir(1)/2 - per(1) )
+		theShape.lineTo( p1.x - dir.x/2 + per.x, p1.y - dir.y/2 + per.y )
+		theShape.lineTo( p1.x - dir.x, p1.y - dir.y )
+		theShape.lineTo( p1.x - dir.x/2 - per.x, p1.y - dir.y/2 - per.y )
 		theShape.closePath
 	}
  
@@ -341,8 +341,8 @@ class ImageOnEdge extends AreaOnConnectorShape {
 		theDirection.normalize
 		
 		val iw = camera.metrics.lengthToGu( image.getWidth, Units.PX ) / 2
-		var x  = theCenter.x - ( theDirection(0) * ( off + iw ) )
-		var y  = theCenter.y - ( theDirection(1) * ( off + iw ) )
+		var x  = theCenter.x - ( theDirection.x * ( off + iw ) )
+		var y  = theCenter.y - ( theDirection.y * ( off + iw ) )
 		
 		if( forShadow ) {
 			x += theShadowOff.x
@@ -360,13 +360,13 @@ class ImageOnEdge extends AreaOnConnectorShape {
 		val (p1,t) = CubicCurve.approxIntersectionPointOnCurve( theEdge, theConnector, camera )
 		val style  = theEdge.getStyle
 		val p2  = CubicCurve.eval( theConnector.fromPos, theConnector.byPos1, theConnector.byPos2, theConnector.toPos, t-0.1f )
-		var dir = Vector2( p1.x - p2.x, p1.y - p2.y )
+		var dir = new Vector2( p1.x - p2.x, p1.y - p2.y )
 		
 		dir.normalize
 	
 		val iw = camera.metrics.lengthToGu( image.getWidth, Units.PX ) / 2
-		var x  = p1.x - ( dir(0) * iw )
-		var y  = p1.y - ( dir(1) * iw )
+		var x  = p1.x - ( dir.x * iw )
+		var y  = p1.y - ( dir.y * iw )
 		
 		if( forShadow ) {
 			x += theShadowOff.x

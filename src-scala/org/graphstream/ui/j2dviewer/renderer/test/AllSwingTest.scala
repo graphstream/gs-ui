@@ -31,9 +31,9 @@
 package org.graphstream.ui.j2dviewer.renderer.test
 
 import org.graphstream.graph._
-import org.graphstream.scalags.graph.MultiGraph
+import org.graphstream.graph.implementations.MultiGraph
 import org.graphstream.ui.swingViewer.Viewer
-import org.graphstream.ScalaGS._
+//import org.graphstream.ScalaGS._
 import javax.swing._
 import java.awt._
 
@@ -49,16 +49,22 @@ class AllSwingTest extends JFrame {
 		val graph  = new MultiGraph( "mg" )
 		val viewer = new Viewer( graph, Viewer.ThreadingModel.GRAPH_IN_SWING_THREAD )
 		
-		graph.addNodes( "A", "B", "C" )
-		graph.addEdges( "A", "B", "C", "A" )
+		graph.addNode("A")
+		graph.addNode("B")
+		graph.addNode("C")
+		graph.addEdge("AB", "A", "B")
+		graph.addEdge("BC", "B", "C")
+		graph.addEdge("CA", "C", "A")
+//		graph.addNodes( "A", "B", "C" )
+//		graph.addEdges( "A", "B", "C", "A" )
 		graph.addAttribute( "ui.antialias" )
 		graph.addAttribute( "ui.quality" )
 		graph.addAttribute( "ui.default.title", "All In Swing Test" )
 		graph.addAttribute( "ui.stylesheet", styleSheet )
    
-		graph.getNode[Node]("A")("xyz") = ( -1, 0, 0 )
-		graph.getNode[Node]("B")("xyz") = (  1, 0, 0 )
-  		graph.getNode[Node]("C")("xyz") = (  0, 1, 0 )
+		graph.getNode[Node]("A").setAttribute("xyz", Array[Double]( -1, 0, 0 ))
+		graph.getNode[Node]("B").setAttribute("xyz", Array[Double](  1, 0, 0 ))
+  		graph.getNode[Node]("C").setAttribute("xyz", Array[Double](  0, 1, 0 ))
    
 		val view = viewer.addDefaultView(false)
 		

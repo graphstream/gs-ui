@@ -32,7 +32,7 @@ package org.graphstream.ui.j2dviewer.renderer.test
 
 import org.graphstream.ui.geom.Point3
 import org.graphstream.graph._
-import org.graphstream.scalags.graph.MultiGraph
+import org.graphstream.graph.implementations.MultiGraph
 
 import org.graphstream.algorithm.Toolkit._
 
@@ -43,7 +43,7 @@ import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 import org.graphstream.ui.spriteManager._
 import org.graphstream.ui.j2dviewer._
 
-import org.graphstream.ScalaGS._
+//import org.graphstream.ScalaGS._
 
 object TestSprites {
 	def main( args:Array[String] ):Unit = {
@@ -89,23 +89,23 @@ class TestSprites extends ViewerListener {
 		graph.addEdge( "EB", "E", "B", true )
 		graph.addEdge( "BB", "B", "B", true )
 		
-		graph.edge("CD").addAttribute("ui.points", 
+		graph.getEdge("CD").asInstanceOf[Edge].addAttribute("ui.points", 
 		        new Point3(1, 0, 0),
 		        new Point3(0.6f, 0.1f, 0f),
 		        new Point3(0.3f,-0.1f, 0f),
 		        new Point3(0, 0, 0))
 		
-		A("xyz") = ( 0, 1, 0 )
-		B("xyz") = ( 1.5, 1, 0 )
-		C("xyz") = ( 1, 0, 0 )
-		D("xyz") = ( 0, 0, 0 )
-		E("xyz") = ( 0.4, 0.6, 0 )
+		A.setAttribute("xyz", Array[Double]( 0, 1, 0 ))
+		B.setAttribute("xyz", Array[Double]( 1.5, 1, 0 ))
+		C.setAttribute("xyz", Array[Double]( 1, 0, 0 ))
+		D.setAttribute("xyz", Array[Double]( 0, 0, 0 ))
+		E.setAttribute("xyz", Array[Double]( 0.4, 0.6, 0 ))
 		
-		A("label") = "A"
-		B("label") = "B"
-		C("label") = "C"
-		D("label") = "D"
-		E("label") = "E"
+		A.setAttribute("label", "A")
+		B.setAttribute("label", "B")
+		C.setAttribute("label", "C")
+		D.setAttribute("label", "D")
+		E.setAttribute("label", "E")
 		
 		val sman = new SpriteManager( graph )
  

@@ -30,7 +30,7 @@
  */
 package org.graphstream.ui.j2dviewer
 
-import org.graphstream.ui.sgeom.Point3
+import org.graphstream.ui.geom.Point3
 
 import java.util.ArrayList
 
@@ -47,11 +47,11 @@ import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 
 import org.graphstream.ui.util.{GraphMetrics, CubicCurve}
 import org.graphstream.ui.geom.Point2
-import org.graphstream.ui.sgeom.Vector2
+import org.graphstream.ui.geom.Vector2
 import org.graphstream.ui.j2dviewer.renderer.{ElementInfo, EdgeInfo, NodeInfo}
 
 import scala.math._
-import org.graphstream.ScalaGS._
+//import org.graphstream.ScalaGS._
 
 
 /**
@@ -651,11 +651,11 @@ class Camera {
   		val visibility = element.getStyle.getVisibility
   		element.getStyle.getVisibilityMode match {
   			case VisibilityMode.HIDDEN     => false
-  			case VisibilityMode.AT_ZOOM    => (zoom == visibility(0))
-  			case VisibilityMode.UNDER_ZOOM => (zoom <= visibility(0))
-  			case VisibilityMode.OVER_ZOOM  => (zoom >= visibility(0))
-  			case VisibilityMode.ZOOM_RANGE => if(visibility.size > 1) (zoom >= visibility(0) && zoom <= visibility(1)) else true
-  			case VisibilityMode.ZOOMS      => values.contains(visibility(0))
+  			case VisibilityMode.AT_ZOOM    => (zoom == visibility.get(0))
+  			case VisibilityMode.UNDER_ZOOM => (zoom <= visibility.get(0))
+  			case VisibilityMode.OVER_ZOOM  => (zoom >= visibility.get(0))
+  			case VisibilityMode.ZOOM_RANGE => if(visibility.size > 1) (zoom >= visibility.get(0) && zoom <= visibility.get(1)) else true
+  			case VisibilityMode.ZOOMS      => values.contains(visibility.get(0))
   			case _                         => true
   		}
   	}
@@ -664,11 +664,11 @@ class Camera {
   		val visibility = element.getStyle.getTextVisibility
   		element.getStyle.getTextVisibilityMode match {
   			case TextVisibilityMode.HIDDEN     => false
-  			case TextVisibilityMode.AT_ZOOM    => (zoom == visibility(0))
-  			case TextVisibilityMode.UNDER_ZOOM => (zoom <= visibility(0))
-  			case TextVisibilityMode.OVER_ZOOM  => (zoom >= visibility(0))
-  			case TextVisibilityMode.ZOOM_RANGE => if(visibility.size > 1) (zoom >= visibility(0) && zoom <= visibility(1)) else true
-  			case TextVisibilityMode.ZOOMS      => values.contains(visibility(0))
+  			case TextVisibilityMode.AT_ZOOM    => (zoom == visibility.get(0))
+  			case TextVisibilityMode.UNDER_ZOOM => (zoom <= visibility.get(0))
+  			case TextVisibilityMode.OVER_ZOOM  => (zoom >= visibility.get(0))
+  			case TextVisibilityMode.ZOOM_RANGE => if(visibility.size > 1) (zoom >= visibility.get(0) && zoom <= visibility.get(1)) else true
+  			case TextVisibilityMode.ZOOMS      => values.contains(visibility.get(0))
   			case _                             => true
   		}
   	}

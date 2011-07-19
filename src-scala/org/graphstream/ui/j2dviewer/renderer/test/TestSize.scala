@@ -31,7 +31,7 @@
 package org.graphstream.ui.j2dviewer.renderer.test
 
 import org.graphstream.graph._
-import org.graphstream.scalags.graph.MultiGraph
+import org.graphstream.graph.implementations.MultiGraph
 
 import org.graphstream.algorithm.Toolkit._
 
@@ -41,7 +41,7 @@ import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
 import org.graphstream.ui.spriteManager._
 import org.graphstream.ui.j2dviewer._
 
-import org.graphstream.ScalaGS._
+//import org.graphstream.ScalaGS._
 
 object TestSize {
 	def main( args:Array[String] ):Unit = {
@@ -79,20 +79,20 @@ class TestSize extends ViewerListener {
 		val DA:Edge = graph.addEdge( "DA", "D", "A" )
 		val BB:Edge = graph.addEdge( "BB", "B", "B" )
 		
-		A("xyz") = ( 0, 1, 0 )
-		B("xyz") = ( 1, 1, 0 )
-		C("xyz") = ( 1, 0, 0 )
-		D("xyz") = ( 0, 0, 0 )
+		A.setAttribute("xyz", Array[Double]( 0, 1, 0 ))
+		B.setAttribute("xyz", Array[Double]( 1, 1, 0 ))
+		C.setAttribute("xyz", Array[Double]( 1, 0, 0 ))
+		D.setAttribute("xyz", Array[Double]( 0, 0, 0 ))
 		
-		A("label") = "A"
-		B("label") = "B"
-		C("label") = "C"
-		D("label") = "A long label ..."
+		A.setAttribute("ui.label", "A")
+		B.setAttribute("ui.label", "B")
+		C.setAttribute("ui.label", "C")
+		D.setAttribute("ui.label", "A long label ...")
 			
-		AB("label") = "AB"
-		BC("label") = "A long label ..."
-		CD("label") = "CD"
-		BB("label") = "BB"
+		AB.setAttribute("ui.label", "AB")
+		BC.setAttribute("ui.label", "A long label ...")
+		CD.setAttribute("ui.label", "CD")
+		BB.setAttribute("ui.label", "BB")
 		
 		val sm = new SpriteManager( graph )
 		val S1 = sm.addSprite( "S1" )

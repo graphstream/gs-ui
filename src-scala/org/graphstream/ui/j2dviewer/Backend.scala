@@ -5,7 +5,7 @@ import java.awt.geom.Point2D
 import java.awt.geom.AffineTransform
 import scala.collection.mutable.ArrayStack
 import java.awt.Graphics2D
-import org.graphstream.ui.sgeom.Point3
+import org.graphstream.ui.geom.Point3
 import org.graphstream.ui.j2dviewer.renderer.GraphBackgroundRenderer
 import org.graphstream.ui.j2dviewer.renderer.shape.Shape
 import org.graphstream.ui.graphicGraph.StyleGroup

@@ -37,7 +37,7 @@ import java.awt.font.TextLayout
 import java.awt.image.BufferedImage
 import org.graphstream.ui.j2dviewer.Camera
 import org.graphstream.ui.util._
-import org.graphstream.ui.sgeom._
+import org.graphstream.ui.geom._
 import org.graphstream.ui.graphicGraph.GraphicElement
 import org.graphstream.ui.graphicGraph.stylesheet.Style
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
@@ -133,7 +133,7 @@ object ShapeDecor {
 			renderGu2Px( g, camera, iconAndText, cx, cy, 0, positionTextAndIconPx )
 		}
 		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
-			val dir = Vector2( x1-x0, y1-y0 )
+			val dir = new Vector2( x1-x0, y1-y0 )
 			dir.scalarMult( 0.5f )
 			
 			renderGu2Px( g, camera, iconAndText, x0 + dir.x, y0 + dir.y, 0, positionTextAndIconPx )
@@ -245,7 +245,7 @@ object ShapeDecor {
 			renderGu2Px( g, camera, iconAndText, cx, cy, 0, positionTextAndIconPx )
 		}
 		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
-			val dir = Vector2( x1-x0, y1-y0 )
+			val dir = new Vector2( x1-x0, y1-y0 )
 			dir.scalarMult( 0.5f )
 
 			renderGu2Px( g, camera, iconAndText, x0+dir.x, y0+dir.y, 0, positionTextAndIconPx )
@@ -266,7 +266,7 @@ object ShapeDecor {
 			renderGu2Px( g, camera, iconAndText, cx, cy, 0, positionTextAndIconPx )
 		}
 		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
-			val dir = Vector2( x1-x0, y1-y0 )
+			val dir = new Vector2( x1-x0, y1-y0 )
 			dir.scalarMult( 0.5f )
 
 			renderGu2Px( g, camera, iconAndText, x0+dir.x, y0+dir.y, 0, positionTextAndIconPx )
@@ -282,7 +282,7 @@ object ShapeDecor {
  	class AlongShapeDecor extends PxShapeDecor {
 		def renderInside( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {}
 		def renderAlong( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
-			val dir = Vector2( x1-x0, y1-y0 )
+			val dir = new Vector2( x1-x0, y1-y0 )
 			dir.scalarMult( 0.5f )
 			val cx = x0 + dir.x
 			val cy = y0 + dir.y

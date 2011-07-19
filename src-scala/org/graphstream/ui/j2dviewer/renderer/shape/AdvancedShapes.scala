@@ -39,7 +39,7 @@ import org.graphstream.ui.graphicGraph._
 import org.graphstream.ui.graphicGraph.stylesheet._
 import org.graphstream.ui.j2dviewer._
 import org.graphstream.ui.util._
-import org.graphstream.ui.sgeom._
+import org.graphstream.ui.geom._
 
 import scala.math._
 

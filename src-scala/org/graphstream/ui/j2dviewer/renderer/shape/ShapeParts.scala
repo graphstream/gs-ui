@@ -36,7 +36,7 @@ import java.awt.geom._
 import org.graphstream.ui.j2dviewer._
 import org.graphstream.ui.j2dviewer.renderer._
 import org.graphstream.ui.util._
-import org.graphstream.ui.sgeom._
+import org.graphstream.ui.geom._
 import org.graphstream.ui.graphicGraph._
 import org.graphstream.ui.graphicGraph.stylesheet._
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
@@ -391,7 +391,7 @@ trait Orientable {
 //	}
 	
 	private def setTargetOnLineEdge( camera:Camera, sprite:GraphicSprite, ge:GraphicEdge ) {
-		val dir = Vector2( ge.to.getX-ge.from.getX, ge.to.getY-ge.from.getY )
+		val dir = new Vector2( ge.to.getX-ge.from.getX, ge.to.getY-ge.from.getY )
 		dir.scalarMult( sprite.getX )
 		target.set( ge.from.getX + dir.x, ge.from.getY + dir.y )
 	}

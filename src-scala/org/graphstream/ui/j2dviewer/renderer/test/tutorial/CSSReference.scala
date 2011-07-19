@@ -4,10 +4,11 @@ import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Units
 import org.graphstream.ui.spriteManager.SpriteManager
 import org.graphstream.graph.Edge
 import java.io.PrintStream
-import org.graphstream.graph.Graph
+import org.graphstream.graph._
+import org.graphstream.graph.implementations._
 import org.graphstream.ui.swingViewer.{Viewer, View}
-import org.graphstream.ScalaGS._
-import org.graphstream.scalags.graph._
+//import org.graphstream.ScalaGS._
+//import org.graphstream.scalags.graph._
 import scala.collection.JavaConversions._
 
 object CSSReference {
@@ -116,15 +117,15 @@ class CSSReference {
 	type MoreActions = (Graph,Viewer,View)=>Unit
 	
 	def addLabels(g:Graph, vv:Viewer, v:View) {
-	     g.node("A")("ui.label") = "Node A"
-	     g.node("B")("ui.label") = "Node B"
-	     g.node("C")("ui.label") = "Node C"
+	     g.getNode[Node]("A").setAttribute("ui.label", "Node A")
+	     g.getNode[Node]("B").setAttribute("ui.label", "Node B")
+	     g.getNode[Node]("C").setAttribute("ui.label", "Node C")
 	}
 	
 	def addSimpleLabels(g:Graph, vv:Viewer, v:View) {
-	     g.node("A")("ui.label") = "A"
-	     g.node("B")("ui.label") = "B"
-	     g.node("C")("ui.label") = "C"
+	     g.getNode[Node]("A").setAttribute("ui.label", "A")
+	     g.getNode[Node]("B").setAttribute("ui.label", "B")
+	     g.getNode[Node]("C").setAttribute("ui.label", "C")
 	}
 	
 	def enlarge(g:Graph, vv:Viewer, v:View) {
@@ -133,7 +134,7 @@ class CSSReference {
 	}
 	
 	def move(g:Graph, vv:Viewer, v:View) {
-	    g.node("B")("xyz") = (1, 0.5, 0)
+	    g.getNode[Node]("B").setAttribute("xyz", Array[Double](1, 0.5, 0))
 	}
 	
 	def addDirection(g:Graph, vv:Viewer, v:View) {
@@ -212,24 +213,25 @@ class CSSReference {
 	def freeplane(g:Graph, vv:Viewer, v:View) {
 	    g.removeEdge("C--A")
 	    g.removeEdge("B--C")
-	    g.addNodes("D", "E", "F")
+//	    g.addNodes("D", "E", "F")
+	    g.addNode("D"); g.addNode("E"); g.addNode("F")
 	    g.addEdge("AC", "A", "C")
 	    g.addEdge("AD", "A", "D")
 	    g.addEdge("AE", "A", "E")
 	    g.addEdge("AF", "A", "F")
-	    g.node("A")("xyz") = (0, 0, 0)
-	    g.node("B")("xyz") = (-2, 1, 0)
-	    g.node("C")("xyz") = (-2, 0, 0)
-	    g.node("D")("xyz") = (-2, -1, 0)
-	    g.node("E")("xyz") = (2, 0.7, 0)
-		g.node("F")("xyz") = (2, -0.7, 0)
-		g.node("D")("label") = "Node D"
-		g.node("E")("label") = "Node E"
-		g.node("F")("label") = "Node F"
+	    g.getNode[Node]("A").setAttribute("xyz", Array[Double](0, 0, 0))
+	    g.getNode[Node]("B").setAttribute("xyz", Array[Double](-2, 1, 0))
+	    g.getNode[Node]("C").setAttribute("xyz", Array[Double](-2, 0, 0))
+	    g.getNode[Node]("D").setAttribute("xyz", Array[Double](-2, -1, 0))
+	    g.getNode[Node]("E").setAttribute("xyz", Array[Double](2, 0.7, 0))
+		g.getNode[Node]("F").setAttribute("xyz", Array[Double](2, -0.7, 0))
+		g.getNode[Node]("D").setAttribute("label", "Node D")
+		g.getNode[Node]("E").setAttribute("label", "Node E")
+		g.getNode[Node]("F").setAttribute("label", "Node F")
 	}
 	
 	def genericTest(title:String, stylesheet:String, more:MoreActions*) {
-	    val graph = MultiGraph("ui")
+	    val graph = new MultiGraph("ui")
 	    val viewer = graph.display(false)
 	    val view = viewer.getView(Viewer.DEFAULT_VIEW_ID)
 	    view.resizeFrame(200, 150)
@@ -238,11 +240,13 @@ class CSSReference {
 	    graph.addAttribute("ui.quality")
 	    graph.addAttribute("ui.antialias")
 	    graph.addAttribute("ui.stylesheet", stylesheet)
-	    graph.addNodes("A", "B", "C")
-	    graph.addEdges("A", "B", "C", "A")
-	    graph.node("A")("xyz") = (-1, 0, 0)
-	    graph.node("B")("xyz") = ( 1, 0, 0)
-	    graph.node("C")("xyz") = ( 0, 1, 0)
+//	    graph.addNodes("A", "B", "C")
+//	    graph.addEdges("A", "B", "C", "A")
+	    graph.addNode("A"); graph.addNode("B"); graph.addNode("C")
+	    graph.addEdge("AB", "A", "B"); graph.addEdge("BC", "B", "C"); graph.addEdge("CA", "C", "A")
+	    graph.getNode[Node]("A").setAttribute("xyz", Array[Double](-1, 0, 0))
+	    graph.getNode[Node]("B").setAttribute("xyz", Array[Double]( 1, 0, 0))
+	    graph.getNode[Node]("C").setAttribute("xyz", Array[Double]( 0, 1, 0))
 	    more.foreach { action => action(graph, viewer, view) }
 	    graph.addAttribute("ui.screenshot", "%s.png".format(title))
 	    val out = new PrintStream("%s.css".format(title))

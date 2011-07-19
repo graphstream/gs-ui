@@ -38,7 +38,7 @@ import org.graphstream.ui.j2dviewer._
 import org.graphstream.ui.j2dviewer.renderer._
 
 import org.graphstream.ui.util._
-import org.graphstream.ui.sgeom._
+import org.graphstream.ui.geom._
 import org.graphstream.ui.graphicGraph._
 import org.graphstream.ui.graphicGraph.stylesheet._
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
@@ -60,8 +60,8 @@ class SpriteArrowShape extends PolygonalShape with Orientable {
 	def make(bck:Backend, camera:Camera ) {
 		var x   = theCenter.x
 		var y   = theCenter.y
-		val dir = Vector2( target.x - x, target.y - y ); dir.normalize
-		var per = Vector2( dir.y, -dir.x )
+		val dir = new Vector2( target.x - x, target.y - y ); dir.normalize
+		var per = new Vector2( dir.y, -dir.x )
 		
 		dir.scalarMult( theSize.x )
 		per.scalarMult( theSize.y / 2 )
@@ -76,8 +76,8 @@ class SpriteArrowShape extends PolygonalShape with Orientable {
 	def makeShadow(bck:Backend, camera:Camera ) {
 		val x   = theCenter.x + theShadowOff.x
 		val y   = theCenter.y + theShadowOff.y
-		val dir = Vector2( target.x - x, target.y - y ); dir.normalize
-		var per = Vector2( dir.y, -dir.x )
+		val dir = new Vector2( target.x - x, target.y - y ); dir.normalize
+		var per = new Vector2( dir.y, -dir.x )
 		
 		dir.scalarMult( theSize.x + theShadowWidth.x )
 		per.scalarMult( ( theSize.y + theShadowWidth.y ) / 2 )
@@ -158,8 +158,8 @@ class SpriteFlowShape
 				var P3  = if(reverse) edgeInfo(0) else edgeInfo(3)
 				val inc = 0.01
 				var t   = 0.0
-				val dir = Vector2(P3.x-P0.x, P3.y-P0.y)
-				val per = Vector2(dir.y + shx, -dir.x + shy)
+				val dir = new Vector2(P3.x-P0.x, P3.y-P0.y)
+				val per = new Vector2(dir.y + shx, -dir.x + shy)
 				
 				per.normalize
 				per.scalarMult(offset)
@@ -179,8 +179,8 @@ class SpriteFlowShape
 	            val P1           = if(reverse) edgeInfo.from else edgeInfo.to
 	            var a            = if(reverse) 1-along else along
 	            var (i, sum, ps) = edgeInfo.wichSegment(a)
-				val dir          = Vector2(P1.x-P0.x, P1.y-P0.y)
-				val per          = Vector2(dir.y + shx, -dir.x + shy)
+				val dir          = new Vector2(P1.x-P0.x, P1.y-P0.y)
+				val per          = new Vector2(dir.y + shx, -dir.x + shy)
 	            
 				per.normalize
 				per.scalarMult(offset)
@@ -208,8 +208,8 @@ Console.err.println("reverse")
 	        } else {
 	            val P0  = if(reverse) edgeInfo.to   else edgeInfo.from
 	            val P1  = if(reverse) edgeInfo.from else edgeInfo.to
-				val dir = Vector2(P1.x-P0.x, P1.y-P0.y)
-				val per = Vector2(dir.y + shx, -dir.x + shy)
+				val dir = new Vector2(P1.x-P0.x, P1.y-P0.y)
+				val per = new Vector2(dir.y + shx, -dir.x + shy)
 
 				per.normalize
 				per.scalarMult(offset)

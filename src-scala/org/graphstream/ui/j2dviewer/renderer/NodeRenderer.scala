@@ -39,7 +39,7 @@ import org.graphstream.ui.geom.Point2
 import org.graphstream.ui.graphicGraph.{GraphicElement, GraphicNode, StyleGroup}
 import org.graphstream.ui.j2dviewer.{Camera, J2DGraphRenderer, Backend}
 import org.graphstream.ui.j2dviewer.renderer.shape._
-import org.graphstream.ui.sgeom.EdgePoints
+import org.graphstream.ui.j2dviewer.util.EdgePoints
 
 class NodeRenderer(styleGroup:StyleGroup) extends StyleRenderer(styleGroup) {
 	protected var shape:Shape = null

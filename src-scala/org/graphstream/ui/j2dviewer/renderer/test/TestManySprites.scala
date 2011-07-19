@@ -34,7 +34,7 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
 
 import org.graphstream.graph.{Graph, Node, Edge}
-import org.graphstream.scalags.graph.MultiGraph
+import org.graphstream.graph.implementations.MultiGraph
 
 import org.graphstream.ui.swingViewer.{Viewer, DefaultView, ViewerPipe, ViewerListener}
 import org.graphstream.ui.spriteManager._
@@ -44,7 +44,7 @@ import org.graphstream.ui.layout.springbox.SpringBox;
 import org.graphstream.algorithm.generator.{DorogovtsevMendesGenerator, Generator}
 import org.graphstream.ui.graphicGraph.stylesheet.Values
 
-import org.graphstream.ScalaGS._
+//import org.graphstream.ScalaGS._
 
 import org.graphstream.algorithm.Toolkit._
 

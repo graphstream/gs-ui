@@ -38,7 +38,7 @@ import org.graphstream.ui.graphicGraph.GraphicElement.SwingElementRenderer
 import org.graphstream.ui.graphicGraph.StyleGroup.ElementEvents
 
 import org.graphstream.ui.j2dviewer.{Backend, Camera, J2DGraphRenderer}
-import org.graphstream.ScalaGS._
+//import org.graphstream.ScalaGS._
 
 import scala.collection.JavaConversions._
 

@@ -47,7 +47,7 @@ import org.graphstream.ui.graphicGraph.stylesheet.Selector
 
 import org.graphstream.ui.util.Selection
 import org.graphstream.ui.j2dviewer.renderer._
-import org.graphstream.ScalaGS._
+//import org.graphstream.ScalaGS._
 
 import javax.imageio.ImageIO
 

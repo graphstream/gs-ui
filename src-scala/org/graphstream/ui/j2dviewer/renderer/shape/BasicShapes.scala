@@ -31,7 +31,7 @@
 package org.graphstream.ui.j2dviewer.renderer.shape
 
 import org.graphstream.ui.util.AttributeUtils
-import org.graphstream.ui.sgeom.Point3
+import org.graphstream.ui.geom.Point3
 import java.awt.{Image, Color, Graphics2D}
 import java.awt.geom.{Ellipse2D, Line2D, Path2D, CubicCurve2D, Rectangle2D, RoundRectangle2D, RectangularShape}
 import org.graphstream.ui.geom.Point2

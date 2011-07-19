@@ -33,7 +33,7 @@ package org.graphstream.ui.j2dviewer.renderer.shape
 import java.awt._
 import java.awt.geom._
 
-import org.graphstream.ui.sgeom._
+import org.graphstream.ui.geom._
 import org.graphstream.ui.graphicGraph._
 import org.graphstream.ui.graphicGraph.stylesheet._
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._

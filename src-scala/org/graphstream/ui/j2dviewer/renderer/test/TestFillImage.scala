@@ -31,14 +31,14 @@
 package org.graphstream.ui.j2dviewer.renderer.test
 
 import org.graphstream.graph._
-import org.graphstream.scalags.graph.MultiGraph
+import org.graphstream.graph.implementations.MultiGraph
 
 import org.graphstream.ui.j2dviewer.J2DGraphRenderer
 import org.graphstream.ui.swingViewer.{Viewer, DefaultView, ViewerPipe, ViewerListener}
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
 import org.graphstream.ui.spriteManager._
 
-import org.graphstream.ScalaGS._
+//import org.graphstream.ScalaGS._
 
 object TestFillImage {
 	def main( args:Array[String] ) { (new TestFillImage).run( args ) }
@@ -81,8 +81,15 @@ private class TestFillImage extends ViewerListener {
 		val E:Node = graph.addNode( "E" )
 		val F:Node = graph.addNode( "F" )
 
-		graph.addEdges( "A", "B", "C", "A" )
-		graph.addEdges( "D", "E", "A", "D" )
+//		graph.addEdges( "A", "B", "C", "A" )
+//		graph.addEdges( "D", "E", "A", "D" )
+		graph.addEdge("AB", "A", "B")
+		graph.addEdge("BC", "B", "C")
+		graph.addEdge("CA", "C", "A")
+		graph.addEdge("DE", "D", "E")
+		graph.addEdge("EA", "E", "A")
+		graph.addEdge("AD", "A", "D")
+
 		graph.addEdge( "BD", "B", "D", true )
   
 		graph.addEdge( "CC", "C", "C" )
@@ -97,18 +104,18 @@ private class TestFillImage extends ViewerListener {
 		graph.addEdge( "AF2", "A", "F" )
 		graph.addEdge( "AF3", "A", "F" )
 
-		A("xyz") = (  0,   0,   0 )
-		B("xyz") = ( -0.2, 1,   0 )
-		C("xyz") = (  0.7, 0.5, 0 )
-		D("xyz") = ( -1,  -1,   0 )
-		E("xyz") = (  1,  -1,   0 )
-		F("xyz") = (  1,   0,   0 )
+		A.setAttribute("xyz", Array[Double](  0,   0,   0 ))
+		B.setAttribute("xyz", Array[Double]( -0.2, 1,   0 ))
+		C.setAttribute("xyz", Array[Double](  0.7, 0.5, 0 ))
+		D.setAttribute("xyz", Array[Double]( -1,  -1,   0 ))
+		E.setAttribute("xyz", Array[Double](  1,  -1,   0 ))
+		F.setAttribute("xyz", Array[Double](  1,   0,   0 ))
   
-		A("label") = "A"
-		B("label") = "B"
-		C("label") = "C"
-		D("label") = "D"
-		E("label") = "E"
+		A.setAttribute("label", "A")
+		B.setAttribute("label", "B")
+		C.setAttribute("label", "C")
+		D.setAttribute("label", "D")
+		E.setAttribute("label", "E")
  
 		val sman = new SpriteManager( graph )
   

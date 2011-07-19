@@ -3,7 +3,7 @@ package org.graphstream.ui.j2dviewer.renderer.test
 import org.graphstream.graph._
 import org.graphstream.graph.implementations._
 
-import org.graphstream.ScalaGS._
+//import org.graphstream.ScalaGS._
 
 object TutorialDiagrams {
 	def main(args:Array[String]) {
@@ -44,10 +44,10 @@ class TutorialDiagrams {
         val V:Node = graph.addNode("Viewer")
         val E:Edge = graph.addEdge("G->V", "Graph", "Viewer", true)
         
-        G("xyz") = (0, 0, 0)
-        V("xyz") = (1, 0, 0)
-        G("ui.label") = "Graph"
-        V("ui.label") = "Viewer"
+        G.setAttribute("xyz", Array[Double](0, 0, 0))
+        V.setAttribute("xyz", Array[Double](1, 0, 0))
+        G.setAttribute("ui.label", "Graph")
+        V.setAttribute("ui.label", "Viewer")
         
         (500, 250)
     }
@@ -63,14 +63,14 @@ class TutorialDiagrams {
         graph.addEdge("V->bidon2", "Viewer", "bidon2", true)
         graph.addEdge("bidon2->G", "bidon2", "Graph", true)
         
-        G("xyz") = (0, 0, 0)
-        B1("xyz") = (0, 0.5, 0)
-        V("xyz") = (1, 0.5, 0)
-        B2("xyz") = (1, 0, 0)
-        G("ui.label") = "Graph"
-        V("ui.label") = "Viewer"
-        B1("ui.class") = "invisible"
-        B2("ui.class") = "invisible"
+        G.addAttribute("xyz", Array[Double](0, 0, 0))
+        B1.addAttribute("xyz", Array[Double](0, 0.5, 0))
+        V.addAttribute("xyz", Array[Double](1, 0.5, 0))
+        B2.addAttribute("xyz", Array[Double](1, 0, 0))
+        G.addAttribute("ui.label", "Graph")
+        V.addAttribute("ui.label", "Viewer")
+        B1.addAttribute("ui.class", "invisible")
+        B2.addAttribute("ui.class", "invisible")
             
         (500, 370)
     }
@@ -83,12 +83,12 @@ class TutorialDiagrams {
         graph.addEdge("G->P", "Graph", "Pipe", true)
         graph.addEdge("P->V", "Pipe", "Viewer", true)
         
-        G("xyz") = (0, 0, 0)
-        P("xyz") = (1, 0, 0)
-        V("xyz") = (2, 0, 0)
-        G("ui.label") = "Graph"
-        P("ui.label") = "Pipe"
-        V("ui.label") = "Viewer"
+        G.addAttribute("xyz", Array[Double](0, 0, 0))
+        P.addAttribute("xyz", Array[Double](1, 0, 0))
+        V.addAttribute("xyz", Array[Double](2, 0, 0))
+        G.addAttribute("ui.label", "Graph")
+        P.addAttribute("ui.label", "Pipe")
+        V.addAttribute("ui.label", "Viewer")
         
         (500, 250)
     }
@@ -103,15 +103,15 @@ class TutorialDiagrams {
         graph.addEdge("VtoG<-V", "Viewer", "VtoG", true)
         graph.addEdge("G<-VtoG", "VtoG", "Graph", true)
         
-        G("ui.label") = "Graph"
-        P1("ui.label") = "Pipe"
-        P2("ui.label") = "ViewerPipe"
-        V("ui.label") = "Viewer"
+        G.addAttribute("ui.label", "Graph")
+        P1.addAttribute("ui.label", "Pipe")
+        P2.addAttribute("ui.label", "ViewerPipe")
+        V.addAttribute("ui.label", "Viewer")
             
-        G("xyz")  = (-2,  0, 0)
-        P1("xyz") = (-1,  1.4, 0)
-        P2("xyz") = ( 1, -1.4, 0)
-        V("xyz")  = ( 2,  0, 0)
+        G.addAttribute("xyz", Array[Double](-2,  0, 0))
+        P1.addAttribute("xyz", Array[Double](-1,  1.4, 0))
+        P2.addAttribute("xyz", Array[Double]( 1, -1.4, 0))
+        V.addAttribute("xyz", Array[Double]( 2,  0, 0))
         
         (800, 500)
     }
