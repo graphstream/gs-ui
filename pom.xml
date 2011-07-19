@@ -99,16 +99,11 @@
 	<build>
 		<sourceDirectory>src-scala</sourceDirectory>
 		<outputDirectory>bin/classes</outputDirectory>
-		<testSourceDirectory>src-scala</testSourceDirectory>
 		<defaultGoal>compile</defaultGoal>
 
 		<resources>
 			<!-- Resources other than classes are included here. -->
-			<!-- 
-			<resource>
-				<directory>src</directory>
-			</resource>
-			-->
+			<!-- -->
 		</resources>
 
 		<plugins>
@@ -169,24 +164,22 @@
 					<use>true</use>
 					<version>true</version>
 					<windowtitle>The GraphStream ${project.version} API</windowtitle>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
 					<includes>
-					    <include>org/graphstream/ui/j2dviewer/renderer/test/*Test*</include>
+					  <include>**.scala</include>
 					</includes>
 				</configuration>
 			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
 				<configuration>
-					<keyname><![CDATA[GraphStream <team@graphstream-project.org>]]></keyname>
+					<keyname><![CDATA[GraphStream Team <team@graphstream-project.org>]]></keyname>
 					<skip>true</skip>
 				</configuration>
 				<executions>
@@ -226,9 +219,9 @@
 			<optional>false</optional>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-math</artifactId>
-			<version>2.1</version>
+			<groupId>org.graphstream</groupId>
+			<artifactId>scalags</artifactId>
+			<version>1.0</version>
 			<optional>false</optional>
 		</dependency>
 		<dependency>
@@ -244,11 +237,10 @@
 			<optional>false</optional>
 		</dependency>
 		<dependency>
-		    <groupId>org.graphstream</groupId>
-		    <artifactId>scalags</artifactId>
-		    <version>1.0</version>
-		    <scope>system</scope>
-		    <systemPath>${project.basedir}/lib/gs-core-scala-bin.jar</systemPath>
-		</dependency>
+		    <groupId>org.scala-lang</groupId> 
+		    <artifactId>scala-library</artifactId> 
+		    <version>2.9.0</version> 
+		    <optional>false</optional>
+		</dependency> 
 	</dependencies>
 </project>
