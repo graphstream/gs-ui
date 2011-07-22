@@ -264,7 +264,7 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
 	    val g = bck.graphics2D
  		make(bck, camera )
  		stroke( g, theShape )
- 		//fill( g, theSize, theShape, camera )
+ 		fill( g, theShape, camera )
  		decorConnector( g, camera, info.iconAndText, element, theShape )
 
  		if( showControlPolygon ) {
@@ -442,6 +442,7 @@ class AngleShape extends AreaConnectorShape {
 	    val g = bck.graphics2D
  		make(bck, camera )
  		stroke( g, theShape )
+// 		fill( g, theSize, theShape, camera )
  		fill( g, theShape, camera )
  		decorConnector( g, camera, info.iconAndText, element, theShape )
 	}

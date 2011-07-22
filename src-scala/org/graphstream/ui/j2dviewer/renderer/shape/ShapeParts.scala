@@ -146,14 +146,13 @@ trait FillableLine {
 		theFillPercent = 0
   	  	if( style.getFillMode == StyleConstants.FillMode.DYN_PLAIN && element != null ) {
   	  		element.getAttribute[AnyRef]( "ui.color" ) match {
-  	  			case x:Number => theFillPercent = x.floatValue; theFillColor = null
+  	  			case x:Number => theFillPercent = x.floatValue; theFillColor = ShapePaint.interpolateColor( style.getFillColors, theFillPercent )
   	  			case x:Color => theFillColor = x; theFillPercent = 0
-  	  			case _ => theFillPercent = 0f; theFillColor = null
+  	  			case _ => theFillPercent = 0f; theFillColor = style.getFillColor(0)
   	  		}
        
   	  		//fillColors = ShapePaint.createColors( style, style.getFillColorCount, style.getFillColors )
   	  		//fillColors(0) = if(theFillColor != null) theFillColor else ShapePaint.interpolateColor( fillColors, theFillPercent )
-  	  		theFillColor = if(theFillColor != null) theFillColor else ShapePaint.interpolateColor( style.getFillColors, theFillPercent )
   	  	}
   	  	else
         {
