@@ -53,7 +53,7 @@ abstract class ShapeAreaPaint extends ShapePaint with Area {
 }
 
 abstract class ShapeColorPaint extends ShapePaint {
-	def paint( value:Double ):Paint
+	def paint( value:Double, optColor:Color ):Paint
 }
 
 object ShapePaint {
@@ -142,6 +142,35 @@ object ShapePaint {
 		}
   
 		colors
+	}
+
+	def interpolateColor( colors:Colors, value:Double ):Color = {
+		val n = colors.length
+		var c = colors( 0 )
+
+		if( n > 1 ) {
+			val v = if( value < 0 ) 0 else { if( value > 1 ) 1 else value }
+
+			if( v == 1 ) {
+				c = colors( n-1 )	// Simplification, faster.
+			} else if( v != 0 ) {	// If value == 0, color is already set above.
+				var div = 1.0 / (n-1)
+				val col = ( value / div ).toInt
+	
+				div = ( value - (div*col) ) / div
+	
+				val color0 = colors( col );
+				val color1 = colors( col + 1 );
+				val red    = ( (color0.getRed()  *(1-div)) + (color1.getRed()  *div) ) / 255f
+				val green  = ( (color0.getGreen()*(1-div)) + (color1.getGreen()*div) ) / 255f
+				val blue   = ( (color0.getBlue() *(1-div)) + (color1.getBlue() *div) ) / 255f
+				val alpha  = ( (color0.getAlpha()*(1-div)) + (color1.getAlpha()*div) ) / 255f
+						
+				c = new Color( red.toFloat, green.toFloat, blue.toFloat, alpha.toFloat )
+			}
+		}
+ 
+		c
 	}
 
 	def interpolateColor( colors:Array[Color], value:Double ):Color = {
@@ -276,11 +305,11 @@ object ShapePaint {
 	}
 	
 	class ShapePlainColorPaint( val color:Color ) extends ShapeColorPaint {
-		def paint( value:Double ):Paint = color
+		def paint( value:Double, optColor:Color ):Paint = color
 	}
  
 	class ShapeDynPlainColorPaint( val colors:Array[Color] ) extends ShapeColorPaint {
-		def paint( value:Double ):Paint = interpolateColor( colors, value )
+		def paint( value:Double, optColor:Color ):Paint = if(optColor ne null) optColor else interpolateColor( colors, value )
 	}
 	
 	class ShapeImageTiledPaint( val url:String ) extends ShapeAreaPaint {

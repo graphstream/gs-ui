@@ -49,7 +49,9 @@ trait Fillable {
 	var fillPaint:ShapePaint = null
  
 	/** Value in [0..1] for dyn-colors. */
-	var theFillPercent = 0.0;
+	var theFillPercent = 0.0
+	
+	var theFillColor:Color = null
 
     /**
      * Fill the shape.
@@ -57,10 +59,10 @@ trait Fillable {
      * @param dynColor The value between 0 and 1 allowing to know the dynamic plain color, if any.
      * @param shape The awt shape to fill.
      */
-	def fill( g:Graphics2D, dynColor:Double, shape:java.awt.Shape, camera:Camera ) {
+	def fill( g:Graphics2D, dynColor:Double, optColor:Color, shape:java.awt.Shape, camera:Camera ) {
 		fillPaint match {
 		  case p:ShapeAreaPaint  => g.setPaint( p.paint( shape, camera.metrics.ratioPx2Gu ) );    g.fill( shape )
-		  case p:ShapeColorPaint => g.setPaint( p.paint( dynColor ) ); g.fill( shape )
+		  case p:ShapeColorPaint => g.setPaint( p.paint( dynColor, optColor ) ); g.fill( shape )
 		  case _                 => null; // No fill. // printf( "no fill !!!%n" ) 
 		}
 	}
@@ -70,7 +72,7 @@ trait Fillable {
      * @param g The Java2D graphics.
      * @param shape The awt shape to fill.
      */
- 	def fill( g:Graphics2D, shape:java.awt.Shape, camera:Camera ) { fill( g, theFillPercent, shape, camera ) }
+ 	def fill( g:Graphics2D, shape:java.awt.Shape, camera:Camera ) { fill( g, theFillPercent, theFillColor, shape, camera ) }
 
     /**
      *  Configure all static parts needed to fill the shape.
@@ -85,8 +87,9 @@ trait Fillable {
   	protected def configureFillableForElement( style:Style, camera:Camera, element:GraphicElement ) {
   	  	if( style.getFillMode == StyleConstants.FillMode.DYN_PLAIN && element != null ) {
   	  		element.getAttribute[AnyRef]( "ui.color" ) match {
-  	  			case x:Number => theFillPercent = x.floatValue
-  	  			case _        => theFillPercent = 0f
+  	  			case x:Number => theFillPercent = x.floatValue; theFillColor = null
+  	  			case x:Color  => theFillColor = x; theFillPercent = 0
+  	  			case _        => theFillPercent = 0; theFillColor = null
   	  		}
   	  	} else {
   	  		theFillPercent = 0
@@ -116,15 +119,17 @@ trait FillableMulticolored {
  * Shape that cannot be filled, but must be stroked.
  */
 trait FillableLine {
-	var fillColors:Array[Color] = null
+	//var fillColors:Array[Color] = null
 	var fillStroke:ShapeStroke = null
-	var theFillPercent = 0.0;
+	var theFillPercent = 0.0
+	var theFillColor:Color = null
   
 	def fill( g:Graphics2D, width:Double, dynColor:Double, shape:java.awt.Shape ) {
 		if( fillStroke != null ) {
 			val stroke = fillStroke.stroke( width )
    
-			g.setColor( fillColors(0) )
+//			g.setColor( fillColors(0) )
+			g.setColor( theFillColor )
 			g.setStroke( stroke )
 			g.draw( shape )
 		}
@@ -141,19 +146,22 @@ trait FillableLine {
 		theFillPercent = 0
   	  	if( style.getFillMode == StyleConstants.FillMode.DYN_PLAIN && element != null ) {
   	  		element.getAttribute[AnyRef]( "ui.color" ) match {
-  	  			case x:Number => theFillPercent = x.floatValue
-  	  			case _ => theFillPercent = 0f
+  	  			case x:Number => theFillPercent = x.floatValue; theFillColor = null
+  	  			case x:Color => theFillColor = x; theFillPercent = 0
+  	  			case _ => theFillPercent = 0f; theFillColor = null
   	  		}
        
-  	  		fillColors = ShapePaint.createColors( style, style.getFillColorCount, style.getFillColors )
-  	  		fillColors(0) = ShapePaint.interpolateColor( fillColors, theFillPercent )
+  	  		//fillColors = ShapePaint.createColors( style, style.getFillColorCount, style.getFillColors )
+  	  		//fillColors(0) = if(theFillColor != null) theFillColor else ShapePaint.interpolateColor( fillColors, theFillPercent )
+  	  		theFillColor = if(theFillColor != null) theFillColor else ShapePaint.interpolateColor( style.getFillColors, theFillPercent )
   	  	}
   	  	else
         {
-  	  		if( fillColors == null || fillColors.length < 1 )
-  	  			fillColors = new Array[Color]( 1 )
+//  	  		if( fillColors == null || fillColors.length < 1 )
+//  	  			fillColors = new Array[Color]( 1 )
        
-  	  		fillColors(0) = style.getFillColor( 0 )
+//  	  		fillColors(0) = style.getFillColor( 0 )
+  	  	    theFillColor = style.getFillColor(0)
         }
 	}
 }
@@ -224,7 +232,7 @@ trait Shadowable {
    	def cast( g:Graphics2D, shape:java.awt.Shape ) {
    		shadowPaint match {
    			case p:ShapeAreaPaint  => g.setPaint( p.paint( shape, 1 ) ); g.fill( shape )
-   			case p:ShapeColorPaint => g.setPaint( p.paint( 0 ) );     g.fill( shape )
+   			case p:ShapeColorPaint => g.setPaint( p.paint( 0, null ) );     g.fill( shape )
    			case _                 => null; printf( "no shadow !!!%n" )
    		}
    	}

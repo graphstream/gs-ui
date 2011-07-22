@@ -4,6 +4,7 @@ import org.graphstream.graph.Node
 import org.graphstream.graph.implementations.SingleGraph
 import org.graphstream.ui.geom._
 import org.graphstream.algorithm.Toolkit._
+import org.graphstream.ui.graphicGraph.GraphPosLengthUtils._
 
 import scala.util.Random
 import scala.collection.JavaConversions._
