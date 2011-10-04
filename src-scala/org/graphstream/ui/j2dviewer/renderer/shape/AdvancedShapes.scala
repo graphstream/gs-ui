@@ -41,976 +41,979 @@ import org.graphstream.ui.j2dviewer._
 import org.graphstream.ui.util._
 import org.graphstream.ui.geom._
 
+import scala.collection.JavaConversions._
 import scala.math._
 
 /** Utility trait to display cubics Bézier curves control polygons. */
 abstract trait ShowCubics {
-	protected var showControlPolygon = false
-	
-	/** Show the control polygons. */
-	protected def showCtrlPoints(g:Graphics2D, camera:Camera, info:EdgeInfo) {
-		if(showControlPolygon && info.isCurve) {
-			val from   = info.from
-			val ctrl1  = info(1)
-			val ctrl2  = info(2)
-			val to     = info.to
-		   	val oval   = new Ellipse2D.Double
-	 		val color  = g.getColor
-		 	val stroke = g.getStroke
-		 	val px6    = camera.metrics.px1*6;
-		   	val px3    = camera.metrics.px1*3
-	   
-	 		g.setColor(Color.RED)
-	 		oval.setFrame(from.x-px3, from.y-px3, px6, px6)
-	 		g.fill(oval)
-	
-	 		if(ctrl1 != null) {
-	 			oval.setFrame(ctrl1.x-px3, ctrl1.y-px3, px6, px6)
-		 		g.fill(oval)
-		 		oval.setFrame(ctrl2.x-px3, ctrl2.y-px3, px6, px6)
-		 		g.fill(oval)
-		 		val line = new Line2D.Double
-		 		line.setLine(ctrl1.x, ctrl1.y, ctrl2.x, ctrl2.y)
-		 		g.setStroke(new java.awt.BasicStroke(camera.metrics.px1.toFloat))
-		 		g.draw(line)
-		 		line.setLine(from.x, from.y, ctrl1.x, ctrl1.y)
-		 		g.draw(line)
-		 		line.setLine(ctrl2.x, ctrl2.y, to.x, to.y)
-		 		g.draw(line)
-	 		}
-	
-	 		oval.setFrame(to.x-px3, to.y-px3, px6, px6)
-	 		g.fill(oval)
-	 		g.setColor(color)
-		 	g.setStroke(stroke)
-		}
-	}
+    protected var showControlPolygon = false
+
+    /** Show the control polygons. */
+    protected def showCtrlPoints(g: Graphics2D, camera: Camera, info: EdgeInfo) {
+        if (showControlPolygon && info.isCurve) {
+            val from = info.from
+            val ctrl1 = info(1)
+            val ctrl2 = info(2)
+            val to = info.to
+            val oval = new Ellipse2D.Double
+            val color = g.getColor
+            val stroke = g.getStroke
+            val px6 = camera.metrics.px1 * 6;
+            val px3 = camera.metrics.px1 * 3
+
+            g.setColor(Color.RED)
+            oval.setFrame(from.x - px3, from.y - px3, px6, px6)
+            g.fill(oval)
+
+            if (ctrl1 != null) {
+                oval.setFrame(ctrl1.x - px3, ctrl1.y - px3, px6, px6)
+                g.fill(oval)
+                oval.setFrame(ctrl2.x - px3, ctrl2.y - px3, px6, px6)
+                g.fill(oval)
+                val line = new Line2D.Double
+                line.setLine(ctrl1.x, ctrl1.y, ctrl2.x, ctrl2.y)
+                g.setStroke(new java.awt.BasicStroke(camera.metrics.px1.toFloat))
+                g.draw(line)
+                line.setLine(from.x, from.y, ctrl1.x, ctrl1.y)
+                g.draw(line)
+                line.setLine(ctrl2.x, ctrl2.y, to.x, to.y)
+                g.draw(line)
+            }
+
+            oval.setFrame(to.x - px3, to.y - px3, px6, px6)
+            g.fill(oval)
+            g.setColor(color)
+            g.setStroke(stroke)
+        }
+    }
 }
 
-/**
- * A blob-like shape.
- */
+/** A blob-like shape. */
 class BlobShape extends AreaConnectorShape with ShowCubics {
-	protected var theShape = new Path2D.Double
- 
-// Command
- 
-	protected def make(bck:Backend, camera:Camera) {
-		make(camera, 0, 0, 0, 0)
-	}
-	
-	protected def make(camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double) {
-		if(info.isCurve)
-		     makeOnCurve(camera, sox, soy, swx, swy)
-		else if(info.isPoly)
-		     makeOnPolyline(camera, sox, soy, swx, swy)
-		else makeOnLine(camera, sox, soy, swx, swy)
-	}
- 
-	protected def makeOnLine( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		val fromx = info.from.x + sox
-		val fromy = info.from.y + soy
-		val tox   = info.to.x + sox
-		val toy   = info.to.y + soy
-		val dir   = new Vector2(tox - fromx, toy - fromy)
-		val perp1 = new Vector2(dir.y, -dir.x); perp1.normalize	// 1/2 perp vector to the from point.
-		val perp2 = new Vector2(perp1.x, perp1.y)				// 1/2 perp vector to the to point.
-		val perpm = new Vector2(perp1.x, perp1.y)				// 1/2 perp vector to the middle point on the edge.
-		val srcsz = min( theSourceSizeX, theSourceSizeY )
-		val trgsz = min( theTargetSizeX, theTargetSizeY )
-		
-		perp1.scalarMult( (srcsz+swx)/2f )
-		perpm.scalarMult( (theSize+swx)/2f )
-   
-		if( isDirected )
-		     perp2.scalarMult( (theSize+swx)/2f )
-		else perp2.scalarMult( (trgsz+swx)/2f )
-		
-		val t1 = 5f
-		val t2 = 2.3f
-		val m  = 1f
-		theShape.reset
-		theShape.moveTo( fromx + perp1.x, fromy + perp1.y )
-		theShape.quadTo( fromx + dir.x/t1 + perpm.x*m, fromy + dir.y/t1 + perpm.y*m,
-		                 fromx + dir.x/t2 + perpm.x,   fromy + dir.y/t2 + perpm.y )
-		theShape.lineTo( tox - dir.x/t2 + perpm.x, toy - dir.y/t2 + perpm.y )
-		theShape.quadTo( tox - dir.x/t1 + perpm.x*m, toy - dir.y/t1 + perpm.y*m,
-		                 tox + perp2.x, toy + perp2.y )
-		theShape.lineTo( tox - perp2.x, toy - perp2.y )
-		theShape.quadTo( tox - dir.x/t1 - perpm.x*m, toy - dir.y/t1 - perpm.y*m,
-		                 tox - dir.x/t2 - perpm.x,   toy - dir.y/t2 - perpm.y )
-		theShape.lineTo( fromx + dir.x/t2 - perpm.x, fromy + dir.y/t2 - perpm.y )
-		theShape.quadTo( fromx + dir.x/t1 - perpm.x*m, fromy + dir.y/t1 - perpm.y*m,
-		                 fromx - perp1.x, fromy - perp1.y )
-		theShape.closePath
-	}
-	
-	protected def makeOnPolyline(camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double) {
-	    // TODO
-	    makeOnLine(camera, sox, soy, swx, swy)
-	}
- 
-	protected def makeOnCurve( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		if( info.isLoop )
-		     makeLoop( camera, sox, soy, swx, swy )
-		else makeMulti( camera, sox, soy, swx, swy )
-	}
-	
-	protected def makeMulti( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		val fromx = info(0).x + sox
-		val fromy = info(0).y + soy
-		val tox   = info(3).x + sox
-		val toy   = info(3).y + soy
-		val c1x   = info(1).x + sox
-		val c1y   = info(1).y + soy
-		val c2x   = info(2).x + sox
-		val c2y   = info(2).y + soy
-		val srcsz = min( theSourceSizeX, theSourceSizeY )
-		val trgsz = min( theTargetSizeX, theTargetSizeY )
+    protected var theShape = new Path2D.Double
 
-		val maindir = new Vector2( c2x - c1x, c2y - c1y )
-		val perp1   = new Vector2( maindir.y, -maindir.x ); perp1.normalize	// 1/2 perp vector to the from point.
-		val perp2   = new Vector2( perp1.x, perp1.y )						// 1/2 perp vector to the to point.
-		val perpm   = new Vector2( perp1.x, perp1.y )						// 1/2 perp vector to the middle point on the edge.
-		  
+    // Command
+
+    protected def make(bck: Backend, camera: Camera) {
+        make(camera, 0, 0, 0, 0)
+    }
+
+    protected def make(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        if (info.isCurve)
+            makeOnCurve(camera, sox, soy, swx, swy)
+        else if (info.isPoly)
+            makeOnPolyline(camera, sox, soy, swx, swy)
+        else makeOnLine(camera, sox, soy, swx, swy)
+    }
+
+    protected def makeOnLine(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        val fromx = info.from.x + sox
+        val fromy = info.from.y + soy
+        val tox = info.to.x + sox
+        val toy = info.to.y + soy
+        val dir = new Vector2(tox - fromx, toy - fromy)
+        val perp1 = new Vector2(dir.y, -dir.x); perp1.normalize // 1/2 perp vector to the from point.
+        val perp2 = new Vector2(perp1.x, perp1.y) // 1/2 perp vector to the to point.
+        val perpm = new Vector2(perp1.x, perp1.y) // 1/2 perp vector to the middle point on the edge.
+        val srcsz = min(theSourceSizeX, theSourceSizeY)
+        val trgsz = min(theTargetSizeX, theTargetSizeY)
+
+        perp1.scalarMult((srcsz + swx) / 2f)
+        perpm.scalarMult((theSize + swx) / 2f)
+
+        if (isDirected)
+            perp2.scalarMult((theSize + swx) / 2f)
+        else perp2.scalarMult((trgsz + swx) / 2f)
+
+        val t1 = 5f
+        val t2 = 2.3f
+        val m = 1f
+        theShape.reset
+        theShape.moveTo(fromx + perp1.x, fromy + perp1.y)
+        theShape.quadTo(fromx + dir.x / t1 + perpm.x * m, fromy + dir.y / t1 + perpm.y * m,
+            fromx + dir.x / t2 + perpm.x, fromy + dir.y / t2 + perpm.y)
+        theShape.lineTo(tox - dir.x / t2 + perpm.x, toy - dir.y / t2 + perpm.y)
+        theShape.quadTo(tox - dir.x / t1 + perpm.x * m, toy - dir.y / t1 + perpm.y * m,
+            tox + perp2.x, toy + perp2.y)
+        theShape.lineTo(tox - perp2.x, toy - perp2.y)
+        theShape.quadTo(tox - dir.x / t1 - perpm.x * m, toy - dir.y / t1 - perpm.y * m,
+            tox - dir.x / t2 - perpm.x, toy - dir.y / t2 - perpm.y)
+        theShape.lineTo(fromx + dir.x / t2 - perpm.x, fromy + dir.y / t2 - perpm.y)
+        theShape.quadTo(fromx + dir.x / t1 - perpm.x * m, fromy + dir.y / t1 - perpm.y * m,
+            fromx - perp1.x, fromy - perp1.y)
+        theShape.closePath
+    }
+
+    protected def makeOnPolyline(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        // TODO
+        makeOnLine(camera, sox, soy, swx, swy)
+    }
+
+    protected def makeOnCurve(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        if (info.isLoop)
+            makeLoop(camera, sox, soy, swx, swy)
+        else makeMulti(camera, sox, soy, swx, swy)
+    }
+
+    protected def makeMulti(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        val fromx = info(0).x + sox
+        val fromy = info(0).y + soy
+        val tox = info(3).x + sox
+        val toy = info(3).y + soy
+        val c1x = info(1).x + sox
+        val c1y = info(1).y + soy
+        val c2x = info(2).x + sox
+        val c2y = info(2).y + soy
+        val srcsz = min(theSourceSizeX, theSourceSizeY)
+        val trgsz = min(theTargetSizeX, theTargetSizeY)
+
+        val maindir = new Vector2(c2x - c1x, c2y - c1y)
+        val perp1 = new Vector2(maindir.y, -maindir.x); perp1.normalize // 1/2 perp vector to the from point.
+        val perp2 = new Vector2(perp1.x, perp1.y) // 1/2 perp vector to the to point.
+        val perpm = new Vector2(perp1.x, perp1.y) // 1/2 perp vector to the middle point on the edge.
+
         val t = 5f
-                                                       
-        perp1.scalarMult( (srcsz+swx)/2f )
-        perpm.scalarMult( (theSize+swx)/2f )
-                 
+
+        perp1.scalarMult((srcsz + swx) / 2f)
+        perpm.scalarMult((theSize + swx) / 2f)
+
         //   ctrl1           ctrl2
         //     x---t-------t---x
         //    /                 \
         //   /                   \
         //  X                     X
         // from                  to
-            
-		if( isDirected )
-		     perp2.scalarMult( (theSize+swx)/2f )	
-		else perp2.scalarMult( (trgsz+swx)/2f )
-		  
+
+        if (isDirected)
+            perp2.scalarMult((theSize + swx) / 2f)
+        else perp2.scalarMult((trgsz + swx) / 2f)
+
         theShape.reset
-        theShape.moveTo( fromx + perp1.x, fromy + perp1.y )
-        
-        theShape.quadTo( c1x + perpm.x, c1y + perpm.y,
-                         c1x + maindir.x/t + perpm.x, c1y + maindir.y/t + perpm.y )
-        theShape.lineTo( c2x - maindir.x/t + perpm.x, c2y - maindir.y/t + perpm.y )
-        theShape.quadTo( c2x + perpm.x, c2y + perpm.y, tox + perp2.x, toy + perp2.y )
-        
-        theShape.lineTo( tox - perp2.x, toy - perp2.y )
-        
-        theShape.quadTo( c2x - perpm.x, c2y - perpm.y,
-                         c2x - maindir.x/t - perpm.x, c2y - maindir.y/t - perpm.y )
-        theShape.lineTo( c1x + maindir.x/t - perpm.x, c1y + maindir.y/t - perpm.y )
-        theShape.quadTo( c1x - perpm.x, c1y - perpm.y, fromx - perp1.x, fromy - perp1.y )
-        
+        theShape.moveTo(fromx + perp1.x, fromy + perp1.y)
+
+        theShape.quadTo(c1x + perpm.x, c1y + perpm.y,
+            c1x + maindir.x / t + perpm.x, c1y + maindir.y / t + perpm.y)
+        theShape.lineTo(c2x - maindir.x / t + perpm.x, c2y - maindir.y / t + perpm.y)
+        theShape.quadTo(c2x + perpm.x, c2y + perpm.y, tox + perp2.x, toy + perp2.y)
+
+        theShape.lineTo(tox - perp2.x, toy - perp2.y)
+
+        theShape.quadTo(c2x - perpm.x, c2y - perpm.y,
+            c2x - maindir.x / t - perpm.x, c2y - maindir.y / t - perpm.y)
+        theShape.lineTo(c1x + maindir.x / t - perpm.x, c1y + maindir.y / t - perpm.y)
+        theShape.quadTo(c1x - perpm.x, c1y - perpm.y, fromx - perp1.x, fromy - perp1.y)
+
         theShape.closePath
-	}
+    }
 
-	protected def makeLoop( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		val fromx = info(0).x + sox
-		val fromy = info(0).y + soy
-		val tox   = info(3).x + sox
-		val toy   = info(3).y + soy
-		val c1x   = info(1).x + sox
-		val c1y   = info(1).y + soy
-		val c2x   = info(2).x + sox
-		val c2y   = info(2).y + soy
-		val srcsz = min( theSourceSizeX, theSourceSizeY )
-//		val trgsz = min( theTargetSizeX, theTargetSizeY )
-		
-		val dirFrom  = new Vector2( c1x - fromx, c1y - fromy );
-		val dirTo    = new Vector2( tox - c2x, toy - c2y );
-	  	val mainDir  = new Vector2( c2x - c1x, c2y - c1y )
-	  	
-	  	val perpFrom = new Vector2( dirFrom.y, -dirFrom.x ); perpFrom.normalize
-		val mid1     = new Vector2( dirFrom ); mid1.sub( mainDir ); mid1.normalize
-		val mid2     = new Vector2( mainDir ); mid2.sub( dirTo );   mid2.normalize
-			
-		perpFrom.scalarMult( (srcsz+swx)*0.3f )
-		
-		if( isDirected ) {
-			mid1.scalarMult( (theSize+swx)*4f )
-			mid2.scalarMult( (theSize+swx)*2f )
-		} else {
-			mid1.scalarMult( (theSize+swx)*4f )
-			mid2.scalarMult( (theSize+swx)*4f )
-		}
-			
-		theShape.reset
-		theShape.moveTo( fromx + perpFrom.x, fromy + perpFrom.y )
-		if( isDirected ) {
-			theShape.curveTo( c1x + mid1.x, c1y + mid1.y, c2x + mid2.x, c2y + mid2.y, tox, toy )
-			theShape.curveTo( c2x - mid2.x, c2y - mid2.y, c1x - mid1.x, c1y - mid1.y, fromx - perpFrom.x, fromy - perpFrom.y )
-		} else {
-			var perpTo = new Vector2( dirTo.y, -dirTo.x ); perpTo.normalize; perpTo.scalarMult( (srcsz+swx)*0.3f )
-			theShape.curveTo( c1x + mid1.x, c1y + mid1.y, c2x + mid2.x, c2y + mid2.y, tox + perpTo.x, toy + perpTo.y )
-			theShape.lineTo( tox - perpTo.x, toy - perpTo.y )
-			theShape.curveTo( c2x - mid2.x, c2y - mid2.y, c1x - mid1.x, c1y - mid1.y, fromx - perpFrom.x, fromy - perpFrom.y )
-		}
-		theShape.closePath
-	}
+    protected def makeLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        val fromx = info(0).x + sox
+        val fromy = info(0).y + soy
+        val tox = info(3).x + sox
+        val toy = info(3).y + soy
+        val c1x = info(1).x + sox
+        val c1y = info(1).y + soy
+        val c2x = info(2).x + sox
+        val c2y = info(2).y + soy
+        val srcsz = min(theSourceSizeX, theSourceSizeY)
+        //		val trgsz = min( theTargetSizeX, theTargetSizeY )
 
-	protected def makeShadow(bck:Backend, camera:Camera ) {
-		make( camera, theShadowOff.x, theShadowOff.y, theShadowWidth.x, theShadowWidth.y )
-	}
-	
-	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		makeShadow(bck, camera )
- 		cast(bck.graphics2D, theShape )
-	}
- 
-	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
-	    val g = bck.graphics2D
- 		make(bck, camera )
- 		stroke( g, theShape )
- 		fill( g, theShape, camera )
- 		decorConnector( g, camera, info.iconAndText, element, theShape )
+        val dirFrom = new Vector2(c1x - fromx, c1y - fromy);
+        val dirTo = new Vector2(tox - c2x, toy - c2y);
+        val mainDir = new Vector2(c2x - c1x, c2y - c1y)
 
- 		if( showControlPolygon ) {
-	 		val c = g.getColor();
-	 		val s = g.getStroke();
-	 		g.setStroke( new java.awt.BasicStroke( camera.metrics.px1.toFloat ) )
-	 		g.setColor( Color.red );
-	 		g.draw( theShape );
-	 		g.setStroke( s );
-	 		g.setColor( c );
-	 		showCtrlPoints( g, camera, info.asInstanceOf[EdgeInfo] )
- 		}
-	}
+        val perpFrom = new Vector2(dirFrom.y, -dirFrom.x); perpFrom.normalize
+        val mid1 = new Vector2(dirFrom); mid1.sub(mainDir); mid1.normalize
+        val mid2 = new Vector2(mainDir); mid2.sub(dirTo); mid2.normalize
+
+        perpFrom.scalarMult((srcsz + swx) * 0.3f)
+
+        if (isDirected) {
+            mid1.scalarMult((theSize + swx) * 4f)
+            mid2.scalarMult((theSize + swx) * 2f)
+        } else {
+            mid1.scalarMult((theSize + swx) * 4f)
+            mid2.scalarMult((theSize + swx) * 4f)
+        }
+
+        theShape.reset
+        theShape.moveTo(fromx + perpFrom.x, fromy + perpFrom.y)
+        if (isDirected) {
+            theShape.curveTo(c1x + mid1.x, c1y + mid1.y, c2x + mid2.x, c2y + mid2.y, tox, toy)
+            theShape.curveTo(c2x - mid2.x, c2y - mid2.y, c1x - mid1.x, c1y - mid1.y, fromx - perpFrom.x, fromy - perpFrom.y)
+        } else {
+            var perpTo = new Vector2(dirTo.y, -dirTo.x); perpTo.normalize; perpTo.scalarMult((srcsz + swx) * 0.3f)
+            theShape.curveTo(c1x + mid1.x, c1y + mid1.y, c2x + mid2.x, c2y + mid2.y, tox + perpTo.x, toy + perpTo.y)
+            theShape.lineTo(tox - perpTo.x, toy - perpTo.y)
+            theShape.curveTo(c2x - mid2.x, c2y - mid2.y, c1x - mid1.x, c1y - mid1.y, fromx - perpFrom.x, fromy - perpFrom.y)
+        }
+        theShape.closePath
+    }
+
+    protected def makeShadow(bck: Backend, camera: Camera) {
+        make(camera, theShadowOff.x, theShadowOff.y, theShadowWidth.x, theShadowWidth.y)
+    }
+
+    def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+        makeShadow(bck, camera)
+        cast(bck.graphics2D, theShape)
+    }
+
+    def render(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+        val g = bck.graphics2D
+        make(bck, camera)
+        stroke(g, theShape)
+        fill(g, theShape, camera)
+        decorConnector(g, camera, info.iconAndText, element, theShape)
+
+        if (showControlPolygon) {
+            val c = g.getColor();
+            val s = g.getStroke();
+            g.setStroke(new java.awt.BasicStroke(camera.metrics.px1.toFloat))
+            g.setColor(Color.red);
+            g.draw(theShape);
+            g.setStroke(s);
+            g.setColor(c);
+            showCtrlPoints(g, camera, info.asInstanceOf[EdgeInfo])
+        }
+    }
 }
 
-/**
- * An angular shape.
- */
+/** An angular shape. */
 class AngleShape extends AreaConnectorShape {
-	protected var theShape = new Path2D.Double
- 
-// Command
- 
-	protected def make(bck:Backend, camera:Camera) {
-		make(camera, 0, 0, 0, 0)
-	}
-  
-	protected def make( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		if(info.isCurve)
-		     makeOnCurve(camera, sox, soy, swx, swy)
-		else if(info.isPoly)
-		     makeOnPolyline(camera, sox, soy, swx, swy)
-		else makeOnLine(camera, sox, soy, swx, swy)
-	}
- 
-	protected def makeOnLine(camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double) {
-		val fromx = info.from.x + sox
-		val fromy = info.from.y + soy
-		val tox   = info.to.x + sox
-		val toy   = info.to.y + soy
-		val dir   = new Vector2(tox - fromx, toy - fromy)
-		val perp  = new Vector2(dir.y, -dir.x); perp.normalize	// 1/2 perp vector to the from point.
-   
-		perp.scalarMult((theSize+swx)/2f)
-   
-		theShape.reset
-		theShape.moveTo(fromx + perp.x, fromy + perp.y)
-		if( isDirected ) {
-		     theShape.lineTo( tox, toy )
-		} else {
-			theShape.lineTo( tox + perp.x, toy + perp.y )
-			theShape.lineTo( tox - perp.x, toy - perp.y )
-		}
-		theShape.lineTo( fromx - perp.x, fromy - perp.y )
-		theShape.closePath
-	}
-	
-	protected def makeOnPolyline(camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double) {
-	    // TODO
-	    makeOnLine(camera, sox, soy, swx, swy)
-	}
- 
-	protected def makeOnCurve( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		if( info.isLoop )
-		     makeLoop( camera, sox, soy, swx, swy )
-		else makeMulti( camera, sox, soy, swx, swy )
-	}
-	
-	protected def makeMulti( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		val fromx   = info(0).x + sox
-		val fromy   = info(0).y + soy
-		val tox     = info(3).x + sox
-		val toy     = info(3).y + soy
-		val c1x     = info(1).x + sox
-		val c1y     = info(1).y + soy
-		val c2x     = info(2).x + sox
-		val c2y     = info(2).y + soy
-		val maindir = new Vector2( c2x - c1x, c2y - c1y )
-		val perp    = new Vector2( maindir.y, -maindir.x ); perp.normalize	// 1/2 perp vector to the from point.
-		val perp1   = new Vector2( perp.x, perp.y )							// 1/2 perp vector to the first control point.
-		val perp2   = new Vector2( perp.x, perp.y )							// 1/2 perp vector to the second control point.
+    protected var theShape = new Path2D.Double
 
-        perp.scalarMult( (theSize+swx) * 0.5f )
-        
-        if( isDirected ) {
-        	perp1.scalarMult( (theSize+swx) * 0.4f )
-        	perp2.scalarMult( (theSize+swx) * 0.2f )
+    // Command
+
+    protected def make(bck: Backend, camera: Camera) {
+        make(camera, 0, 0, 0, 0)
+    }
+
+    protected def make(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        if (info.isCurve)
+            makeOnCurve(camera, sox, soy, swx, swy)
+        else if (info.isPoly)
+            makeOnPolyline(camera, sox, soy, swx, swy)
+        else makeOnLine(camera, sox, soy, swx, swy)
+    }
+
+    protected def makeOnLine(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        val fromx = info.from.x + sox
+        val fromy = info.from.y + soy
+        val tox = info.to.x + sox
+        val toy = info.to.y + soy
+        val dir = new Vector2(tox - fromx, toy - fromy)
+        val perp = new Vector2(dir.y, -dir.x); perp.normalize // 1/2 perp vector to the from point.
+
+        perp.scalarMult((theSize + swx) / 2f)
+
+        theShape.reset
+        theShape.moveTo(fromx + perp.x, fromy + perp.y)
+        if (isDirected) {
+            theShape.lineTo(tox, toy)
         } else {
-        	perp1.scalarMult( (theSize+swx) * 0.5f )
-        	perp2.scalarMult( (theSize+swx) * 0.5f )
+            theShape.lineTo(tox + perp.x, toy + perp.y)
+            theShape.lineTo(tox - perp.x, toy - perp.y)
         }
-                 
+        theShape.lineTo(fromx - perp.x, fromy - perp.y)
+        theShape.closePath
+    }
+
+    protected def makeOnPolyline(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        // TODO
+        makeOnLine(camera, sox, soy, swx, swy)
+    }
+
+    protected def makeOnCurve(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        if (info.isLoop)
+            makeLoop(camera, sox, soy, swx, swy)
+        else makeMulti(camera, sox, soy, swx, swy)
+    }
+
+    protected def makeMulti(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        val fromx = info(0).x + sox
+        val fromy = info(0).y + soy
+        val tox = info(3).x + sox
+        val toy = info(3).y + soy
+        val c1x = info(1).x + sox
+        val c1y = info(1).y + soy
+        val c2x = info(2).x + sox
+        val c2y = info(2).y + soy
+        val maindir = new Vector2(c2x - c1x, c2y - c1y)
+        val perp = new Vector2(maindir.y, -maindir.x); perp.normalize // 1/2 perp vector to the from point.
+        val perp1 = new Vector2(perp.x, perp.y) // 1/2 perp vector to the first control point.
+        val perp2 = new Vector2(perp.x, perp.y) // 1/2 perp vector to the second control point.
+
+        perp.scalarMult((theSize + swx) * 0.5f)
+
+        if (isDirected) {
+            perp1.scalarMult((theSize + swx) * 0.4f)
+            perp2.scalarMult((theSize + swx) * 0.2f)
+        } else {
+            perp1.scalarMult((theSize + swx) * 0.5f)
+            perp2.scalarMult((theSize + swx) * 0.5f)
+        }
+
         //   ctrl1           ctrl2
         //     x---t-------t---x
         //    /                 \
         //   /                   \
         //  X                     X
         // from                  to
-            
+
         theShape.reset
-        theShape.moveTo( fromx + perp.x, fromy + perp.y )
-        if( isDirected ) {
-        	theShape.curveTo( c1x + perp1.x, c1y + perp1.y,
-                              c2x + perp2.x, c2y + perp2.y,
-                              tox, toy )
-            theShape.curveTo( c2x - perp2.x, c2y - perp2.y,
-                              c1x - perp1.x, c1y - perp1.y,
-                              fromx - perp.x,  fromy - perp.y )
+        theShape.moveTo(fromx + perp.x, fromy + perp.y)
+        if (isDirected) {
+            theShape.curveTo(c1x + perp1.x, c1y + perp1.y,
+                c2x + perp2.x, c2y + perp2.y,
+                tox, toy)
+            theShape.curveTo(c2x - perp2.x, c2y - perp2.y,
+                c1x - perp1.x, c1y - perp1.y,
+                fromx - perp.x, fromy - perp.y)
         } else {
-        	theShape.curveTo( c1x + perp.x, c1y + perp.y,
-                              c2x + perp.x, c2y + perp.y,
-                              tox + perp.x, toy + perp.y )
-            theShape.lineTo(  tox - perp.x, toy - perp.y )
-            theShape.curveTo( c2x - perp.x, c2y - perp.y,
-                              c1x - perp.x, c1y - perp.y,
-                              fromx - perp.x, fromy - perp.y )
+            theShape.curveTo(c1x + perp.x, c1y + perp.y,
+                c2x + perp.x, c2y + perp.y,
+                tox + perp.x, toy + perp.y)
+            theShape.lineTo(tox - perp.x, toy - perp.y)
+            theShape.curveTo(c2x - perp.x, c2y - perp.y,
+                c1x - perp.x, c1y - perp.y,
+                fromx - perp.x, fromy - perp.y)
         }
         theShape.closePath
-	}
+    }
 
-	protected def makeLoop( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-	  	val fromx = info(0).x + sox
-		val fromy = info(0).y + soy
-		val tox   = info(3).x + sox
-		val toy   = info(3).y + soy
-		val c1x   = info(1).x + sox
-		val c1y   = info(1).y + soy
-		val c2x   = info(2).x + sox
-		val c2y   = info(2).y + soy
+    protected def makeLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        val fromx = info(0).x + sox
+        val fromy = info(0).y + soy
+        val tox = info(3).x + sox
+        val toy = info(3).y + soy
+        val c1x = info(1).x + sox
+        val c1y = info(1).y + soy
+        val c2x = info(2).x + sox
+        val c2y = info(2).y + soy
 
-		val dirFrom  = new Vector2( c1x - fromx, c1y - fromy );
-		val dirTo    = new Vector2( tox - c2x, toy - c2y );
-	  	val mainDir  = new Vector2( c2x - c1x, c2y - c1y )
-	  	
-	  	val perpFrom = new Vector2( dirFrom.y, -dirFrom.x ); perpFrom.normalize
-		val mid1     = new Vector2( dirFrom ); mid1.sub( mainDir ); mid1.normalize
-		val mid2     = new Vector2( mainDir ); mid2.sub( dirTo );   mid2.normalize
-			
-		perpFrom.scalarMult( theSize*0.5f )
-		
-		if( isDirected ) {
-			mid1.scalarMult( theSize*0.8f )
-			mid2.scalarMult( theSize*0.6f )
-		} else {
-			mid1.scalarMult( theSize*0.99f )
-			mid2.scalarMult( theSize*0.99f )
-		}
-			
-		theShape.reset
-		theShape.moveTo( fromx + perpFrom.x, fromy + perpFrom.y )
-		if( isDirected ) {
-			theShape.curveTo( c1x + mid1.x, c1y + mid1.y, c2x + mid2.x, c2y + mid2.y, tox, toy )
-			theShape.curveTo( c2x - mid2.x, c2y - mid2.y, c1x - mid1.x, c1y - mid1.y, fromx - perpFrom.x, fromy - perpFrom.y )
-		} else {
-			var perpTo = new Vector2( dirTo.y, -dirTo.x ); perpTo.normalize; perpTo.scalarMult( theSize*0.5f )
-			theShape.curveTo( c1x + mid1.x, c1y + mid1.y, c2x + mid2.x, c2y + mid2.y, tox + perpTo.x, toy + perpTo.y )
-			theShape.lineTo( tox - perpTo.x, toy - perpTo.y )
-			theShape.curveTo( c2x - mid2.x, c2y - mid2.y, c1x - mid1.x, c1y - mid1.y, fromx - perpFrom.x, fromy - perpFrom.y )
-		}
-		theShape.closePath
-	}
+        val dirFrom = new Vector2(c1x - fromx, c1y - fromy);
+        val dirTo = new Vector2(tox - c2x, toy - c2y);
+        val mainDir = new Vector2(c2x - c1x, c2y - c1y)
 
-	protected def makeShadow(bck:Backend, camera:Camera ) {
-		if( info.isCurve )
-		     makeOnCurve( camera, theShadowOff.x, theShadowOff.y, theShadowWidth.x, theShadowWidth.y )
-		else makeOnLine( camera, theShadowOff.x, theShadowOff.y, theShadowWidth.x, theShadowWidth.y )
-	}
- 
-	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		makeShadow(bck, camera )
- 		cast(bck.graphics2D, theShape )
-	}
- 
-	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
-	    val g = bck.graphics2D
- 		make(bck, camera )
- 		stroke( g, theShape )
-// 		fill( g, theSize, theShape, camera )
- 		fill( g, theShape, camera )
- 		decorConnector( g, camera, info.iconAndText, element, theShape )
-	}
+        val perpFrom = new Vector2(dirFrom.y, -dirFrom.x); perpFrom.normalize
+        val mid1 = new Vector2(dirFrom); mid1.sub(mainDir); mid1.normalize
+        val mid2 = new Vector2(mainDir); mid2.sub(dirTo); mid2.normalize
+
+        perpFrom.scalarMult(theSize * 0.5f)
+
+        if (isDirected) {
+            mid1.scalarMult(theSize * 0.8f)
+            mid2.scalarMult(theSize * 0.6f)
+        } else {
+            mid1.scalarMult(theSize * 0.99f)
+            mid2.scalarMult(theSize * 0.99f)
+        }
+
+        theShape.reset
+        theShape.moveTo(fromx + perpFrom.x, fromy + perpFrom.y)
+        if (isDirected) {
+            theShape.curveTo(c1x + mid1.x, c1y + mid1.y, c2x + mid2.x, c2y + mid2.y, tox, toy)
+            theShape.curveTo(c2x - mid2.x, c2y - mid2.y, c1x - mid1.x, c1y - mid1.y, fromx - perpFrom.x, fromy - perpFrom.y)
+        } else {
+            var perpTo = new Vector2(dirTo.y, -dirTo.x); perpTo.normalize; perpTo.scalarMult(theSize * 0.5f)
+            theShape.curveTo(c1x + mid1.x, c1y + mid1.y, c2x + mid2.x, c2y + mid2.y, tox + perpTo.x, toy + perpTo.y)
+            theShape.lineTo(tox - perpTo.x, toy - perpTo.y)
+            theShape.curveTo(c2x - mid2.x, c2y - mid2.y, c1x - mid1.x, c1y - mid1.y, fromx - perpFrom.x, fromy - perpFrom.y)
+        }
+        theShape.closePath
+    }
+
+    protected def makeShadow(bck: Backend, camera: Camera) {
+        if (info.isCurve)
+            makeOnCurve(camera, theShadowOff.x, theShadowOff.y, theShadowWidth.x, theShadowWidth.y)
+        else makeOnLine(camera, theShadowOff.x, theShadowOff.y, theShadowWidth.x, theShadowWidth.y)
+    }
+
+    def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+        makeShadow(bck, camera)
+        cast(bck.graphics2D, theShape)
+    }
+
+    def render(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+        val g = bck.graphics2D
+        make(bck, camera)
+        stroke(g, theShape)
+        // 		fill( g, theSize, theShape, camera )
+        fill(g, theShape, camera)
+        decorConnector(g, camera, info.iconAndText, element, theShape)
+    }
 }
 
-/**
- * A cubic curve shape.
- */
+/** A cubic curve shape. */
 class CubicCurveShape extends LineConnectorShape with ShowCubics {
-	protected var theShape = new Path2D.Double
+    protected var theShape = new Path2D.Double
 
-// Command
- 
-	protected def make(bck:Backend, camera:Camera ) {
-		make( camera, 0, 0, 0, 0 )
-	}
-  
-	protected def make( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		if( info.multi > 1 || info.isLoop )	// is a loop or a multi edge
-		     makeMultiOrLoop( camera, sox, soy, swx, swy )
-		else makeSingle( camera, sox, soy, swx, swy )	// is a single edge.
-	}
- 
-	protected def makeSingle( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		val fromx   = info.from.x + sox
-		val fromy   = info.from.y + soy
-		val tox     = info.to.x + sox
-		val toy     = info.to.y + soy
-		val mainDir = new Vector2( info.from, info.to )
-		val length  = mainDir.length
-		val angle   = mainDir.y / length
-		var c1x     = 0.0
-		var c1y     = 0.0
-		var c2x     = 0.0
-		var c2y     = 0.0
-		
-		if( angle > 0.707107f || angle < -0.707107f ) {
-			// North or south.
-			c1x = fromx + mainDir.x / 2
-			c2x = c1x
-			c1y = fromy
-			c2y = toy
-		} else {
-			// East or west.
-			c1x = fromx
-			c2x = tox
-			c1y = fromy + mainDir.y / 2
-			c2y = c1y
-		}
+    // Command
 
-		theShape.reset
-		theShape.moveTo( fromx, fromy )
-		theShape.curveTo( c1x, c1y, c2x, c2y, tox, toy )
+    protected def make(bck: Backend, camera: Camera) {
+        make(camera, 0, 0, 0, 0)
+    }
 
-		// Set the connector as a curve.
-		
-		if( sox == 0 && soy == 0 ) {
-			info.setCurve(
-				fromx, fromy, 0,
-				c1x, c1y, 0,
-				c2x, c2y, 0,
-				tox, toy, 0 )
-		}
-	}
- 
-	protected def makeMultiOrLoop( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		if( info.isLoop )
-			 makeLoop( camera, sox, soy, swx, swy )
-		else makeMulti( camera, sox, soy, swx, swy )
-	}
-	
-	protected def makeMulti( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		val fromx   = info(0).x + sox
-		val fromy   = info(0).y + soy
-		val tox     = info(3).x + sox
-		val toy     = info(3).y + soy
-		val c1x     = info(1).x + sox
-		val c1y     = info(1).y + soy
-		val c2x     = info(2).x + sox
-		val c2y     = info(2).y + soy
+    protected def make(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        if (info.multi > 1 || info.isLoop) // is a loop or a multi edge
+            makeMultiOrLoop(camera, sox, soy, swx, swy)
+        else makeSingle(camera, sox, soy, swx, swy) // is a single edge.
+    }
 
-		theShape.reset
-		theShape.moveTo( fromx, fromy )
-		theShape.curveTo( c1x, c1y, c2x, c2y, tox, toy )
-	}
+    protected def makeSingle(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        val fromx = info.from.x + sox
+        val fromy = info.from.y + soy
+        val tox = info.to.x + sox
+        val toy = info.to.y + soy
+        val mainDir = new Vector2(info.from, info.to)
+        val length = mainDir.length
+        val angle = mainDir.y / length
+        var c1x = 0.0
+        var c1y = 0.0
+        var c2x = 0.0
+        var c2y = 0.0
 
-	protected def makeLoop( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-	  	val fromx = info(0).x + sox
-		val fromy = info(0).y + soy
-		val tox   = info(3).x + sox
-		val toy   = info(3).y + soy
-		val c1x   = info(1).x + sox
-		val c1y   = info(1).y + soy
-		val c2x   = info(2).x + sox
-		val c2y   = info(2).y + soy
+        if (angle > 0.707107f || angle < -0.707107f) {
+            // North or south.
+            c1x = fromx + mainDir.x / 2
+            c2x = c1x
+            c1y = fromy
+            c2y = toy
+        } else {
+            // East or west.
+            c1x = fromx
+            c2x = tox
+            c1y = fromy + mainDir.y / 2
+            c2y = c1y
+        }
 
-		theShape.reset
-		theShape.moveTo( fromx, fromy )
-		theShape.curveTo( c1x, c1y, c2x, c2y, tox, toy )
-	}
+        theShape.reset
+        theShape.moveTo(fromx, fromy)
+        theShape.curveTo(c1x, c1y, c2x, c2y, tox, toy)
 
-	protected def makeShadow(bck:Backend, camera:Camera ) {
-		if( info.isCurve )
-		     makeMultiOrLoop( camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth )
-		else makeSingle( camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth )
-	}
-	
-	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		makeShadow(bck, camera )
- 		cast(bck.graphics2D, theShape )
-	}
- 
-	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
-	    val g = bck.graphics2D
- 		make(bck, camera )
- 		stroke( g, theShape )
- 		fill( g, theSize, theShape )
- 		decorConnector( g, camera, info.iconAndText, element, theShape )
-// 		showControlPolygon = true
-// 		if( showControlPolygon ) {
-//	 		val c = g.getColor();
-//	 		val s = g.getStroke();
-//	 		g.setStroke( new java.awt.BasicStroke( camera.metrics.px1 ) )
-//	 		g.setColor( Color.red );
-//	 		g.draw( theShape );
-//	 		g.setStroke( s );
-//	 		g.setColor( c );
-//	 		showCtrlPoints( g, camera )
-// 		}
-	}
+        // Set the connector as a curve.
+
+        if (sox == 0 && soy == 0) {
+            info.setCurve(
+                fromx, fromy, 0,
+                c1x, c1y, 0,
+                c2x, c2y, 0,
+                tox, toy, 0)
+        }
+    }
+
+    protected def makeMultiOrLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        if (info.isLoop)
+            makeLoop(camera, sox, soy, swx, swy)
+        else makeMulti(camera, sox, soy, swx, swy)
+    }
+
+    protected def makeMulti(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        val fromx = info(0).x + sox
+        val fromy = info(0).y + soy
+        val tox = info(3).x + sox
+        val toy = info(3).y + soy
+        val c1x = info(1).x + sox
+        val c1y = info(1).y + soy
+        val c2x = info(2).x + sox
+        val c2y = info(2).y + soy
+
+        theShape.reset
+        theShape.moveTo(fromx, fromy)
+        theShape.curveTo(c1x, c1y, c2x, c2y, tox, toy)
+    }
+
+    protected def makeLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        val fromx = info(0).x + sox
+        val fromy = info(0).y + soy
+        val tox = info(3).x + sox
+        val toy = info(3).y + soy
+        val c1x = info(1).x + sox
+        val c1y = info(1).y + soy
+        val c2x = info(2).x + sox
+        val c2y = info(2).y + soy
+
+        theShape.reset
+        theShape.moveTo(fromx, fromy)
+        theShape.curveTo(c1x, c1y, c2x, c2y, tox, toy)
+    }
+
+    protected def makeShadow(bck: Backend, camera: Camera) {
+        if (info.isCurve)
+            makeMultiOrLoop(camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth)
+        else makeSingle(camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth)
+    }
+
+    def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+        makeShadow(bck, camera)
+        cast(bck.graphics2D, theShape)
+    }
+
+    def render(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+        val g = bck.graphics2D
+        make(bck, camera)
+        stroke(g, theShape)
+        fill(g, theSize, theShape)
+        decorConnector(g, camera, info.iconAndText, element, theShape)
+        // 		showControlPolygon = true
+        // 		if( showControlPolygon ) {
+        //	 		val c = g.getColor();
+        //	 		val s = g.getStroke();
+        //	 		g.setStroke( new java.awt.BasicStroke( camera.metrics.px1 ) )
+        //	 		g.setColor( Color.red );
+        //	 		g.draw( theShape );
+        //	 		g.setStroke( s );
+        //	 		g.setColor( c );
+        //	 		showCtrlPoints( g, camera )
+        // 		}
+    }
 }
 
-/**
- * A cubic curve shape that mimics freeplane edges.
- */
+/** A cubic curve shape that mimics freeplane edges. */
 class FreePlaneEdgeShape extends LineConnectorShape {
-	protected var theShape = new Path2D.Double
+    protected var theShape = new Path2D.Double
 
-// Command
- 
-	protected def make(bck:Backend, camera:Camera ) {
-		make( camera, 0, 0, 0, 0 )
-	}
-  
-	protected def make( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		if( info.multi > 1 || info.isLoop )	// is a loop or a multi edge
-		     makeMultiOrLoop( camera, sox, soy, swx, swy )
-		else makeSingle( camera, sox, soy, swx, swy )	// is a single edge.
-	}
- 
-	protected def makeSingle( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		var fromx   = info.from.x + sox
-		val fromy   = info.from.y + soy - theSourceSizeY/2
-		var tox     = info.to.x + sox
-		val toy     = info.to.y + soy - theTargetSizeY/2
-		val length  = abs( info.to.x - info.from.x )
-		var c1x     = 0.0
-		var c1y     = 0.0
-		var c2x     = 0.0
-		var c2y     = 0.0
-		
-		if( info.from.x < info.to.x ) {
-			// At right.
-			fromx += theSourceSizeX/2
-			tox   -= theTargetSizeX/2
-			c1x    = fromx + length/3
-			c2x    = tox - length/3
-			c1y    = fromy
-			c2y    = toy
-		} else {
-			// At left.
-			fromx -= theSourceSizeX/2
-			tox   += theTargetSizeX/2
-			c1x    = fromx - length/3
-			c2x    = tox + length/3
-			c1y    = fromy
-			c2y    = toy
-		}
+    // Command
 
-		theShape.reset
-		theShape.moveTo( fromx, fromy )
-		theShape.curveTo( c1x, c1y, c2x, c2y, tox, toy )
+    protected def make(bck: Backend, camera: Camera) {
+        make(camera, 0, 0, 0, 0)
+    }
 
-		// Set the connector as a curve.
-		
-		if( sox == 0 && soy == 0 ) {
-			info.setCurve(
-					fromx, fromy, 0,
-					c1x, c1y, 0,
-					c2x, c2y, 0,
-					tox, toy, 0 )
-		}
-	}
- 
-	protected def makeMultiOrLoop( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		if( info.isLoop )
-			 makeLoop( camera, sox, soy, swx, swy )
-		else makeMulti( camera, sox, soy, swx, swy )
-	}
-	
-	protected def makeMulti( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		val fromx   = info(0).x + sox
-		val fromy   = info(0).y + soy
-		val tox     = info(3).x + sox
-		val toy     = info(3).y + soy
-		val c1x     = info(1).x + sox
-		val c1y     = info(1).y + soy
-		val c2x     = info(2).x + sox
-		val c2y     = info(2).y + soy
+    protected def make(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        if (info.multi > 1 || info.isLoop) // is a loop or a multi edge
+            makeMultiOrLoop(camera, sox, soy, swx, swy)
+        else makeSingle(camera, sox, soy, swx, swy) // is a single edge.
+    }
 
-		theShape.reset
-		theShape.moveTo( fromx, fromy )
-		theShape.curveTo( c1x, c1y, c2x, c2y, tox, toy )
-	}
+    protected def makeSingle(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        var fromx = info.from.x + sox
+        val fromy = info.from.y + soy - theSourceSizeY / 2
+        var tox = info.to.x + sox
+        val toy = info.to.y + soy - theTargetSizeY / 2
+        val length = abs(info.to.x - info.from.x)
+        var c1x = 0.0
+        var c1y = 0.0
+        var c2x = 0.0
+        var c2y = 0.0
 
-	protected def makeLoop( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-	  	val fromx = info(0).x + sox
-		val fromy = info(0).y + soy
-		val tox   = info(3).x + sox
-		val toy   = info(3).y + soy
-		val c1x   = info(1).x + sox
-		val c1y   = info(1).y + soy
-		val c2x   = info(2).x + sox
-		val c2y   = info(2).y + soy
+        if (info.from.x < info.to.x) {
+            // At right.
+            fromx += theSourceSizeX / 2
+            tox -= theTargetSizeX / 2
+            c1x = fromx + length / 3
+            c2x = tox - length / 3
+            c1y = fromy
+            c2y = toy
+        } else {
+            // At left.
+            fromx -= theSourceSizeX / 2
+            tox += theTargetSizeX / 2
+            c1x = fromx - length / 3
+            c2x = tox + length / 3
+            c1y = fromy
+            c2y = toy
+        }
 
-		theShape.reset
-		theShape.moveTo( fromx, fromy )
-		theShape.curveTo( c1x, c1y, c2x, c2y, tox, toy )
-	}
+        theShape.reset
+        theShape.moveTo(fromx, fromy)
+        theShape.curveTo(c1x, c1y, c2x, c2y, tox, toy)
 
-	protected def makeShadow(bck:Backend, camera:Camera ) {
-		if( info.isCurve )
-		     makeMultiOrLoop( camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth )
-		else makeSingle( camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth )
-	}
-	
-	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		makeShadow(bck, camera )
- 		cast(bck.graphics2D, theShape )
-	}
- 
-	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
-	    val g = bck.graphics2D
- 		make(bck, camera )
- 		stroke( g, theShape )
- 		fill( g, theSize, theShape )
- 		decorConnector( g, camera, info.iconAndText, element, theShape )
-	}
+        // Set the connector as a curve.
+
+        if (sox == 0 && soy == 0) {
+            info.setCurve(
+                fromx, fromy, 0,
+                c1x, c1y, 0,
+                c2x, c2y, 0,
+                tox, toy, 0)
+        }
+    }
+
+    protected def makeMultiOrLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        if (info.isLoop)
+            makeLoop(camera, sox, soy, swx, swy)
+        else makeMulti(camera, sox, soy, swx, swy)
+    }
+
+    protected def makeMulti(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        val fromx = info(0).x + sox
+        val fromy = info(0).y + soy
+        val tox = info(3).x + sox
+        val toy = info(3).y + soy
+        val c1x = info(1).x + sox
+        val c1y = info(1).y + soy
+        val c2x = info(2).x + sox
+        val c2y = info(2).y + soy
+
+        theShape.reset
+        theShape.moveTo(fromx, fromy)
+        theShape.curveTo(c1x, c1y, c2x, c2y, tox, toy)
+    }
+
+    protected def makeLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        val fromx = info(0).x + sox
+        val fromy = info(0).y + soy
+        val tox = info(3).x + sox
+        val toy = info(3).y + soy
+        val c1x = info(1).x + sox
+        val c1y = info(1).y + soy
+        val c2x = info(2).x + sox
+        val c2y = info(2).y + soy
+
+        theShape.reset
+        theShape.moveTo(fromx, fromy)
+        theShape.curveTo(c1x, c1y, c2x, c2y, tox, toy)
+    }
+
+    protected def makeShadow(bck: Backend, camera: Camera) {
+        if (info.isCurve)
+            makeMultiOrLoop(camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth)
+        else makeSingle(camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth)
+    }
+
+    def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+        makeShadow(bck, camera)
+        cast(bck.graphics2D, theShape)
+    }
+
+    def render(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+        val g = bck.graphics2D
+        make(bck, camera)
+        stroke(g, theShape)
+        fill(g, theSize, theShape)
+        decorConnector(g, camera, info.iconAndText, element, theShape)
+    }
 }
 
 class HorizontalSquareEdgeShape extends LineConnectorShape {
-	protected var theShape = new Path2D.Double
+    protected var theShape = new Path2D.Double
 
-// Command
- 
-	protected def make(bck:Backend, camera:Camera ) {
-		make( camera, 0, 0, 0, 0 )
-	}
-  
-	protected def make( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		if( info.multi > 1 || info.isLoop )	// is a loop or a multi edge
-		     makeMultiOrLoop( camera, sox, soy, swx, swy )
-		else makeSingle( camera, sox, soy, swx, swy )	// is a single edge.
-	}
- 
-	protected def makeSingle( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-	    val from   = new Point3(info.from.x+sox, info.from.y+soy, 0)
-	    val to     = new Point3(info.to.x+sox, info.to.y+soy, 0)
-	    val size   = (theSourceSizeX+theTargetSizeX)
-	    var inter1:Point3 = null 
-	    var inter2:Point3 = null 
-	    var inter3:Point3 = null 
-	    var inter4:Point3 = null 
-	    
-	    if(to.x > from.x) {
-		    val len = to.x - from.x
-		    
-		    if(len < size) {
-		        inter1 = new Point3(from.x+theSourceSizeX, from.y, 0)
-		        inter2 = new Point3(to.x-theTargetSizeX, to.y, 0)
-		        
-		        inter3 = new Point3(inter1.x, inter1.y+(to.y-from.y)/2, 0)
-		        inter4 = new Point3(inter2.x, inter3.y, 0)
-		        
-		        if(sox==0 && soy==0)
-		        	info.setPoly(from, inter1, inter3, inter4, inter2, to)
-		
-		    } else {
-		        val middle = (to.x - from.x) / 2
-		        inter1 = new Point3(from.x + middle, from.y, 0)
-		        inter2 = new Point3(to.x - middle, to.y, 0)
-		        
-		        if(sox==0 && soy==0)
-		        	info.setPoly(from, inter1, inter2, to)
-		    }
-		} else {
-		    val len = from.x - to.x
-		    
-		    if(len < size) {
-		        inter1 = new Point3(from.x-theSourceSizeX, from.y, 0)
-		        inter2 = new Point3(to.x+theTargetSizeX, to.y, 0)
+    // Command
 
-		        inter3 = new Point3(inter1.x, inter1.y+(to.y-from.y)/2, 0)
-		        inter4 = new Point3(inter2.x, inter3.y, 0)
-		        
-		        if(sox==0 && soy==0)
-		        	info.setPoly(from, inter1, inter3, inter4, inter2, to)
-		
-		    } else {
-		        val middle = (to.x - from.x) / 2
-		        inter1 = new Point3(from.x + middle, from.y, 0)
-		        inter2 = new Point3(to.x - middle, to.y, 0)
-		        
-		        if(sox==0 && soy==0)
-		        	info.setPoly(from, inter1, inter2, to)
-		    }
-		}
-		
-		theShape.reset
-		theShape.moveTo(from.x, from.y)
-		theShape.lineTo(inter1.x, inter1.y)
-		if((inter3 ne null) && (inter4 ne null)) {
-			theShape.lineTo(inter3.x, inter3.y)
-		    theShape.lineTo(inter4.x, inter4.y)
-		}
-		theShape.lineTo(inter2.x, inter2.y)
-		theShape.lineTo(to.x, to.y)
-	}
- 
-	protected def makeMultiOrLoop( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		if( info.isLoop )
-			 makeLoop( camera, sox, soy, swx, swy )
-		else makeMulti( camera, sox, soy, swx, swy )
-	}
-	
-	protected def makeMulti( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		val fromx   = info(0).x + sox
-		val fromy   = info(0).y + soy
-		val tox     = info(3).x + sox
-		val toy     = info(3).y + soy
-		val c1x     = info(1).x + sox
-		val c1y     = info(1).y + soy
-		val c2x     = info(2).x + sox
-		val c2y     = info(2).y + soy
+    protected def make(bck: Backend, camera: Camera) {
+        make(camera, 0, 0, 0, 0)
+    }
 
-		theShape.reset
-		theShape.moveTo( fromx, fromy )
-		theShape.curveTo( c1x, c1y, c2x, c2y, tox, toy )
-	}
+    protected def make(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        if (info.multi > 1 || info.isLoop) // is a loop or a multi edge
+            makeMultiOrLoop(camera, sox, soy, swx, swy)
+        else makeSingle(camera, sox, soy, swx, swy) // is a single edge.
+    }
 
-	protected def makeLoop( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-	  	val fromx = info(0).x + sox
-		val fromy = info(0).y + soy
-		val tox   = info(3).x + sox
-		val toy   = info(3).y + soy
-		val c1x   = info(1).x + sox
-		val c1y   = info(1).y + soy
-		val c2x   = info(2).x + sox
-		val c2y   = info(2).y + soy
+    protected def makeSingle(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        val from = new Point3(info.from.x + sox, info.from.y + soy, 0)
+        val to = new Point3(info.to.x + sox, info.to.y + soy, 0)
+        val size = (theSourceSizeX + theTargetSizeX)
+        var inter1: Point3 = null
+        var inter2: Point3 = null
+        var inter3: Point3 = null
+        var inter4: Point3 = null
 
-		theShape.reset
-		theShape.moveTo( fromx, fromy )
-		theShape.curveTo( c1x, c1y, c2x, c2y, tox, toy )
-	}
+        if (to.x > from.x) {
+            val len = to.x - from.x
 
-	protected def makeShadow(bck:Backend, camera:Camera ) {
-		if( info.isCurve )
-		     makeMultiOrLoop( camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth )
-		else makeSingle( camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth )
-	}
-	
-	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		makeShadow(bck, camera )
- 		cast(bck.graphics2D, theShape )
-	}
- 
-	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
-	    val g = bck.graphics2D
- 		make(bck, camera )
- 		stroke( g, theShape )
- 		fill( g, theSize, theShape )
- 		decorConnector( g, camera, info.iconAndText, element, theShape )
-	}
+            if (len < size) {
+                inter1 = new Point3(from.x + theSourceSizeX, from.y, 0)
+                inter2 = new Point3(to.x - theTargetSizeX, to.y, 0)
+
+                inter3 = new Point3(inter1.x, inter1.y + (to.y - from.y) / 2, 0)
+                inter4 = new Point3(inter2.x, inter3.y, 0)
+
+                if (sox == 0 && soy == 0)
+                    info.setPoly(from, inter1, inter3, inter4, inter2, to)
+
+            } else {
+                val middle = (to.x - from.x) / 2
+                inter1 = new Point3(from.x + middle, from.y, 0)
+                inter2 = new Point3(to.x - middle, to.y, 0)
+
+                if (sox == 0 && soy == 0)
+                    info.setPoly(from, inter1, inter2, to)
+            }
+        } else {
+            val len = from.x - to.x
+
+            if (len < size) {
+                inter1 = new Point3(from.x - theSourceSizeX, from.y, 0)
+                inter2 = new Point3(to.x + theTargetSizeX, to.y, 0)
+
+                inter3 = new Point3(inter1.x, inter1.y + (to.y - from.y) / 2, 0)
+                inter4 = new Point3(inter2.x, inter3.y, 0)
+
+                if (sox == 0 && soy == 0)
+                    info.setPoly(from, inter1, inter3, inter4, inter2, to)
+
+            } else {
+                val middle = (to.x - from.x) / 2
+                inter1 = new Point3(from.x + middle, from.y, 0)
+                inter2 = new Point3(to.x - middle, to.y, 0)
+
+                if (sox == 0 && soy == 0)
+                    info.setPoly(from, inter1, inter2, to)
+            }
+        }
+
+        theShape.reset
+        theShape.moveTo(from.x, from.y)
+        theShape.lineTo(inter1.x, inter1.y)
+        if ((inter3 ne null) && (inter4 ne null)) {
+            theShape.lineTo(inter3.x, inter3.y)
+            theShape.lineTo(inter4.x, inter4.y)
+        }
+        theShape.lineTo(inter2.x, inter2.y)
+        theShape.lineTo(to.x, to.y)
+    }
+
+    protected def makeMultiOrLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        if (info.isLoop)
+            makeLoop(camera, sox, soy, swx, swy)
+        else makeMulti(camera, sox, soy, swx, swy)
+    }
+
+    protected def makeMulti(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        val fromx = info(0).x + sox
+        val fromy = info(0).y + soy
+        val tox = info(3).x + sox
+        val toy = info(3).y + soy
+        val c1x = info(1).x + sox
+        val c1y = info(1).y + soy
+        val c2x = info(2).x + sox
+        val c2y = info(2).y + soy
+
+        theShape.reset
+        theShape.moveTo(fromx, fromy)
+        theShape.curveTo(c1x, c1y, c2x, c2y, tox, toy)
+    }
+
+    protected def makeLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        val fromx = info(0).x + sox
+        val fromy = info(0).y + soy
+        val tox = info(3).x + sox
+        val toy = info(3).y + soy
+        val c1x = info(1).x + sox
+        val c1y = info(1).y + soy
+        val c2x = info(2).x + sox
+        val c2y = info(2).y + soy
+
+        theShape.reset
+        theShape.moveTo(fromx, fromy)
+        theShape.curveTo(c1x, c1y, c2x, c2y, tox, toy)
+    }
+
+    protected def makeShadow(bck: Backend, camera: Camera) {
+        if (info.isCurve)
+            makeMultiOrLoop(camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth)
+        else makeSingle(camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth)
+    }
+
+    def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+        makeShadow(bck, camera)
+        cast(bck.graphics2D, theShape)
+    }
+
+    def render(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+        val g = bck.graphics2D
+        make(bck, camera)
+        stroke(g, theShape)
+        fill(g, theSize, theShape)
+        decorConnector(g, camera, info.iconAndText, element, theShape)
+    }
 }
 
 class LSquareEdgeShape extends LineConnectorShape {
-	protected var theShape = new Path2D.Double
+    protected var theShape = new Path2D.Double
 
-// Command
- 
-	protected def make(bck:Backend, camera:Camera ) {
-		make( camera, 0, 0, 0, 0 )
-	}
-  
-	protected def make( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		if( info.multi > 1 || info.isLoop )	// is a loop or a multi edge
-		     makeMultiOrLoop( camera, sox, soy, swx, swy )
-		else makeSingle( camera, sox, soy, swx, swy )	// is a single edge.
-	}
- 
-	protected def makeSingle( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-	    val from    = new Point3(info.from.x+sox, info.from.y+soy, 0)
-	    val to      = new Point3(info.to.x+sox, info.to.y+soy, 0)
-		val mainDir = new Vector2( from, to )
-		val length  = mainDir.length
-		val angle   = mainDir.y / length
-		var inter:Point3 = null
+    // Command
 
-		if( angle > 0.707107f || angle < -0.707107f ) {
-			// North or south.
-		    inter = new Point3(from.x, to.y, 0)
-		} else {
-			// East or west.
-		    inter = new Point3(to.x, from.y, 0)
-		}
-	    
-	    if(sox == 0 && soy == 0)
-	    	info.setPoly(from, inter, to)
-	    
-		theShape.reset
-		theShape.moveTo(from.x, from.y)
-		theShape.lineTo(inter.x, inter.y)
-		theShape.lineTo(to.x, to.y)
-	}
- 
-	protected def makeMultiOrLoop( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		if( info.isLoop )
-			 makeLoop( camera, sox, soy, swx, swy )
-		else makeMulti( camera, sox, soy, swx, swy )
-	}
-	
-	protected def makeMulti( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-		val fromx   = info(0).x + sox
-		val fromy   = info(0).y + soy
-		val tox     = info(3).x + sox
-		val toy     = info(3).y + soy
-		val c1x     = info(1).x + sox
-		val c1y     = info(1).y + soy
-		val c2x     = info(2).x + sox
-		val c2y     = info(2).y + soy
+    protected def make(bck: Backend, camera: Camera) {
+        make(camera, 0, 0, 0, 0)
+    }
 
-		theShape.reset
-		theShape.moveTo( fromx, fromy )
-		theShape.curveTo( c1x, c1y, c2x, c2y, tox, toy )
-	}
+    protected def make(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        if (info.multi > 1 || info.isLoop) // is a loop or a multi edge
+            makeMultiOrLoop(camera, sox, soy, swx, swy)
+        else makeSingle(camera, sox, soy, swx, swy) // is a single edge.
+    }
 
-	protected def makeLoop( camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double ) {
-	  	val fromx = info(0).x + sox
-		val fromy = info(0).y + soy
-		val tox   = info(3).x + sox
-		val toy   = info(3).y + soy
-		val c1x   = info(1).x + sox
-		val c1y   = info(1).y + soy
-		val c2x   = info(2).x + sox
-		val c2y   = info(2).y + soy
+    protected def makeSingle(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        val from = new Point3(info.from.x + sox, info.from.y + soy, 0)
+        val to = new Point3(info.to.x + sox, info.to.y + soy, 0)
+        val mainDir = new Vector2(from, to)
+        val length = mainDir.length
+        val angle = mainDir.y / length
+        var inter: Point3 = null
 
-		theShape.reset
-		theShape.moveTo( fromx, fromy )
-		theShape.curveTo( c1x, c1y, c2x, c2y, tox, toy )
-	}
+        if (angle > 0.707107f || angle < -0.707107f) {
+            // North or south.
+            inter = new Point3(from.x, to.y, 0)
+        } else {
+            // East or west.
+            inter = new Point3(to.x, from.y, 0)
+        }
 
-	protected def makeShadow(bck:Backend, camera:Camera ) {
-		if( info.isCurve )
-		     makeMultiOrLoop( camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth )
-		else makeSingle( camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth )
-	}
-	
-	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		makeShadow(bck, camera )
- 		cast(bck.graphics2D, theShape )
-	}
- 
-	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
-	    val g = bck.graphics2D
- 		make(bck, camera )
- 		stroke( g, theShape )
- 		fill( g, theSize, theShape )
- 		decorConnector( g, camera, info.iconAndText, element, theShape )
-	}
+        if (sox == 0 && soy == 0)
+            info.setPoly(from, inter, to)
+
+        theShape.reset
+        theShape.moveTo(from.x, from.y)
+        theShape.lineTo(inter.x, inter.y)
+        theShape.lineTo(to.x, to.y)
+    }
+
+    protected def makeMultiOrLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        if (info.isLoop)
+            makeLoop(camera, sox, soy, swx, swy)
+        else makeMulti(camera, sox, soy, swx, swy)
+    }
+
+    protected def makeMulti(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        val fromx = info(0).x + sox
+        val fromy = info(0).y + soy
+        val tox = info(3).x + sox
+        val toy = info(3).y + soy
+        val c1x = info(1).x + sox
+        val c1y = info(1).y + soy
+        val c2x = info(2).x + sox
+        val c2y = info(2).y + soy
+
+        theShape.reset
+        theShape.moveTo(fromx, fromy)
+        theShape.curveTo(c1x, c1y, c2x, c2y, tox, toy)
+    }
+
+    protected def makeLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+        val fromx = info(0).x + sox
+        val fromy = info(0).y + soy
+        val tox = info(3).x + sox
+        val toy = info(3).y + soy
+        val c1x = info(1).x + sox
+        val c1y = info(1).y + soy
+        val c2x = info(2).x + sox
+        val c2y = info(2).y + soy
+
+        theShape.reset
+        theShape.moveTo(fromx, fromy)
+        theShape.curveTo(c1x, c1y, c2x, c2y, tox, toy)
+    }
+
+    protected def makeShadow(bck: Backend, camera: Camera) {
+        if (info.isCurve)
+            makeMultiOrLoop(camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth)
+        else makeSingle(camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth)
+    }
+
+    def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+        makeShadow(bck, camera)
+        cast(bck.graphics2D, theShape)
+    }
+
+    def render(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+        val g = bck.graphics2D
+        make(bck, camera)
+        stroke(g, theShape)
+        fill(g, theSize, theShape)
+        decorConnector(g, camera, info.iconAndText, element, theShape)
+    }
 }
 object PieChartShape {
-	/** Some predefined colors. */
-	val colors = Array[Color]( Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.MAGENTA,
-			Color.CYAN, Color.ORANGE, Color.PINK )
+    /** Some predefined colors. */
+    val colors = Array[Color](Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.MAGENTA,
+        Color.CYAN, Color.ORANGE, Color.PINK)
 }
 
 class PieChartShape
-	extends Shape
-	with Area
-	with FillableMulticolored
-	with Strokable 
-	with Shadowable 
-	with Decorable
-	with AttributeUtils {
-	
-	val theShape = new Ellipse2D.Double
-	
-	var theValues:Array[Double] = null
-	var valuesRef:AnyRef = null
+    extends Shape
+    with Area
+    with FillableMulticolored
+    with Strokable
+    with Shadowable
+    with Decorable
+    with AttributeUtils {
 
-	def configureForGroup(bck:Backend, style:Style, camera:Camera ) {
-		configureAreaForGroup( style, camera )
-		configureFillableMultiColoredForGroup( style, camera )
-		configureStrokableForGroup( style, camera )
-		configureShadowableForGroup( style, camera )
-		configureDecorableForGroup( style, camera )
-	}
-	
-	def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera ) {
-	    val g = bck.graphics2D
-		configureDecorableForElement( g, camera, element, info )
-		configureAreaForElement( g, camera, info.asInstanceOf[NodeInfo], element, theDecor )
+    val theShape = new Ellipse2D.Double
 
-		if( element.hasAttribute( "ui.pie-values" ) ) {
-			val oldRef = valuesRef
-			valuesRef = element.getAttribute( "ui.pie-values" )
-			// We use valueRef to avoid
-			// recreating the values array for nothing.
-			if( ( theValues == null ) || ( oldRef ne valuesRef ) ) {
-				theValues = getDoubles( valuesRef )
-			}
-		}
-	}
-	
-	override def make(bck:Backend, camera:Camera ) {
-		theShape.setFrameFromCenter( theCenter.x, theCenter.y, theCenter.x+theSize.x/2, theCenter.y+theSize.y/2 )
-	}
-	
-	override def makeShadow(bck:Backend, camera:Camera ) {
-		theShape.setFrameFromCenter( theCenter.x+theShadowOff.x, theCenter.y+theShadowOff.y,
-				theCenter.x+(theSize.x+theShadowWidth.x)/2, theCenter.y+(theSize.y+theShadowWidth.y)/2 )
-	}
-	
-	override def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
-		makeShadow(bck, camera )
-		cast(bck.graphics2D, theShape )
- 	}
-  
- 	override def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 	    val g = bck.graphics2D
- 		make(bck, camera )
- 		fillPies( g, element )
- 		//fill( g, theSize, theShape )
- 		stroke( g, theShape )
- 		decorArea( g, camera, info.iconAndText, element, theShape )
- 	}
- 	
- 	protected def fillPies( g:Graphics2D, element:GraphicElement ) {
- 		if( theValues != null ) {
-	 		// we assume the pies values sum up to one. And we wont check it, its a mater of speed ;-).
-	 		val arc = new Arc2D.Double
-	 		var beg = 0.0
-	 		var end = 0.0
-	 		var col = 0
-	 		var sum = 0.0
-	 		
-	 		theValues.foreach { value =>
-	 			end = beg + value
-	 			arc.setArcByCenter( theCenter.x, theCenter.y, theSize.x/2, beg*360, value*360, Arc2D.PIE )
-	 			g.setColor( fillColors( col % fillColors.length ) )
-	 			g.fill( arc )
-	 			beg = end
-	 			sum += value
-	 			col += 1
-	 		}
-	 		
-	 		if( sum > 1.01f )
-	 			Console.err.print( "[Sprite %s] The sum of values for ui.pie-value should eval to 1 at max (actually %f)%n".format( element.getId, sum ) )
- 		}
- 	}
+    var theValues: Array[Double] = null
+    var valuesRef: AnyRef = null
+
+    def configureForGroup(bck: Backend, style: Style, camera: Camera) {
+        configureAreaForGroup(style, camera)
+        configureFillableMultiColoredForGroup(style, camera)
+        configureStrokableForGroup(style, camera)
+        configureShadowableForGroup(style, camera)
+        configureDecorableForGroup(style, camera)
+    }
+
+    def configureForElement(bck: Backend, element: GraphicElement, info: ElementInfo, camera: Camera) {
+        val g = bck.graphics2D
+        configureDecorableForElement(g, camera, element, info)
+        configureAreaForElement(g, camera, info.asInstanceOf[NodeInfo], element, theDecor)
+    }
+
+    override def make(bck: Backend, camera: Camera) {
+        //Console.err.println("drawing pie %s [%f %f]".format(theCenter, theCenter.x+theSize.x/2, theCenter.y+theSize.y/2));
+        theShape.setFrameFromCenter(theCenter.x, theCenter.y, theCenter.x + theSize.x / 2, theCenter.y + theSize.y / 2)
+    }
+
+    override def makeShadow(bck: Backend, camera: Camera) {
+        theShape.setFrameFromCenter(theCenter.x + theShadowOff.x, theCenter.y + theShadowOff.y,
+            theCenter.x + (theSize.x + theShadowWidth.x) / 2, theCenter.y + (theSize.y + theShadowWidth.y) / 2)
+    }
+
+    override def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+        makeShadow(bck, camera)
+        cast(bck.graphics2D, theShape)
+    }
+
+    override def render(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+        val g = bck.graphics2D
+        make(bck, camera)
+        checkValues(element)
+        fillPies(g, element)
+        //fill(g, theSize, theShape)
+        stroke(g, theShape)
+        decorArea(g, camera, info.iconAndText, element, theShape)
+    }
+
+    protected def checkValues(element: GraphicElement) {
+        val pieValues: AnyRef = element.getAttribute("ui.pie-values")
+
+        if (pieValues ne null) {
+            val oldRef = valuesRef
+            valuesRef = pieValues
+            // We use valueRef to avoid
+            // recreating the values array for nothing.
+            //if ((theValues == null) || (oldRef ne valuesRef)) {	// Cannot do this : the array reference can be the same and the values changed.
+                theValues = getDoubles(valuesRef)
+            //}
+        }
+    }
+
+    protected def fillPies(g: Graphics2D, element: GraphicElement) {
+        if (theValues != null) {
+            // we assume the pies values sum up to one. And we wont check it, its a mater of speed ;-).
+            val arc = new Arc2D.Double
+            var beg = 0.0
+            var end = 0.0
+            var col = 0
+            var sum = 0.0
+
+            theValues.foreach { value ⇒
+                end = beg + value
+                arc.setArcByCenter(theCenter.x, theCenter.y, theSize.x / 2, beg * 360, value * 360, Arc2D.PIE)
+                g.setColor(fillColors(col % fillColors.length))
+                g.fill(arc)
+                beg = end
+                sum += value
+                col += 1
+            }
+
+            if (sum > 1.01f)
+                Console.err.print("[Sprite %s] The sum of values for ui.pie-value should eval to 1 at max (actually %f)%n".format(element.getId, sum))
+        } else {
+            // Draw a red empty circle to indicate "no value".
+            g.setColor(Color.red)
+            g.draw(theShape)
+        }
+    }
 }
