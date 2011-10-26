@@ -24,8 +24,8 @@ class TestPie {
 		val pie = sm.addSprite("pie")
 
 		g.addAttribute("ui.antialias")
-//		pie.addAttribute("ui.style", "shape: pie-chart; fill-color: #F00, #0F0, #00F; size: 30px; ddd")
-		g.addAttribute("ui.stylesheet", "sprite { shape: pie-chart; fill-color: #F00, #0F0, #00F; size: 30px; } node {fill-color: red; }")
+		pie.addAttribute("ui.style", "shape: pie-chart; fill-color: #F00, #0F0, #00F; size: 30px;")
+//		g.addAttribute("ui.stylesheet", "sprite { shape: pie-chart; fill-color: #F00, #0F0, #00F; size: 30px; } node {fill-color: red; }")
 		val values = new Array[Any](3);
 		values(0) = 0.3333
 		values(1) = 0.3333
