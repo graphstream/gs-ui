@@ -70,8 +70,8 @@ class AllSwingTest extends JFrame {
 		
 		add( view, BorderLayout.CENTER )
 		
-		view.setViewPercent(0.5)
-		view.setViewCenter(-1, 0, 0)
+		view.getCamera.setViewPercent(0.5)
+		view.getCamera.setViewCenter(-1, 0, 0)
 		
 		setSize( 800, 600 )
 		setVisible( true )

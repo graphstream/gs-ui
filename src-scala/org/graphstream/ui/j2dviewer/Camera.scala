@@ -45,7 +45,8 @@ import org.graphstream.ui.graphicGraph.{GraphicEdge, GraphicElement, GraphicGrap
 import org.graphstream.ui.graphicGraph.stylesheet.{Style, Values}
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 
-import org.graphstream.ui.util.{GraphMetrics, CubicCurve}
+import org.graphstream.ui.util.CubicCurve
+import org.graphstream.ui.swingViewer.util.GraphMetrics
 import org.graphstream.ui.geom.Point2
 import org.graphstream.ui.geom.Vector2
 import org.graphstream.ui.j2dviewer.renderer.{ElementInfo, EdgeInfo, NodeInfo}
@@ -84,16 +85,16 @@ import scala.math._
  * visible ?" (in the camera view) or "on what element is the mouse cursor actually ?".
  * </p>
  * 
- * <p>
+ * <p>	
  * The camera is also able to compute sprite positions according to their attachment, as well as
  * maintaining a list of all elements out of the view, so that it is not needed to render them.
  * </p>
  */
-class Camera {
+class Camera extends org.graphstream.ui.swingViewer.util.Camera {
 // Attribute
 	
   	/** Information on the graph overall dimension and position. */
-  	val metrics = new GraphMetrics
+  	val metrics = new org.graphstream.ui.swingViewer.util.GraphMetrics
 	
   	/** Automatic centring of the view. */
   	protected var autoFit = true
@@ -129,12 +130,15 @@ class Camera {
   	protected var gviewport:Array[Double] = null
   		
 // Access
+  	
+  	def getMetrics() = metrics
 	
   	/**
   	 * The view centre (a point in graph units).
   	 * @return The view centre.
   	 */
   	def viewCenter:Point3 = center
+  	def getViewCenter:Point3 = viewCenter
 	
   	/**
   	 * The visible portion of the graph.
@@ -142,13 +146,17 @@ class Camera {
   	 * view port.
   	 */
   	def viewPercent:Double = zoom
+  	def getViewPercent:Double = viewPercent
 	
   	/**
   	 * The rotation angle in degrees.
   	 * @return The rotation angle in degrees.
   	 */
   	def viewRotation:Double = rotation
+  	def getViewRotation:Double = viewRotation
 	
+  	def getGraphDimension():Double = metrics.getDiagonal
+  	
   	override def toString():String = {
   		var builder = new StringBuilder( "Camera :%n".format() )
 		
@@ -193,7 +201,7 @@ class Camera {
   	 * Transform a point in graph units into pixels.
   	 * @return The transformed point.
   	 */
-  	def transform(x:Double, y:Double):Point3 = bck.transform(x, y, 0)
+  	def transform(x:Double, y:Double, z:Double):Point3 = bck.transform(x, y, 0)
 	
   	/**
   	 * Search for the first node or sprite (in that order) that contains the point at coordinates
@@ -270,6 +278,11 @@ class Camera {
   	    gviewport = Array( minx, miny, maxx, maxy )
   	}
   	
+  	def resetView() {
+		setAutoFitView(true)
+		setViewRotation(0)
+	}
+  	
   	def removeGraphViewport() { gviewport = null }
 
   	/**
@@ -311,10 +324,10 @@ class Camera {
   		val padXpx = paddingXpx * 2
   		val padYpx = paddingYpx * 2
 		
-  		sx = (metrics.viewport(0) - padXpx) / (metrics.size(0) + padXgu)	// Ratio along X
-  		sy = (metrics.viewport(1) - padYpx) / (metrics.size(1) + padYgu)	// Ratio along Y
-  		tx = metrics.lo.x + (metrics.size(0) / 2)								// Centre of graph in X
-  		ty = metrics.lo.y + (metrics.size(1) / 2)								// Centre of graph in Y
+  		sx = (metrics.viewport.data(0) - padXpx) / (metrics.size.data(0) + padXgu)	// Ratio along X
+  		sy = (metrics.viewport.data(1) - padYpx) / (metrics.size.data(1) + padYgu)	// Ratio along Y
+  		tx = metrics.lo.x + (metrics.size.data(0) / 2)								// Centre of graph in X
+  		ty = metrics.lo.y + (metrics.size.data(1) / 2)								// Centre of graph in Y
 		
   		if(sx > sy)	// The least ratio.
   		     sx = sy
@@ -322,8 +335,8 @@ class Camera {
 		
   		bck.beginTransform
   		bck.setIdentity
-  		bck.translate(metrics.viewport(0)/2,
-  		              metrics.viewport(1)/2, 0)			// 4. Place the whole result at the centre of the view port.
+  		bck.translate(metrics.viewport.data(0)/2,
+  		              metrics.viewport.data(1)/2, 0)	// 4. Place the whole result at the centre of the view port.
   		if(rotation != 0)
   		    bck.rotate(rotation/(180.0/Pi), 0, 0, 1)	// 3. Eventually apply a Z axis rotation.
   		bck.scale(sx, -sy, 0)							// 2. Scale the graph to pixels. Scale -y since we reverse the view (top-left to bottom-keft).
@@ -354,14 +367,14 @@ class Camera {
   		val padYgu = paddingYgu * 2
   		val padXpx = paddingXpx * 2
   		val padYpx = paddingYpx * 2
-  		val gw     = if(gviewport ne null) gviewport(2)-gviewport(0) else metrics.size(0)
-  		val gh     = if(gviewport ne null) gviewport(3)-gviewport(1) else metrics.size(1)
+  		val gw     = if(gviewport ne null) gviewport(2)-gviewport(0) else metrics.size.data(0)
+  		val gh     = if(gviewport ne null) gviewport(3)-gviewport(1) else metrics.size.data(1)
 //		val diag   = Math.max( metrics.size.data(0)+padXgu, metrics.size.data(1)+padYgu ) * zoom 
 //		
 //		sx = (metrics.viewport(0) - padXpx) / diag 
 //		sy = (metrics.viewport(1) - padYpx) / diag
-  		sx = (metrics.viewport(0) - padXpx) / ((gw + padXgu) * zoom) 
-		sy = (metrics.viewport(1) - padYpx) / ((gh + padYgu) * zoom)
+  		sx = (metrics.viewport.data(0) - padXpx) / ((gw + padXgu) * zoom) 
+		sy = (metrics.viewport.data(1) - padYpx) / ((gh + padYgu) * zoom)
   		
 		tx = center.x
 		ty = center.y
@@ -372,8 +385,8 @@ class Camera {
 	
   		bck.beginTransform
   		bck.setIdentity
-  		bck.translate(metrics.viewport(0)/2,
-  		              metrics.viewport(1)/2, 0)			// 4. Place the whole result at the centre of the view port.
+  		bck.translate(metrics.viewport.data(0)/2,
+  		              metrics.viewport.data(1)/2, 0)	// 4. Place the whole result at the centre of the view port.
   		if(rotation != 0)
   		    bck.rotate(rotation/(180.0/Pi), 0, 0, 1)	// 3. Eventually apply a rotation.
   		bck.scale(sx, -sy, 0)							// 2. Scale the graph to pixels. Scale -y since we reverse the view (top-left to bottom-left).
@@ -382,8 +395,8 @@ class Camera {
 		
 		metrics.ratioPx2Gu = sx
 
-		val w2 = (metrics.viewport(0) / sx) / 2f
-		val h2 = (metrics.viewport(1) / sx) / 2f
+		val w2 = (metrics.viewport.data(0) / sx) / 2f
+		val h2 = (metrics.viewport.data(1) / sx) / 2f
 		
 		metrics.loVisible.set(center.x-w2, center.y-h2)
 		metrics.hiVisible.set(center.x+w2, center.y+h2)
@@ -401,8 +414,8 @@ class Camera {
   			// middle of the graph, and the zoom is at one.
 			
   			zoom = 1
-  			center.set(metrics.lo.x + (metrics.size(0) / 2),
-  			           metrics.lo.y + (metrics.size(1) / 2), 0);
+  			center.set(metrics.lo.x + (metrics.size.data(0) / 2),
+  			           metrics.lo.y + (metrics.size.data(1) / 2), 0);
   		}
 
   		autoFit = on
@@ -414,19 +427,21 @@ class Camera {
   	 * @param x The new position abscissa.
   	 * @param y The new position ordinate.
   	 */
-  	def setViewCenter(x:Double, y:Double) { center.set(x, y, 0) }
+  	def setViewCenter(x:Double, y:Double, z:Double) { center.set(x, y, z) }
 	
   	/**
      * Set the zoom (or percent of the graph visible), 1 means the graph is fully visible.
      * @param z The zoom.
      */
     def viewPercent_=(z:Double) { zoom = z }
+    def setViewPercent(z:Double) { zoom = z }
 	
   	/**
   	 * Set the rotation angle around the centre.
   	 * @param angle The rotation angle in degrees.
   	 */
   	def viewRotation_=(angle:Double) { rotation = angle }
+  	def setViewRotation(angle:Double) { rotation = angle }
 
   	/**
   	 * Set the output view port size in pixels. 
@@ -466,8 +481,8 @@ class Camera {
   	 * called before each rendering (if the view port changed). Called in pushView.
   	 */
   	protected def checkVisibility(graph:GraphicGraph) {
-  		val W:Double = metrics.viewport(0)
-  		val H:Double = metrics.viewport(1)
+  		val W:Double = metrics.viewport.data(0)
+  		val H:Double = metrics.viewport.data(1)
 		
   		nodeInvisible.clear
 	
@@ -490,7 +505,7 @@ class Camera {
   	 * @return True if visible.
   	 */
   	protected def isSpriteVisible(sprite:GraphicSprite):Boolean =
-  	    isSpriteIn(sprite, 0, 0, metrics.viewport(0), metrics.viewport(1))
+  	    isSpriteIn(sprite, 0, 0, metrics.viewport.data(0), metrics.viewport.data(1))
 
   	/**
   	 * Check if an edge is visible in the current view port.

@@ -39,7 +39,6 @@ import org.graphstream.ui.graphicGraph.GraphicElement
 import org.graphstream.ui.graphicGraph.stylesheet.Style
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 import org.graphstream.ui.j2dviewer.{Camera, Backend}
-import org.graphstream.ui.util.GraphMetrics
 import org.graphstream.ui.j2dviewer.renderer.{ElementInfo, NodeInfo, EdgeInfo}
 
 class CircleShape extends RectangularAreaShape {

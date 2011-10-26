@@ -263,7 +263,7 @@ class JComponentRenderer(styleGroup:StyleGroup, val mainRenderer:J2DGraphRendere
 	// Command -- Utility, positioning
 		
 		protected def positionNodeComponent(node:GraphicNode, camera:Camera) {
-			val pos = camera.transform(node.getX, node.getY)
+			val pos = camera.transform(node.getX, node.getY, 0)
 	
 			setBounds((pos.x-(width/2)).toInt, (pos.y-(height/2)).toInt, width, height, camera)
 		}

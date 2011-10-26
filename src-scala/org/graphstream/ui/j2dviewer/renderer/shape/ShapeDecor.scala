@@ -113,7 +113,7 @@ object ShapeDecor {
 		 */
 		protected def renderGu2Px( g:Graphics2D, camera:Camera, iconAndText:IconAndText, x:Double, y:Double, angle:Double,
 				positionPx:(Graphics2D, Point3, IconAndText, Double)=>Point3) {
-			var p  = camera.transform( x, y )
+			var p  = camera.transform( x, y, 0 )
 			val Tx = g.getTransform
 
 			g.setTransform( new AffineTransform )

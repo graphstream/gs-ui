@@ -120,6 +120,8 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   	}
 	
 // Access
+  	
+  	def getCamera():org.graphstream.ui.swingViewer.util.Camera = camera
 
   	def getViewCenter():Point3 = camera.viewCenter
 
@@ -171,12 +173,12 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
  
   	def setViewCenter(x:Double, y:Double, z:Double) {
   		camera.setAutoFitView(false)
-  		camera.setViewCenter(x, y)
+  		camera.setViewCenter(x, y, 0)
   	}
   	
   	def setGraphViewport(minx:Double, miny:Double, maxx:Double, maxy:Double) {
 		camera.setAutoFitView(false)
-		camera.setViewCenter(minx + (maxx - minx), miny + (maxy - miny))
+		camera.setViewCenter(minx + (maxx - minx), miny + (maxy - miny), 0)
 		camera.setGraphViewport(minx, miny, maxx, maxy)
 		camera.viewPercent = 1
 	}
