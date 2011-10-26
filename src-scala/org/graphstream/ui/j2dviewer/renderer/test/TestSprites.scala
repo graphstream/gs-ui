@@ -149,16 +149,13 @@ class TestSprites extends ViewerListener {
 		        new Point3( 0.02f, -0.02f, 0f),
 		        new Point3( 0f,     0.02f, 0f))
 
-//		s8.addAttribute("ui.points",
-//		        (-0.05f).asInstanceOf[AnyRef], (-0.05f).asInstanceOf[AnyRef], (0f).asInstanceOf[AnyRef],
-//		        ( 0.05f).asInstanceOf[AnyRef], (-0.05f).asInstanceOf[AnyRef], (0f).asInstanceOf[AnyRef],
-//		        ( 0.00f).asInstanceOf[AnyRef], ( 0.05f).asInstanceOf[AnyRef], (0f).asInstanceOf[AnyRef] )
-
 		E.setAttribute("ui.pie-values",
 		        (0.2f).asInstanceOf[AnyRef],
 		        (0.3f).asInstanceOf[AnyRef],
 		        (0.4f).asInstanceOf[AnyRef],
 		        (0.1f).asInstanceOf[AnyRef])
+		
+//		graph.write("randomOutEdge.dgs")
 		        
 		while( loop ) {
 			pipeIn.pump
@@ -322,6 +319,10 @@ class MovingEdgeSprite extends Sprite {
 			if( edge != null ) {
 				val node = if( p > 1 ) edge.getTargetNode[Node] else edge.getSourceNode[Node]
 				var other = randomOutEdge( node )
+				
+				if(other==null) {
+				    Console.err.println("node %s out=%d null !!".format(node.getId, node.getOutDegree))
+				}
 				
 				if( node.getOutDegree > 1 ) { while( other eq edge ) other = randomOutEdge( node ) }
 				

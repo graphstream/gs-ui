@@ -457,7 +457,9 @@ class CubicCurveShape extends LineConnectorShape with ShowCubics {
 
     protected def make(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
         if (info.multi > 1 || info.isLoop) // is a loop or a multi edge
-            makeMultiOrLoop(camera, sox, soy, swx, swy)
+             makeMultiOrLoop(camera, sox, soy, swx, swy)
+        else if(info.isPoly && info.size == 4)
+             makeFromPoints(camera, sox, soy, swx, swy) // has points positions
         else makeSingle(camera, sox, soy, swx, swy) // is a single edge.
     }
 
@@ -495,6 +497,29 @@ class CubicCurveShape extends LineConnectorShape with ShowCubics {
         // Set the connector as a curve.
 
         if (sox == 0 && soy == 0) {
+            info.setCurve(
+                fromx, fromy, 0,
+                c1x, c1y, 0,
+                c2x, c2y, 0,
+                tox, toy, 0)
+        }
+    }
+    
+    protected def makeFromPoints(camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double) {
+        val fromx = info.from.x + sox
+        val fromy = info.from.y + soy
+        val tox = info.to.x + sox
+        val toy = info.to.y + soy
+        val c1x = info(1).x + sox
+        val c1y = info(1).y + soy
+        val c2x = info(2).x + sox
+        val c2y = info(2).y + soy
+        
+        theShape.reset
+        theShape.moveTo(fromx, fromy)
+        theShape.curveTo(c1x, c1y, c2x, c2y, tox, toy)
+
+        if (sox == 0 && soy == 0) {	// Inform the system this is a curve, not a polyline.
             info.setCurve(
                 fromx, fromy, 0,
                 c1x, c1y, 0,

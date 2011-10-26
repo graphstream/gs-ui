@@ -50,6 +50,34 @@ trait AttributeUtils {
  			        new Array[Point3](0)
  			    }
  			}
+ 			case b:Array[Double] => {
+ 			    if(b.size>0) {
+		        	val size = b.length/3
+		        	val res  = new Array[Point3](size)
+		    
+		        	for(i <- 0 until size) {
+		        		res(i) = new Point3(b(i*3), b(i*3+1), b(i*3+2))
+		        	}
+		        	res
+ 			    } else {
+ 			        Console.err.println("ui.points array size is zero !!")
+ 			        new Array[Point3](0)
+ 			    }
+ 			}
+ 			case b:Array[Float] => {
+ 			    if(b.size>0) {
+		        	val size = b.length/3
+		        	val res  = new Array[Point3](size)
+		    
+		        	for(i <- 0 until size) {
+		        		res(i) = new Point3(b(i*3), b(i*3+1), b(i*3+2))
+		        	}
+		        	res
+ 			    } else {
+ 			        Console.err.println("ui.points array size is zero !!")
+ 			        new Array[Point3](0)
+ 			    } 			    
+ 			}
  			case x => {
  			    Console.err.println("Cannot interpret ui.points contents (%s)".format(x.getClass.getName))
  			    new Array[Point3](0)
