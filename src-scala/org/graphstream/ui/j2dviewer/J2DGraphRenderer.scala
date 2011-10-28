@@ -55,25 +55,28 @@ object J2DGraphRenderer {
 	val DEFAULT_RENDERER = "j2d_def_rndr";
 }
 
-/**
- * 2D renderer using Swing and Java2D to render the graph.
+/**	
+ * 2D renderer.
  * 
- * <p>
  * The role of this class is to equip each style group with a specific renderer and
- * to call these renderer to redraw the graph when needed.
- * </p>
+ * to call these renderer to redraw the graph when needed. The renderers then equip
+ * each node, edge and sprite with a skeleton that gives is main geometry, then
+ * selects a shape according to the group style. The shape will be "applied" to
+ * each element to draw in the group. The shape will be moved and scaled according
+ * to the skeleton.
  * 
- * <p>
  * A render pass begins by using the camera instance to set up the projection (allows
  * to pass from graph units to pixels, make a rotation a zoom or a translation) and
  * render each style group once for the shadows, and once for the real rendering
  * in Z order.
- * </p>
  * 
- * <p>
  * This class also handles a "selection" object that represents the current selection
  * and renders it.
- * </p>
+ * 
+ * The renderer uses a backend so that it can adapt to multiple rendering
+ * targets (here Swing and OpenGL). As the shapes are finally responsible
+ * for drawing the graph, the backend is also responsible for the shape
+ * creation.
  */
 class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 // Attribute	
@@ -83,9 +86,6 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 
 	/** The graph to render. */
 	protected var graph:GraphicGraph = null
- 
-	/** The drawing surface. */
-	protected var surface:Container = null
  
 	/** The current selection. */
 	protected val selection = new Selection
@@ -104,8 +104,9 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   	def open(graph:GraphicGraph, drawingSurface:Container) {
 	  	if( this.graph == null ) {
 		  	this.graph   = graph
-		  	this.surface = drawingSurface
+		  	this.backend = new BackendJ2D		// choose it according to some setting
 		  	graph.getStyleGroups.addListener(this)
+		  	backend.open(drawingSurface)
 	  	} else {
 	  		throw new RuntimeException("renderer already open, use close() first")
 	  	}
@@ -113,9 +114,10 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 	
   	def close() {
   		if(graph != null) {
+  		    backend.close()
   			graph.getStyleGroups.removeListener(this)
   			graph   = null
-  			surface = null
+  			backend = null
   		}
   	}
 	
@@ -123,25 +125,15 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   	
   	def getCamera():org.graphstream.ui.swingViewer.util.Camera = camera
 
-  	def getViewCenter():Point3 = camera.viewCenter
-
-  	def getViewPercent():Double = camera.viewPercent
-
-  	def getViewRotation():Double = camera.viewRotation
-
-  	def getGraphDimension():Double = camera.metrics.diagonal
-
-  	def findNodeOrSpriteAt(x:Double, y:Double):GraphicElement =
-  	    camera.findNodeOrSpriteAt(graph, x, y)
+  	def findNodeOrSpriteAt(x:Double, y:Double):GraphicElement = camera.findNodeOrSpriteAt(graph, x, y)
  
-  	def allNodesOrSpritesIn(x1:Double, y1:Double, x2:Double, y2:Double):ArrayList[GraphicElement] =
-  	    camera.allNodesOrSpritesIn(graph, x1, y1, x2, y2)
+  	def allNodesOrSpritesIn(x1:Double, y1:Double, x2:Double, y2:Double):ArrayList[GraphicElement] = camera.allNodesOrSpritesIn(graph, x1, y1, x2, y2)
   
-  	/** The rendering surface this renderer uses. */
-   	def renderingSurface:Container = surface
+   	def renderingSurface:Container = backend.drawingSurface
 	
 // Access -- Renderer bindings
    	
+   	/** Get (and assign if needed) a style renderer to the graphic graph. The renderer will be reused then. */
     protected def getStyleRenderer(graph:GraphicGraph):GraphBackgroundRenderer = {
   		if(graph.getStyle.getRenderer("dr") == null)
   			graph.getStyle.addRenderer("dr", new GraphBackgroundRenderer(graph, graph.getStyle))
@@ -149,6 +141,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   		graph.getStyle.getRenderer("dr").asInstanceOf[GraphBackgroundRenderer]
     }
     
+  	/** Get (and assign if needed) a style renderer to a style group. The renderer will be reused then. */
     protected def getStyleRenderer(style:StyleGroup):StyleRenderer = {
   		if( style.getRenderer("dr") == null)
   			style.addRenderer("dr", StyleRenderer(style, this))
@@ -156,44 +149,12 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   		style.getRenderer("dr").asInstanceOf[StyleRenderer]
     }
     
+    /** Get (and assign if needed) the style renderer associated with the style group of the element. */
     protected def getStyleRenderer(element:GraphicElement):StyleRenderer = {
   		getStyleRenderer(element.getStyle)
     }
     
 // Command
-
-	def setBounds(minx:Double, miny:Double, minz:Double, maxx:Double, maxy:Double, maxz:Double) {
-	    camera.setBounds(minx, miny, minz, maxx, maxy, maxz)
-	}
- 
-  	def resetView() {
-  		camera.setAutoFitView(true)
-  		camera.viewRotation = 0
-  	}
- 
-  	def setViewCenter(x:Double, y:Double, z:Double) {
-  		camera.setAutoFitView(false)
-  		camera.setViewCenter(x, y, 0)
-  	}
-  	
-  	def setGraphViewport(minx:Double, miny:Double, maxx:Double, maxy:Double) {
-		camera.setAutoFitView(false)
-		camera.setViewCenter(minx + (maxx - minx), miny + (maxy - miny), 0)
-		camera.setGraphViewport(minx, miny, maxx, maxy)
-		camera.viewPercent = 1
-	}
-  	
-  	def removeGraphViewport() {
-  		camera.removeGraphViewport
-  		resetView();
-  	}
-
-  	def setViewPercent(percent:Double) {
-  		camera.setAutoFitView(false)
-  		camera.viewPercent = percent
-  	}
-
-  	def setViewRotation(theta:Double) { camera.viewRotation = theta }
 
   	def beginSelectionAt(x:Double, y:Double) {
   		selection.active = true
@@ -217,7 +178,9 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 // Commands -- Rendering
   
   	def render(g:Graphics2D, width:Int, height:Int) {
-  		if(graph != null) {
+  	    if(graph != null) {
+// 	        val T1 = System.currentTimeMillis
+  	        
   		    // Verify this view is not closed, the Swing repaint mechanism may trigger 1 or 2
   		    // calls to this after being closed.
 
@@ -253,6 +216,9 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   
   			if( selection.renderer == null ) selection.renderer = new SelectionRenderer( selection, graph )
   			selection.renderer.render(backend, camera, width, height )
+  			
+//  		val T = (System.currentTimeMillis - T1)
+//  		println("%d ms".format(T))
   		}
   	}
    	
@@ -260,6 +226,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 	
 	protected def renderForeLayer() { if(foreRenderer ne null) renderLayer(foreRenderer) }
 	
+	/** Render a back or from layer. */ 
 	protected def renderLayer(renderer:LayerRenderer) {
 		val metrics = camera.metrics
 		
@@ -272,33 +239,29 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 			metrics.hiVisible.y)
 	}
 
-   protected def setupGraphics() {
+	/** Setup the graphic pipeline before drawing. */
+	protected def setupGraphics() {
        backend.setAntialias(graph.hasAttribute("ui.antialias"))
        backend.setQuality(graph.hasAttribute("ui.quality"))
-   }
+	}
 
-   def screenshot(filename:String, width:Int, height:Int) {
-	   	if(filename.endsWith("png") || filename.endsWith("PNG")) {
+	def screenshot(filename:String, width:Int, height:Int) {
+	   	if(filename.toLowerCase.endsWith("png")) {
 			val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
 			render(img.createGraphics, width, height)
 			val file = new File(filename)
 			ImageIO.write(img, "png", file)
-
-	   	} else if(filename.endsWith("bmp") || filename.endsWith("BMP")) {
-			
+	   	} else if(filename.toLowerCase.endsWith("bmp")) {
+			// Who, in the world, is still using BMP ???
 	   	    val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
 			render(img.createGraphics, width, height)
 			val file = new File(filename)
 			ImageIO.write(img, "bmp", file)
-			
-		} else if(filename.endsWith("jpg")  || filename.endsWith("JPG")
-		       || filename.endsWith("jpeg") || filename.endsWith("JPEG")) {
-			
+		} else if(filename.toLowerCase.endsWith("jpg") || filename.toLowerCase.endsWith("jpeg")) {
 		    val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
 			render(img.createGraphics, width, height)
 			val file = new File(filename)
 			ImageIO.write(img, "jpg", file)
-			
 		} else {
 		    System.err.println("unknown screenshot filename extension %s, saving to jpeg".format(filename))
 		    val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
@@ -306,7 +269,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 			val file = new File(filename+".jpg")
 			ImageIO.write(img, "jpg", file)
 		}
-   }
+	}
    
 	def setBackLayerRenderer(renderer:LayerRenderer) { backRenderer = renderer }
 

@@ -38,7 +38,7 @@ import java.awt.geom.{RectangularShape, Rectangle2D}
 import org.graphstream.ui.graphicGraph.{StyleGroup, GraphicGraph, GraphicElement}
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
 import org.graphstream.ui.j2dviewer.{Camera, Backend}
-import org.graphstream.ui.util.{GradientFactory, ImageCache}
+import org.graphstream.ui.util.swing.{GradientFactory, ImageCache}
 
 /**
  * Renderer for the graph background.
@@ -177,10 +177,10 @@ class GraphBackgroundRenderer(val graph:GraphicGraph, val style:StyleGroup)
 					0, 0, img.getWidth, img.getHeight, null )
 			}
 			case 1 => {	// Ratio-max
-				val ratioi = img.getWidth / img.getHeight
+				val ratioi = img.getWidth.toDouble / img.getHeight.toDouble
 				val ratiog = gw / gh
 				
-				if( ratioi > ratiog ) {
+				if(ratioi > ratiog) {
 					val newgw = gh * ratioi
 					val newx  = x - ((newgw-gw)/2)
 					g.drawImage( img,
@@ -189,13 +189,13 @@ class GraphBackgroundRenderer(val graph:GraphicGraph, val style:StyleGroup)
 				} else {
 					val newgh = gw / ratioi
 					val newy  = y - ((newgh-gh)/2)
-					g.drawImage( img,
+					g.drawImage(img,
 							x.toInt, newy.toInt, (x+gw).toInt, (newy+newgh).toInt,
-							0, 0, img.getWidth, img.getHeight, null )
+							0, 0, img.getWidth, img.getHeight, null)
 				}
 			}
 			case 2 => {	// Ratio-min
-				val ratioi = img.getWidth / img.getHeight
+				val ratioi = img.getWidth.toDouble / img.getHeight.toDouble
 				val ratiog = gw / gh
 				
 				if( ratiog > ratioi ) {
@@ -207,9 +207,9 @@ class GraphBackgroundRenderer(val graph:GraphicGraph, val style:StyleGroup)
 				} else {
 					val newgh = gw / ratioi
 					val newy  = y + ((gh-newgh)/2)
-					g.drawImage( img,
+					g.drawImage(img,
 							x.toInt, newy.toInt, (x+gw).toInt, (newy+newgh).toInt,
-							0, 0, img.getWidth, img.getHeight, null )
+							0, 0, img.getWidth, img.getHeight, null)
 				}
 			}
 			case _ => { throw new RuntimeException("WTF??") }

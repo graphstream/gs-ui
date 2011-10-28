@@ -44,48 +44,43 @@ import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 
 /** Base for all shapes. */
 abstract trait Shape {
-// Command
-    
- 	/**
-     * Configure as much as possible the graphics before painting several version of this shape
-     * at different positions.
-     * @param g The Java2D graphics.
-     */
- 	def configureForGroup(bck:Backend, style:Style, camera:Camera)
+ 	/** Configure as much as possible the graphics before painting several version of this shape
+      * at different positions.
+      * @param backend The rendering back-end.
+      * @param style The style for the group.
+      * @param camera the view parameters. */
+ 	def configureForGroup(backend:Backend, style:Style, camera:Camera)
  
- 	/**
- 	 * Configure all the dynamic and per element settings.
- 	 * Some configurations can only be done before painting the element, since they change for
- 	 * each element.
- 	 */
- 	def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera)
+ 	/** Configure all the dynamic and per element settings.
+ 	  * Some configurations can only be done before painting the element, since they change for
+ 	  * each element.
+ 	  * @param backend The rendering back-end.
+ 	  * @param element The specific element to render.
+ 	  * @param skeleton The element geometry and information.
+ 	  * @param camera the view parameters. */
+ 	def configureForElement(backend:Backend, element:GraphicElement, skeleton:Skeleton, camera:Camera)
  	
- 	/**
-     * Must create the shape from informations given earlier, that is, resize it if needed and
-     * position it, and do all the things that are specific to each element, and cannot be done
-     * for the group of elements.
-     * All the settings for position, size, shadow, etc. must have been made. Usually all the
-     * "static" settings are already set in configure, therefore most often this method is only in
-     * charge of changing  the shape position (and computing size if fitting it to the contents).
-     * This method is made to be called inside the render() method, hence it is protected.
- 	 */
- 	protected def make(bck:Backend, camera:Camera)
+ 	/** Must create the shape from informations given earlier, that is, resize it if needed and
+      * position it, and do all the things that are specific to each element, and cannot be done
+      * for the group of elements.
+      * This method is made to be called inside the render() method, hence it is protected.
+      * @param backend The rendering back-end.
+      * @param camera the view parameters. */
+ 	protected def make(backend:Backend, camera:Camera)
  	
- 	/**
- 	 * Same as {@link #make(Camera)} for the shadow shape. The shadow shape may be moved and
- 	 * resized compared to the original shape. This method is made to be called inside the
- 	 * renderShadow() method, hence it is protected.
- 	 */
-  	protected def makeShadow(bck:Backend, camera:Camera)
+ 	/** Same as {@link #make(Camera)} for the shadow shape. The shadow shape may be moved and
+ 	  * resized compared to the original shape. This method is made to be called inside the
+ 	  * renderShadow() method, hence it is protected. */
+  	protected def makeShadow(backend:Backend, camera:Camera)
   
-  	/**
-     * Render the shape for the given element.
-     */
-  	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo)
+  	/** Render the shape for the given element.
+      * @param backend The rendering back-end.
+      * @param camera The view parameters.
+      * @param element The element to render.
+      * @param skeleton The element geometry and information. */
+  	def render(bck:Backend, camera:Camera, element:GraphicElement, skeleton:Skeleton)
    
-   	/**
-     * Render the shape shadow for the given element. The shadow is rendered in a different pass
-     * than usual rendering, therefore it is a separate method.
-     */
-   	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo)
+   	/** Render the shape shadow for the given element. The shadow is rendered in a different pass
+      * than usual rendering, therefore it is a separate method. */
+   	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, skeleton:Skeleton)
 }

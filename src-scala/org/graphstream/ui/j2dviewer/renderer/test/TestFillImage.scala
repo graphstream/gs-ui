@@ -175,7 +175,7 @@ private class TestFillImage extends ViewerListener {
 	private val styleSheet:String = """
 			graph {
 				canvas-color: white;
- 				fill-mode: image-tiled;
+ 				fill-mode: image-scaled-ratio-max;
  				fill-image: url('data/paper.png');
  				fill-color: white, gray;
  				padding: 60px;

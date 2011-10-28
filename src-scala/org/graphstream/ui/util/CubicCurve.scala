@@ -211,7 +211,7 @@ object CubicCurve {
 	 * point in the shape. */
 	def approxVectorEnteringCurve( edge:GraphicEdge, c:Connector, camera:Camera ):(Point2, Point2) = {
 		val node = edge.to
-		val info = node.getAttribute( ElementInfo.attributeName ).asInstanceOf[NodeInfo]
+		val info = node.getAttribute(Skeleton.attributeName).asInstanceOf[AreaSkeleton]
 		var w    = 0.0
 		var h    = 0.0
 		
@@ -260,7 +260,7 @@ object CubicCurve {
 	 */
 	def approxIntersectionPointOnCurve( edge:GraphicEdge, c:Connector, camera:Camera, maxDepth:Int ):(Point2,Double) = {
 		val node = edge.to
-		val info = node.getAttribute( ElementInfo.attributeName ).asInstanceOf[NodeInfo]
+		val info = node.getAttribute(Skeleton.attributeName).asInstanceOf[AreaSkeleton]
 		var w    = 0.0
 		var h    = 0.0
 		

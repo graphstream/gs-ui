@@ -28,7 +28,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
  */
-package org.graphstream.ui.j2dviewer.renderer.shape
+package org.graphstream.ui.j2dviewer.renderer.shape.swing
 
 import java.awt._
 import java.awt.geom._
@@ -43,6 +43,8 @@ import org.graphstream.ui.graphicGraph._
 import org.graphstream.ui.graphicGraph.stylesheet._
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 
+import org.graphstream.ui.j2dviewer.renderer.shape._
+
 import scala.math._
 
 class SpriteArrowShape extends PolygonalShape with Orientable {
@@ -52,8 +54,8 @@ class SpriteArrowShape extends PolygonalShape with Orientable {
 		configureOrientableForGroup( style, camera )
 	}
  
-	override def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera ) {
-		super.configureForElement(bck, element, info, camera )
+	override def configureForElement(bck:Backend, element:GraphicElement, skel:Skeleton, camera:Camera ) {
+		super.configureForElement(bck, element, skel, camera )
 		configureOrientableForElement( camera, element.asInstanceOf[GraphicSprite] /* Check This XXX TODO !*/ );
 	}
 
@@ -99,7 +101,7 @@ class OrientableRoundedSquareShape extends OrientableRectangularAreaShape {
 }
 */
 class SpriteFlowShape
-	extends Shape
+	extends org.graphstream.ui.j2dviewer.renderer.shape.Shape
 	with FillableLine
 	with StrokableLine
 	with ShadowableLine
@@ -108,7 +110,7 @@ class SpriteFlowShape
 	var theSize = 0.0
 	var along = 0.0
 	var offset = 0.0
-	var edgeInfo:EdgeInfo = null
+	var connectorSkel:ConnectorSkeleton = null
 	var theShape = new GeneralPath
 	var reverse = false
 	
@@ -122,23 +124,23 @@ class SpriteFlowShape
 		reverse = ( style.getSpriteOrientation == SpriteOrientation.FROM )
 	}
 	
-	def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera ) {
+	def configureForElement(bck:Backend, element:GraphicElement, skel:Skeleton, camera:Camera ) {
 		val sprite = element.asInstanceOf[GraphicSprite]
 		
 		if( sprite.isAttachedToEdge ) {
 			val edge = sprite.getEdgeAttachment
 			
 			configureFillableLineForElement( element.getStyle, camera, element )
-			configureDecorableForElement( bck.graphics2D, camera, element, info )
+			configureDecorableForElement( bck, camera, element, skel )
 		
 			if( element.hasAttribute( "ui.size" ) )
 				theSize = camera.metrics.lengthToGu( StyleConstants.convertValue( element.getAttribute( "ui.size" ) ) )
 			
 			along    = element.getX
 			offset   = camera.metrics.lengthToGu( element.getY, sprite.getUnits )
-			edgeInfo = edge.getAttribute( ElementInfo.attributeName ).asInstanceOf[EdgeInfo]
+			connectorSkel = edge.getAttribute( Skeleton.attributeName ).asInstanceOf[ConnectorSkeleton]
 		} else {
-			edgeInfo = null
+			connectorSkel = null
 		}
 	}
 	
@@ -150,12 +152,12 @@ class SpriteFlowShape
 		// EdgeInfo contains a way to compute points perpendicular to the shape, however here
 	    // we only need to compute the perpendicular vector once, hence this code.
 	    
-	    if(edgeInfo ne null) {
-	        if(edgeInfo.isCurve) {
-				var P0  = if(reverse) edgeInfo(3) else edgeInfo(0)
-				val P1  = if(reverse) edgeInfo(2) else edgeInfo(1)
-				val P2  = if(reverse) edgeInfo(1) else edgeInfo(2)
-				var P3  = if(reverse) edgeInfo(0) else edgeInfo(3)
+	    if(connectorSkel ne null) {
+	        if(connectorSkel.isCurve) {
+				var P0  = if(reverse) connectorSkel(3) else connectorSkel(0)
+				val P1  = if(reverse) connectorSkel(2) else connectorSkel(1)
+				val P2  = if(reverse) connectorSkel(1) else connectorSkel(2)
+				var P3  = if(reverse) connectorSkel(0) else connectorSkel(3)
 				val inc = 0.01
 				var t   = 0.0
 				val dir = new Vector2(P3.x-P0.x, P3.y-P0.y)
@@ -174,11 +176,11 @@ class SpriteFlowShape
 					
 					t += inc
 				}
-	        } else if(edgeInfo.isPoly) {
-	            val P0           = if(reverse) edgeInfo.to   else edgeInfo.from
-	            val P1           = if(reverse) edgeInfo.from else edgeInfo.to
+	        } else if(connectorSkel.isPoly) {
+	            val P0           = if(reverse) connectorSkel.to   else connectorSkel.from
+	            val P1           = if(reverse) connectorSkel.from else connectorSkel.to
 	            var a            = if(reverse) 1-along else along
-	            var (i, sum, ps) = edgeInfo.wichSegment(a)
+	            var (i, sum, ps) = connectorSkel.wichSegment(a)
 				val dir          = new Vector2(P1.x-P0.x, P1.y-P0.y)
 				val per          = new Vector2(dir.y + shx, -dir.x + shy)
 	            
@@ -188,26 +190,26 @@ class SpriteFlowShape
 	            theShape.reset
 				if(reverse) {
 Console.err.println("reverse")
-				    val n = edgeInfo.size
-	                sum = edgeInfo.length - sum
+				    val n = connectorSkel.size
+	                sum = connectorSkel.length - sum
 	                ps  = 1-ps
 	                theShape.moveTo(P1.x+per.x, P1.y+per.y)
 	                for(j <- n-2 until i by -1) {
-	                	theShape.lineTo(edgeInfo(j).x + per.x, edgeInfo(j).y + per.y)
+	                	theShape.lineTo(connectorSkel(j).x + per.x, connectorSkel(j).y + per.y)
 	                }
-	                val PX = edgeInfo.pointOnShape(along)
+	                val PX = connectorSkel.pointOnShape(along)
 	                theShape.lineTo(PX.x+per.x, PX.y+per.y)
 	            } else {
 	                theShape.moveTo(P0.x+per.x, P0.y+per.y)
 	                for(j <- 1 to i) {
-	                	theShape.lineTo(edgeInfo(j).x + per.x, edgeInfo(j).y + per.y)
+	                	theShape.lineTo(connectorSkel(j).x + per.x, connectorSkel(j).y + per.y)
 	                }
-	                val PX = edgeInfo.pointOnShape(along)
+	                val PX = connectorSkel.pointOnShape(along)
 	                theShape.lineTo(PX.x+per.x, PX.y+per.y)
 	            }
 	        } else {
-	            val P0  = if(reverse) edgeInfo.to   else edgeInfo.from
-	            val P1  = if(reverse) edgeInfo.from else edgeInfo.to
+	            val P0  = if(reverse) connectorSkel.to   else connectorSkel.from
+	            val P1  = if(reverse) connectorSkel.from else connectorSkel.to
 				val dir = new Vector2(P1.x-P0.x, P1.y-P0.y)
 				val per = new Vector2(dir.y + shx, -dir.x + shy)
 
@@ -221,9 +223,9 @@ Console.err.println("reverse")
 	        }
 	    }
 	    
-//		if( edgeInfo != null ) {
-//			var P0  = if( reverse ) edgeInfo.to else edgeInfo.from
-//			var P3  = if( reverse ) edgeInfo.from else edgeInfo.to
+//		if( connectorSkel != null ) {
+//			var P0  = if( reverse ) connectorSkel.to else connectorSkel.from
+//			var P3  = if( reverse ) connectorSkel.from else connectorSkel.to
 //			val dir = Vector2( P3.x-P0.x, P3.y-P0.y )
 //			val per = Vector2( dir.y + shx, -dir.x + shy )
 //			
@@ -232,9 +234,9 @@ Console.err.println("reverse")
 //			theShape.reset
 //			theShape.moveTo( P0.x + per.x, P0.y + per.y  )
 //			
-//			if( edgeInfo.isCurve ) {
-//				val P1  = if( reverse ) edgeInfo(2) else edgeInfo(1)
-//				val P2  = if( reverse ) edgeInfo(1) else edgeInfo(2)
+//			if( connectorSkel.isCurve ) {
+//				val P1  = if( reverse ) connectorSkel(2) else connectorSkel(1)
+//				val P2  = if( reverse ) connectorSkel(1) else connectorSkel(2)
 //				val inc = 0.01f
 //				var t   = 0f
 //				
@@ -254,20 +256,20 @@ Console.err.println("reverse")
 //		}
 	}
 	
-	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
-		if( edgeInfo != null ) {
+	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton ) {
+		if( connectorSkel != null ) {
 			makeShadow(bck, camera )
 			cast(bck.graphics2D, theShape )
 		}
  	}
   
- 	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
- 		if( edgeInfo != null ) {
+ 	def render(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton ) {
+ 		if( connectorSkel != null ) {
  		    val g = bck.graphics2D
  			make(bck, camera )
  			stroke( g, theShape )
  			fill( g, theSize, theShape )
- 			decorConnector( g, camera, info.iconAndText, element, theShape )
+ 			decorConnector( bck, camera, skel.iconAndText, element, theShape )
  		}
  	}
 }

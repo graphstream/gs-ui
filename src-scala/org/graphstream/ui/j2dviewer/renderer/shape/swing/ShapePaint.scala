@@ -28,16 +28,16 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
  */
-package org.graphstream.ui.j2dviewer.renderer.shape
+package org.graphstream.ui.j2dviewer.renderer.shape.swing
 
 import java.awt.{Paint, Color, TexturePaint, GradientPaint, LinearGradientPaint, RadialGradientPaint, MultipleGradientPaint}
 import java.awt.image.BufferedImage
 import java.awt.geom.{RectangularShape, Rectangle2D}
 
 import org.graphstream.ui.graphicGraph.stylesheet.{Style, Colors}
-import org.graphstream.ui.util.ImageCache
+import org.graphstream.ui.util.swing.ImageCache
 import scala.collection.JavaConversions._
-//import org.graphstream.ScalaGS._
+import org.graphstream.ui.j2dviewer.renderer.shape._
 
 abstract class ShapePaint {
 }
@@ -349,7 +349,7 @@ object ShapePaint {
 					val img = x.get
 					val w = xTo-xFrom
 					val h = yTo-yFrom
-					val ratioi = img.getWidth / img.getHeight
+					val ratioi = img.getWidth.toDouble / img.getHeight.toDouble
 					val ration = w / h
 
 					if( ratioi > ration ) {
@@ -375,7 +375,7 @@ object ShapePaint {
 					val img = x.get
 					val w = xTo-xFrom
 					val h = yTo-yFrom
-					val ratioi = img.getWidth / img.getHeight
+					val ratioi = img.getWidth.toDouble / img.getHeight.toDouble
 					val ration = w / h
 
 					if( ration > ratioi ) {

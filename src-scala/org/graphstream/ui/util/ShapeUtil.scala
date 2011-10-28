@@ -40,143 +40,184 @@ import org.graphstream.ui.j2dviewer.renderer._
 import scala.math._
 
 object ShapeUtil {
-  	
-  	/**
-	 * Try to evaluate the "radius" of the edge target node shape along the edge. In other words
-	 * this method computes the intersection point between the edge and the node shape contour.
-	 * The returned length is the length of a line going from the centre of the shape toward
-	 * the point of intersection between the target node shape contour and the edge.
-	 * @param edge The edge (it contains its target node).
-	 * @return The radius.
-	 */
+  	/** Try to evaluate the "radius" of the edge target node shape along the edge. In other words
+	  * this method computes the intersection point between the edge and the node shape contour.
+	  * The returned length is the length of a line going from the center of the shape toward
+	  * the point of intersection between the target node shape contour and the edge.
+	  * @param edge The edge (it contains its target node).
+	  * @param camera the camera.
+	  * @return The radius. */
  	def evalTargetRadius2D(edge:GraphicEdge, camera:Camera):Double = {
- 	    val einfo = edge.getAttribute(ElementInfo.attributeName).asInstanceOf[EdgeInfo]
- 	    
+ 	    val eskel = edge.getAttribute(Skeleton.attributeName).asInstanceOf[ConnectorSkeleton]
  	    evalTargetRadius2D(
  	    		edge.to.getStyle,
- 	    		edge.to.getAttribute(ElementInfo.attributeName).asInstanceOf[NodeInfo],
- 	    		new Point3( einfo.from.x, einfo.from.y, einfo.from.z ),
- 	    		new Point3( einfo.to.x, einfo.to.y, einfo.to.z ),
- 	    		camera )
+ 	    		edge.to.getAttribute(Skeleton.attributeName).asInstanceOf[AreaSkeleton],
+ 	    		new Point3(eskel.from.x, eskel.from.y, eskel.from.z),
+ 	    		new Point3(eskel.to.x, eskel.to.y, eskel.to.z),
+ 	    		camera)
  	}
  	
- 	/**
- 	 * Consider the edge as going from `from` to `to`.
- 	 */
+ 	/** Try to evaluate the "radius" of the given node considering an edge between points `from` and `to`.
+ 	  * In other words, this method computes the intersection point between the edge and the node
+ 	  * shape contour. The returned length is the length of a line going from the center of the shape
+ 	  * toward the point of intersection between the target node shape contour and the edge.
+ 	  * @param from The origin point of the edge.
+ 	  * @param to The target point of the edge.
+ 	  * @param node The target node shape.
+ 	  * @param the camera.
+ 	  * @return The radius. */
  	def evalTargetRadius2D(from:Point3, to:Point3, node:GraphicNode, camera:Camera):Double = {
- 	    evalTargetRadius2D(node.getStyle, node.getAttribute(ElementInfo.attributeName).asInstanceOf[NodeInfo],
+ 	    evalTargetRadius2D(node.getStyle, node.getAttribute(Skeleton.attributeName).asInstanceOf[AreaSkeleton],
  	            from, null, null, to, camera)
  	}
  
-   	def evalTargetRadius2D(style:Style, info:NodeInfo, p0:Point3, p3:Point3, camera:Camera):Double =
-   		evalTargetRadius2D(style, info, p0, null, null, p3, camera)
+ 	/** Try to evaluate the "radius" of the given area skeleton considering an edge between points `p0` and
+ 	  * point `p3` (the edge is considered a straight line). In other words, this method computes the intersection
+ 	  * point between the edge and the area geometry. The returned length of the line going from the center of
+ 	  * the skeleton geometry toward the point of intersection between the skeleton geometry and the edge.
+ 	  * @param style The style of the area skeleton.
+ 	  * @param skeleton The skeleton.
+ 	  * @param p0 The origin point of the edge.
+ 	  * @param p3 the target point of the edge.
+ 	  * @param camera the camera.
+ 	  * @return the radius. */
+   	def evalTargetRadius2D(style:Style, skeleton:AreaSkeleton, p0:Point3, p3:Point3, camera:Camera):Double = evalTargetRadius2D(style, skeleton, p0, null, null, p3, camera)
   
+ 	/** Try to evaluate the "radius" of the given area skeleton considering a cubic curve edge between points `p0` and
+ 	  * point `p3` and curving to control points `p1`  and `p2`. In other words, this method computes the intersection
+ 	  * point between the edge and the area geometry. The returned length of the line going from the center of
+ 	  * the skeleton geometry toward the point of intersection between the skeleton geometry and the edge.
+ 	  * @param edge The edge.
+ 	  * @param p0 The origin point of the edge.
+ 	  * @param p3 the target point of the edge.
+ 	  * @param camera the camera.
+ 	  * @return the radius. */
   	def evalTargetRadius2D(edge:GraphicEdge, p0:Point3, p1:Point3, p2:Point3, p3:Point3, camera:Camera):Double = 
   		evalTargetRadius2D(edge.to.getStyle,
-  			edge.to.getAttribute(ElementInfo.attributeName).asInstanceOf[NodeInfo],
+  			edge.to.getAttribute(Skeleton.attributeName).asInstanceOf[AreaSkeleton],
   			p0, p1, p2, p3, camera)
   		
-  	def evalTargetRadius2D(style:Style, info:NodeInfo, p0:Point3, p1:Point3, p2:Point3, p3:Point3, camera:Camera):Double = { 
+ 	/** Try to evaluate the "radius" of the given area skeleton considering a cubic curve edge between points `p0` and
+ 	  * point `p3` and curving to control points `p1`  and `p2`. In other words, this method computes the intersection
+ 	  * point between the edge and the area geometry. The returned length of the line going from the center of
+ 	  * the skeleton geometry toward the point of intersection between the skeleton geometry and the edge.
+ 	  * @param style The style of the area skeleton.
+ 	  * @param skeleton The skeleton.
+ 	  * @param p0 The origin point of the edge.
+ 	  * @param p3 the target point of the edge.
+ 	  * @param camera the camera.
+ 	  * @return the radius. */
+  	def evalTargetRadius2D(style:Style, skeleton:AreaSkeleton, p0:Point3, p1:Point3, p2:Point3, p3:Point3, camera:Camera):Double = { 
 		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.StrokeMode
 		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Shape._
 
   	  	var w = 0.0
   	  	var h = 0.0
-  	  	val s = if( style.getStrokeMode != StrokeMode.NONE ) camera.metrics.lengthToGu(style.getStrokeWidth) else 0f
+  	  	val s = if(style.getStrokeMode != StrokeMode.NONE) camera.metrics.lengthToGu(style.getStrokeWidth) else 0f
 
-  	  	if( info != null ) {
-  	  		w = info.theSize.x
-  	  		h = info.theSize.y
+  	  	if(skeleton != null) {
+  	  		w = skeleton.theSize.x
+  	  		h = skeleton.theSize.y
   	  	} else {
-  	  		w = camera.metrics.lengthToGu( style.getSize, 0 )
-  	  		h = if( style.getSize.size > 1 ) camera.metrics.lengthToGu( style.getSize, 1 ) else w
+  	  		w = camera.metrics.lengthToGu(style.getSize, 0)
+  	  		h = if(style.getSize.size > 1) camera.metrics.lengthToGu(style.getSize, 1) else w
   	  	}
   	  	
 		style.getShape match {
-			case CIRCLE       => evalEllipseRadius2D( p0, p1, p2, p3, w, h, s )
-			case DIAMOND      => evalEllipseRadius2D( p0, p1, p2, p3, w, h, s )
-			case CROSS        => evalEllipseRadius2D( p0, p1, p2, p3, w, h, s )
-			case TRIANGLE     => evalEllipseRadius2D( p0, p1, p2, p3, w, h, s )
-			case TEXT_CIRCLE  => evalEllipseRadius2D( p0, p1, p2, p3, w, h, s )
-			case TEXT_DIAMOND => evalEllipseRadius2D( p0, p1, p2, p3, w, h, s )
-			case BOX          => evalBoxRadius2D( p0, p1, p2, p3, w/2+s, h/2+s )
-			case ROUNDED_BOX  => evalBoxRadius2D( p0, p1, p2, p3, w/2+s, h/2+s )
-			case TEXT_BOX     => evalBoxRadius2D( p0, p1, p2, p3, w/2+s, h/2+s )
-			case JCOMPONENT   => evalBoxRadius2D( p0, p1, p2, p3, w/2+s, h/2+s )
-			case _            => evalBoxRadius2D( p0, p1, p2, p3, w/2+s, h/2+s )
+			case CIRCLE       => evalEllipseRadius2D(p0, p1, p2, p3, w, h, s)
+			case DIAMOND      => evalEllipseRadius2D(p0, p1, p2, p3, w, h, s)
+			case CROSS        => evalEllipseRadius2D(p0, p1, p2, p3, w, h, s)
+			case TRIANGLE     => evalEllipseRadius2D(p0, p1, p2, p3, w, h, s)
+			case TEXT_CIRCLE  => evalEllipseRadius2D(p0, p1, p2, p3, w, h, s)
+			case TEXT_DIAMOND => evalEllipseRadius2D(p0, p1, p2, p3, w, h, s)
+			case BOX          => evalBoxRadius2D(p0, p1, p2, p3, w/2+s, h/2+s)
+			case ROUNDED_BOX  => evalBoxRadius2D(p0, p1, p2, p3, w/2+s, h/2+s)
+			case TEXT_BOX     => evalBoxRadius2D(p0, p1, p2, p3, w/2+s, h/2+s)
+			case JCOMPONENT   => evalBoxRadius2D(p0, p1, p2, p3, w/2+s, h/2+s)
+			case _            => evalBoxRadius2D(p0, p1, p2, p3, w/2+s, h/2+s)
 		}
 	}
   
+   	/** Compute the length of a (eventually cubic curve) vector along the edge from the ellipse center toward the intersection
+   	  * point with the ellipse that match the ellipse radius. If `p1` and `p2` are null, the edge is considered
+   	  * a straight line, else a cubic curve.
+   	  * @param p0 the origin point of the edge
+   	  * @param p1 the first cubic-curve control point or null for straight edge.
+   	  * @param p2 the second cubic-curve control point or null for straight edge.
+   	  * @param p3 the target point of the edge.
+   	  * @param w the width of the ellipse.
+   	  * @param h the height of the ellipse.
+   	  * @param s the width of the stroke of the ellipse shape.
+   	  */
   	protected def evalEllipseRadius2D(p0:Point3, p1:Point3, p2:Point3, p3:Point3, w:Double, h:Double, s:Double):Double = {
-  	  	if( w == h )
+  	  	if(w == h)
   	  	     w / 2 + s	// Welcome simplification for circles ...
   	  	else evalEllipseRadius2D(p0, p1, p2, p3, w/2 + s, h/2 + s)
   	}
 
-	/**
-	 * Compute the length of a vector along the edge from the ellipse centre that match the
-	 * ellipse radius.
-	 * @param edge The edge representing the vector.
-	 * @param w The ellipse first radius (width/2).
-	 * @param h The ellipse second radius (height/2).
-	 * @return The length of the radius along the edge vector.
-	 */
+	/** Compute the length of a vector along the edge from the ellipse center that match the
+	  * ellipse radius.
+	  * @param edge The edge representing the vector.
+	  * @param w The ellipse first radius (width/2).
+	  * @param h The ellipse second radius (height/2).
+	  * @return The length of the radius along the edge vector. */
 	protected def evalEllipseRadius2D(p0:Point3, p1:Point3, p2:Point3, p3:Point3, w:Double, h:Double):Double = {
-		// Vector of the entering edge.
-
-		var dx = 0.0
-		var dy = 0.0
-
-		if( p1 != null && p2 != null ) {
-			dx = p3.x - p2.x //( p2.x + ((p1.x-p2.x)/4) )	// Use the line going from the last control-point to target
-			dy = p3.y - p2.y //( p2.y + ((p1.y-p2.y)/4) )	// center as the entering edge.
-		} else {
-			dx = p3.x - p0.x
-			dy = p3.y - p0.y
-		}
-		
-		// The entering edge must be deformed by the ellipse ratio to find the correct angle.
-
-		dy *= ( w / h )
-
-		// Find the angle of the entering vector with (1,0).
-
-		val d  = sqrt( dx*dx + dy*dy )
-		var a  = dx / d
-
-		// Compute the coordinates at which the entering vector and the ellipse cross.
-
-		a  = acos( a )
-		dx = ( cos( a ) * w )
-		dy = ( sin( a ) * h )
-
-		// The distance from the ellipse centre to the crossing point of the ellipse and
-		// vector. Yo !
-
-		sqrt( dx*dx + dy*dy )
+  	  	if(w == h) {
+  	  	     w / 2	// Welcome simplification for circles ...
+  	  	} else {
+			// Vector of the entering edge.
+	
+			var dx = 0.0
+			var dy = 0.0
+	
+			if(p1 != null && p2 != null) {
+				dx = p3.x - p2.x //( p2.x + ((p1.x-p2.x)/4) )	// Use the line going from the last control-point to target
+				dy = p3.y - p2.y //( p2.y + ((p1.y-p2.y)/4) )	// center as the entering edge.
+			} else {
+				dx = p3.x - p0.x
+				dy = p3.y - p0.y
+			}
+			
+			// The entering edge must be deformed by the ellipse ratio to find the correct angle.
+	
+			dy *= w / h
+	
+			// Find the angle of the entering vector with (1,0).
+	
+			val d  = sqrt(dx*dx + dy*dy)
+			var a  = dx / d
+	
+			// Compute the coordinates at which the entering vector and the ellipse cross.
+	
+			a  = acos(a)
+			dx = cos(a) * w
+			dy = sin(a) * h
+	
+			// The distance from the ellipse center to the crossing point of the ellipse and
+			// vector. Yo !
+	
+			sqrt(dx*dx + dy*dy)
+  	  	}
 	}
 
- 	/**
-	 * Compute the length of a vector along the edge from the box centre that match the box
-	 * "radius".
-	 * @param edge The edge representing the vector.
-	 * @param w The box first radius (width/2).
-	 * @param h The box second radius (height/2).
-	 * @return The length of the radius along the edge vector.
-	 */
+ 	/** Compute the length of a vector along the edge from the box center that match the box
+	  * "radius".
+	  * @param edge The edge representing the vector.
+	  * @param w The box first radius (width/2).
+	  * @param h The box second radius (height/2).
+	  * @return The length of the radius along the edge vector. */
 	def evalBoxRadius2D(p0:Point3, p1:Point3, p2:Point3, p3:Point3, w:Double, h:Double):Double = {
-
 		// Pythagora : Angle at which we compute the intersection with the height or the width.
 	
-		var da = w / ( sqrt( w*w + h*h ).toDouble )
+		var da = w / sqrt(w*w + h*h).toDouble
 		
-		da = if( da < 0 ) -da else da
+		da = if(da < 0) -da else da
 		
 		// Angle of the incident vector.
 		var dx = 0.0
 		var dy = 0.0
 
-		if( p1 != null && p2 != null ) {
+		if(p1 != null && p2 != null) {
 			dx = p3.x - p2.x // ( p2.x + ((p1.x-p2.x)/4) )	// Use the line going from the last control-point to target
 			dy = p3.y - p2.y //( p2.y + ((p1.y-p2.y)/4) )	// center as the entering edge.
 		} else {
@@ -184,23 +225,23 @@ object ShapeUtil {
 			dy = p3.y - p0.y
 		}
   
-		val d = sqrt( dx*dx + dy*dy ).toDouble
+		val d = sqrt(dx*dx + dy*dy).toDouble
 		var a = dx/d
 		
-		a = if( a < 0 ) -a else a
+		a = if(a < 0) -a else a
 	
 		// Choose the side of the rectangle the incident edge vector crosses.
 		
-		if( da < a ) {
+		if(da < a) {
 			w / a
 		} else {
 			a = dy/d
-			a = if( a < 0 ) -a else a
+			a = if(a < 0) -a else a
             h / a
 		}
 	}
 	
-	/** Compute if point `p`  is inside of the shape of `elt` whose overall size is `w` x `h`. */
+	/** Compute if point `p` is inside of the shape of `elt` whose overall size is `w` x `h`. */
 	def isPointIn(elt:GraphicElement, p:Point3, w:Double, h:Double):Boolean = {
 		import ShapeKind._
 		elt.getStyle.getShape.kind match {
@@ -210,20 +251,20 @@ object ShapeUtil {
 		}
 	}
 	
-	/** Compute if point `p`  is inside of a rectangular shape of overall size `w` x `h`. */
+	/** Compute if point `p` is inside of a rectangular shape of overall size `w` x `h`. */
 	def isPointIn2DBox(p:Point3, x:Double, y:Double, w:Double, h:Double):Boolean = {
 		val w2 = w/2
 		val h2 = h/2
 		( p.x > (x-w2) && p.x < (x+w2) && p.y > (y-h2) && p.y < (y+h2) )
 	}
 	
-	/** Compute if point `p`  is inside of a ellipsoid shape of overall size `w` x `h`. */
+	/** Compute if point `p` is inside of a ellipsoid shape of overall size `w` x `h`. */
 	def isPointIn2DEllipse(p:Point3, x:Double, y:Double, w:Double, h:Double):Boolean = {
 		val xx = p.x - x
 		val yy = p.y - y
 		val w2 = w/2
 		val h2 = h/2
 		
-		( ((xx*xx)/(w2*w2)) + ((yy*yy)/(h2*h2)) < 1 )
+		(((xx*xx)/(w2*w2)) + ((yy*yy)/(h2*h2)) < 1)
 	}
 }

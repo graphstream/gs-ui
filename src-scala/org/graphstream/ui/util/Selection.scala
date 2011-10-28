@@ -32,9 +32,7 @@ package org.graphstream.ui.util
 
 import org.graphstream.ui.geom.Point3
 
-/**
- * A representation of the current selection.
- */
+/** A representation of the current selection. */
 class Selection {
 	var active = false
 	

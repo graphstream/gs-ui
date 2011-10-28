@@ -49,46 +49,35 @@ import org.graphstream.ui.util.CubicCurve
 import org.graphstream.ui.swingViewer.util.GraphMetrics
 import org.graphstream.ui.geom.Point2
 import org.graphstream.ui.geom.Vector2
-import org.graphstream.ui.j2dviewer.renderer.{ElementInfo, EdgeInfo, NodeInfo}
+import org.graphstream.ui.j2dviewer.renderer.{Skeleton, AreaSkeleton, ConnectorSkeleton}
 
 import scala.math._
-//import org.graphstream.ScalaGS._
-
 
 /**
  * Define how the graph is viewed.
  * 
- * <p>
  * The camera is in charge of projecting the graph elements in graph units (GU) into
  * user spaces (often in pixels). It defines the transformation (an affine matrix) to pass
- * from the first to the second. It also contains the graph metrics, a set of values that
+ * from the first to the second (in fact its the back-end that does it). It also contains
+ * the graph metrics, a set of values that
  * give the overall dimensions of the graph in graph units, as well as the view port, the
  * area on the screen (or any rendering surface) that will receive the results in pixels
  * (or rendering units). The two mains methods for this operation are
  * {@link #pushView(Graphics2D,GraphicGraph)} and {@link #popView()}.
- * </p>
  * 
- * <p>
  * The user of the camera must set both the view port and the graph bounds in order for the
- * camera to correctly project the graph view. The camera also defines a centre at which it
+ * camera to correctly project the graph view. The camera also defines a center at which it
  * always points. It can zoom on the graph, pan in any direction and rotate along two axes.
- * </p>
  * 
- * <p>
- * There are two modes : an "auto-fit" mode where the camera always show the whole graph even
- * if it changes in size, and a "user" mode where the camera centre (looked-at point), zoom and
+ * There are two modes: an "auto-fit" mode where the camera always show the whole graph even
+ * if it changes in size, and a "user" mode where the camera center (looked-at point), zoom and
  * panning are specified.
- * </p>
  * 
- * <p>
  * Knowing the transformation also allows to provide services like "what element is
  * visible ?" (in the camera view) or "on what element is the mouse cursor actually ?".
- * </p>
  * 
- * <p>	
  * The camera is also able to compute sprite positions according to their attachment, as well as
  * maintaining a list of all elements out of the view, so that it is not needed to render them.
- * </p>
  */
 class Camera extends org.graphstream.ui.swingViewer.util.Camera {
 // Attribute
@@ -96,17 +85,14 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   	/** Information on the graph overall dimension and position. */
   	val metrics = new org.graphstream.ui.swingViewer.util.GraphMetrics
 	
-  	/** Automatic centring of the view. */
+  	/** Automatic centering of the view. */
   	protected var autoFit = true
 	
-  	/** The camera centre of view. */
+  	/** The camera center of view. */
   	protected val center = new Point3
 	
   	/** The camera zoom. */
   	protected var zoom:Double = 1
-	
-  	/** The rendering back-end. */
-  	protected var bck:Backend = null
   	
   	/** The rotation angle. */
   	protected var rotation:Double = 0
@@ -114,45 +100,41 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   	/** Padding around the graph. */
   	protected var padding = new Values(Units.GU, 0, 0, 0);
 	
-  	/**
-  	 * Which node is visible. This allows to mark invisible nodes to fasten visibility tests for
-  	 * nodes, attached sprites and edges. The visibility test is heavy, and we often need to test
-  	 * for nodes visibility. This allows to do it only once per rendering step. Hence the storage
-  	 * of the invisible nodes here.
-  	 */
+  	/** The rendering back-end. */
+  	protected var bck:Backend = null
+	
+  	/** Which node is visible. This allows to mark invisible nodes to fasten visibility tests for
+  	  * nodes, attached sprites and edges. The visibility test is heavy, and we often need to test
+  	  * for nodes visibility. This allows to do it only once per rendering step. Hence the storage
+  	  * of the invisible nodes here. */
   	protected val nodeInvisible = new HashSet[String]
   	
-  	/**
-  	 * The graph view port, if any. The graph view port is a view inside the graph space. It allows
-  	 * to compute the view according to a specified area of the graph space instead of the graph
-  	 * dimensions.
-  	 */
+  	/** The graph view port, if any. The graph view port is a view inside the graph space. It allows
+  	  * to compute the view according to a specified area of the graph space instead of the graph
+  	  * dimensions. */
   	protected var gviewport:Array[Double] = null
   		
 // Access
   	
   	def getMetrics() = metrics
 	
-  	/**
-  	 * The view centre (a point in graph units).
-  	 * @return The view centre.
-  	 */
+  	/** The view center (a point in graph units).
+  	  * @return The view center. */
   	def viewCenter:Point3 = center
+
   	def getViewCenter:Point3 = viewCenter
 	
-  	/**
-  	 * The visible portion of the graph.
-  	 * @return A real for which value 1 means the graph is fully visible and uses the whole
-  	 * view port.
-  	 */
+  	/** The visible portion of the graph.
+  	  * @return A real for which value 1 means the graph is fully visible and uses the whole
+  	  * view port. */
   	def viewPercent:Double = zoom
+
   	def getViewPercent:Double = viewPercent
 	
-  	/**
-  	 * The rotation angle in degrees.
-  	 * @return The rotation angle in degrees.
-  	 */
+  	/** The rotation angle in degrees.
+  	  * @return The rotation angle in degrees. */
   	def viewRotation:Double = rotation
+
   	def getViewRotation:Double = viewRotation
 	
   	def getGraphDimension():Double = metrics.getDiagonal
@@ -170,14 +152,12 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   		builder.toString
   	}
 	
-  	/**
-  	 * True if the element would be visible on screen. The method used is to transform the centre
+  	/** True if the element would be visible on screen. The method used is to transform the centre
   	 * of the element (which is always in graph units) using the camera actual transformation to
   	 * put it in pixel units. Then to look in the style sheet the size of the element and to test
   	 * if its enclosing rectangle intersects the view port. For edges, its two nodes are used. 
   	 * @param element The element to test.
-  	 * @return True if the element is visible and therefore must be rendered.
-  	 */
+  	 * @return True if the element is visible and therefore must be rendered. */
   	def isVisible(element:GraphicElement):Boolean = {
   		if( styleVisible( element ) ) element.getSelectorType match {
   			case NODE   => ! nodeInvisible.contains(element.getId)
@@ -187,30 +167,24 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   		} else false
     }
 
-  	/**
-  	 * Return the given point in pixels converted in graph units (GU) using the inverse
-  	 * transformation of the current projection matrix. The inverse matrix is computed only
-  	 * once each time a new projection matrix is created.
-  	 * @param x The source point abscissa in pixels.
-  	 * @param y The source point ordinate in pixels.
-  	 * @return The resulting points in graph units.
-  	 */
+  	/** Return the given point in pixels converted in graph units (GU) using the inverse
+  	  * transformation of the current projection matrix. The inverse matrix is computed only
+  	  * once each time a new projection matrix is created.
+  	  * @param x The source point abscissa in pixels.
+  	  * @param y The source point ordinate in pixels.
+  	  * @return The resulting points in graph units. */
   	def inverseTransform(x:Double, y:Double):Point3 = bck.inverseTransform(x, y, 0)
 	
-  	/**
-  	 * Transform a point in graph units into pixels.
-  	 * @return The transformed point.
-  	 */
+  	/** Transform a point in graph units into pixels.
+  	  * @return The transformed point. */
   	def transform(x:Double, y:Double, z:Double):Point3 = bck.transform(x, y, 0)
 	
-  	/**
-  	 * Search for the first node or sprite (in that order) that contains the point at coordinates
-  	 * (x, y).
-  	 * @param graph The graph to search for.
-  	 * @param x The point abscissa.
-  	 * @param y The point ordinate.
-  	 * @return The first node or sprite at the given coordinates or null if nothing found. 
-  	 */
+  	/** Search for the first node or sprite (in that order) that contains the point at coordinates
+  	  * (x, y).
+  	  * @param graph The graph to search for.
+  	  * @param x The point abscissa.
+  	  * @param y The point ordinate.
+  	  * @return The first node or sprite at the given coordinates or null if nothing found. */
   	def findNodeOrSpriteAt(graph:GraphicGraph, x:Double, y:Double):GraphicElement = {
   		var ge:GraphicElement = null
   		
@@ -227,17 +201,15 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   		}
   		
  		ge
-  	 }
-	
-  	/**
-  	 * Search for all the nodes and sprites contained inside the rectangle (x1,y1)-(x2,y2).
-  	 * @param graph The graph to search for.
-  	 * @param x1 The rectangle lowest point abscissa.
-  	 * @param y1 The rectangle lowest point ordinate.
-  	 * @param x2 The rectangle highest point abscissa.
-  	 * @param y2 The rectangle highest point ordinate.
-  	 * @return The set of sprites and nodes in the given rectangle.
-  	 */
+  	}
+
+  	/** Search for all the nodes and sprites contained inside the rectangle (x1,y1)-(x2,y2).
+  	  * @param graph The graph to search for.
+  	  * @param x1 The rectangle lowest point abscissa.
+  	  * @param y1 The rectangle lowest point ordinate.
+  	  * @param x2 The rectangle highest point abscissa.
+  	  * @param y2 The rectangle highest point ordinate.
+  	  * @return The set of sprites and nodes in the given rectangle. */
   	def allNodesOrSpritesIn(graph:GraphicGraph, x1:Double, y1:Double, x2:Double, y2:Double):ArrayList[GraphicElement] = {
   		val elts = new ArrayList[GraphicElement]
 	
@@ -254,19 +226,19 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   		elts
   	}
 
-  	/**
-  	 * Compute the real position of a sprite according to its eventual attachment in graph units.
-  	 * @param sprite The sprite.
-  	 * @param pos Receiver for the sprite 2D position, can be null. 
-  	 * @param units The units in which the position must be computed (the sprite already contains units).
-  	 * @return The same instance as the one given by parameter pos or a new one if pos was null,
-  	 * containing the computed position in the given units.
-  	 */
+
+  	/** Compute the real position of a sprite according to its eventual attachment in graph units.
+  	  * @param sprite The sprite.
+  	  * @param pos Receiver for the sprite 2D position, can be null. 
+  	  * @param units The units in which the position must be computed (the sprite already contains units).
+  	  * @return The same instance as the one given by parameter pos or a new one if pos was null,
+  	  * containing the computed position in the given units. */
   	def getSpritePosition(sprite:GraphicSprite, pos:Point3, units:Units):Point3 = {
   		if(      sprite.isAttachedToNode() ) getSpritePositionNode(sprite, pos, units)
   		else if( sprite.isAttachedToEdge() ) getSpritePositionEdge(sprite, pos, units)
   		else                                 getSpritePositionFree(sprite, pos, units)
   	 }
+
   	
   	def graphViewport = gviewport
   	
@@ -278,20 +250,19 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   	    gviewport = Array( minx, miny, maxx, maxy )
   	}
   	
+  	def removeGraphViewport() { gviewport = null }
+
+  	
   	def resetView() {
 		setAutoFitView(true)
 		setViewRotation(0)
 	}
-  	
-  	def removeGraphViewport() { gviewport = null }
 
-  	/**
-  	 * Set the camera view in the given graphics and backup the previous transform of the graphics.
-  	 * Call {@link #popView(Graphics2D)} to restore the saved transform. You can only push one time
-  	 * the view.
-  	 * @param g2 The Swing graphics to change.
-  	 * @param graph The graphic graph (used to check element visibility).
-  	 */
+  	/** Set the camera view in the given graphics and backup the previous transform of the graphics.
+  	  * Call {@link #popView(Graphics2D)} to restore the saved transform. You can only push one time
+  	  * the view.
+  	  * @param g2 The Swing graphics to change.
+  	  * @param graph The graphic graph (used to check element visibility). */
   	def pushView(graph:GraphicGraph) {
   		bck.pushTransform
   		setPadding(graph)
@@ -302,20 +273,17 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
 			
   		checkVisibility(graph)
   	}
+
 	
-  	/**
-  	 * Restore the transform that was used before {@link #pushView(Graphics2D)} is used.
-     * @param g2 The Swing graphics to restore.
-     */
+  	/** Restore the transform that was used before {@link #pushView(Graphics2D)} is used.
+      * @param g2 The Swing graphics to restore. */
     def popView() { bck.popTransform }
 	
-  	/**
-  	 * Compute a transformation matrix that pass from graph units (user space) to pixel units
-  	 * (device space) so that the whole graph is visible.
-  	 * @param g2 The Swing graphics.
-  	 * @param Tx The transformation to modify.
-  	 * @return The transformation modified.
-  	 */
+  	/** Compute a transformation matrix that pass from graph units (user space) to pixel units
+  	  * (device space) so that the whole graph is visible.
+  	  * @param g2 The Swing graphics.
+  	  * @param Tx The transformation to modify.
+  	  * @return The transformation modified. */
   	protected def autoFitView() {
   		var sx = 0.0; var sy = 0.0
   		var tx = 0.0; var ty = 0.0
@@ -326,8 +294,8 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
 		
   		sx = (metrics.viewport.data(0) - padXpx) / (metrics.size.data(0) + padXgu)	// Ratio along X
   		sy = (metrics.viewport.data(1) - padYpx) / (metrics.size.data(1) + padYgu)	// Ratio along Y
-  		tx = metrics.lo.x + (metrics.size.data(0) / 2)								// Centre of graph in X
-  		ty = metrics.lo.y + (metrics.size.data(1) / 2)								// Centre of graph in Y
+  		tx = metrics.lo.x + (metrics.size.data(0) / 2)								// Center of graph in X
+  		ty = metrics.lo.y + (metrics.size.data(1) / 2)								// Center of graph in Y
 		
   		if(sx > sy)	// The least ratio.
   		     sx = sy
@@ -336,11 +304,11 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   		bck.beginTransform
   		bck.setIdentity
   		bck.translate(metrics.viewport.data(0)/2,
-  		              metrics.viewport.data(1)/2, 0)	// 4. Place the whole result at the centre of the view port.
+  		              metrics.viewport.data(1)/2, 0)	// 4. Place the whole result at the center of the view port.
   		if(rotation != 0)
   		    bck.rotate(rotation/(180.0/Pi), 0, 0, 1)	// 3. Eventually apply a Z axis rotation.
-  		bck.scale(sx, -sy, 0)							// 2. Scale the graph to pixels. Scale -y since we reverse the view (top-left to bottom-keft).
-  		bck.translate(-tx, -ty, 0)						// 1. Move the graph so that its real centre is at (0,0).
+  		bck.scale(sx, -sy, 0)							// 2. Scale the graph to pixels. Scale -y since we reverse the view (top-left to bottom-left).
+  		bck.translate(-tx, -ty, 0)						// 1. Move the graph so that its real center is at (0,0).
   		bck.endTransform
 		
   		zoom = 1
@@ -349,17 +317,14 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   		metrics.ratioPx2Gu = sx
   		metrics.loVisible.copy(metrics.lo)
   		metrics.hiVisible.copy(metrics.hi)
-		
-//  		Tx
   	}
 
-  	/**
-  	 * Compute a transformation that pass from graph units (user space) to a pixel units (device
-  	 * space) so that the view (zoom and centre) requested by the user is produced.
-  	 * @param g2 The Swing graphics.
-  	 * @param Tx The transformation to modify.
-  	 * @return The transformation modified.
-  	 */
+
+  	/** Compute a transformation that pass from graph units (user space) to a pixel units (device
+  	  * space) so that the view (zoom and center) requested by the user is produced.
+  	  * @param g2 The Swing graphics.
+  	  * @param Tx The transformation to modify.
+  	  * @return The transformation modified. */
   	protected def userView() {
   		var sx = 0.0; var sy = 0.0
   		var tx = 0.0; var ty = 0.0
@@ -386,11 +351,11 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   		bck.beginTransform
   		bck.setIdentity
   		bck.translate(metrics.viewport.data(0)/2,
-  		              metrics.viewport.data(1)/2, 0)	// 4. Place the whole result at the centre of the view port.
+  		              metrics.viewport.data(1)/2, 0)	// 4. Place the whole result at the center of the view port.
   		if(rotation != 0)
   		    bck.rotate(rotation/(180.0/Pi), 0, 0, 1)	// 3. Eventually apply a rotation.
   		bck.scale(sx, -sy, 0)							// 2. Scale the graph to pixels. Scale -y since we reverse the view (top-left to bottom-left).
-  		bck.translate(-tx, -ty, 0)						// 1. Move the graph so that the give centre is at (0,0).
+  		bck.translate(-tx, -ty, 0)						// 1. Move the graph so that the give center is at (0,0).
   		bck.endTransform
 		
 		metrics.ratioPx2Gu = sx
@@ -400,14 +365,11 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
 		
 		metrics.loVisible.set(center.x-w2, center.y-h2)
 		metrics.hiVisible.set(center.x+w2, center.y+h2)
-		
-//		Tx
   	}
 
-  	/**
-     * Enable or disable automatic adjustment of the view to see the entire graph.
-     * @param on If true, automatic adjustment is enabled.
-     */
+
+  	/** Enable or disable automatic adjustment of the view to see the entire graph.
+      * @param on If true, automatic adjustment is enabled. */
     def setAutoFitView(on:Boolean) {
   		if(autoFit && (! on)) {
   			// We go from autoFit to user view, ensure the current centre is at the
@@ -420,66 +382,58 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
 
   		autoFit = on
   	}
+
 	
-  	/**
-  	 * Set the centre of the view (the looked at point). As the viewer is only 2D, the z value is
-  	 * not required.
-  	 * @param x The new position abscissa.
-  	 * @param y The new position ordinate.
-  	 */
-  	def setViewCenter(x:Double, y:Double, z:Double) { center.set(x, y, z) }
+  	/** Set the center of the view (the looked at point). As the viewer is only 2D, the z value is
+  	  * not required.
+  	  * @param x The new position abscissa.
+  	  * @param y The new position ordinate. */
+    def setViewCenter(x:Double, y:Double, z:Double) { center.set(x, y, z) }
 	
-  	/**
-     * Set the zoom (or percent of the graph visible), 1 means the graph is fully visible.
-     * @param z The zoom.
-     */
+  	/** Set the zoom (or percent of the graph visible), 1 means the graph is fully visible.
+      * @param z The zoom. */
     def viewPercent_=(z:Double) { zoom = z }
+
     def setViewPercent(z:Double) { zoom = z }
 	
-  	/**
-  	 * Set the rotation angle around the centre.
-  	 * @param angle The rotation angle in degrees.
-  	 */
+  	/** Set the rotation angle around the center.
+  	  * @param angle The rotation angle in degrees. */
   	def viewRotation_=(angle:Double) { rotation = angle }
+
   	def setViewRotation(angle:Double) { rotation = angle }
 
-  	/**
-  	 * Set the output view port size in pixels. 
-  	 * @param viewportWidth The width in pixels of the view port.
-  	 * @param viewportHeight The width in pixels of the view port.
-  	 */
+  	/** Set the output view port size in pixels.
+  	  * @param viewportWidth The width in pixels of the view port.
+  	  * @param viewportHeight The width in pixels of the view port. */
   	def setViewport(viewportWidth:Double, viewportHeight:Double) { metrics.setViewport(viewportWidth, viewportHeight) }
 	
-  	/**
-  	 * Set the graphic graph bounds (the lowest and highest points).
-  	 * @param minx Lowest abscissa.
-  	 * @param miny Lowest ordinate.
-  	 * @param minz Lowest depth.
-  	 * @param maxx Highest abscissa.
-  	 * @param maxy Highest ordinate.
-  	 * @param maxz Highest depth.
-  	 */
-  	def setBounds(minx:Double, miny:Double, minz:Double, maxx:Double, maxy:Double, maxz:Double) =
-  	    metrics.setBounds(minx, miny, minz, maxx, maxy, maxz)
+  	/** Set the graphic graph bounds (the lowest and highest points).
+  	  * @param minx Lowest abscissa.
+  	  * @param miny Lowest ordinate.
+  	  * @param minz Lowest depth.
+  	  * @param maxx Highest abscissa.
+  	  * @param maxy Highest ordinate.
+  	  * @param maxz Highest depth. */
+  	def setBounds(minx:Double, miny:Double, minz:Double, maxx:Double, maxy:Double, maxz:Double) = metrics.setBounds(minx, miny, minz, maxx, maxy, maxz)
+
   
   	/** Set the graphic graph bounds from the graphic graph. */
   	def setBounds(graph:GraphicGraph) {
   	    setBounds(graph.getMinPos.x, graph.getMinPos.y, 0, graph.getMaxPos.x, graph.getMaxPos.y, 0)
   	}
+
    
 // Utility
 	
-  	/**
-  	 * Set the graph padding. Called in pushView.
-  	 * @param graph The graphic graph.
-  	 */
+  	/** Set the graph padding. Called in pushView.
+  	  * @param graph The graphic graph. */
   	protected def setPadding(graph:GraphicGraph) { padding.copy(graph.getStyle.getPadding) }
   	
-  	/**
-  	 * Process each node to check if it is in the actual view port, and mark invisible nodes. This
-  	 * method allows for fast node, sprite and edge visibility checking when drawing. This must be
-  	 * called before each rendering (if the view port changed). Called in pushView.
-  	 */
+  	/** Process each node to check if it is in the actual view port, and mark invisible nodes. This
+  	  * method allows for fast node, sprite and edge visibility checking when drawing. This must be
+  	  * called before each rendering (if the view port changed). Called in pushView.
+  	  * A node is not visible if it is out of the view port, if it is deliberately hidden (its hidden
+  	  * flag is set) or if it has not yet been positioned (has not yet received a (x,y,z) position). */
   	protected def checkVisibility(graph:GraphicGraph) {
   		val W:Double = metrics.viewport.data(0)
   		val H:Double = metrics.viewport.data(1)
@@ -487,31 +441,29 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   		nodeInvisible.clear
 	
   		graph.getEachNode.foreach { node:Node =>
-  			val visible = isNodeIn(node.asInstanceOf[GraphicNode], 0, 0, W, H) && (!node.asInstanceOf[GraphicNode].hidden) && node.asInstanceOf[GraphicNode].positionned;
+  		    val n:GraphicNode = node.asInstanceOf[GraphicNode]
+  			val visible = isNodeIn(n, 0, 0, W, H) && (!n.hidden) && n.positionned;
 			
   			if(! visible)
   				nodeInvisible += node.getId
   		}
   	}
 
+
   	protected def paddingXgu:Double = if(padding.units == Units.GU && padding.size > 0) padding.get( 0 ) else 0
   	protected def paddingYgu:Double = if(padding.units == Units.GU && padding.size > 1) padding.get( 1 ) else paddingXgu
   	protected def paddingXpx:Double = if(padding.units == Units.PX && padding.size > 0) padding.get( 0 ) else 0
   	protected def paddingYpx:Double = if(padding.units == Units.PX && padding.size > 1) padding.get( 1 ) else paddingXpx
 
-  	/**
-  	 * Check if a sprite is visible in the current view port.
-  	 * @param sprite The sprite to check.
-  	 * @return True if visible.
-  	 */
-  	protected def isSpriteVisible(sprite:GraphicSprite):Boolean =
-  	    isSpriteIn(sprite, 0, 0, metrics.viewport.data(0), metrics.viewport.data(1))
+  	/** Check if a sprite is visible in the current view port.
+  	  * @param sprite The sprite to check.
+  	  * @return True if visible. */
+  	protected def isSpriteVisible(sprite:GraphicSprite):Boolean = isSpriteIn(sprite, 0, 0, metrics.viewport.data(0), metrics.viewport.data(1))
 
-  	/**
-  	 * Check if an edge is visible in the current view port.
-  	 * @param edge The edge to check.
-  	 * @return True if visible.
-  	 */
+
+  	/** Check if an edge is visible in the current view port.
+  	  * @param edge The edge to check.
+  	  * @return True if visible. */
   	protected def isEdgeVisible(edge:GraphicEdge):Boolean = {
   	    if((!edge.getNode0[GraphicNode].positionned)
   	    || (!edge.getNode1[GraphicNode].positionned)) {
@@ -526,15 +478,13 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   	    }
   	}
 
-  	/**
-  	 * Is the given node visible in the given area.
-  	 * @param node The node to check.
-  	 * @param X1 The min abscissa of the area.
-  	 * @param Y1 The min ordinate of the area.
-  	 * @param X2 The max abscissa of the area.
-  	 * @param Y2 The max ordinate of the area.
-  	 * @return True if the node lies in the given area.
-  	 */
+  	/** Is the given node visible in the given area.
+  	  * @param node The node to check.
+  	  * @param X1 The min abscissa of the area.
+  	  * @param Y1 The min ordinate of the area.
+  	  * @param X2 The max abscissa of the area.
+  	  * @param Y2 The max ordinate of the area.
+  	  * @return True if the node lies in the given area. */
   	protected def isNodeIn(node:GraphicNode, X1:Double, Y1:Double, X2:Double, Y2:Double):Boolean = {
   		val size = getNodeOrSpriteSize(node)//node.getStyle.getSize
   		val w2   = metrics.lengthToPx(size, 0) / 2
@@ -556,15 +506,13 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   		else             true
   	}
 	
-  	/**
-  	 * Is the given sprite visible in the given area.
-  	 * @param sprite The sprite to check.
-  	 * @param X1 The min abscissa of the area.
-  	 * @param Y1 The min ordinate of the area.
-  	 * @param X2 The max abscissa of the area.
-  	 * @param Y2 The max ordinate of the area.
-  	 * @return True if the node lies in the given area.
-  	 */
+  	/** Is the given sprite visible in the given area.
+  	  * @param sprite The sprite to check.
+  	  * @param X1 The min abscissa of the area.
+  	  * @param Y1 The min ordinate of the area.
+  	  * @param X2 The max abscissa of the area.
+  	  * @param Y2 The max ordinate of the area.
+  	  * @return True if the node lies in the given area. */
   	protected def isSpriteIn( sprite:GraphicSprite, X1:Double, Y1:Double, X2:Double, Y2:Double ):Boolean = {
   		if( sprite.isAttachedToNode && ( nodeInvisible.contains( sprite.getNodeAttachment.getId ) ) ) {
   			false
@@ -589,22 +537,13 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   		}
   	}
    
-  	protected def spritePositionPx(sprite:GraphicSprite):Point3 = {
-  		getSpritePosition(sprite, new Point3, Units.PX)
-//  		sprite.getUnits match {
-//  			case Units.PX       => { new Point2D.Double( sprite.getX, sprite.getY ) }
-//  			case Units.GU       => { val pos = new Point2D.Double( sprite.getX, sprite.getY ); Tx.transform( pos, pos ).asInstanceOf[Point2D.Double] }
-//  			case Units.PERCENTS => { new Point2D.Double( (sprite.getX/100f)*metrics.viewport.data(0), (sprite.getY/100f)*metrics.viewport.data(1) ) }
-//  		}
-  	}
+  	protected def spritePositionPx(sprite:GraphicSprite):Point3 = getSpritePosition(sprite, new Point3, Units.PX)
 
-  	/**
-  	 * Check if a node contains the given point (x,y).
-  	 * @param elt The node.
-  	 * @param x The point abscissa.
-  	 * @param y The point ordinate.
-  	 * @return True if (x,y) is in the given element.
-  	 */
+  	/** Check if a node contains the given point (x,y).
+  	  * @param elt The node.
+  	  * @param x The point abscissa.
+  	  * @param y The point ordinate.
+  	  * @return True if (x,y) is in the given element. */
   	protected def nodeContains(elt:GraphicElement, x:Double, y:Double):Boolean = {
   		val size = getNodeOrSpriteSize(elt)	//  elt.getStyle.getSize	// TODO use nodeinfo
   		val w2   = metrics.lengthToPx(size, 0) / 2
@@ -623,13 +562,11 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   		else            true
   	}
 
-  	/**
-  	 * Check if a sprite contains the given point (x,y).
-  	 * @param elt The sprite.
-  	 * @param x The point abscissa.
-  	 * @param y The point ordinate.
-  	 * @return True if (x,y) is in the given element.
-  	 */
+  	/** Check if a sprite contains the given point (x,y).
+  	  * @param elt The sprite.
+  	  * @param x The point abscissa.
+  	  * @param y The point ordinate.
+  	  * @return True if (x,y) is in the given element. */
   	protected def spriteContains(elt:GraphicElement, x:Double, y:Double):Boolean = {
   		val sprite = elt.asInstanceOf[GraphicSprite]
   		val size   = getNodeOrSpriteSize(elt) //sprite.getStyle.getSize // TODO use nodeinfo
@@ -653,7 +590,7 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   	}
   	
   	protected def getNodeOrSpriteSize(elt:GraphicElement):Values = {
-  		val info = elt.getAttribute(ElementInfo.attributeName).asInstanceOf[NodeInfo]
+  		val info = elt.getAttribute(Skeleton.attributeName).asInstanceOf[AreaSkeleton]
   		
   		if(info ne null) {
   			new Values(Units.GU, info.theSize.x, info.theSize.y)
@@ -697,13 +634,11 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   		}
   	}
    
-  	/**
-  	 * Compute the position of a sprite if it is not attached.
-  	 * @param sprite The sprite.
-  	 * @param position Where to stored the computed position, if null, the position is created.
-  	 * @param units The units the computed position must be given into. 
-  	 * @return The same instance as pos, or a new one if pos was null.
-  	 */
+  	/** Compute the position of a sprite if it is not attached.
+  	  * @param sprite The sprite.
+  	  * @param position Where to stored the computed position, if null, the position is created.
+  	  * @param units The units the computed position must be given into. 
+  	  * @return The same instance as pos, or a new one if pos was null. */
   	protected def getSpritePositionFree(sprite:GraphicSprite, position:Point3, units:Units):Point3 = {
   		var pos = position
   
@@ -734,13 +669,11 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   		pos
   	}
 
-  	/**
-     * Compute the position of a sprite if attached to a node.
-     * @param sprite The sprite.
-     * @param pos Where to stored the computed position, if null, the position is created.
-     * @param units The units the computed position must be given into. 
-     * @return The same instance as pos, or a new one if pos was null.
-     */
+  	/** Compute the position of a sprite if attached to a node.
+      * @param sprite The sprite.
+      * @param pos Where to stored the computed position, if null, the position is created.
+      * @param units The units the computed position must be given into. 
+      * @return The same instance as pos, or a new one if pos was null. */
     protected def getSpritePositionNode(sprite:GraphicSprite, position:Point3, units:Units):Point3 = {
     	var pos = position
 
@@ -760,13 +693,11 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
     	pos
     }
 	
-  	/**
-  	 * Compute the position of a sprite if attached to an edge.
-  	 * @param sprite The sprite.
-  	 * @param pos Where to store the computed position, if null, the position is created.
-  	 * @param units The units the computed position must be given into. 
-  	 * @return The same instance as pos, or a new one if pos was null.
-  	 */
+  	/** Compute the position of a sprite if attached to an edge.
+  	  * @param sprite The sprite.
+  	  * @param pos Where to store the computed position, if null, the position is created.
+  	  * @param units The units the computed position must be given into. 
+  	  * @return The same instance as pos, or a new one if pos was null. */
   	protected def getSpritePositionEdge(sprite:GraphicSprite, position:Point3, units:Units):Point3 = {
   		var pos = position
 
@@ -774,7 +705,7 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   			pos = new Point3
 		
   		val edge = sprite.getEdgeAttachment.asInstanceOf[GraphicEdge]
-  		val info = edge.getAttribute(ElementInfo.attributeName).asInstanceOf[EdgeInfo]
+  		val info = edge.getAttribute(Skeleton.attributeName).asInstanceOf[ConnectorSkeleton]
   		
   		if(info ne null) {
   			val o  = metrics.lengthToGu(sprite.getY, sprite.getUnits)

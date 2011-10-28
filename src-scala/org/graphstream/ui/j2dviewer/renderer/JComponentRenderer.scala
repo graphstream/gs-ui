@@ -39,8 +39,8 @@ import javax.swing.border.Border
 import org.graphstream.ui.graphicGraph.{GraphicElement, GraphicNode, GraphicSprite, StyleGroup}
 import org.graphstream.ui.graphicGraph.stylesheet.{Values, StyleConstants}
 import org.graphstream.ui.j2dviewer.{J2DGraphRenderer, Camera, Backend}
-import org.graphstream.ui.util.{FontCache, ImageCache}
-import org.graphstream.ui.j2dviewer.renderer.shape._
+import org.graphstream.ui.util.swing.{FontCache, ImageCache}
+import org.graphstream.ui.j2dviewer.renderer.shape.swing._
 
 /**
  * Renderer for nodes and sprites represented as Swing components.

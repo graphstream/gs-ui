@@ -4,17 +4,16 @@ import org.graphstream.ui.geom._
 
 /** A set of points defining the topology of an edge. */
 class EdgePoints(n:Int) {
-	protected var points = new Array[Point3]( n )
-	
-	def size:Int = points.size
-	
-	def copy(newPoints:Array[Point3]) { points = newPoints.map { p => new Point3(p) } }
-//	def copy(newPoints:Array[org.graphstream.ui.geom.Point3]) {
-//	    points = newPoints.map { p => new Point3(p.x, p.y, p.z) }
-//	}
+	protected var points = new Array[Point3](n)
 	
 	for(i <- 0 until size)
 		points(i) = new Point3
+	
+	/** Number of points. */
+	def size:Int = points.size
+
+	/** Copy a set of points into this set (points are fully copied). */
+	def copy(newPoints:Array[Point3]) { points = newPoints.map { p => new Point3(p) } }
 	
 	/** Set the `i`-th point of the set to be (`x`,`y`). */
 	def set(i:Int, x:Double, y:Double, z:Double) = points(i).set( x, y, z)

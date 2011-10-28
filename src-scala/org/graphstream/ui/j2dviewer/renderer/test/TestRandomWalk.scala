@@ -9,6 +9,7 @@ import org.graphstream.graph.Graph
 
 object TestRandomWalk {
 	def main(args:Array[String]) {
+		System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer")
 		(new TestRandomWalk).test
 	}
 }

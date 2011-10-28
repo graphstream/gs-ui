@@ -40,436 +40,80 @@ import org.graphstream.ui.geom._
 import org.graphstream.ui.graphicGraph._
 import org.graphstream.ui.graphicGraph.stylesheet._
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
+import org.graphstream.ui.j2dviewer.renderer.shape.swing.ShapeDecor
 
-/**
- * Trait for shapes that can be filled.
- */
-trait Fillable {
-	/** The fill paint. */
-	var fillPaint:ShapePaint = null
- 
-	/** Value in [0..1] for dyn-colors. */
-	var theFillPercent = 0.0
-	
-	var theFillColor:Color = null
-
-    /**
-     * Fill the shape.
-     * @param g The Java2D graphics.
-     * @param dynColor The value between 0 and 1 allowing to know the dynamic plain color, if any.
-     * @param shape The awt shape to fill.
-     */
-	def fill( g:Graphics2D, dynColor:Double, optColor:Color, shape:java.awt.Shape, camera:Camera ) {
-		fillPaint match {
-		  case p:ShapeAreaPaint  => g.setPaint( p.paint( shape, camera.metrics.ratioPx2Gu ) );    g.fill( shape )
-		  case p:ShapeColorPaint => g.setPaint( p.paint( dynColor, optColor ) ); g.fill( shape )
-		  case _                 => null; // No fill. // printf( "no fill !!!%n" ) 
-		}
-	}
- 
-    /**
-     * Fill the shape.
-     * @param g The Java2D graphics.
-     * @param shape The awt shape to fill.
-     */
- 	def fill( g:Graphics2D, shape:java.awt.Shape, camera:Camera ) { fill( g, theFillPercent, theFillColor, shape, camera ) }
-
-    /**
-     *  Configure all static parts needed to fill the shape.
-     */
- 	protected def configureFillableForGroup( style:Style, camera:Camera ) {
- 		fillPaint = ShapePaint( style )
- 	}
- 	
-    /**
-     *  Configure the dynamic parts needed to fill the shape.
-     */
-  	protected def configureFillableForElement( style:Style, camera:Camera, element:GraphicElement ) {
-  	  	if( style.getFillMode == StyleConstants.FillMode.DYN_PLAIN && element != null ) {
-  	  		element.getAttribute[AnyRef]( "ui.color" ) match {
-  	  			case x:Number => theFillPercent = x.floatValue; theFillColor = null
-  	  			case x:Color  => theFillColor = x; theFillPercent = 0
-  	  			case _        => theFillPercent = 0; theFillColor = null
-  	  		}
-  	  	} else {
-  	  		theFillPercent = 0
-  	  	}
-  	}
-}
-
-trait FillableMulticolored {
-	var fillColors:Array[Color] = null
-	
-	protected def configureFillableMultiColoredForGroup( style:Style, camera:Camera ) {
-		val count = style.getFillColorCount
-		
-		if( fillColors == null || fillColors.length != count ) {
-			fillColors = new Array[Color]( count )
-			
-			for( i <- 0 until count )
-				fillColors( i ) = style.getFillColor( i )
-		}
-	}
-	
-//	protected def configureFillableMulticoloredForElement( g:Graphics2D, element:GraphicElement, info:ElementInfo, camera:Camera ) {
-//	}
-}
-
-/**
- * Shape that cannot be filled, but must be stroked.
- */
-trait FillableLine {
-	//var fillColors:Array[Color] = null
-	var fillStroke:ShapeStroke = null
-	var theFillPercent = 0.0
-	var theFillColor:Color = null
-  
-	def fill( g:Graphics2D, width:Double, dynColor:Double, shape:java.awt.Shape ) {
-		if( fillStroke != null ) {
-			val stroke = fillStroke.stroke( width )
-   
-//			g.setColor( fillColors(0) )
-			g.setColor( theFillColor )
-			g.setStroke( stroke )
-			g.draw( shape )
-		}
-	}
- 
-	def fill( g:Graphics2D, width:Double, shape:java.awt.Shape ) { fill( g, width, theFillPercent, shape ) }
- 
-	protected def configureFillableLineForGroup( style:Style, camera:Camera ) {
-		fillStroke = ShapeStroke.strokeForConnectorFill( style )
-	}
-
-	protected def configureFillableLineForElement( style:Style, camera:Camera, element:GraphicElement ) {
-  	  	// TODO look at this and try to create the fillColors at the in ForGroup configuration !!!
-		theFillPercent = 0
-  	  	if( style.getFillMode == StyleConstants.FillMode.DYN_PLAIN && element != null ) {
-  	  		element.getAttribute[AnyRef]( "ui.color" ) match {
-  	  			case x:Number => theFillPercent = x.floatValue; theFillColor = ShapePaint.interpolateColor( style.getFillColors, theFillPercent )
-  	  			case x:Color => theFillColor = x; theFillPercent = 0
-  	  			case _ => theFillPercent = 0f; theFillColor = style.getFillColor(0)
-  	  		}
-       
-  	  		//fillColors = ShapePaint.createColors( style, style.getFillColorCount, style.getFillColors )
-  	  		//fillColors(0) = if(theFillColor != null) theFillColor else ShapePaint.interpolateColor( fillColors, theFillPercent )
-  	  	}
-  	  	else
-        {
-//  	  		if( fillColors == null || fillColors.length < 1 )
-//  	  			fillColors = new Array[Color]( 1 )
-       
-//  	  		fillColors(0) = style.getFillColor( 0 )
-  	  	    theFillColor = style.getFillColor(0)
-        }
-	}
-}
-
-/**
- * Trait for shapes that can be stroked.
- */
-trait Strokable {
-    /** The stroke color. */
-	var strokeColor:Color = null
-
-	/** The stroke. */
-	var theStroke:ShapeStroke = null
- 	
-	/** The stroke width. */
-	var theStrokeWidth = 0.0
-
- 	/** Paint the stroke of the shape. */
-	def stroke( g:Graphics2D, shape:java.awt.Shape ) {
-		if( theStroke != null ) {
-			g.setStroke( theStroke.stroke( theStrokeWidth ) )
-			g.setColor( strokeColor )
-			g.draw( shape )
-		}	  
-	}
-     
- 	/** Configure all the static parts needed to stroke the shape. */
- 	protected def configureStrokableForGroup( style:Style, camera:Camera ) {
-		theStrokeWidth = camera.metrics.lengthToGu( style.getStrokeWidth )
-		/*if( strokeColor == null )*/ strokeColor = ShapeStroke.strokeColor( style )
-		/*if( theStroke   == null )*/ theStroke   = ShapeStroke.strokeForArea( style )
- 	}
-}
-
-/** Trait for strokable lines. */
-trait StrokableLine extends Strokable {
- 	protected override def configureStrokableForGroup( style:Style, camera:Camera ) {
-		theStrokeWidth = camera.metrics.lengthToGu( style.getStrokeWidth ) + camera.metrics.lengthToGu( style.getSize, 0 )
-		strokeColor    = ShapeStroke.strokeColor( style )
-		theStroke      = ShapeStroke.strokeForArea( style )
- 	}
- 	protected def configureStrokableLineForGroup( style:Style, camera:Camera ) { configureStrokableForGroup( style, camera ) }
-}
-
-/**
- * Trait for shapes that can cast a shadow.
- */
-trait Shadowable {
-	/** The shadow paint. */
-	var shadowPaint:ShapePaint = null
-
-	/** Additional width of a shadow (added to the shape size). */
-	protected val theShadowWidth = new Point2
- 
-	/** Offset of the shadow according to the shape center. */
-	protected val theShadowOff = new Point2
-
-	/** Sety the shadow width added to the shape width. */
-	def shadowWidth( width:Double, height:Double ) { theShadowWidth.set( width, height ) }
- 
- 	/** Set the shadow offset according to the shape. */ 
-	def shadowOffset( xoff:Double, yoff:Double ) { theShadowOff.set( xoff, yoff ) }
- 
- 	/**
-     * Render the shadow.
-     * @param g The Java2D graphics.
-     */
-   	def cast( g:Graphics2D, shape:java.awt.Shape ) {
-   		shadowPaint match {
-   			case p:ShapeAreaPaint  => g.setPaint( p.paint( shape, 1 ) ); g.fill( shape )
-   			case p:ShapeColorPaint => g.setPaint( p.paint( 0, null ) );     g.fill( shape )
-   			case _                 => null; printf( "no shadow !!!%n" )
-   		}
-   	}
- 
-    /** Configure all the static parts needed to cast the shadow of the shape. */
- 	protected def configureShadowableForGroup( style:Style, camera:Camera ) {
- 		theShadowWidth.x = camera.metrics.lengthToGu( style.getShadowWidth )
- 		theShadowWidth.y = theShadowWidth.x
- 		theShadowOff.x   = camera.metrics.lengthToGu( style.getShadowOffset, 0 )
- 		theShadowOff.y   = if( style.getShadowOffset.size > 1 ) camera.metrics.lengthToGu( style.getShadowOffset, 1 ) else theShadowOff.x
- 	  
-  	  	/*if( shadowPaint == null )*/ shadowPaint = ShapePaint( style, true )
- 	}
-}
-
-trait ShadowableLine {
-	/** The shadow paint. */
-	var shadowStroke:ShapeStroke = null
-
-	/** Additional width of a shadow (added to the shape size). */
-	protected var theShadowWidth = 0.0
- 
-	/** Offset of the shadow according to the shape center. */
-	protected val theShadowOff = new Point2
-
-	protected var theShadowColor:Color = null
- 
-	/** Sety the shadow width added to the shape width. */
-	def shadowWidth( width:Double ) { theShadowWidth = width }
- 
- 	/** Set the shadow offset according to the shape. */ 
-	def shadowOffset( xoff:Double, yoff:Double ) { theShadowOff.set( xoff, yoff ) }
-  
- 	/**
-     * Render the shadow.
-     * @param g The Java2D graphics.
-     */
-   	def cast( g:Graphics2D, shape:java.awt.Shape ) {
-   	  	g.setColor( theShadowColor )
-   	  	g.setStroke( shadowStroke.stroke( theShadowWidth ) )
-   	  	g.draw( shape )
-   	}
- 
-    /** Configure all the static parts needed to cast the shadow of the shape. */
- 	protected def configureShadowableLineForGroup( style:Style, camera:Camera ) {
- 		theShadowWidth = camera.metrics.lengthToGu( style.getSize, 0 ) +
- 			camera.metrics.lengthToGu( style.getShadowWidth ) +
- 			camera.metrics.lengthToGu( style.getStrokeWidth )
- 		theShadowOff.x = camera.metrics.lengthToGu( style.getShadowOffset, 0 )
- 		theShadowOff.y = if( style.getShadowOffset.size > 1 ) camera.metrics.lengthToGu( style.getShadowOffset, 1 ) else theShadowOff.x
-  	  	theShadowColor = style.getShadowColor( 0 )
- 		shadowStroke   = ShapeStroke.strokeForConnectorFill( style )
- 	}	
-}
-
-/**
- * Trait for shapes that can be decorated by an icon and/or a text.
- */
-trait Decorable {
-	var text:String = null
- 
-	/** The text and icon. */
-	var theDecor:ShapeDecor = null
-  
- 	/** Paint the decorations (text and icon). */
- 	def decorArea( g:Graphics2D, camera:Camera, iconAndText:IconAndText, element:GraphicElement, shape:java.awt.Shape ) {
- 	  	var visible = true
- 	  	if( element != null ) visible = camera.isTextVisible( element )
- 	  	if( theDecor != null && visible ) {
- 	  		val bounds = shape.getBounds2D
- 	  		theDecor.renderInside( g, camera, iconAndText, bounds.getMinX, bounds.getMinY, bounds.getMaxX, bounds.getMaxY )
- 	  	}
- 	}
-	
-	def decorConnector( g:Graphics2D, camera:Camera, iconAndText:IconAndText, element:GraphicElement, shape:java.awt.Shape ) {
- 	  	var visible = true
- 	  	if( element != null ) visible = camera.isTextVisible( element )
- 	  	if( theDecor != null && visible ) {
- 	  		element match {
- 	  			case edge:GraphicEdge => {
- 	  				theDecor.renderAlong( g, camera, iconAndText, edge.from.x, edge.from.y, edge.to.x, edge.to.y )
- 	  			}
- 	  			case _ => {
- 	  				val bounds = shape.getBounds2D
- 	  				theDecor.renderAlong( g, camera, iconAndText, bounds.getMinX, bounds.getMinY, bounds.getMaxX, bounds.getMaxY )
- 	  			}
- 	  		}
- 	  	}
-	}
-  
-  	/** Configure all the static parts needed to decor the shape. */
-  	protected def configureDecorableForGroup( style:Style, camera:Camera ) {
-		/*if( theDecor == null )*/ theDecor = ShapeDecor( style )
-  	}
-  	
-  	/** Setup the parts of the decor specific to each element. */
-  	protected def configureDecorableForElement( g:Graphics2D, camera:Camera, element:GraphicElement, info:ElementInfo ) {
-  		text = element.label
- 
-  		if( info != null ) {
-  			val style = element.getStyle
-  			
-  			if( info.iconAndText == null )
-  				info.iconAndText = ShapeDecor.iconAndText( style, camera, element )
-
-  			if( style.getIcon != null && style.getIcon.equals( "dynamic" ) && element.hasAttribute( "ui.icon" ) ) {
-  				val url = element.getLabel("ui.icon").toString
-  				info.iconAndText.setIcon( g, url )
-// Console.err.printf( "changing icon %s%n", url )
-  			}
-// else Console.err.print( "NOT changing icon... %b %s %b%n".format( style.getIcon != null, style.getIcon, element.hasAttribute( "ui.icon" ) ) )
-  			
-  			info.iconAndText.setText( g, element.label )
-  		}
-  	}
-}
-
-trait Orientable {
-	var orientation:StyleConstants.SpriteOrientation = null
-	
-	var target = new Point3
-	
-	protected def configureOrientableForGroup( style:Style, camera:Camera ) {
-		orientation = style.getSpriteOrientation
-	}
-	
-	protected def configureOrientableForElement( camera:Camera, sprite:GraphicSprite ) {
-		sprite.getAttachment match {
-			case gn:GraphicNode => {
-				sprite.getStyle.getSpriteOrientation match {
-					case SpriteOrientation.NONE       => { target.set( 0, 0 ) }
-					case SpriteOrientation.FROM       => { target.set( gn.getX, gn.getY ) }
-					case SpriteOrientation.TO         => { target.set( gn.getX, gn.getY ) }
-					case SpriteOrientation.PROJECTION => { target.set( gn.getX, gn.getY ) }
-				}
-			}
-			case ge:GraphicEdge => {
-				sprite.getStyle.getSpriteOrientation match {
-					case SpriteOrientation.NONE       => { target.set( 0, 0 ) }
-					case SpriteOrientation.FROM       => { target.set( ge.from.getX, ge.from.getY ) }
-					case SpriteOrientation.TO         => { target.set( ge.to.getX, ge.to.getY ) }
-					case SpriteOrientation.PROJECTION => {
-						val ei = ge.getAttribute[EdgeInfo]( ElementInfo.attributeName )
-						
-						if( ei != null )
-						     ei.pointOnShape(sprite.getX, target)//setTargetOnEdgeInfo( ei, camera, sprite, ge )
-						else setTargetOnLineEdge( camera, sprite, ge ) 
-					}
-				}
-			}
-			case _ => { orientation = SpriteOrientation.NONE }
-		}
-	}
-	
-//	private def setTargetOnEdgeInfo( ei:EdgeInfo, camera:Camera, sprite:GraphicSprite, ge:GraphicEdge ) {
-//	    ei.pointOnShape(sprite.getX, target)
-//		if( ei.isCurve  ) {
-//			CubicCurve.eval( ei(0), ei(1), ei(2), ei(3), sprite.getX, target )
-//		} else if( ei.isPoly ) {
-//		    
-//		} else {
-//			setTargetOnLineEdge( camera, sprite, ge )
-//		}
-//	}
-	
-	private def setTargetOnLineEdge( camera:Camera, sprite:GraphicSprite, ge:GraphicEdge ) {
-		val dir = new Vector2( ge.to.getX-ge.from.getX, ge.to.getY-ge.from.getY )
-		dir.scalarMult( sprite.getX )
-		target.set( ge.from.getX + dir.x, ge.from.getY + dir.y )
-	}
-}
-
-/**
- * Trait for elements painted inside an area.
- */
+/** Trait for elements painted inside an area.
+  * This trait manages the size of the area (rectangular), its position, and the automatic fit to
+  * the contents, if needed. */
 trait Area {
 	protected val theCenter = new Point2
 	protected val theSize = new Point2
 	protected var fit = false
+
+	/** Select the general size for the group. */
+	protected def configureAreaForGroup(style:Style, camera:Camera) = size(style, camera)
 	
-	protected def configureAreaForGroup( style:Style, camera:Camera ) {
-		size( style, camera )
-	}
-	
-	protected def configureAreaForElement( g:Graphics2D, camera:Camera, info:NodeInfo, element:GraphicElement, x:Double, y:Double ) {
-		dynSize( element.getStyle, camera, element )
-		positionAndFit( g, camera, info, element, x, y, 0, 0 )
-	}
-	
-	protected def configureAreaForElement( g:Graphics2D, camera:Camera, info:NodeInfo, element:GraphicElement, x:Double, y:Double, contentOverallWidth:Double, contentOverallHeight:Double ) {
-		dynSize( element.getStyle, camera, element )
-		positionAndFit( g, camera, info, element, x, y, contentOverallWidth, contentOverallHeight )
-	}
-	
-	protected def configureAreaForElement( g:Graphics2D, camera:Camera, info:NodeInfo, element:GraphicElement, decor:ShapeDecor ) {
-		var pos = camera.getNodeOrSpritePositionGU( element, null )
+	protected def configureAreaForElement(backend:Backend, camera:Camera, skel:AreaSkeleton, element:GraphicElement, decor:ShapeDecor) {
+		var pos = camera.getNodeOrSpritePositionGU(element, null)
 		
-		if( fit ) {
-			val decorSize = decor.size( g, camera, info.iconAndText )
+		if(fit) {
+			val decorSize = decor.size(backend, camera, skel.iconAndText)
 		
-			configureAreaForElement( g, camera, info.asInstanceOf[NodeInfo], element, pos.x, pos.y, decorSize._1, decorSize._2 )
+			configureAreaForElement(camera, skel.asInstanceOf[AreaSkeleton], element, pos.x, pos.y, decorSize._1, decorSize._2 )
 		} else {
-			configureAreaForElement( g, camera, info.asInstanceOf[NodeInfo], element, pos.x, pos.y )
+			configureAreaForElement(camera, skel.asInstanceOf[AreaSkeleton], element, pos.x, pos.y )
 		}
 	}
 	
-	private def size( width:Double, height:Double ) { theSize.set( width, height ) }
+	protected[this] def configureAreaForElement(camera:Camera, skel:AreaSkeleton, element:GraphicElement, x:Double, y:Double ) {
+		dynSize(element.getStyle, camera, element)
+		positionAndFit(camera, skel, element, x, y, 0, 0)
+	}
 	
-	private def size( style:Style, camera:Camera ) { 
+	protected[this] def configureAreaForElement(camera:Camera, skel:AreaSkeleton, element:GraphicElement, x:Double, y:Double, contentOverallWidth:Double, contentOverallHeight:Double ) {
+		dynSize(element.getStyle, camera, element)
+		positionAndFit(camera, skel, element, x, y, contentOverallWidth, contentOverallHeight)
+	}
+
+	/** Set the size for the group of this (rectangular) area without considering the style. */
+	private def size(width:Double, height:Double) { theSize.set( width, height ) }
+	
+	/** Set the general size of the area according to the style.
+	  * Also look if the style SizeMode says if the element must fit to its contents.
+	  * If so, the configureAreaForElement() method will recompute the size for each
+	  * element according to the contents (shape decoration). */
+	private def size(style:Style, camera:Camera) { 
 		val w = camera.metrics.lengthToGu( style.getSize, 0 )
 		val h = if( style.getSize.size > 1 ) camera.metrics.lengthToGu( style.getSize, 1 ) else w
   
-		theSize.set( w, h )
+		theSize.set(w, h)
 		
-		fit = ( style.getSizeMode == StyleConstants.SizeMode.FIT )
+		fit = (style.getSizeMode == StyleConstants.SizeMode.FIT)
 	}
 	
-	private def dynSize( style:Style, camera:Camera, element:GraphicElement ) {
-		var w = camera.metrics.lengthToGu( style.getSize, 0 )
-		var h = if( style.getSize.size > 1 ) camera.metrics.lengthToGu( style.getSize, 1 ) else w
+	/** Try to compute the size of this area according to the given element. */
+	private def dynSize(style:Style, camera:Camera, element:GraphicElement) {
+		var w = camera.metrics.lengthToGu(style.getSize, 0)
+		var h = if(style.getSize.size > 1) camera.metrics.lengthToGu(style.getSize, 1) else w
 
-		if( element.hasAttribute( "ui.size" ) ) {
-			w = camera.metrics.lengthToGu( StyleConstants.convertValue( element.getAttribute( "ui.size" ) ) )
+		if(element.hasAttribute("ui.size")) {
+			w = camera.metrics.lengthToGu(StyleConstants.convertValue(element.getAttribute("ui.size")))
 			h = w;
 		}
   
-		theSize.set( w, h )
+		theSize.set(w, h)
 	}
 	
-	protected def positionAndFit( g:Graphics2D, camera:Camera, info:NodeInfo, element:GraphicElement, x:Double, y:Double, contentOverallWidth:Double, contentOverallHeight:Double ) {
-		if( info != null ) {
-			if( contentOverallWidth > 0 && contentOverallHeight > 0 )
-				theSize.set( contentOverallWidth, contentOverallHeight )
+	/** Assign a position to the shape according to the element, set the size of the element  */
+	protected def positionAndFit(camera:Camera, skel:AreaSkeleton, element:GraphicElement, x:Double, y:Double, contentOverallWidth:Double, contentOverallHeight:Double) {
+		if(skel != null) {
+			if(contentOverallWidth > 0 && contentOverallHeight > 0)
+				theSize.set(contentOverallWidth, contentOverallHeight)
 			
-			info.theSize.copy( theSize )
+			skel.theSize.copy(theSize)
 		}
 
-		theCenter.set( x, y )
+		theCenter.set(x, y)
 	}
 }
 
@@ -478,14 +122,14 @@ trait Area {
  * 
  * The purpose of this class is to store the lines coordinates of an edge. This connector can
  * be made of only two points, 4 points when this is a bezier curve or more if this is a polyline.
- * The coordinates of these points are stored in a EdgeInfo attribute directly on the edge element
+ * The coordinates of these points are stored in a ConnectorSkeleton attribute directly on the edge element
  * since several parts of the rendering need to access it (for example, sprites retrieve it
  * to follow the correct path when attached to this edge).
  */
 trait Connector {
 // Attribute
 	
-	var info:EdgeInfo = null
+	var skel:ConnectorSkeleton = null
 	
 	/** Width of the connector. */
 	protected var theSize:Double = 0
@@ -501,35 +145,35 @@ trait Connector {
 // Command
 	
 	/** Origin point of the connector. */
-	def fromPos:Point3 = info.from
+	def fromPos:Point3 = skel.from
 	
 	/** First control point. Works only for curves. */
-	def byPos1:Point3 = if(info.isCurve) info(1) else null
+	def byPos1:Point3 = if(skel.isCurve) skel(1) else null
 	
 	/** Second control point. Works only for curves. */
-	def byPos2:Point3 = if(info.isCurve) info(2) else null
+	def byPos2:Point3 = if(skel.isCurve) skel(2) else null
 	
 	/** Destination of the connector. */
-	def toPos:Point3 = info.to
+	def toPos:Point3 = skel.to
 	
-	def configureConnectorForGroup( style:Style, camera:Camera ) {
+	def configureConnectorForGroup(style:Style, camera:Camera) {
 		size( style, camera )
 	}
 	
-	def configureConnectorForElement( g2:Graphics2D, camera:Camera, element:GraphicEdge, info:EdgeInfo ) {
-	    this.info = info
+	def configureConnectorForElement(camera:Camera, element:GraphicEdge, skel:ConnectorSkeleton) {
+	    this.skel = skel
 	    
 		dynSize( element.getStyle, camera, element )
 		endPoints( element.from, element.to, element.isDirected, camera )
 		
 		if(element.getGroup != null) {
-	        info.setMulti(element.getGroup.getCount)
+	        skel.setMulti(element.getGroup.getCount)
 	    }
 		
 		if(element.hasAttribute("ui.points")) {
-		    info.setPoly(element.getAttribute("ui.points").asInstanceOf[AnyRef])
+		    skel.setPoly(element.getAttribute("ui.points").asInstanceOf[AnyRef])
 		} else {
-			positionForLinesAndCurves( info, element.from.getStyle, element.from.getX, element.from.getY,
+			positionForLinesAndCurves( skel, element.from.getStyle, element.from.getX, element.from.getY,
 				element.to.getX, element.to.getY, element.multi, element.getGroup )
 		}
 	}
@@ -552,8 +196,8 @@ trait Connector {
 	
 	/** Define the two end points sizes using the fit size stored in the nodes. */
 	private def endPoints( from:GraphicNode, to:GraphicNode, directed:Boolean, camera:Camera ) {
-		val fromInfo = from.getAttribute( ElementInfo.attributeName ).asInstanceOf[NodeInfo]
-		val toInfo   = to.getAttribute( ElementInfo.attributeName ).asInstanceOf[NodeInfo]
+		val fromInfo = from.getAttribute( Skeleton.attributeName ).asInstanceOf[AreaSkeleton]
+		val toInfo   = to.getAttribute( Skeleton.attributeName ).asInstanceOf[AreaSkeleton]
 		
 		if( fromInfo != null && toInfo != null ) {
 //Console.err.printf( "Using the dynamic size%n" )
@@ -604,8 +248,8 @@ trait Connector {
 	}
 	
 	/** Give the position of the origin and destination points. */
-	private def positionForLinesAndCurves( info:EdgeInfo, style:Style, xFrom:Double, yFrom:Double, xTo:Double, yTo:Double ) {
-	    positionForLinesAndCurves( info, style, xFrom, yFrom, xTo, yTo, 0, null ) }
+	private def positionForLinesAndCurves( skel:ConnectorSkeleton, style:Style, xFrom:Double, yFrom:Double, xTo:Double, yTo:Double ) {
+	    positionForLinesAndCurves( skel, style, xFrom, yFrom, xTo, yTo, 0, null ) }
 	
 	/**
 	 * Give the position of the origin and destination points, for multi edges.
@@ -615,44 +259,44 @@ trait Connector {
 	 * since we do not know the curves). This is important since arrows and sprites can be attached to edges.
 	 * </p>
 	 */
-	private def positionForLinesAndCurves( info:EdgeInfo, style:Style, xFrom:Double, yFrom:Double, xTo:Double, yTo:Double, multi:Int, group:GraphicEdge#EdgeGroup ) {
+	private def positionForLinesAndCurves( skel:ConnectorSkeleton, style:Style, xFrom:Double, yFrom:Double, xTo:Double, yTo:Double, multi:Int, group:GraphicEdge#EdgeGroup ) {
 	    
-		//info.points(0).set( xFrom, yFrom )
-		//info.points(3).set( xTo, yTo )
+		//skel.points(0).set( xFrom, yFrom )
+		//skel.points(3).set( xTo, yTo )
 		if( group != null ) {
 			if( xFrom == xTo && yFrom == yTo ) {
-				positionEdgeLoop(info, xFrom, yFrom, multi)
+				positionEdgeLoop(skel, xFrom, yFrom, multi)
 			} else {
-				positionMultiEdge(info, xFrom, yFrom, xTo, yTo, multi, group)
+				positionMultiEdge(skel, xFrom, yFrom, xTo, yTo, multi, group)
 			}
 		} else {
 			if( xFrom == xTo && yFrom == yTo ) {
-				positionEdgeLoop(info, xFrom, yFrom, 0)
+				positionEdgeLoop(skel, xFrom, yFrom, 0)
 			} else {
 				// This does not mean the edge is not a curve, this means
 				// that with what we know actually it is not a curve.
 				// The style mays indicate a curve.
-			    info.setLine(xFrom, yFrom, 0, xTo, yTo, 0)
+			    skel.setLine(xFrom, yFrom, 0, xTo, yTo, 0)
 			    
-			    // XXX we will have to mutate the info into a curve later.
+			    // XXX we will have to mutate the skel into a curve later.
 			}		  
 		}
 	}
 	
 	/** Define the control points to make the edge a loop. */
-	private def positionEdgeLoop(info:EdgeInfo, x:Double, y:Double, multi:Int) {
+	private def positionEdgeLoop(skel:ConnectorSkeleton, x:Double, y:Double, multi:Int) {
 		var m = 1f + multi * 0.2f
 		val s = ( theTargetSizeX + theTargetSizeY ) / 2
 		var d = s / 2 * m + 4 * s * m
 
-		info.setLoop(
+		skel.setLoop(
 				x, y, 0,
 				x+d, y, 0,
 				x, y+d, 0 )
 	}
 	
 	/** Define the control points to make this edge a part of a multi-edge. */
-	private def positionMultiEdge(info:EdgeInfo, x1:Double, y1:Double, x2:Double, y2:Double, multi:Int, group:GraphicEdge#EdgeGroup) {
+	private def positionMultiEdge(skel:ConnectorSkeleton, x1:Double, y1:Double, x2:Double, y2:Double, multi:Int, group:GraphicEdge#EdgeGroup) {
 		var vx  = (  x2 - x1 )
 		var vy  = (  y2 - y1 )
 		var vx2 = (  vy ) * 0.6
@@ -699,7 +343,7 @@ trait Connector {
 			yy2 -= ( vy2 - oy )		  
 		}
 		
-		info.setCurve(
+		skel.setCurve(
 		        x1, y1, 0,
 		        xx1, yy1, 0,
 		        xx2, yy2, 0,
@@ -730,5 +374,52 @@ trait AreaOnConnector extends Area {
 		val h = if( style.getArrowSize.size > 1 ) camera.metrics.lengthToGu( style.getArrowSize, 1 ) else w
   
 		theSize.set( w, h )
+	}
+}
+
+/** Trait for all shapes that points at a direction. */
+trait Orientable {
+    /** The shape orientation. */
+	var orientation:StyleConstants.SpriteOrientation = null
+	
+	/** The shape target. */
+	var target = new Point3
+	
+	/** Configure the orientation mode for the group according to the style. */
+	protected def configureOrientableForGroup(style:Style, camera:Camera) { orientation = style.getSpriteOrientation }
+	
+	/** Compute the orientation vector for the given element according to the orientation mode. */
+	protected def configureOrientableForElement(camera:Camera, sprite:GraphicSprite) {
+		sprite.getAttachment match {
+			case gn:GraphicNode => {
+				sprite.getStyle.getSpriteOrientation match {
+					case SpriteOrientation.NONE       => { target.set(0, 0) }
+					case SpriteOrientation.FROM       => { target.set(gn.getX, gn.getY) }
+					case SpriteOrientation.TO         => { target.set(gn.getX, gn.getY) }
+					case SpriteOrientation.PROJECTION => { target.set(gn.getX, gn.getY) }
+				}
+			}
+			case ge:GraphicEdge => {
+				sprite.getStyle.getSpriteOrientation match {
+					case SpriteOrientation.NONE       => { target.set(0, 0) }
+					case SpriteOrientation.FROM       => { target.set(ge.from.getX, ge.from.getY) }
+					case SpriteOrientation.TO         => { target.set(ge.to.getX, ge.to.getY) }
+					case SpriteOrientation.PROJECTION => {
+						val ei = ge.getAttribute[ConnectorSkeleton]( Skeleton.attributeName )
+						
+						if(ei != null)
+						     ei.pointOnShape(sprite.getX, target)
+						else setTargetOnLineEdge(camera, sprite, ge) 
+					}
+				}
+			}
+			case _ => { orientation = SpriteOrientation.NONE }
+		}
+	}
+	
+	private[this] def setTargetOnLineEdge( camera:Camera, sprite:GraphicSprite, ge:GraphicEdge ) {
+		val dir = new Vector2( ge.to.getX-ge.from.getX, ge.to.getY-ge.from.getY )
+		dir.scalarMult( sprite.getX )
+		target.set( ge.from.getX + dir.x, ge.from.getY + dir.y )
 	}
 }

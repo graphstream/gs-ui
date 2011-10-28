@@ -28,18 +28,19 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
  */
-package org.graphstream.ui.j2dviewer.renderer.shape
+package org.graphstream.ui.j2dviewer.renderer.shape.swing
 
-import java.awt._
-import java.awt.geom._
+//import java.awt._
+//import java.awt.geom._
 
 import org.graphstream.ui.geom._
 import org.graphstream.ui.graphicGraph._
 import org.graphstream.ui.graphicGraph.stylesheet._
-import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
+import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Units
 import org.graphstream.ui.j2dviewer._
 import org.graphstream.ui.j2dviewer.renderer._
 import org.graphstream.ui.util._
+import org.graphstream.ui.j2dviewer.renderer.shape._
 
 import scala.math._
 
@@ -62,10 +63,10 @@ trait AreaShape
  	  	configureAreaForGroup(style, camera)
  	}
  
-	def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera) {
+	def configureForElement(bck:Backend, element:GraphicElement, skel:Skeleton, camera:Camera) {
 		configureFillableForElement(element.getStyle, camera, element)
-		configureDecorableForElement(bck.graphics2D, camera, element, info)
-		configureAreaForElement(bck.graphics2D, camera, info.asInstanceOf[NodeInfo], element, theDecor)
+		configureDecorableForElement(bck, camera, element, skel)
+		configureAreaForElement(bck, camera, skel.asInstanceOf[AreaSkeleton], element, theDecor)
 	}
 }
 
@@ -83,7 +84,7 @@ trait AreaOnConnectorShape
 		configureAreaOnConnectorForGroup(style, camera)
 	}
 	
-	def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera) {
+	def configureForElement(bck:Backend, element:GraphicElement, skel:Skeleton, camera:Camera) {
 		configureFillableForElement(element.getStyle, camera, element)
 		configureAreaOnConnectorForElement(element.asInstanceOf[GraphicEdge], element.getStyle, camera)
 	}
@@ -102,9 +103,9 @@ trait ConnectorShape
 		configureConnectorForGroup(style, camera)
 	}
 	
-	def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera) {
-		configureDecorableForElement(bck.graphics2D, camera, element, info)
-		configureConnectorForElement(bck.graphics2D, camera, element.asInstanceOf[GraphicEdge], info.asInstanceOf[EdgeInfo] /* TODO check this ! */)
+	def configureForElement(bck:Backend, element:GraphicElement, skel:Skeleton, camera:Camera) {
+		configureDecorableForElement(bck, camera, element, skel)
+		configureConnectorForElement(camera, element.asInstanceOf[GraphicEdge], skel.asInstanceOf[ConnectorSkeleton] /* TODO check this ! */)
 	}
 }
  
@@ -121,9 +122,9 @@ trait LineConnectorShape
 		super.configureForGroup(bck, style, camera)
 	}
 	
-	override def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera) {
+	override def configureForElement(bck:Backend, element:GraphicElement, skel:Skeleton, camera:Camera) {
 		configureFillableLineForElement(element.getStyle, camera, element)
-		super.configureForElement(bck, element, info, camera)
+		super.configureForElement(bck, element, skel, camera)
 	}
 }
 
@@ -140,14 +141,14 @@ trait AreaConnectorShape
 		super.configureForGroup(bck, style, camera)
 	}
 	
-	override def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera) {
+	override def configureForElement(bck:Backend, element:GraphicElement, skel:Skeleton, camera:Camera) {
 		configureFillableForElement(element.getStyle, camera, element)
-		super.configureForElement(bck, element, info, camera)
+		super.configureForElement(bck, element, skel, camera)
 	}}
 
 	
 trait RectangularAreaShape extends AreaShape {
-	val theShape:RectangularShape
+	val theShape:java.awt.geom.RectangularShape
  
  	protected def make(bck:Backend, camera:Camera) {
 		val w = theSize.x
@@ -165,16 +166,16 @@ trait RectangularAreaShape extends AreaShape {
 		theShape.setFrame(x-w/2, y-h/2, w, h)
  	}
   
- 	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo) {
+ 	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton) {
  		makeShadow(bck, camera)
  		cast(bck.graphics2D, theShape)
  	}
   
- 	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+ 	def render(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton ) {
  		make(bck, camera )
  		fill(bck.graphics2D, theShape, camera)
  		stroke(bck.graphics2D, theShape)
- 		decorArea(bck.graphics2D, camera, info.iconAndText, element, theShape)
+ 		decorArea(bck, camera, skel.iconAndText, element, theShape)
  	}
 }
 
@@ -192,8 +193,8 @@ abstract class OrientableRectangularAreaShape extends RectangularAreaShape with 
 		oriented = (style.getSpriteOrientation != StyleConstants.SpriteOrientation.NONE)
 	}
  
-	override def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera) {
-		super.configureForElement(bck, element, info, camera)
+	override def configureForElement(bck:Backend, element:GraphicElement, skel:Skeleton, camera:Camera) {
+		super.configureForElement(bck, element, skel, camera)
 		configureOrientableForElement(camera, element.asInstanceOf[GraphicSprite] /* Check This XXX TODO !*/);
 	}
 	
@@ -234,14 +235,14 @@ abstract class OrientableRectangularAreaShape extends RectangularAreaShape with 
 	}
 	
  
-	override def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo) {
+	override def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton) {
  		make(bck, true, camera)
  		
  		val g = bck.graphics2D
  		
  		if (oriented) {
 	 		val Tx = g.getTransform
-	 		val Tr = new AffineTransform
+	 		val Tr = new java.awt.geom.AffineTransform
 	 		Tr.translate( p.x, p.y )								// 3. Position the image at its position in the graph.
 	 		Tr.rotate( angle )										// 2. Rotate the image from its center.
 	 		Tr.translate( -w/2, -h/2 )								// 1. Position in center of the image.
@@ -249,18 +250,18 @@ abstract class OrientableRectangularAreaShape extends RectangularAreaShape with 
  			cast(g, theShape)
 	 		g.setTransform( Tx )									// Restore the original transform
  		} else {
- 			super.renderShadow(bck, camera, element, info)
+ 			super.renderShadow(bck, camera, element, skel)
  		}
 	}
  
-	override def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo) {
+	override def render(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton) {
  		make(bck, false, camera)
 		
  		val g = bck.graphics2D
  		
  		if (oriented) {
 	 		val Tx = g.getTransform
-	 		val Tr = new AffineTransform
+	 		val Tr = new java.awt.geom.AffineTransform
 	 		Tr.translate( p.x, p.y )								// 3. Position the image at its position in the graph.
 	 		Tr.rotate( angle )										// 2. Rotate the image from its center.
 	 		Tr.translate( -w/2, -h/2 )								// 1. Position in center of the image.
@@ -269,82 +270,82 @@ abstract class OrientableRectangularAreaShape extends RectangularAreaShape with 
 	 		fill(g, theShape, camera)
 	 		g.setTransform( Tx )									// Restore the original transform
 	 		theShape.setFrame(theCenter.x-w/2, theCenter.y-h/2, w, h)
-	 		decorArea(g, camera, info.iconAndText, element, theShape)
+	 		decorArea(bck, camera, skel.iconAndText, element, theShape)
  		} else {
- 			super.render(bck, camera, element, info)
+ 			super.render(bck, camera, element, skel)
  		}
  	}
 }
 
 abstract class PolygonalShape extends AreaShape {
-	var theShape = new Path2D.Double
+	var theShape = new java.awt.geom.Path2D.Double
  
- 	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo) {
+ 	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton) {
  		makeShadow(bck, camera)
  		cast(bck.graphics2D, theShape)
  	}
   
- 	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo) {
+ 	def render(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton) {
  	    val g = bck.graphics2D
  		make(bck, camera)
  		fill(g, theShape, camera)
  		stroke(g, theShape)
- 		decorArea(g, camera, info.iconAndText, element, theShape)
+ 		decorArea(bck, camera, skel.iconAndText, element, theShape)
  	}
 }
 
 class LineShape extends LineConnectorShape {
-	protected var theShape:java.awt.Shape = new Line2D.Double 
+	protected var theShape:java.awt.Shape = new java.awt.geom.Line2D.Double 
 // Command
   
 	protected def make(bck:Backend, camera:Camera) {
-		val from = info.from
-		val to   = info.to
-		if( info.isCurve ) {
-			val ctrl1 = info(1)
-			val ctrl2 = info(2)
-			val curve = new CubicCurve2D.Double
+		val from = skel.from
+		val to   = skel.to
+		if( skel.isCurve ) {
+			val ctrl1 = skel(1)
+			val ctrl2 = skel(2)
+			val curve = new java.awt.geom.CubicCurve2D.Double
 			theShape = curve
 			curve.setCurve( from.x, from.y, ctrl1.x, ctrl1.y, ctrl2.x, ctrl2.y, to.x, to.y )
 		} else {
-			val line = new Line2D.Double
+			val line = new java.awt.geom.Line2D.Double
 			theShape = line
 			line.setLine( from.x, from.y, to.x, to.y )
 		} 
 	}
 	protected def makeShadow(bck:Backend, camera:Camera) {
-		var x0 = info.from.x + theShadowOff.x
-		var y0 = info.from.y + theShadowOff.y
-		var x1 = info.to.x + theShadowOff.x
-		var y1 = info.to.y + theShadowOff.y
+		var x0 = skel.from.x + theShadowOff.x
+		var y0 = skel.from.y + theShadowOff.y
+		var x1 = skel.to.x + theShadowOff.x
+		var y1 = skel.to.y + theShadowOff.y
 		
-		if( info.isCurve ) {
-			var ctrlx0 = info(1).x + theShadowOff.x
-			var ctrly0 = info(1).y + theShadowOff.y
-			var ctrlx1 = info(2).x + theShadowOff.x
-			var ctrly1 = info(2).y + theShadowOff.y
+		if( skel.isCurve ) {
+			var ctrlx0 = skel(1).x + theShadowOff.x
+			var ctrly0 = skel(1).y + theShadowOff.y
+			var ctrlx1 = skel(2).x + theShadowOff.x
+			var ctrly1 = skel(2).y + theShadowOff.y
 			
-			val curve = new CubicCurve2D.Double
+			val curve = new java.awt.geom.CubicCurve2D.Double
 			theShape = curve
 			curve.setCurve( x0, y0, ctrlx0, ctrly0, ctrlx1, ctrly1, x1, y1 )
 		} else {
-			val line = new Line2D.Double
+			val line = new java.awt.geom.Line2D.Double
 			theShape = line
 			line.setLine( x0, y0, x1, y1 )
 		} 
 	}
  
-	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo) {
+	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton) {
  		makeShadow(bck, camera)
  		cast(bck.graphics2D, theShape)
 	}
  
-	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo) {
+	def render(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton) {
 	    val g = bck.graphics2D
  		make(bck, camera)
  		stroke(g, theShape )
  		fill(g, theSize, theShape)
- 		decorConnector(g, camera, info.iconAndText, element, theShape)
+ 		decorConnector(bck, camera, skel.iconAndText, element, theShape)
 	}
 }
 
@@ -352,34 +353,34 @@ class LineShape extends LineConnectorShape {
  * A cubic curve shape.
  */
 class PolylineEdgeShape extends LineConnectorShape with ShowCubics {
-	protected var theShape = new Path2D.Double
+	protected var theShape = new java.awt.geom.Path2D.Double
 
 // Command
  
 	protected def make(bck:Backend, camera:Camera) {
-		val n = info.size
+		val n = skel.size
 		
 		theShape.reset
-		theShape.moveTo(info(0).x, info(0).y)
+		theShape.moveTo(skel(0).x, skel(0).y)
 		
 		for(i <- 1 until n) {
-			theShape.lineTo(info(i).x, info(i).y)
+			theShape.lineTo(skel(i).x, skel(i).y)
 		}		
 	}
 
 	protected def makeShadow(bck:Backend, camera:Camera) {
 	}
 	
-	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo) {
+	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton) {
  		makeShadow(bck, camera)
  		cast(bck.graphics2D, theShape)
 	}
  
-	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo) {
+	def render(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton) {
 	    val g = bck.graphics2D
  		make(bck, camera)
  		stroke(g, theShape)
  		fill(g, theSize, theShape)
- 		decorConnector(g, camera, info.iconAndText, element, theShape)
+ 		decorConnector(bck, camera, skel.iconAndText, element, theShape)
 	}
 }

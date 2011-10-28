@@ -1,27 +1,17 @@
 package org.graphstream.ui.util
 
 import scala.collection.mutable.WrappedArray
-//import org.graphstream.ui.sgeom.Point3
-import org.graphstream.ui.geom.Point3 //{Point3 => OldPoint3}
+import org.graphstream.ui.geom.Point3
 
 trait AttributeUtils {
-	
-    /**
-     * Try to extract an array of 3D points from various sources. It actually works only for
-     * arrays of Point3, or arrays of floats, doubles and integers.
-     * @param an object.
-     * @return An array of 3D points.
-     */
+    /** Try to extract an array of 3D points from various sources. It actually works only for
+      * arrays of Point3, or arrays of floats, doubles and integers.
+      * @param an object.
+      * @return An array of 3D points. */
  	protected def getPoints(values:AnyRef):Array[Point3] = {
  	    values match {
- 			case b:Array[Point3]  => { if(b.size==0) Console.err.println("0 ui.point"); b }
-// 			case b:Array[OldPoint3] => {
-// 			    if(b.size==0) Console.err.println("0 ui.point");
-// 			    b.map { p => new Point3(p) }
-// 			}
- 			case b:WrappedArray[AnyRef] => {
- 			    getPoints(b.toArray)
- 			}
+ 			case b:Array[Point3]  => if(b.size==0) Console.err.println("0 ui.point"); b
+ 			case b:WrappedArray[AnyRef] => getPoints(b.toArray)
  			case b:Array[AnyRef] => {
  			    if(b.size>0) {
  			        if(b(0).isInstanceOf[Point3]) {
@@ -54,10 +44,7 @@ trait AttributeUtils {
  			    if(b.size>0) {
 		        	val size = b.length/3
 		        	val res  = new Array[Point3](size)
-		    
-		        	for(i <- 0 until size) {
-		        		res(i) = new Point3(b(i*3), b(i*3+1), b(i*3+2))
-		        	}
+		        	for(i <- 0 until size) { res(i) = new Point3(b(i*3), b(i*3+1), b(i*3+2)) }
 		        	res
  			    } else {
  			        Console.err.println("ui.points array size is zero !!")
@@ -68,10 +55,7 @@ trait AttributeUtils {
  			    if(b.size>0) {
 		        	val size = b.length/3
 		        	val res  = new Array[Point3](size)
-		    
-		        	for(i <- 0 until size) {
-		        		res(i) = new Point3(b(i*3), b(i*3+1), b(i*3+2))
-		        	}
+		        	for(i <- 0 until size) { res(i) = new Point3(b(i*3), b(i*3+1), b(i*3+2)) }
 		        	res
  			    } else {
  			        Console.err.println("ui.points array size is zero !!")
@@ -86,7 +70,7 @@ trait AttributeUtils {
  	}
  	 	
  	/** Try to extract an array of double values from various sources. */
- 	protected def getDoubles( values:AnyRef ):Array[Double] = {
+ 	protected def getDoubles(values:AnyRef):Array[Double] = {
  		values match {
  			case a:Array[AnyRef] => { 
  				val result = new Array[Double]( a.length )
@@ -105,11 +89,9 @@ trait AttributeUtils {
  		}
  	}
 
- 	/**
- 	 * Compute the bounding box of the given set of points.
- 	 * @param The set of points.
- 	 * @return A 2-tuple with the minimum and maximum 3D points.
- 	 */
+ 	/** Compute the bounding box of the given set of points.
+ 	  * @param The set of points.
+ 	  * @return A 2-tuple with the minimum and maximum 3D points. */
     protected def boundingBoxOfPoints(points:Array[Point3]):(Point3, Point3) = {
         var minx = Double.MaxValue
         var miny = Double.MaxValue

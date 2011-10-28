@@ -28,7 +28,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
  */
-package org.graphstream.ui.j2dviewer.renderer.shape
+package org.graphstream.ui.j2dviewer.renderer.shape.swing
 
 import java.awt.{Stroke, BasicStroke, Color}
 import org.graphstream.ui.graphicGraph.stylesheet.Style

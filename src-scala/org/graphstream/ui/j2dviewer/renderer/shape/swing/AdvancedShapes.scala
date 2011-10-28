@@ -28,7 +28,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
  */
-package org.graphstream.ui.j2dviewer.renderer.shape
+package org.graphstream.ui.j2dviewer.renderer.shape.swing
 
 import java.awt._
 import java.awt.geom._
@@ -49,12 +49,12 @@ abstract trait ShowCubics {
     protected var showControlPolygon = false
 
     /** Show the control polygons. */
-    protected def showCtrlPoints(g: Graphics2D, camera: Camera, info: EdgeInfo) {
-        if (showControlPolygon && info.isCurve) {
-            val from = info.from
-            val ctrl1 = info(1)
-            val ctrl2 = info(2)
-            val to = info.to
+    protected def showCtrlPoints(g: Graphics2D, camera: Camera, skel:ConnectorSkeleton) {
+        if (showControlPolygon && skel.isCurve) {
+            val from = skel.from
+            val ctrl1 = skel(1)
+            val ctrl2 = skel(2)
+            val to = skel.to
             val oval = new Ellipse2D.Double
             val color = g.getColor
             val stroke = g.getStroke
@@ -99,18 +99,18 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
     }
 
     protected def make(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        if (info.isCurve)
+        if (skel.isCurve)
             makeOnCurve(camera, sox, soy, swx, swy)
-        else if (info.isPoly)
+        else if (skel.isPoly)
             makeOnPolyline(camera, sox, soy, swx, swy)
         else makeOnLine(camera, sox, soy, swx, swy)
     }
 
     protected def makeOnLine(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        val fromx = info.from.x + sox
-        val fromy = info.from.y + soy
-        val tox = info.to.x + sox
-        val toy = info.to.y + soy
+        val fromx = skel.from.x + sox
+        val fromy = skel.from.y + soy
+        val tox = skel.to.x + sox
+        val toy = skel.to.y + soy
         val dir = new Vector2(tox - fromx, toy - fromy)
         val perp1 = new Vector2(dir.y, -dir.x); perp1.normalize // 1/2 perp vector to the from point.
         val perp2 = new Vector2(perp1.x, perp1.y) // 1/2 perp vector to the to point.
@@ -150,20 +150,20 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
     }
 
     protected def makeOnCurve(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        if (info.isLoop)
+        if (skel.isLoop)
             makeLoop(camera, sox, soy, swx, swy)
         else makeMulti(camera, sox, soy, swx, swy)
     }
 
     protected def makeMulti(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        val fromx = info(0).x + sox
-        val fromy = info(0).y + soy
-        val tox = info(3).x + sox
-        val toy = info(3).y + soy
-        val c1x = info(1).x + sox
-        val c1y = info(1).y + soy
-        val c2x = info(2).x + sox
-        val c2y = info(2).y + soy
+        val fromx = skel(0).x + sox
+        val fromy = skel(0).y + soy
+        val tox = skel(3).x + sox
+        val toy = skel(3).y + soy
+        val c1x = skel(1).x + sox
+        val c1y = skel(1).y + soy
+        val c2x = skel(2).x + sox
+        val c2y = skel(2).y + soy
         val srcsz = min(theSourceSizeX, theSourceSizeY)
         val trgsz = min(theTargetSizeX, theTargetSizeY)
 
@@ -207,14 +207,14 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
     }
 
     protected def makeLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        val fromx = info(0).x + sox
-        val fromy = info(0).y + soy
-        val tox = info(3).x + sox
-        val toy = info(3).y + soy
-        val c1x = info(1).x + sox
-        val c1y = info(1).y + soy
-        val c2x = info(2).x + sox
-        val c2y = info(2).y + soy
+        val fromx = skel(0).x + sox
+        val fromy = skel(0).y + soy
+        val tox = skel(3).x + sox
+        val toy = skel(3).y + soy
+        val c1x = skel(1).x + sox
+        val c1y = skel(1).y + soy
+        val c2x = skel(2).x + sox
+        val c2y = skel(2).y + soy
         val srcsz = min(theSourceSizeX, theSourceSizeY)
         //		val trgsz = min( theTargetSizeX, theTargetSizeY )
 
@@ -254,17 +254,17 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
         make(camera, theShadowOff.x, theShadowOff.y, theShadowWidth.x, theShadowWidth.y)
     }
 
-    def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+    def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, skel:Skeleton) {
         makeShadow(bck, camera)
         cast(bck.graphics2D, theShape)
     }
 
-    def render(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+    def render(bck: Backend, camera: Camera, element: GraphicElement, skel:Skeleton) {
         val g = bck.graphics2D
         make(bck, camera)
         stroke(g, theShape)
         fill(g, theShape, camera)
-        decorConnector(g, camera, info.iconAndText, element, theShape)
+        decorConnector(bck, camera, skel.iconAndText, element, theShape)
 
         if (showControlPolygon) {
             val c = g.getColor();
@@ -274,7 +274,7 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
             g.draw(theShape);
             g.setStroke(s);
             g.setColor(c);
-            showCtrlPoints(g, camera, info.asInstanceOf[EdgeInfo])
+            showCtrlPoints(g, camera, skel.asInstanceOf[ConnectorSkeleton])
         }
     }
 }
@@ -290,18 +290,18 @@ class AngleShape extends AreaConnectorShape {
     }
 
     protected def make(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        if (info.isCurve)
+        if (skel.isCurve)
             makeOnCurve(camera, sox, soy, swx, swy)
-        else if (info.isPoly)
+        else if (skel.isPoly)
             makeOnPolyline(camera, sox, soy, swx, swy)
         else makeOnLine(camera, sox, soy, swx, swy)
     }
 
     protected def makeOnLine(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        val fromx = info.from.x + sox
-        val fromy = info.from.y + soy
-        val tox = info.to.x + sox
-        val toy = info.to.y + soy
+        val fromx = skel.from.x + sox
+        val fromy = skel.from.y + soy
+        val tox = skel.to.x + sox
+        val toy = skel.to.y + soy
         val dir = new Vector2(tox - fromx, toy - fromy)
         val perp = new Vector2(dir.y, -dir.x); perp.normalize // 1/2 perp vector to the from point.
 
@@ -325,20 +325,20 @@ class AngleShape extends AreaConnectorShape {
     }
 
     protected def makeOnCurve(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        if (info.isLoop)
+        if (skel.isLoop)
             makeLoop(camera, sox, soy, swx, swy)
         else makeMulti(camera, sox, soy, swx, swy)
     }
 
     protected def makeMulti(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        val fromx = info(0).x + sox
-        val fromy = info(0).y + soy
-        val tox = info(3).x + sox
-        val toy = info(3).y + soy
-        val c1x = info(1).x + sox
-        val c1y = info(1).y + soy
-        val c2x = info(2).x + sox
-        val c2y = info(2).y + soy
+        val fromx = skel(0).x + sox
+        val fromy = skel(0).y + soy
+        val tox = skel(3).x + sox
+        val toy = skel(3).y + soy
+        val c1x = skel(1).x + sox
+        val c1y = skel(1).y + soy
+        val c2x = skel(2).x + sox
+        val c2y = skel(2).y + soy
         val maindir = new Vector2(c2x - c1x, c2y - c1y)
         val perp = new Vector2(maindir.y, -maindir.x); perp.normalize // 1/2 perp vector to the from point.
         val perp1 = new Vector2(perp.x, perp.y) // 1/2 perp vector to the first control point.
@@ -383,14 +383,14 @@ class AngleShape extends AreaConnectorShape {
     }
 
     protected def makeLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        val fromx = info(0).x + sox
-        val fromy = info(0).y + soy
-        val tox = info(3).x + sox
-        val toy = info(3).y + soy
-        val c1x = info(1).x + sox
-        val c1y = info(1).y + soy
-        val c2x = info(2).x + sox
-        val c2y = info(2).y + soy
+        val fromx = skel(0).x + sox
+        val fromy = skel(0).y + soy
+        val tox = skel(3).x + sox
+        val toy = skel(3).y + soy
+        val c1x = skel(1).x + sox
+        val c1y = skel(1).y + soy
+        val c2x = skel(2).x + sox
+        val c2y = skel(2).y + soy
 
         val dirFrom = new Vector2(c1x - fromx, c1y - fromy);
         val dirTo = new Vector2(tox - c2x, toy - c2y);
@@ -425,23 +425,23 @@ class AngleShape extends AreaConnectorShape {
     }
 
     protected def makeShadow(bck: Backend, camera: Camera) {
-        if (info.isCurve)
+        if (skel.isCurve)
             makeOnCurve(camera, theShadowOff.x, theShadowOff.y, theShadowWidth.x, theShadowWidth.y)
         else makeOnLine(camera, theShadowOff.x, theShadowOff.y, theShadowWidth.x, theShadowWidth.y)
     }
 
-    def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+    def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, skel:Skeleton) {
         makeShadow(bck, camera)
         cast(bck.graphics2D, theShape)
     }
 
-    def render(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+    def render(bck: Backend, camera: Camera, element: GraphicElement, skel:Skeleton) {
         val g = bck.graphics2D
         make(bck, camera)
         stroke(g, theShape)
         // 		fill( g, theSize, theShape, camera )
         fill(g, theShape, camera)
-        decorConnector(g, camera, info.iconAndText, element, theShape)
+        decorConnector(bck, camera, skel.iconAndText, element, theShape)
     }
 }
 
@@ -456,19 +456,19 @@ class CubicCurveShape extends LineConnectorShape with ShowCubics {
     }
 
     protected def make(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        if (info.multi > 1 || info.isLoop) // is a loop or a multi edge
+        if (skel.multi > 1 || skel.isLoop) // is a loop or a multi edge
              makeMultiOrLoop(camera, sox, soy, swx, swy)
-        else if(info.isPoly && info.size == 4)
+        else if(skel.isPoly && skel.size == 4)
              makeFromPoints(camera, sox, soy, swx, swy) // has points positions
         else makeSingle(camera, sox, soy, swx, swy) // is a single edge.
     }
 
     protected def makeSingle(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        val fromx = info.from.x + sox
-        val fromy = info.from.y + soy
-        val tox = info.to.x + sox
-        val toy = info.to.y + soy
-        val mainDir = new Vector2(info.from, info.to)
+        val fromx = skel.from.x + sox
+        val fromy = skel.from.y + soy
+        val tox = skel.to.x + sox
+        val toy = skel.to.y + soy
+        val mainDir = new Vector2(skel.from, skel.to)
         val length = mainDir.length
         val angle = mainDir.y / length
         var c1x = 0.0
@@ -497,7 +497,7 @@ class CubicCurveShape extends LineConnectorShape with ShowCubics {
         // Set the connector as a curve.
 
         if (sox == 0 && soy == 0) {
-            info.setCurve(
+            skel.setCurve(
                 fromx, fromy, 0,
                 c1x, c1y, 0,
                 c2x, c2y, 0,
@@ -506,21 +506,21 @@ class CubicCurveShape extends LineConnectorShape with ShowCubics {
     }
     
     protected def makeFromPoints(camera:Camera, sox:Double, soy:Double, swx:Double, swy:Double) {
-        val fromx = info.from.x + sox
-        val fromy = info.from.y + soy
-        val tox = info.to.x + sox
-        val toy = info.to.y + soy
-        val c1x = info(1).x + sox
-        val c1y = info(1).y + soy
-        val c2x = info(2).x + sox
-        val c2y = info(2).y + soy
+        val fromx = skel.from.x + sox
+        val fromy = skel.from.y + soy
+        val tox = skel.to.x + sox
+        val toy = skel.to.y + soy
+        val c1x = skel(1).x + sox
+        val c1y = skel(1).y + soy
+        val c2x = skel(2).x + sox
+        val c2y = skel(2).y + soy
         
         theShape.reset
         theShape.moveTo(fromx, fromy)
         theShape.curveTo(c1x, c1y, c2x, c2y, tox, toy)
 
         if (sox == 0 && soy == 0) {	// Inform the system this is a curve, not a polyline.
-            info.setCurve(
+            skel.setCurve(
                 fromx, fromy, 0,
                 c1x, c1y, 0,
                 c2x, c2y, 0,
@@ -529,20 +529,20 @@ class CubicCurveShape extends LineConnectorShape with ShowCubics {
     }
 
     protected def makeMultiOrLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        if (info.isLoop)
+        if (skel.isLoop)
             makeLoop(camera, sox, soy, swx, swy)
         else makeMulti(camera, sox, soy, swx, swy)
     }
 
     protected def makeMulti(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        val fromx = info(0).x + sox
-        val fromy = info(0).y + soy
-        val tox = info(3).x + sox
-        val toy = info(3).y + soy
-        val c1x = info(1).x + sox
-        val c1y = info(1).y + soy
-        val c2x = info(2).x + sox
-        val c2y = info(2).y + soy
+        val fromx = skel(0).x + sox
+        val fromy = skel(0).y + soy
+        val tox = skel(3).x + sox
+        val toy = skel(3).y + soy
+        val c1x = skel(1).x + sox
+        val c1y = skel(1).y + soy
+        val c2x = skel(2).x + sox
+        val c2y = skel(2).y + soy
 
         theShape.reset
         theShape.moveTo(fromx, fromy)
@@ -550,14 +550,14 @@ class CubicCurveShape extends LineConnectorShape with ShowCubics {
     }
 
     protected def makeLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        val fromx = info(0).x + sox
-        val fromy = info(0).y + soy
-        val tox = info(3).x + sox
-        val toy = info(3).y + soy
-        val c1x = info(1).x + sox
-        val c1y = info(1).y + soy
-        val c2x = info(2).x + sox
-        val c2y = info(2).y + soy
+        val fromx = skel(0).x + sox
+        val fromy = skel(0).y + soy
+        val tox = skel(3).x + sox
+        val toy = skel(3).y + soy
+        val c1x = skel(1).x + sox
+        val c1y = skel(1).y + soy
+        val c2x = skel(2).x + sox
+        val c2y = skel(2).y + soy
 
         theShape.reset
         theShape.moveTo(fromx, fromy)
@@ -565,22 +565,22 @@ class CubicCurveShape extends LineConnectorShape with ShowCubics {
     }
 
     protected def makeShadow(bck: Backend, camera: Camera) {
-        if (info.isCurve)
+        if (skel.isCurve)
             makeMultiOrLoop(camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth)
         else makeSingle(camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth)
     }
 
-    def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+    def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, skel:Skeleton) {
         makeShadow(bck, camera)
         cast(bck.graphics2D, theShape)
     }
 
-    def render(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+    def render(bck: Backend, camera: Camera, element: GraphicElement, skel:Skeleton) {
         val g = bck.graphics2D
         make(bck, camera)
         stroke(g, theShape)
         fill(g, theSize, theShape)
-        decorConnector(g, camera, info.iconAndText, element, theShape)
+        decorConnector(bck, camera, skel.iconAndText, element, theShape)
         // 		showControlPolygon = true
         // 		if( showControlPolygon ) {
         //	 		val c = g.getColor();
@@ -606,23 +606,23 @@ class FreePlaneEdgeShape extends LineConnectorShape {
     }
 
     protected def make(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        if (info.multi > 1 || info.isLoop) // is a loop or a multi edge
+        if (skel.multi > 1 || skel.isLoop) // is a loop or a multi edge
             makeMultiOrLoop(camera, sox, soy, swx, swy)
         else makeSingle(camera, sox, soy, swx, swy) // is a single edge.
     }
 
     protected def makeSingle(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        var fromx = info.from.x + sox
-        val fromy = info.from.y + soy - theSourceSizeY / 2
-        var tox = info.to.x + sox
-        val toy = info.to.y + soy - theTargetSizeY / 2
-        val length = abs(info.to.x - info.from.x)
+        var fromx = skel.from.x + sox
+        val fromy = skel.from.y + soy - theSourceSizeY / 2
+        var tox = skel.to.x + sox
+        val toy = skel.to.y + soy - theTargetSizeY / 2
+        val length = abs(skel.to.x - skel.from.x)
         var c1x = 0.0
         var c1y = 0.0
         var c2x = 0.0
         var c2y = 0.0
 
-        if (info.from.x < info.to.x) {
+        if (skel.from.x < skel.to.x) {
             // At right.
             fromx += theSourceSizeX / 2
             tox -= theTargetSizeX / 2
@@ -647,7 +647,7 @@ class FreePlaneEdgeShape extends LineConnectorShape {
         // Set the connector as a curve.
 
         if (sox == 0 && soy == 0) {
-            info.setCurve(
+            skel.setCurve(
                 fromx, fromy, 0,
                 c1x, c1y, 0,
                 c2x, c2y, 0,
@@ -656,20 +656,20 @@ class FreePlaneEdgeShape extends LineConnectorShape {
     }
 
     protected def makeMultiOrLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        if (info.isLoop)
+        if (skel.isLoop)
             makeLoop(camera, sox, soy, swx, swy)
         else makeMulti(camera, sox, soy, swx, swy)
     }
 
     protected def makeMulti(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        val fromx = info(0).x + sox
-        val fromy = info(0).y + soy
-        val tox = info(3).x + sox
-        val toy = info(3).y + soy
-        val c1x = info(1).x + sox
-        val c1y = info(1).y + soy
-        val c2x = info(2).x + sox
-        val c2y = info(2).y + soy
+        val fromx = skel(0).x + sox
+        val fromy = skel(0).y + soy
+        val tox = skel(3).x + sox
+        val toy = skel(3).y + soy
+        val c1x = skel(1).x + sox
+        val c1y = skel(1).y + soy
+        val c2x = skel(2).x + sox
+        val c2y = skel(2).y + soy
 
         theShape.reset
         theShape.moveTo(fromx, fromy)
@@ -677,14 +677,14 @@ class FreePlaneEdgeShape extends LineConnectorShape {
     }
 
     protected def makeLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        val fromx = info(0).x + sox
-        val fromy = info(0).y + soy
-        val tox = info(3).x + sox
-        val toy = info(3).y + soy
-        val c1x = info(1).x + sox
-        val c1y = info(1).y + soy
-        val c2x = info(2).x + sox
-        val c2y = info(2).y + soy
+        val fromx = skel(0).x + sox
+        val fromy = skel(0).y + soy
+        val tox = skel(3).x + sox
+        val toy = skel(3).y + soy
+        val c1x = skel(1).x + sox
+        val c1y = skel(1).y + soy
+        val c2x = skel(2).x + sox
+        val c2y = skel(2).y + soy
 
         theShape.reset
         theShape.moveTo(fromx, fromy)
@@ -692,22 +692,22 @@ class FreePlaneEdgeShape extends LineConnectorShape {
     }
 
     protected def makeShadow(bck: Backend, camera: Camera) {
-        if (info.isCurve)
+        if (skel.isCurve)
             makeMultiOrLoop(camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth)
         else makeSingle(camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth)
     }
 
-    def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+    def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, skel:Skeleton) {
         makeShadow(bck, camera)
         cast(bck.graphics2D, theShape)
     }
 
-    def render(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+    def render(bck: Backend, camera: Camera, element: GraphicElement, skel:Skeleton) {
         val g = bck.graphics2D
         make(bck, camera)
         stroke(g, theShape)
         fill(g, theSize, theShape)
-        decorConnector(g, camera, info.iconAndText, element, theShape)
+        decorConnector(bck, camera, skel.iconAndText, element, theShape)
     }
 }
 
@@ -721,14 +721,14 @@ class HorizontalSquareEdgeShape extends LineConnectorShape {
     }
 
     protected def make(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        if (info.multi > 1 || info.isLoop) // is a loop or a multi edge
+        if (skel.multi > 1 || skel.isLoop) // is a loop or a multi edge
             makeMultiOrLoop(camera, sox, soy, swx, swy)
         else makeSingle(camera, sox, soy, swx, swy) // is a single edge.
     }
 
     protected def makeSingle(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        val from = new Point3(info.from.x + sox, info.from.y + soy, 0)
-        val to = new Point3(info.to.x + sox, info.to.y + soy, 0)
+        val from = new Point3(skel.from.x + sox, skel.from.y + soy, 0)
+        val to = new Point3(skel.to.x + sox, skel.to.y + soy, 0)
         val size = (theSourceSizeX + theTargetSizeX)
         var inter1: Point3 = null
         var inter2: Point3 = null
@@ -746,7 +746,7 @@ class HorizontalSquareEdgeShape extends LineConnectorShape {
                 inter4 = new Point3(inter2.x, inter3.y, 0)
 
                 if (sox == 0 && soy == 0)
-                    info.setPoly(from, inter1, inter3, inter4, inter2, to)
+                    skel.setPoly(from, inter1, inter3, inter4, inter2, to)
 
             } else {
                 val middle = (to.x - from.x) / 2
@@ -754,7 +754,7 @@ class HorizontalSquareEdgeShape extends LineConnectorShape {
                 inter2 = new Point3(to.x - middle, to.y, 0)
 
                 if (sox == 0 && soy == 0)
-                    info.setPoly(from, inter1, inter2, to)
+                    skel.setPoly(from, inter1, inter2, to)
             }
         } else {
             val len = from.x - to.x
@@ -767,7 +767,7 @@ class HorizontalSquareEdgeShape extends LineConnectorShape {
                 inter4 = new Point3(inter2.x, inter3.y, 0)
 
                 if (sox == 0 && soy == 0)
-                    info.setPoly(from, inter1, inter3, inter4, inter2, to)
+                    skel.setPoly(from, inter1, inter3, inter4, inter2, to)
 
             } else {
                 val middle = (to.x - from.x) / 2
@@ -775,7 +775,7 @@ class HorizontalSquareEdgeShape extends LineConnectorShape {
                 inter2 = new Point3(to.x - middle, to.y, 0)
 
                 if (sox == 0 && soy == 0)
-                    info.setPoly(from, inter1, inter2, to)
+                    skel.setPoly(from, inter1, inter2, to)
             }
         }
 
@@ -791,20 +791,20 @@ class HorizontalSquareEdgeShape extends LineConnectorShape {
     }
 
     protected def makeMultiOrLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        if (info.isLoop)
+        if (skel.isLoop)
             makeLoop(camera, sox, soy, swx, swy)
         else makeMulti(camera, sox, soy, swx, swy)
     }
 
     protected def makeMulti(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        val fromx = info(0).x + sox
-        val fromy = info(0).y + soy
-        val tox = info(3).x + sox
-        val toy = info(3).y + soy
-        val c1x = info(1).x + sox
-        val c1y = info(1).y + soy
-        val c2x = info(2).x + sox
-        val c2y = info(2).y + soy
+        val fromx = skel(0).x + sox
+        val fromy = skel(0).y + soy
+        val tox = skel(3).x + sox
+        val toy = skel(3).y + soy
+        val c1x = skel(1).x + sox
+        val c1y = skel(1).y + soy
+        val c2x = skel(2).x + sox
+        val c2y = skel(2).y + soy
 
         theShape.reset
         theShape.moveTo(fromx, fromy)
@@ -812,14 +812,14 @@ class HorizontalSquareEdgeShape extends LineConnectorShape {
     }
 
     protected def makeLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        val fromx = info(0).x + sox
-        val fromy = info(0).y + soy
-        val tox = info(3).x + sox
-        val toy = info(3).y + soy
-        val c1x = info(1).x + sox
-        val c1y = info(1).y + soy
-        val c2x = info(2).x + sox
-        val c2y = info(2).y + soy
+        val fromx = skel(0).x + sox
+        val fromy = skel(0).y + soy
+        val tox = skel(3).x + sox
+        val toy = skel(3).y + soy
+        val c1x = skel(1).x + sox
+        val c1y = skel(1).y + soy
+        val c2x = skel(2).x + sox
+        val c2y = skel(2).y + soy
 
         theShape.reset
         theShape.moveTo(fromx, fromy)
@@ -827,22 +827,22 @@ class HorizontalSquareEdgeShape extends LineConnectorShape {
     }
 
     protected def makeShadow(bck: Backend, camera: Camera) {
-        if (info.isCurve)
+        if (skel.isCurve)
             makeMultiOrLoop(camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth)
         else makeSingle(camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth)
     }
 
-    def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+    def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, skel:Skeleton) {
         makeShadow(bck, camera)
         cast(bck.graphics2D, theShape)
     }
 
-    def render(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+    def render(bck: Backend, camera: Camera, element: GraphicElement, skel:Skeleton) {
         val g = bck.graphics2D
         make(bck, camera)
         stroke(g, theShape)
         fill(g, theSize, theShape)
-        decorConnector(g, camera, info.iconAndText, element, theShape)
+        decorConnector(bck, camera, skel.iconAndText, element, theShape)
     }
 }
 
@@ -856,14 +856,14 @@ class LSquareEdgeShape extends LineConnectorShape {
     }
 
     protected def make(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        if (info.multi > 1 || info.isLoop) // is a loop or a multi edge
+        if (skel.multi > 1 || skel.isLoop) // is a loop or a multi edge
             makeMultiOrLoop(camera, sox, soy, swx, swy)
         else makeSingle(camera, sox, soy, swx, swy) // is a single edge.
     }
 
     protected def makeSingle(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        val from = new Point3(info.from.x + sox, info.from.y + soy, 0)
-        val to = new Point3(info.to.x + sox, info.to.y + soy, 0)
+        val from = new Point3(skel.from.x + sox, skel.from.y + soy, 0)
+        val to = new Point3(skel.to.x + sox, skel.to.y + soy, 0)
         val mainDir = new Vector2(from, to)
         val length = mainDir.length
         val angle = mainDir.y / length
@@ -878,7 +878,7 @@ class LSquareEdgeShape extends LineConnectorShape {
         }
 
         if (sox == 0 && soy == 0)
-            info.setPoly(from, inter, to)
+            skel.setPoly(from, inter, to)
 
         theShape.reset
         theShape.moveTo(from.x, from.y)
@@ -887,20 +887,20 @@ class LSquareEdgeShape extends LineConnectorShape {
     }
 
     protected def makeMultiOrLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        if (info.isLoop)
+        if (skel.isLoop)
             makeLoop(camera, sox, soy, swx, swy)
         else makeMulti(camera, sox, soy, swx, swy)
     }
 
     protected def makeMulti(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        val fromx = info(0).x + sox
-        val fromy = info(0).y + soy
-        val tox = info(3).x + sox
-        val toy = info(3).y + soy
-        val c1x = info(1).x + sox
-        val c1y = info(1).y + soy
-        val c2x = info(2).x + sox
-        val c2y = info(2).y + soy
+        val fromx = skel(0).x + sox
+        val fromy = skel(0).y + soy
+        val tox = skel(3).x + sox
+        val toy = skel(3).y + soy
+        val c1x = skel(1).x + sox
+        val c1y = skel(1).y + soy
+        val c2x = skel(2).x + sox
+        val c2y = skel(2).y + soy
 
         theShape.reset
         theShape.moveTo(fromx, fromy)
@@ -908,14 +908,14 @@ class LSquareEdgeShape extends LineConnectorShape {
     }
 
     protected def makeLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
-        val fromx = info(0).x + sox
-        val fromy = info(0).y + soy
-        val tox = info(3).x + sox
-        val toy = info(3).y + soy
-        val c1x = info(1).x + sox
-        val c1y = info(1).y + soy
-        val c2x = info(2).x + sox
-        val c2y = info(2).y + soy
+        val fromx = skel(0).x + sox
+        val fromy = skel(0).y + soy
+        val tox = skel(3).x + sox
+        val toy = skel(3).y + soy
+        val c1x = skel(1).x + sox
+        val c1y = skel(1).y + soy
+        val c2x = skel(2).x + sox
+        val c2y = skel(2).y + soy
 
         theShape.reset
         theShape.moveTo(fromx, fromy)
@@ -923,22 +923,22 @@ class LSquareEdgeShape extends LineConnectorShape {
     }
 
     protected def makeShadow(bck: Backend, camera: Camera) {
-        if (info.isCurve)
+        if (skel.isCurve)
             makeMultiOrLoop(camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth)
         else makeSingle(camera, theShadowOff.x, theShadowOff.y, theShadowWidth, theShadowWidth)
     }
 
-    def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+    def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, skel:Skeleton) {
         makeShadow(bck, camera)
         cast(bck.graphics2D, theShape)
     }
 
-    def render(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+    def render(bck: Backend, camera: Camera, element: GraphicElement, skel:Skeleton) {
         val g = bck.graphics2D
         make(bck, camera)
         stroke(g, theShape)
         fill(g, theSize, theShape)
-        decorConnector(g, camera, info.iconAndText, element, theShape)
+        decorConnector(bck, camera, skel.iconAndText, element, theShape)
     }
 }
 object PieChartShape {
@@ -948,8 +948,8 @@ object PieChartShape {
 }
 
 class PieChartShape
-    extends Shape
-    with Area
+    extends org.graphstream.ui.j2dviewer.renderer.shape.Shape
+    with org.graphstream.ui.j2dviewer.renderer.shape.Area
     with FillableMulticolored
     with Strokable
     with Shadowable
@@ -969,10 +969,10 @@ class PieChartShape
         configureDecorableForGroup(style, camera)
     }
 
-    def configureForElement(bck: Backend, element: GraphicElement, info: ElementInfo, camera: Camera) {
+    def configureForElement(bck: Backend, element: GraphicElement, skel:Skeleton, camera: Camera) {
         val g = bck.graphics2D
-        configureDecorableForElement(g, camera, element, info)
-        configureAreaForElement(g, camera, info.asInstanceOf[NodeInfo], element, theDecor)
+        configureDecorableForElement(bck, camera, element, skel)
+        configureAreaForElement(bck, camera, skel.asInstanceOf[AreaSkeleton], element, theDecor)
     }
 
     override def make(bck: Backend, camera: Camera) {
@@ -985,19 +985,19 @@ class PieChartShape
             theCenter.x + (theSize.x + theShadowWidth.x) / 2, theCenter.y + (theSize.y + theShadowWidth.y) / 2)
     }
 
-    override def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+    override def renderShadow(bck: Backend, camera: Camera, element: GraphicElement, skel:Skeleton) {
         makeShadow(bck, camera)
         cast(bck.graphics2D, theShape)
     }
 
-    override def render(bck: Backend, camera: Camera, element: GraphicElement, info: ElementInfo) {
+    override def render(bck: Backend, camera: Camera, element: GraphicElement, skel:Skeleton) {
         val g = bck.graphics2D
         make(bck, camera)
         checkValues(element)
         fillPies(g, element)
         //fill(g, theSize, theShape)
         stroke(g, theShape)
-        decorArea(g, camera, info.iconAndText, element, theShape)
+        decorArea(bck, camera, skel.iconAndText, element, theShape)
     }
 
     protected def checkValues(element: GraphicElement) {

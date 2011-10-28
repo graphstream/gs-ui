@@ -34,11 +34,11 @@ import java.awt.Graphics2D
 import org.graphstream.ui.graphicGraph.{GraphicElement, StyleGroup, GraphicEdge}
 import org.graphstream.ui.j2dviewer.J2DGraphRenderer
 import org.graphstream.ui.j2dviewer.{Camera, Backend}
-import org.graphstream.ui.j2dviewer.renderer.shape._
+import org.graphstream.ui.j2dviewer.renderer.shape.swing._
 
 class EdgeRenderer(styleGroup:StyleGroup) extends StyleRenderer(styleGroup) {
 
-	var shape:Shape = null
+	var shape:org.graphstream.ui.j2dviewer.renderer.shape.Shape = null
 	var arrow:AreaOnConnectorShape = null
   
 	protected def setupRenderingPass(bck:Backend, camera:Camera, forShadow:Boolean) {
@@ -59,45 +59,44 @@ class EdgeRenderer(styleGroup:StyleGroup) extends StyleRenderer(styleGroup) {
 	
 	protected def renderElement(bck:Backend, camera:Camera, element:GraphicElement) {
 		val edge = element.asInstanceOf[GraphicEdge]
-		val info = getOrSetEdgeInfo(element)
+		val skel = getOrSetConnectorSkeleton(element)
 		
-		shape.configureForElement(bck, element, info, camera)
-		shape.render(bck, camera, element, info)
+		shape.configureForElement(bck, element, skel, camera)
+		shape.render(bck, camera, element, skel)
   
 		if(edge.isDirected && (arrow ne null)) {
-			arrow.theConnectorYoureAttachedTo(shape.asInstanceOf[Connector] /* !!!! Test this TODO ensure this !!! */)
-			arrow.configureForElement(bck, element, info, camera)
-		  	arrow.render(bck, camera, element, info)
+			arrow.theConnectorYoureAttachedTo(shape.asInstanceOf[org.graphstream.ui.j2dviewer.renderer.shape.Connector] /* !!!! Test this TODO ensure this !!! */)
+			arrow.configureForElement(bck, element, skel, camera)
+		  	arrow.render(bck, camera, element, skel)
 		}
 	}
 	
 	protected def renderShadow(bck:Backend, camera:Camera, element:GraphicElement) {
 		val edge = element.asInstanceOf[GraphicEdge]
-		val info = getOrSetEdgeInfo(element)
+		val skel = getOrSetConnectorSkeleton(element)
 		
-		shape.configureForElement(bck, element, info, camera)
-		shape.renderShadow(bck, camera, element, info)
+		shape.configureForElement(bck, element, skel, camera)
+		shape.renderShadow(bck, camera, element, skel)
   
 		if(edge.isDirected && (arrow ne null)) {
-			arrow.theConnectorYoureAttachedTo(shape.asInstanceOf[Connector] /* !!!! Test this TODO ensure this !!! */)
-			arrow.configureForElement(bck, element, info, camera)
-			arrow.renderShadow(bck, camera, element, info)
+			arrow.theConnectorYoureAttachedTo(shape.asInstanceOf[org.graphstream.ui.j2dviewer.renderer.shape.Connector] /* !!!! Test this TODO ensure this !!! */)
+			arrow.configureForElement(bck, element, skel, camera)
+			arrow.renderShadow(bck, camera, element, skel)
 		}
 	}
 	
 	/** Retrieve the shared edge informations stored on the given edge element.
-	 * If such information is not yet present, add it to the element. 
-	 * @param element The element to look for.
-	 * @return The edge information.
-	 * @throws RuntimeException if the element is not an edge.
-	 */
-	protected def getOrSetEdgeInfo(element:GraphicElement):EdgeInfo= {
+	  * If such information is not yet present, add it to the element. 
+	  * @param element The element to look for.
+	  * @return The edge information.
+	  * @throws RuntimeException if the element is not an edge. */
+	protected def getOrSetConnectorSkeleton(element:GraphicElement):ConnectorSkeleton = {
 		if(element.isInstanceOf[GraphicEdge]) {
-			var info = element.getAttribute(ElementInfo.attributeName).asInstanceOf[EdgeInfo]
+			var info = element.getAttribute(Skeleton.attributeName).asInstanceOf[ConnectorSkeleton]
 			
 			if(info eq null) {
-				info = new EdgeInfo
-				element.setAttribute(ElementInfo.attributeName, info)
+				info = new ConnectorSkeleton
+				element.setAttribute(Skeleton.attributeName, info)
 			}
 			
 			info

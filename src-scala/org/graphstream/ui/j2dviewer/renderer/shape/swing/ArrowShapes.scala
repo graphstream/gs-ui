@@ -28,7 +28,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
  */
-package org.graphstream.ui.j2dviewer.renderer.shape
+package org.graphstream.ui.j2dviewer.renderer.shape.swing
 
 import java.awt._
 import java.awt.geom._
@@ -42,6 +42,7 @@ import org.graphstream.ui.graphicGraph._
 import org.graphstream.ui.graphicGraph.stylesheet._
 import org.graphstream.ui.j2dviewer._
 import org.graphstream.ui.util._
+import org.graphstream.ui.util.swing._
 import org.graphstream.ui.j2dviewer.renderer._
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 
@@ -58,24 +59,24 @@ class ArrowOnEdge extends AreaOnConnectorShape {
 	protected def makeShadow(bck:Backend, camera:Camera ) { make( true, camera ) }
   
 	protected def make( forShadow:Boolean, camera:Camera ) {
-		if(theConnector.info.isCurve)
+		if(theConnector.skel.isCurve)
 		     makeOnCurve(forShadow, camera)
 		else makeOnLine(forShadow, camera)
 	}
  
 	protected def makeOnLine( forShadow:Boolean, camera:Camera ) {
-		var info = theConnector.info
+		var skel = theConnector.skel
 		var off:Double = 0
-		val theDirection = if(info.isPoly) {
-				off = ShapeUtil.evalTargetRadius2D( info(info.size-2), info.to, theEdge.to, camera )
+		val theDirection = if(skel.isPoly) {
+				off = ShapeUtil.evalTargetRadius2D( skel(skel.size-2), skel.to, theEdge.to, camera )
 		    	new Vector2(
-		    	    info.to.x - info(info.size-2).x,
-		    	    info.to.y - info(info.size-2).y )
+		    	    skel.to.x - skel(skel.size-2).x,
+		    	    skel.to.y - skel(skel.size-2).y )
 			} else {
-				off = ShapeUtil.evalTargetRadius2D( info.from, info.to, theEdge.to, camera )
+				off = ShapeUtil.evalTargetRadius2D( skel.from, skel.to, theEdge.to, camera )
 				new Vector2(
-					info.to.x - info.from.x,
-					info.to.y - info.from.y )
+					skel.to.x - skel.from.x,
+					skel.to.y - skel.from.y )
 			}
 			
 		theDirection.normalize
@@ -123,12 +124,12 @@ class ArrowOnEdge extends AreaOnConnectorShape {
 		theShape.closePath		
 	}
  
-	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton ) {
  		make( true, camera )
  		cast(bck.graphics2D, theShape )
 	}
  
-	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	def render(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton ) {
 	    val g = bck.graphics2D
  		make( false, camera )
  		stroke( g, theShape )
@@ -145,7 +146,7 @@ class CircleOnEdge extends AreaOnConnectorShape {
 	protected def makeShadow(bck:Backend, camera:Camera ) { make( true, camera ) }
   
 	protected def make( forShadow:Boolean, camera:Camera ) {
-		if( theConnector.info.isCurve )
+		if( theConnector.skel.isCurve )
 		     makeOnCurve( forShadow, camera )
 		else makeOnLine(  forShadow, camera )
 	}
@@ -190,19 +191,19 @@ class CircleOnEdge extends AreaOnConnectorShape {
 		theShape.setFrame( (p1.x-dir.x)-(theSize.x/2), (p1.y-dir.y)-(theSize.y/2), theSize.x, theSize.y )
 	}
  
-	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton ) {
  		make( true, camera )
  		cast(bck.graphics2D, theShape )
 	}
  
-	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	def render(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton ) {
 	    val g = bck.graphics2D
  		make( false, camera )
  		stroke( g, theShape )
  		fill( g, theShape, camera )
 	}
  
-	protected def lengthOfCurve( c:Connector ):Double = {
+	protected def lengthOfCurve( c:org.graphstream.ui.j2dviewer.renderer.shape.Connector ):Double = {
 		// Computing a curve real length is really heavy.
 		// We approximate it using the length of the 3 line segments of the enclosing
 		// control points.
@@ -219,7 +220,7 @@ class DiamondOnEdge extends AreaOnConnectorShape {
 	protected def makeShadow(bck:Backend, camera:Camera ) { make( true, camera ) }
   
 	protected def make( forShadow:Boolean, camera:Camera ) {
-		if( theConnector.info.isCurve )
+		if( theConnector.skel.isCurve )
 		     makeOnCurve( forShadow, camera )
 		else makeOnLine(  forShadow, camera )
 	}
@@ -277,12 +278,12 @@ class DiamondOnEdge extends AreaOnConnectorShape {
 		theShape.closePath
 	}
  
-	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton ) {
  		make( true, camera )
  		cast(bck.graphics2D, theShape )
 	}
  
-	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	def render(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton ) {
 	    val g = bck.graphics2D
  		make( false, camera )
  		stroke( g, theShape )
@@ -304,8 +305,8 @@ class ImageOnEdge extends AreaOnConnectorShape {
 		super.configureForGroup(bck, style, camera )
 	}
 	
-	override def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera ) {
-		super.configureForElement(bck, element, info, camera )
+	override def configureForElement(bck:Backend, element:GraphicElement, skel:Skeleton, camera:Camera ) {
+		super.configureForElement(bck, element, skel, camera )
 		
 		var url = element.getStyle.getArrowImage
 		
@@ -327,7 +328,7 @@ class ImageOnEdge extends AreaOnConnectorShape {
 	protected def makeShadow(bck:Backend, camera:Camera ) { make( true, camera ) }
   
 	protected def make( forShadow:Boolean, camera:Camera ) {
-		if( theConnector.info.isCurve )
+		if( theConnector.skel.isCurve )
 		     makeOnCurve( forShadow, camera )
 		else makeOnLine(  forShadow, camera )
 	}
@@ -380,12 +381,12 @@ class ImageOnEdge extends AreaOnConnectorShape {
 			angle = ( Pi - angle )
 	}
  
-	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton ) {
 // 		make( true, camera )
 // 		cast( g, theShape )
 	}
  
-	def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	def render(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton ) {
 	    val g = bck.graphics2D
 
  		make( false, camera )

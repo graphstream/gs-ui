@@ -28,7 +28,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
  */
-package org.graphstream.ui.j2dviewer.renderer.shape
+package org.graphstream.ui.j2dviewer.renderer.shape.swing
 
 import org.graphstream.ui.util.AttributeUtils
 import org.graphstream.ui.geom.Point3
@@ -39,7 +39,7 @@ import org.graphstream.ui.graphicGraph.GraphicElement
 import org.graphstream.ui.graphicGraph.stylesheet.Style
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 import org.graphstream.ui.j2dviewer.{Camera, Backend}
-import org.graphstream.ui.j2dviewer.renderer.{ElementInfo, NodeInfo, EdgeInfo}
+import org.graphstream.ui.j2dviewer.renderer.{Skeleton, AreaSkeleton, ConnectorSkeleton}
 
 class CircleShape extends RectangularAreaShape {
 	val theShape = new Ellipse2D.Double
@@ -189,8 +189,8 @@ class PolygonShape extends PolygonalShape with AttributeUtils {
     var maxPoint:Point3 = null
 	var valuesRef:AnyRef = null
     
-    override def configureForElement(bck:Backend, element:GraphicElement, info:ElementInfo, camera:Camera ) {
-        super.configureForElement(bck, element, info, camera)
+    override def configureForElement(bck:Backend, element:GraphicElement, skel:Skeleton, camera:Camera ) {
+        super.configureForElement(bck, element, skel, camera)
         
         if(element.hasAttribute( "ui.points" )) {
 			val oldRef = valuesRef
@@ -200,7 +200,7 @@ class PolygonShape extends PolygonalShape with AttributeUtils {
 			if( ( theValues == null ) || ( oldRef ne valuesRef ) ) {
 				theValues = getPoints(valuesRef)
 				
-				if(info.isInstanceOf[NodeInfo]) {
+				if(skel.isInstanceOf[AreaSkeleton]) {
 				    val (min, max) = boundingBoxOfPoints(theValues)
 
 				    minPoint = min
@@ -208,7 +208,7 @@ class PolygonShape extends PolygonalShape with AttributeUtils {
 				}
 			}
 		
-			val ninfo = info.asInstanceOf[NodeInfo]
+			val ninfo = skel.asInstanceOf[AreaSkeleton]
 			ninfo.theSize.set(maxPoint.x-minPoint.x, maxPoint.y-minPoint.y)
 			theSize.copy(ninfo.theSize)
 		}
@@ -274,11 +274,11 @@ class FreePlaneNodeShape extends RectangularAreaShape {
 		theLineShape.setLine( x-w/2, y-h/2, x+w/2, y-h/2 )
 	}
 
-	override def render(bck:Backend, camera:Camera, element:GraphicElement, info:ElementInfo ) {
+	override def render(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton) {
 	    val g = bck.graphics2D
- 		make(bck, camera )
- 		fill( g, theShape, camera )
- 		stroke( g, theLineShape )
- 		decorArea( g, camera, info.iconAndText, element, theShape )
+ 		make(bck, camera)
+ 		fill(g, theShape, camera)
+ 		stroke(g, theLineShape)
+ 		decorArea(bck, camera, skel.iconAndText, element, theShape)
  	}
 }

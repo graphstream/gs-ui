@@ -55,38 +55,36 @@ class SpriteRenderer(styleGroup:StyleGroup) extends StyleRenderer(styleGroup) {
 	
 	protected def renderElement(bck:Backend, camera:Camera, element:GraphicElement) {
 		val sprite = element.asInstanceOf[GraphicSprite]
-		val info   = getOrSetSpriteInfo(element)
+		val skel   = getOrSetAreaSkeleton(element)
 		
-		shape.configureForElement(bck, element, info, camera)
-		shape.render(bck, camera, element, info)
+		shape.configureForElement(bck, element, skel, camera)
+		shape.render(bck, camera, element, skel)
 	}
 	
 	protected def renderShadow(bck:Backend, camera:Camera, element:GraphicElement) {
 		val sprite = element.asInstanceOf[GraphicSprite]
 		val pos    = camera.getSpritePosition(sprite, new Point3, StyleConstants.Units.GU)
-		val info   = getOrSetSpriteInfo(element)
+		val skel   = getOrSetAreaSkeleton(element)
 
-		shape.configureForElement(bck, element, info, camera)
-		shape.renderShadow(bck, camera, element, info)
+		shape.configureForElement(bck, element, skel, camera)
+		shape.renderShadow(bck, camera, element, skel)
 	}
  
 	protected def elementInvisible(bck:Backend, camera:Camera, element:GraphicElement) {
 	}
  
-	/**
-	 * Retrieve the node shared informations stored on the given node element.
-	 * If such information is not yet present, add it to the element. 
-	 * @param element The element to look for.
-	 * @return The node information.
-	 * @throws RuntimeException if the element is not a node.
-	 */
-	protected def getOrSetSpriteInfo(element:GraphicElement):NodeInfo= {
+	/** Retrieve the node shared informations stored on the given sprite element.
+	  * If such information is not yet present, add it to the element. 
+	  * @param element The element to look for.
+	  * @return The node information.
+	  * @throws RuntimeException if the element is not a node. */
+	protected def getOrSetAreaSkeleton(element:GraphicElement):AreaSkeleton = {
 		if(element.isInstanceOf[GraphicSprite]) {
-			var info = element.getAttribute(ElementInfo.attributeName).asInstanceOf[NodeInfo]
+			var info = element.getAttribute(Skeleton.attributeName).asInstanceOf[AreaSkeleton]
 			
 			if(info eq null) {
-				info = new NodeInfo
-				element.setAttribute(ElementInfo.attributeName, info)
+				info = new AreaSkeleton
+				element.setAttribute(Skeleton.attributeName, info)
 			}
 			
 			info

@@ -9,6 +9,7 @@ import org.graphstream.ui.geom.Point3
 import org.graphstream.ui.j2dviewer.renderer.GraphBackgroundRenderer
 import org.graphstream.ui.j2dviewer.renderer.shape.Shape
 import org.graphstream.ui.graphicGraph.StyleGroup
+import java.awt.Container
 
 /**
  * The graphic driver.
@@ -19,95 +20,71 @@ abstract class Backend {
 	// TODO, one day.
     // The goal is to replace the use of Java2D by the back-end
     // Then to produce a new back-end using OpenGL to accelerate
-    // thinks, since Java is a big Mammoth that will never follow
+    // things, since Java is a big Mammoth that will never follow
     // actual technologies (on Linux, I doubt it will ever get
-    // real good Java2D implementation).
+    // real good OpenGL implementation).
     
-    /** Setup the backend for a new rendering session. */
+    /** Called before any prior use of this back-end. */
+    def open(drawingSurface:Container)
+    
+    /** Called after finished using this object. */
+    def close()
+    
+    /** Setup the back-end for a new rendering session. */
     def prepareNewFrame(g2:Graphics2D)
     
-    /**
-     * Transform a point in graph units into pixel units.
-     * @return the transformed point.
-     */
+    /** Transform a point in graph units into pixel units.
+      * @return the transformed point. */
     def transform(x:Double, y:Double, z:Double):Point3
     
-    /**
-     * Pass a point in transformed coordinates (pixels) into the reverse transform (into
-     * graph units).
-     * @return the transformed point.
-     */
+    /** Pass a point in transformed coordinates (pixels) into the reverse transform (into
+      * graph units).
+      * @return the transformed point. */
     def inverseTransform(x:Double, y:Double, z:Double):Point3
     
-    /** 
-     * Transform a point in graph units into pixel units, the given point is transformed in place
-     * and also returned. 
-     */
+    /** Transform a point in graph units into pixel units, the given point is transformed in place
+      * and also returned. */
     def transform(p:Point3):Point3
     
-    /**
-     * Transform a point in pixel units into graph units, the given point is transformed in
-     * place and also returned.
-     */
+    /** Transform a point in pixel units into graph units, the given point is transformed in
+      * place and also returned. */
     def inverseTransform(p:Point3):Point3
     
-    /**
-     * Push the actual transformation on the matrix stack, installing
-     * a copy of it on the top of the stack.
-     */
+    /** Push the actual transformation on the matrix stack, installing
+      * a copy of it on the top of the stack. */
     def pushTransform()
  
-    /**
-     * Begin the work on the actual transformation matrix.
-     */
+    /** Begin the work on the actual transformation matrix. */
     def beginTransform
 
-    /**
-     * Make the top-most matrix as an identity matrix.
-     */
+    /** Make the top-most matrix as an identity matrix. */
     def setIdentity()
     
-    /**
-     * Multiply the to-most matrix by a translation matrix.
-     */
+    /** Multiply the to-most matrix by a translation matrix. */
     def translate(tx:Double, ty:Double, tz:Double)
     
-    /**
-     * Multiply the top-most matrix by a rotation matrix.
-     */
+    /** Multiply the top-most matrix by a rotation matrix. */
     def rotate(angle:Double, ax:Double, ay:Double, az:Double)
     
-    /**
-     * Multiply the top-most matrix by a scaling matrix.
-     */
+    /** Multiply the top-most matrix by a scaling matrix. */
     def scale(sx:Double, sy:Double, sz:Double)
     
-    /**
-     * End the work on the actual transformation matrix, installing it as the actual modelview
-     * matrix. If you do not call this method, all the scaling, translation and rotation are
-     * lost.
-     */
+    /** End the work on the actual transformation matrix, installing it as the actual modelview
+      * matrix. If you do not call this method, all the scaling, translation and rotation are
+      * lost. */
     def endTransform
     
-    /**
-     * Pop the actual transformation of the matrix stack, restoring
-     * the previous one in the stack.
-     */
+    /** Pop the actual transformation of the matrix stack, restoring
+      * the previous one in the stack. */
     def popTransform()
 
-    /**
-     * Enable or disable anti-aliasing.
-     */
+    /** Enable or disable anti-aliasing. */
     def setAntialias(on:Boolean)
     
-    /**
-     * Enable or disable the hi-quality mode.
-     */
+    /** Enable or disable the hi-quality mode. */
     def setQuality(on:Boolean)
 
-    /**
-     * The Java2D graphics.
-     */
+    /** The Java2D graphics. */
     def graphics2D:Graphics2D
     
     def chooseNodeShape(oldShape:Shape, group:StyleGroup):Shape
@@ -115,12 +92,19 @@ abstract class Backend {
     def chooseEdgeArrowShape(oldShape:Shape, group:StyleGroup):Shape
     def chooseSpriteShape(oldShape:Shape, group:StyleGroup):Shape
     def chooseGraphBackgroundRenderer():GraphBackgroundRenderer
+    
+    /** The drawing surface.
+      * The drawing surface may be different than the one passed as
+      * argument to open(), the back-end is free to create a new surface
+      * as it sees fit. */
+    def drawingSurface():Container
 }
 
-/**
- * A full Java-2D rendering back-end.
- */
+/** A full Java-2D rendering back-end. */
 class BackendJ2D extends Backend {
+
+    protected var surface:Container = null
+    
 	protected var g2:Graphics2D = null
     
     protected val matrixStack = new ArrayStack[AffineTransform]()
@@ -132,6 +116,14 @@ class BackendJ2D extends Backend {
     protected val dummyPoint = new Point2D.Double()
     
 	def graphics2D:Graphics2D = g2
+
+	def open(drawingSurface:Container) {
+        surface = drawingSurface
+    }
+    
+    def close() {
+        surface = null
+    }
 	
     override def prepareNewFrame(g2:Graphics2D) {
 	    this.g2 = g2
@@ -183,22 +175,18 @@ class BackendJ2D extends Backend {
         p
     }
     
-    /**
-     * Push the actual transformation on the matrix stack, installing
-     * a copy of it on the top of the stack.
-     */
+    /** Push the actual transformation on the matrix stack, installing
+      * a copy of it on the top of the stack. */
     def pushTransform() {
         val newTx = new AffineTransform(Tx)
         matrixStack.push(newTx)
         g2.setTransform(newTx)
         Tx = newTx
-        // xT inchanged, since newTx is a copy of Tx
+        // xT not changed, since newTx is a copy of Tx
     }
     
-    /**
-     * Pop the actual transformation of the matrix stack, installing
-     * the previous one in the stack.
-     */
+    /** Pop the actual transformation of the matrix stack, installing
+      * the previous one in the stack. */
     def popTransform() {
         assert(!matrixStack.isEmpty)
         matrixStack.pop
@@ -207,21 +195,13 @@ class BackendJ2D extends Backend {
         //computeInverse
     }
     
-    def setIdentity() {
-        Tx.setToIdentity
-    }
+    def setIdentity() = Tx.setToIdentity
     
-    def translate(tx:Double, ty:Double, tz:Double) {
-        Tx.translate(tx, ty)
-    }
+    def translate(tx:Double, ty:Double, tz:Double) = Tx.translate(tx, ty)
     
-    def rotate(angle:Double, ax:Double, ay:Double, az:Double) {
-        Tx.rotate(angle)
-    }
+    def rotate(angle:Double, ax:Double, ay:Double, az:Double) = Tx.rotate(angle)
     
-    def scale(sx:Double, sy:Double, sz:Double) {
-        Tx.scale(sx, sy)
-    }
+    def scale(sx:Double, sy:Double, sz:Double) = Tx.scale(sx, sy)
     
     def setAntialias(on:Boolean) {
        import RenderingHints._
@@ -253,7 +233,7 @@ class BackendJ2D extends Backend {
     
     def chooseNodeShape(oldShape:Shape, group:StyleGroup):Shape = {
         import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Shape._
-        import org.graphstream.ui.j2dviewer.renderer.shape._
+        import org.graphstream.ui.j2dviewer.renderer.shape.swing._
 		group.getShape match {
 			case CIRCLE         => if(oldShape.isInstanceOf[CircleShape])         oldShape else new CircleShape 
 		  	case BOX            => if(oldShape.isInstanceOf[SquareShape])         oldShape else new SquareShape
@@ -279,7 +259,7 @@ class BackendJ2D extends Backend {
 
     def chooseEdgeShape(oldShape:Shape, group:StyleGroup):Shape = {
         import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Shape._
-        import org.graphstream.ui.j2dviewer.renderer.shape._
+        import org.graphstream.ui.j2dviewer.renderer.shape.swing._
 		group.getShape match {
 			case LINE        => if(oldShape.isInstanceOf[LineShape])                 oldShape else new LineShape
 		  	case ANGLE       => if(oldShape.isInstanceOf[AngleShape])                oldShape else new AngleShape
@@ -297,7 +277,7 @@ class BackendJ2D extends Backend {
     }
     
     def chooseEdgeArrowShape(oldShape:Shape, group:StyleGroup):Shape = {
-        import org.graphstream.ui.j2dviewer.renderer.shape._
+        import org.graphstream.ui.j2dviewer.renderer.shape.swing._
  		import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.ArrowShape._
 		group.getArrowShape match {
 			case NONE    => null
@@ -310,7 +290,7 @@ class BackendJ2D extends Backend {
     }
 
     def chooseSpriteShape(oldShape:Shape, group:StyleGroup):Shape = {
-        import org.graphstream.ui.j2dviewer.renderer.shape._
+        import org.graphstream.ui.j2dviewer.renderer.shape.swing._
         import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Shape._
 		group.getShape match {
 			case CIRCLE         => if(oldShape.isInstanceOf[CircleShape])           oldShape else new CircleShape 
@@ -335,7 +315,7 @@ class BackendJ2D extends Backend {
 		}
     }
 
-    def chooseGraphBackgroundRenderer():GraphBackgroundRenderer = {
-        null
-    }
+    def chooseGraphBackgroundRenderer():GraphBackgroundRenderer = null
+    
+    def drawingSurface():Container = surface
 }
