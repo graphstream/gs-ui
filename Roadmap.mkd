@@ -1,0 +1,45 @@
+Roadmap
+=======
+
+Actually in the works
+---------------------
+
+- Polygonal and vectorial shapes for nodes.
+- Polygonal/multi-point-curves and vectorial shapes for edges.
+- A new OpenGL backend.  
+
+In the future
+-------------
+
+- Some few CSS properties are not yet correctly used.
+- Finish the ViewerPipe and respect more events (nodeMoved, nodeClicked, nodeReleased, nodeSelected, nodeUnselected, selectionBegin, selectionChange, selectionEnd, edgeSelected, edgeUnselected).
+- Icon above and under the text for labels.  
+
+Improvements
+------------
+
+- The skeletons should probably be defined before rendering in another step, since
+  shape A can use the sekelton of B and the reverse.
+- CSS properties to define the look of the selection area ?
+- An enneaptych shape for nodes and sprites. Like a triptych but with nine areas : a center image,
+  four corner images, and four side images. Only the center image is resized in width and height,
+  the corners are never resized and the sides are resized only in width or height. This therefore
+  would require to specify nine images. How ?
+- An edge that would have an image "tiled" along it ?
+- Allowing to use a grid and magnetism to move the nodes ? 
+- A grid graph background ?
+- A line sprite ? the two first coordinates give the a point where the line passes and the third
+  gives an angle ?
+- Allow to place arrows at the center of edges (or anywhere on the edge) ?
+- Have edges with a gradient color ?
+- Strokes with two or more lines ? (heavily asked by people that do automata).
+-  
+
+Known Bugs
+----------
+
+That still need to be fixed...
+
+- Shadows are not applied when a :selected, :clicked event occurs ?
+- Borders of JComponent shapes are wrong when antialiasing is activated ? WTF ?
+- Dynamic icons strange bug if OpenGL is not activated for the Java2D renderer.

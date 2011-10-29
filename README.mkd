@@ -1,24 +1,29 @@
 GraphStream
 ===========
 
-Welcome to GraphStream, and thank you for your download, we hope you will find it
-useful and practical.
+Welcome to GraphStream, and thank you for your download, we hope you will find it useful and practical.
 
-We are always interested by suggestions on how to make the library more developer
-friendly, see the website ([www.graphstream-project.org]) for more information.
+We are always interested by suggestions on how to make the library more developer friendly, see the [website](www.graphstream-project.org) for more information.
 
 UI
 --
 
-This module is intended to provide several alternative graph renderers to be used with the
-GraphStream Viewer. It contains actually one renderer developed with the
-[Scala language](http://www.scala-lang.org/), and located in the `src-scala` repository.
+This module is intended to provide several alternative graph "renderers" to be used with the GraphStream Viewer. It contains actually one renderer developed with the [Scala language](http://www.scala-lang.org/), and located in the `src-scala` repository.
 
-This renderer supports almost all of the CSS properties defined in the
-[GraphStream CSS Reference](http://graphstream-project.org/doc/Tutorials/GraphStream-CSS-Reference_1.0/),
-however it is still a work in progress. Inside the source, a document `src-scala/howitworks.mkd` describes
-the architecture and functioning of the Scala viewer. This viewer is intended only at 2D visualization
-actually.
+This renderer supports almost all of the CSS properties defined in the [GraphStream CSS Reference](http://graphstream-project.org/doc/Tutorials/GraphStream-CSS-Reference_1.0/), however it is still a work in progress. Inside the source, a document `src-scala/howitworks.mkd` describes the architecture and functioning of the Scala viewer. This viewer is intended only at 2D visualization actually.
+
+We are interested in any suggestion to improve this renderer, and your use cases could be of great help for us in developing this project. If you like and use this project, this could be a good contribution.
+
+Building and jars
+-----------------
+
+Building the Scala renderer requires to install the Scala compiler and library. The process of creating a jar maybe fastidious, therefore pre-made jars are available in the `lib/` directory. The `gs-ui-bin.jar` contains only the set of classes of the renderer. It requires the Scala library in the class-path to work. If you work with Scala, and have it installed an available in your class-path you can use this jar. The `gs-ui.jar` is a standalone jar that contains the `gs-ui-bin.jar` plus the parts of the Scala Library used by the Scala viewer (and only these parts, this does not include the complete Scala library). 
+
+In addition to the Scala library, this renderer only depends on the `gs-core` module.
+
+I you plan to build the Scala renderer by yourself, you can have a look at the `compile.sh` script (for a Bash shell). It needs to be edited and is really basic, but should give you an idea of what is needed. An easier solution could probably be to install the Scala IDE plug-in for Eclipse or the one for NetBeans. The `gs-ui-bin.jardesc` allows to build a jar of the renderer under eclipse provided you have the Scala plugin. This is how the `gs-ui-bin.jar` is created. The `gs-ui.jar` file is created using the ProGuard tool that allows to put in a jar only the classes that are really needed.
+
+If you are more fluent with Scala, the `sbt` tool may also be a good approach.
 
 Authors
 -------
@@ -38,28 +43,15 @@ Contributors:
 Help
 ----
 
-You may check the documentation on the website ([http://graphstream-project.org]). 
-You may also share your questions on the mailing list at 
-[http://sympa.litislab.fr/sympa/subscribe/graphstream-users]
+You may check the documentation on the [website](http://graphstream-project.org). You may also share your questions on the mailing list at http://sympa.litislab.fr/sympa/subscribe/graphstream-users
 
 Copyright
 ---------
 
-This program is free software distributed under the terms of two licenses, the
-CeCILL-C license that fits European law, and the GNU Lesser General Public
-License. You can  use, modify and/ or redistribute the software under the terms
-of the CeCILL-C license as circulated by CEA, CNRS and INRIA at the following
-URL [http://www.cecill.info] or under the terms of the GNU LGPL as published by
-the Free Software Foundation, either version 3 of the License, or (at your
-option) any later version.
+This program is free software distributed under the terms of two licenses, the CeCILL-C license that fits European law, and the GNU Lesser General Public License. You can  use, modify and/ or redistribute the software under the terms of the CeCILL-C license as circulated by CEA, CNRS and INRIA at the following URL http://www.cecill.info or under the terms of the GNU LGPL as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU Lesser General Public License
-along with this program.  If not, see [http://www.gnu.org/licenses/].
+You should have received a copy of the GNU Lesser General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
 
-The fact that you are presently reading this means that you have had
-knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
-
+The fact that you are presently reading this means that you have had knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
