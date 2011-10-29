@@ -173,11 +173,11 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   	  * @param x The source point abscissa in pixels.
   	  * @param y The source point ordinate in pixels.
   	  * @return The resulting points in graph units. */
-  	def inverseTransform(x:Double, y:Double):Point3 = bck.inverseTransform(x, y, 0)
+  	def transformPxToGu(x:Double, y:Double):Point3 = bck.inverseTransform(x, y, 0)
 	
   	/** Transform a point in graph units into pixels.
   	  * @return The transformed point. */
-  	def transform(x:Double, y:Double, z:Double):Point3 = bck.transform(x, y, 0)
+  	def transformGuToPx(x:Double, y:Double, z:Double):Point3 = bck.transform(x, y, 0)
 	
   	/** Search for the first node or sprite (in that order) that contains the point at coordinates
   	  * (x, y).

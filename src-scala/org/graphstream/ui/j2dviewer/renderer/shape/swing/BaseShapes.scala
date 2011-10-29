@@ -217,7 +217,7 @@ abstract class OrientableRectangularAreaShape extends RectangularAreaShape with 
 				y += theShadowOff.y
 			}
 		
-			p     = camera.transform(x, y, 0)	// Pass to pixels, the image will be drawn in pixels.
+			p     = camera.transformGuToPx(x, y, 0)	// Pass to pixels, the image will be drawn in pixels.
 			angle = acos(theDirection.dotProduct( 1, 0 ))
 		
 			if( theDirection.y > 0 )			// The angle is always computed for acute angles

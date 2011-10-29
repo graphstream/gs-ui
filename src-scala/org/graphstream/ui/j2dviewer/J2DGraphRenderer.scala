@@ -171,7 +171,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   	}
 
   	def moveElementAtPx(element:GraphicElement, x:Double, y:Double) {
-  		val p = camera.inverseTransform(x, y)
+  		val p = camera.transformPxToGu(x, y)
   		element.move(p.x, p.y, element.getZ)
   	}
 

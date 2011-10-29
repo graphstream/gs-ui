@@ -40,49 +40,54 @@ import org.graphstream.ui.geom._
 import org.graphstream.ui.graphicGraph._
 import org.graphstream.ui.graphicGraph.stylesheet._
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
-import org.graphstream.ui.j2dviewer.renderer.shape.swing.ShapeDecor
+import org.graphstream.ui.j2dviewer.renderer.shape.swing.{ShapeDecor, IconAndText}
 
-/** Trait for elements painted inside an area.
-  * This trait manages the size of the area (rectangular), its position, and the automatic fit to
-  * the contents, if needed. */
+// This file contains the two most important traits : Area (for nodes and sprites) and Connector
+// (for edges). Shapes will either merge one or the other of these traits.
+
+/** Trait for elements painted inside an area (most nodes and sprites).
+  * 
+  * This trait manages the size of the area (the size is rectangular, although the area may not
+  * be), its position, and the automatic fit to the contents, if needed.
+  * 
+  *  As this trait computes the position and size of the shape, it should
+  *  probably be configured first when assembling the configureForGroup
+  *  and configureForElement methods. */
 trait Area {
+    /** The shape position. */
 	protected val theCenter = new Point2
+	/** The shape size. */
 	protected val theSize = new Point2
+	/** Fit the shape size to its contents? */
 	protected var fit = false
 
 	/** Select the general size for the group. */
-	protected def configureAreaForGroup(style:Style, camera:Camera) = size(style, camera)
+	protected def configureAreaForGroup(style:Style, camera:Camera) = sizeForGroup(style, camera)
 	
+	/** Select the general size and position of the shape.
+	  * This is done according to:
+	  *   - The style,
+	  *   - Eventually the element specific size attribute,
+	  *   - Eventually the element contents (decor). */
 	protected def configureAreaForElement(backend:Backend, camera:Camera, skel:AreaSkeleton, element:GraphicElement, decor:ShapeDecor) {
 		var pos = camera.getNodeOrSpritePositionGU(element, null)
 		
 		if(fit) {
 			val decorSize = decor.size(backend, camera, skel.iconAndText)
-		
-			configureAreaForElement(camera, skel.asInstanceOf[AreaSkeleton], element, pos.x, pos.y, decorSize._1, decorSize._2 )
+			if(decorSize._1 == 0 || decorSize._2 == 0)
+				sizeForElement(element.getStyle, camera, element)
+			positionAndFit(camera, skel, element, pos.x, pos.y, decorSize._1, decorSize._2)
 		} else {
-			configureAreaForElement(camera, skel.asInstanceOf[AreaSkeleton], element, pos.x, pos.y )
+			sizeForElement(element.getStyle, camera, element)
+			positionAndFit(camera, skel, element, pos.x, pos.y, 0, 0)
 		}
 	}
-	
-	protected[this] def configureAreaForElement(camera:Camera, skel:AreaSkeleton, element:GraphicElement, x:Double, y:Double ) {
-		dynSize(element.getStyle, camera, element)
-		positionAndFit(camera, skel, element, x, y, 0, 0)
-	}
-	
-	protected[this] def configureAreaForElement(camera:Camera, skel:AreaSkeleton, element:GraphicElement, x:Double, y:Double, contentOverallWidth:Double, contentOverallHeight:Double ) {
-		dynSize(element.getStyle, camera, element)
-		positionAndFit(camera, skel, element, x, y, contentOverallWidth, contentOverallHeight)
-	}
-
-	/** Set the size for the group of this (rectangular) area without considering the style. */
-	private def size(width:Double, height:Double) { theSize.set( width, height ) }
 	
 	/** Set the general size of the area according to the style.
 	  * Also look if the style SizeMode says if the element must fit to its contents.
 	  * If so, the configureAreaForElement() method will recompute the size for each
 	  * element according to the contents (shape decoration). */
-	private def size(style:Style, camera:Camera) { 
+	private[this] def sizeForGroup(style:Style, camera:Camera) { 
 		val w = camera.metrics.lengthToGu( style.getSize, 0 )
 		val h = if( style.getSize.size > 1 ) camera.metrics.lengthToGu( style.getSize, 1 ) else w
   
@@ -92,20 +97,25 @@ trait Area {
 	}
 	
 	/** Try to compute the size of this area according to the given element. */
-	private def dynSize(style:Style, camera:Camera, element:GraphicElement) {
+	private[this] def sizeForElement(style:Style, camera:Camera, element:GraphicElement) {
 		var w = camera.metrics.lengthToGu(style.getSize, 0)
 		var h = if(style.getSize.size > 1) camera.metrics.lengthToGu(style.getSize, 1) else w
-
-		if(element.hasAttribute("ui.size")) {
-			w = camera.metrics.lengthToGu(StyleConstants.convertValue(element.getAttribute("ui.size")))
-			h = w;
+		
+		if(style.getSizeMode == StyleConstants.SizeMode.DYN_SIZE) {
+			var s:AnyRef = element.getAttribute("ui.size")
+		
+			if(s ne null) {
+				w = camera.metrics.lengthToGu(StyleConstants.convertValue(s))
+				h = w;
+			}
 		}
   
 		theSize.set(w, h)
 	}
 	
-	/** Assign a position to the shape according to the element, set the size of the element  */
-	protected def positionAndFit(camera:Camera, skel:AreaSkeleton, element:GraphicElement, x:Double, y:Double, contentOverallWidth:Double, contentOverallHeight:Double) {
+	/** Assign a position to the shape according to the element, set the size of the element,
+	  * and update the skeleton of the element. */
+	private[this] def positionAndFit(camera:Camera, skel:AreaSkeleton, element:GraphicElement, x:Double, y:Double, contentOverallWidth:Double, contentOverallHeight:Double) {
 		if(skel != null) {
 			if(contentOverallWidth > 0 && contentOverallHeight > 0)
 				theSize.set(contentOverallWidth, contentOverallHeight)
@@ -114,31 +124,37 @@ trait Area {
 		}
 
 		theCenter.set(x, y)
+		skel.theCenter.copy(theCenter)
 	}
 }
 
 /**
  * Trait for elements painted between two points.
  * 
- * The purpose of this class is to store the lines coordinates of an edge. This connector can
- * be made of only two points, 4 points when this is a bezier curve or more if this is a polyline.
- * The coordinates of these points are stored in a ConnectorSkeleton attribute directly on the edge element
- * since several parts of the rendering need to access it (for example, sprites retrieve it
+ * The purpose of this class is to retrieve and store in the skeleton the lines coordinates of an
+ * edge. This connector can be made of only two points, 4 points when this is a bezier cubic curve
+ * or more if this is a polyline or a polycurve or a vectorial description.
+ * The coordinates of these points are stored in a ConnectorSkeleton attribute directly on the edge
+ * element  since several parts of the rendering need to access it (for example, sprites retrieve it
  * to follow the correct path when attached to this edge).
  */
 trait Connector {
 // Attribute
-	
+	/** We will use it often, better store it. */
 	var skel:ConnectorSkeleton = null
+
+	/** The edge, we will also need it often. */
+	var theEdge:GraphicEdge = null
 	
 	/** Width of the connector. */
 	protected var theSize:Double = 0
 	
-	protected var theTargetSizeX = 0.0
-	protected var theTargetSizeY = 0.0
-	protected var theSourceSizeX = 0.0
-	protected var theSourceSizeY = 0.0
-	
+	/** Overall size of the area at the end of the connector. */
+	protected var theTargetSize = new Point2(0, 0)
+
+	/** Overall sizes of the area at the end of the connector. */
+	protected var theSourceSize = new Point2(0, 0)
+
 	/** Is the connector directed ? */
 	var isDirected = false
 	
@@ -156,99 +172,86 @@ trait Connector {
 	/** Destination of the connector. */
 	def toPos:Point3 = skel.to
 	
-	def configureConnectorForGroup(style:Style, camera:Camera) {
-		size( style, camera )
-	}
+	def configureConnectorForGroup(style:Style, camera:Camera) = sizeForGroup(style, camera)
 	
 	def configureConnectorForElement(camera:Camera, element:GraphicEdge, skel:ConnectorSkeleton) {
 	    this.skel = skel
+	    this.theEdge = element
 	    
-		dynSize( element.getStyle, camera, element )
-		endPoints( element.from, element.to, element.isDirected, camera )
+		sizeForElement(element.getStyle, camera, element)
+		endPoints(element.from, element.to, element.isDirected, camera)
 		
 		if(element.getGroup != null) {
 	        skel.setMulti(element.getGroup.getCount)
 	    }
 		
+// XXX TODO there are a lot of cases where we do not need this information.
+// It would be good to compute it lazily, only when needed;
+// Furthermore, it would be good to be able to update it, only when really
+// Changed.
+// There is lots of work to be done here, in order to extend the way we get
+// the points of the skeleton. Probably a PointVector class that can tell
+// when some of its parts changed.
 		if(element.hasAttribute("ui.points")) {
-		    skel.setPoly(element.getAttribute("ui.points").asInstanceOf[AnyRef])
+		    skel.setPoly(element.getAttribute[AnyRef]("ui.points"))
 		} else {
 			positionForLinesAndCurves( skel, element.from.getStyle, element.from.getX, element.from.getY,
 				element.to.getX, element.to.getY, element.multi, element.getGroup )
 		}
 	}
 	
-	/** Set the size (`width`) of the connector. */
-	private def size( width:Double ) { theSize = width }
+	/** Set the size of the connector using the predefined style. */
+	private[this] def sizeForGroup(style:Style, camera:Camera) { theSize = camera.metrics.lengthToGu( style.getSize, 0 ) }
 	
-	/** Set the size of the connector using a predefined style. */
-	private def size( style:Style, camera:Camera ) { size( camera.metrics.lengthToGu( style.getSize, 0 ) ) }
-	
-	private def dynSize( style:Style, camera:Camera, element:GraphicElement ) {
-		var w = theSize  // already set by the configureForGroup() //camera.metrics.lengthToGu( style.getSize, 0 )
-		
-		if( element.hasAttribute( "ui.size" ) ) {
-			w = camera.metrics.lengthToGu( StyleConstants.convertValue( element.getAttribute( "ui.size" ) ) )
+	/** Set the size of the connector for this particular `element`. */
+	private[this] def sizeForElement(style:Style, camera:Camera, element:GraphicElement) {
+		if(style.getSizeMode == StyleConstants.SizeMode.DYN_SIZE && element.hasAttribute( "ui.size")) {
+			theSize = camera.metrics.lengthToGu(StyleConstants.convertValue(element.getAttribute("ui.size")))
 		}
-		
-		size( w )
 	}
 	
 	/** Define the two end points sizes using the fit size stored in the nodes. */
-	private def endPoints( from:GraphicNode, to:GraphicNode, directed:Boolean, camera:Camera ) {
+	private[this] def endPoints(from:GraphicNode, to:GraphicNode, directed:Boolean, camera:Camera) {
 		val fromInfo = from.getAttribute( Skeleton.attributeName ).asInstanceOf[AreaSkeleton]
 		val toInfo   = to.getAttribute( Skeleton.attributeName ).asInstanceOf[AreaSkeleton]
 		
-		if( fromInfo != null && toInfo != null ) {
-//Console.err.printf( "Using the dynamic size%n" )
+		if(fromInfo != null && toInfo != null) {
 			isDirected     = directed
-			theSourceSizeX = fromInfo.theSize.x
-			theSourceSizeY = fromInfo.theSize.y
-			theTargetSizeX = toInfo.theSize.x
-			theTargetSizeY = toInfo.theSize.y
+			theSourceSize.copy(fromInfo.theSize)
+			theTargetSize.copy(toInfo.theSize)
 		} else {
-//Console.err.printf( "NOT using the dynamic size :-(%n" )
-			endPoints( from.getStyle, to.getStyle, directed, camera )
+			endPoints(from.getStyle, to.getStyle, directed, camera)
 		}
 	}
 	
 	/** Define the two end points sizes (does not use the style nor the fit size). */
-	private def endPoints( sourceWidth:Double, targetWidth:Double, directed:Boolean ) {
-		theSourceSizeX = sourceWidth
-		theSourceSizeY = sourceWidth
-		theTargetSizeX = targetWidth
-		theTargetSizeY = targetWidth
+	private[this] def endPoints(sourceWidth:Double, targetWidth:Double, directed:Boolean) {
+	    theSourceSize.set(sourceWidth, sourceWidth)
+	    theTargetSize.set(targetWidth, targetWidth)
 		isDirected = directed
 	}
 	
 	/** Define the two end points sizes (does not use the style nor the fit size). */
-	private def endPoints( sourceWidth:Double, sourceHeight:Double, targetWidth:Double, targetHeight:Double, directed:Boolean ) {
-		theSourceSizeX = sourceWidth
-		theSourceSizeY = sourceHeight
-		theTargetSizeX = targetWidth
-		theTargetSizeY = targetHeight
+	private[this] def endPoints(sourceWidth:Double, sourceHeight:Double, targetWidth:Double, targetHeight:Double, directed:Boolean) {
+	    theSourceSize.set(sourceWidth, sourceHeight)
+	    theTargetSize.set(targetWidth, targetHeight)
 		isDirected = directed
 	}
 	
 	/** Compute the two end points sizes using the style (may not use the fit size). */
-	private def endPoints( sourceStyle:Style, targetStyle:Style, directed:Boolean, camera:Camera ) {
-		theSourceSizeX = camera.metrics.lengthToGu( sourceStyle.getSize, 0 )
+	private[this] def endPoints(sourceStyle:Style, targetStyle:Style, directed:Boolean, camera:Camera) {
+		val srcx = camera.metrics.lengthToGu(sourceStyle.getSize, 0)
+		val srcy = if(sourceStyle.getSize.size > 1) camera.metrics.lengthToGu(sourceStyle.getSize, 1) else srcx
+		val trgx = camera.metrics.lengthToGu(targetStyle.getSize, 0)
+		val trgy = if(targetStyle.getSize.size > 1) camera.metrics.lengthToGu(targetStyle.getSize, 1) else trgx
 		
-		if( sourceStyle.getSize.size > 1 )
-		      theSourceSizeY = camera.metrics.lengthToGu( sourceStyle.getSize, 1 )
-		else theSourceSizeY = theSourceSizeX
-		
-		theTargetSizeX = camera.metrics.lengthToGu( targetStyle.getSize, 0 )
-		
-		if( targetStyle.getSize.size > 1 )
-		      theTargetSizeY = camera.metrics.lengthToGu( targetStyle.getSize, 1 )
-		else theTargetSizeY = theTargetSizeX
-		
+		theSourceSize.set(srcx, srcy)
+		theTargetSize.set(trgx, trgy)
 		isDirected = directed
 	}
 	
 	/** Give the position of the origin and destination points. */
-	private def positionForLinesAndCurves( skel:ConnectorSkeleton, style:Style, xFrom:Double, yFrom:Double, xTo:Double, yTo:Double ) {
+	private[this] def positionForLinesAndCurves( skel:ConnectorSkeleton, style:Style, xFrom:Double, yFrom:Double, xTo:Double, yTo:Double ) {
 	    positionForLinesAndCurves( skel, style, xFrom, yFrom, xTo, yTo, 0, null ) }
 	
 	/**
@@ -259,7 +262,7 @@ trait Connector {
 	 * since we do not know the curves). This is important since arrows and sprites can be attached to edges.
 	 * </p>
 	 */
-	private def positionForLinesAndCurves( skel:ConnectorSkeleton, style:Style, xFrom:Double, yFrom:Double, xTo:Double, yTo:Double, multi:Int, group:GraphicEdge#EdgeGroup ) {
+	private[this] def positionForLinesAndCurves( skel:ConnectorSkeleton, style:Style, xFrom:Double, yFrom:Double, xTo:Double, yTo:Double, multi:Int, group:GraphicEdge#EdgeGroup ) {
 	    
 		//skel.points(0).set( xFrom, yFrom )
 		//skel.points(3).set( xTo, yTo )
@@ -284,9 +287,9 @@ trait Connector {
 	}
 	
 	/** Define the control points to make the edge a loop. */
-	private def positionEdgeLoop(skel:ConnectorSkeleton, x:Double, y:Double, multi:Int) {
+	private[this] def positionEdgeLoop(skel:ConnectorSkeleton, x:Double, y:Double, multi:Int) {
 		var m = 1f + multi * 0.2f
-		val s = ( theTargetSizeX + theTargetSizeY ) / 2
+		val s = ( theTargetSize.x + theTargetSize.y ) / 2
 		var d = s / 2 * m + 4 * s * m
 
 		skel.setLoop(
@@ -296,7 +299,7 @@ trait Connector {
 	}
 	
 	/** Define the control points to make this edge a part of a multi-edge. */
-	private def positionMultiEdge(skel:ConnectorSkeleton, x1:Double, y1:Double, x2:Double, y2:Double, multi:Int, group:GraphicEdge#EdgeGroup) {
+	private[this] def positionMultiEdge(skel:ConnectorSkeleton, x1:Double, y1:Double, x2:Double, y2:Double, multi:Int, group:GraphicEdge#EdgeGroup) {
 		var vx  = (  x2 - x1 )
 		var vy  = (  y2 - y1 )
 		var vx2 = (  vy ) * 0.6
@@ -351,29 +354,32 @@ trait Connector {
 	}
 }
 
+/** Some areas are attached to a connector (sprites). */
 trait AreaOnConnector extends Area {
+    /** The connector we are attached to. */
 	protected var theConnector:Connector = null
+	/** The edge represented by the connector.. */
 	protected var theEdge:GraphicEdge = null
 
 	/** XXX must call this method explicitly in the renderer !!! bad !!! XXX */
-	def theConnectorYoureAttachedTo( connector:Connector ) { theConnector = connector }
+	def theConnectorYoureAttachedTo(connector:Connector) { theConnector = connector }
 	
-	protected def configureAreaOnConnectorForGroup( style:Style, camera:Camera ) {
-		sizeForEdgeArrow( style, camera )
+	protected def configureAreaOnConnectorForGroup(style:Style, camera:Camera) {
+		sizeForEdgeArrow(style, camera)
 	}
 	
-	protected def configureAreaOnConnectorForElement( edge:GraphicEdge, style:Style, camera:Camera ) {
-		connector( edge )
-		theCenter.set( edge.to.getX, edge.to.getY )
+	protected def configureAreaOnConnectorForElement(edge:GraphicEdge, style:Style, camera:Camera) {
+		connector(edge)
+		theCenter.set(edge.to.getX, edge.to.getY)
 	}
 	
-	private def connector( edge:GraphicEdge ) { theEdge = edge }
+	private def connector(edge:GraphicEdge) { theEdge = edge }
  
-	private def sizeForEdgeArrow( style:Style, camera:Camera ) {
-		val w = camera.metrics.lengthToGu( style.getArrowSize, 0 )
-		val h = if( style.getArrowSize.size > 1 ) camera.metrics.lengthToGu( style.getArrowSize, 1 ) else w
+	private def sizeForEdgeArrow(style:Style, camera:Camera) {
+		val w = camera.metrics.lengthToGu(style.getArrowSize, 0)
+		val h = if(style.getArrowSize.size > 1) camera.metrics.lengthToGu(style.getArrowSize, 1) else w
   
-		theSize.set( w, h )
+		theSize.set(w, h)
 	}
 }
 
@@ -405,7 +411,7 @@ trait Orientable {
 					case SpriteOrientation.FROM       => { target.set(ge.from.getX, ge.from.getY) }
 					case SpriteOrientation.TO         => { target.set(ge.to.getX, ge.to.getY) }
 					case SpriteOrientation.PROJECTION => {
-						val ei = ge.getAttribute[ConnectorSkeleton]( Skeleton.attributeName )
+						val ei = ge.getAttribute[ConnectorSkeleton](Skeleton.attributeName)
 						
 						if(ei != null)
 						     ei.pointOnShape(sprite.getX, target)
@@ -417,9 +423,69 @@ trait Orientable {
 		}
 	}
 	
-	private[this] def setTargetOnLineEdge( camera:Camera, sprite:GraphicSprite, ge:GraphicEdge ) {
-		val dir = new Vector2( ge.to.getX-ge.from.getX, ge.to.getY-ge.from.getY )
-		dir.scalarMult( sprite.getX )
-		target.set( ge.from.getX + dir.x, ge.from.getY + dir.y )
+	private[this] def setTargetOnLineEdge(camera:Camera, sprite:GraphicSprite, ge:GraphicEdge) {
+		val dir = new Vector2(ge.to.getX-ge.from.getX, ge.to.getY-ge.from.getY)
+		dir.scalarMult(sprite.getX)
+		target.set(ge.from.getX + dir.x, ge.from.getY + dir.y)
 	}
+}
+/** Trait for shapes that can be decorated by an icon and/or a text. */
+trait Decorable {
+    /** The string of text of the contents. */
+	var text:String = null
+ 
+	/** The text and icon. */
+	var theDecor:ShapeDecor = null
+  
+ 	/** Paint the decorations (text and icon). */
+ 	def decorArea(backend:Backend, camera:Camera, iconAndText:IconAndText, element:GraphicElement, shape:java.awt.Shape ) {
+ 	  	var visible = true
+ 	  	if( element != null ) visible = camera.isTextVisible( element )
+ 	  	if( theDecor != null && visible ) {
+ 	  		val bounds = shape.getBounds2D
+ 	  		theDecor.renderInside(backend, camera, iconAndText, bounds.getMinX, bounds.getMinY, bounds.getMaxX, bounds.getMaxY )
+ 	  	}
+ 	}
+	
+	def decorConnector(backend:Backend, camera:Camera, iconAndText:IconAndText, element:GraphicElement, shape:java.awt.Shape ) {
+ 	  	var visible = true
+ 	  	if( element != null ) visible = camera.isTextVisible( element )
+ 	  	if( theDecor != null && visible ) {
+ 	  		element match {
+ 	  			case edge:GraphicEdge => {
+ 	  				theDecor.renderAlong(backend, camera, iconAndText, edge.from.x, edge.from.y, edge.to.x, edge.to.y )
+ 	  			}
+ 	  			case _ => {
+ 	  				val bounds = shape.getBounds2D
+ 	  				theDecor.renderAlong(backend, camera, iconAndText, bounds.getMinX, bounds.getMinY, bounds.getMaxX, bounds.getMaxY )
+ 	  			}
+ 	  		}
+ 	  	}
+	}
+  
+  	/** Configure all the static parts needed to decor the shape. */
+  	protected def configureDecorableForGroup( style:Style, camera:Camera ) {
+		/*if( theDecor == null )*/ theDecor = ShapeDecor( style )
+  	}
+  	
+  	/** Setup the parts of the decor specific to each element. */
+  	protected def configureDecorableForElement(backend:Backend, camera:Camera, element:GraphicElement, skel:Skeleton) {
+  		text = element.label
+ 
+  		if( skel != null ) {
+  			val style = element.getStyle
+  			
+  			if( skel.iconAndText == null )
+  				skel.iconAndText = ShapeDecor.iconAndText( style, camera, element )
+
+  			if( style.getIcon != null && style.getIcon.equals( "dynamic" ) && element.hasAttribute( "ui.icon" ) ) {
+  				val url = element.getLabel("ui.icon").toString
+  				skel.iconAndText.setIcon(backend, url)
+// Console.err.printf( "changing icon %s%n", url )
+  			}
+// else Console.err.print( "NOT changing icon... %b %s %b%n".format( style.getIcon != null, style.getIcon, element.hasAttribute( "ui.icon" ) ) )
+  			
+  			skel.iconAndText.setText(backend, element.label)
+  		}
+  	}
 }

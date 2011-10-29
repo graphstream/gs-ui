@@ -15,20 +15,22 @@ object Skeleton {
 	def attributeName = "j2dsk"
 }
 
-/** Elements of rendering that, contrary to the shapes, are specific to the element, not the style group. */
+/** Elements of rendering that, contrary to the shapes, are specific to the element, not the style
+  * group and define the basic geometry of the shape. */
 class Skeleton {
     /** The contents of the element. Allows to extract metrics of the contents. */
 	var iconAndText:IconAndText = null
 }
 
-/** Specific element info for nodes. */
+/** Skeleton for nodes and sprites. */
 class AreaSkeleton extends Skeleton {
-	var theSize = new Point2( 0, 0 )
+    var theCenter = new Point2(0, 0)
+	var theSize = new Point2(0, 0)
 }
 
-/** Element information specific to the edges.
- *  Data stored on the edge to retrieve the edge shape points and various shared data between parts
- *  of the renderer. */
+/** Skeleton for edges.
+  * Data stored on the edge to retrieve the edge basic geometry and various shared data between
+  * parts of the renderer. */
 class ConnectorSkeleton extends Skeleton with AttributeUtils {
     object EdgeShapeKind extends Enumeration {
         type EdgeShapeKind = Value
@@ -158,9 +160,9 @@ class ConnectorSkeleton extends Skeleton with AttributeUtils {
 	}
 	
 	/** Compute the length of each segment between the points making up this edge. This is mostly
-	 * only useful for polylines. The results of this method is cached. It is only recomputed when
-	 * a points changes in the shape. There are size-1 segments if the are size points. The segment
-	 * 0 is between points 0 and 1. */
+	  * only useful for polylines. The results of this method is cached. It is only recomputed when
+	  * a points changes in the shape. There are size-1 segments if the are size points. The segment
+	  * 0 is between points 0 and 1. */
 	def segmentsLengths():Array[Double] = {
 	    if(lengths eq null) {
 	        if(isPoly) {

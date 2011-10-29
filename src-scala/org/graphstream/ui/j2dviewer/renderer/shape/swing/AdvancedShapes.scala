@@ -40,6 +40,7 @@ import org.graphstream.ui.graphicGraph.stylesheet._
 import org.graphstream.ui.j2dviewer._
 import org.graphstream.ui.util._
 import org.graphstream.ui.geom._
+import org.graphstream.ui.j2dviewer.renderer.shape.Decorable
 
 import scala.collection.JavaConversions._
 import scala.math._
@@ -115,8 +116,8 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
         val perp1 = new Vector2(dir.y, -dir.x); perp1.normalize // 1/2 perp vector to the from point.
         val perp2 = new Vector2(perp1.x, perp1.y) // 1/2 perp vector to the to point.
         val perpm = new Vector2(perp1.x, perp1.y) // 1/2 perp vector to the middle point on the edge.
-        val srcsz = min(theSourceSizeX, theSourceSizeY)
-        val trgsz = min(theTargetSizeX, theTargetSizeY)
+        val srcsz = min(theSourceSize.x, theSourceSize.y)
+        val trgsz = min(theTargetSize.x, theTargetSize.y)
 
         perp1.scalarMult((srcsz + swx) / 2f)
         perpm.scalarMult((theSize + swx) / 2f)
@@ -164,8 +165,8 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
         val c1y = skel(1).y + soy
         val c2x = skel(2).x + sox
         val c2y = skel(2).y + soy
-        val srcsz = min(theSourceSizeX, theSourceSizeY)
-        val trgsz = min(theTargetSizeX, theTargetSizeY)
+        val srcsz = min(theSourceSize.x, theSourceSize.y)
+        val trgsz = min(theTargetSize.x, theTargetSize.y)
 
         val maindir = new Vector2(c2x - c1x, c2y - c1y)
         val perp1 = new Vector2(maindir.y, -maindir.x); perp1.normalize // 1/2 perp vector to the from point.
@@ -215,7 +216,7 @@ class BlobShape extends AreaConnectorShape with ShowCubics {
         val c1y = skel(1).y + soy
         val c2x = skel(2).x + sox
         val c2y = skel(2).y + soy
-        val srcsz = min(theSourceSizeX, theSourceSizeY)
+        val srcsz = min(theSourceSize.x, theSourceSize.y)
         //		val trgsz = min( theTargetSizeX, theTargetSizeY )
 
         val dirFrom = new Vector2(c1x - fromx, c1y - fromy);
@@ -613,9 +614,9 @@ class FreePlaneEdgeShape extends LineConnectorShape {
 
     protected def makeSingle(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
         var fromx = skel.from.x + sox
-        val fromy = skel.from.y + soy - theSourceSizeY / 2
+        val fromy = skel.from.y + soy - theSourceSize.y / 2
         var tox = skel.to.x + sox
-        val toy = skel.to.y + soy - theTargetSizeY / 2
+        val toy = skel.to.y + soy - theTargetSize.y / 2
         val length = abs(skel.to.x - skel.from.x)
         var c1x = 0.0
         var c1y = 0.0
@@ -624,16 +625,16 @@ class FreePlaneEdgeShape extends LineConnectorShape {
 
         if (skel.from.x < skel.to.x) {
             // At right.
-            fromx += theSourceSizeX / 2
-            tox -= theTargetSizeX / 2
+            fromx += theSourceSize.x / 2
+            tox -= theTargetSize.x / 2
             c1x = fromx + length / 3
             c2x = tox - length / 3
             c1y = fromy
             c2y = toy
         } else {
             // At left.
-            fromx -= theSourceSizeX / 2
-            tox += theTargetSizeX / 2
+            fromx -= theSourceSize.x / 2
+            tox += theTargetSize.x / 2
             c1x = fromx - length / 3
             c2x = tox + length / 3
             c1y = fromy
@@ -729,7 +730,7 @@ class HorizontalSquareEdgeShape extends LineConnectorShape {
     protected def makeSingle(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
         val from = new Point3(skel.from.x + sox, skel.from.y + soy, 0)
         val to = new Point3(skel.to.x + sox, skel.to.y + soy, 0)
-        val size = (theSourceSizeX + theTargetSizeX)
+        val size = (theSourceSize.x + theTargetSize.x)
         var inter1: Point3 = null
         var inter2: Point3 = null
         var inter3: Point3 = null
@@ -739,8 +740,8 @@ class HorizontalSquareEdgeShape extends LineConnectorShape {
             val len = to.x - from.x
 
             if (len < size) {
-                inter1 = new Point3(from.x + theSourceSizeX, from.y, 0)
-                inter2 = new Point3(to.x - theTargetSizeX, to.y, 0)
+                inter1 = new Point3(from.x + theSourceSize.x, from.y, 0)
+                inter2 = new Point3(to.x - theTargetSize.x, to.y, 0)
 
                 inter3 = new Point3(inter1.x, inter1.y + (to.y - from.y) / 2, 0)
                 inter4 = new Point3(inter2.x, inter3.y, 0)
@@ -760,8 +761,8 @@ class HorizontalSquareEdgeShape extends LineConnectorShape {
             val len = from.x - to.x
 
             if (len < size) {
-                inter1 = new Point3(from.x - theSourceSizeX, from.y, 0)
-                inter2 = new Point3(to.x + theTargetSizeX, to.y, 0)
+                inter1 = new Point3(from.x - theSourceSize.x, from.y, 0)
+                inter2 = new Point3(to.x + theTargetSize.x, to.y, 0)
 
                 inter3 = new Point3(inter1.x, inter1.y + (to.y - from.y) / 2, 0)
                 inter4 = new Point3(inter2.x, inter3.y, 0)
