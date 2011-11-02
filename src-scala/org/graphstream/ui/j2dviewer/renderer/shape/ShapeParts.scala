@@ -30,6 +30,9 @@
  */
 package org.graphstream.ui.j2dviewer.renderer.shape
 
+// This file contains the two most important traits : Area (for nodes and sprites) and Connector
+// (for edges). Shapes will either merge one or the other of these traits.
+
 import java.awt._
 import java.awt.geom._
 
@@ -41,9 +44,6 @@ import org.graphstream.ui.graphicGraph._
 import org.graphstream.ui.graphicGraph.stylesheet._
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 import org.graphstream.ui.j2dviewer.renderer.shape.swing.{ShapeDecor, IconAndText}
-
-// This file contains the two most important traits : Area (for nodes and sprites) and Connector
-// (for edges). Shapes will either merge one or the other of these traits.
 
 /** Trait for elements painted inside an area (most nodes and sprites).
   * 

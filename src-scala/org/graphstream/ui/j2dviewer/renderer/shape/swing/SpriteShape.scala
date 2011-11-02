@@ -115,13 +115,13 @@ class SpriteFlowShape
 	var reverse = false
 	
 	def configureForGroup(bck:Backend, style:Style, camera:Camera ) {
-		configureFillableLineForGroup( style, camera )
-		configureStrokableForGroup( style, camera )
-		configureShadowableLineForGroup( style, camera )
-		configureDecorableForGroup( style, camera )
+		theSize = camera.metrics .lengthToGu(style.getSize, 0)
+		reverse = (style.getSpriteOrientation == SpriteOrientation.FROM)
 
-		theSize = camera.metrics .lengthToGu( style.getSize, 0 )
-		reverse = ( style.getSpriteOrientation == SpriteOrientation.FROM )
+		configureFillableLineForGroup(bck, style, camera, theSize)
+		configureStrokableForGroup(style, camera)
+		configureShadowableLineForGroup(style, camera)
+		configureDecorableForGroup(style, camera)
 	}
 	
 	def configureForElement(bck:Backend, element:GraphicElement, skel:Skeleton, camera:Camera ) {

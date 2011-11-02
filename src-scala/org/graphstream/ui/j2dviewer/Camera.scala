@@ -54,27 +54,32 @@ import org.graphstream.ui.j2dviewer.renderer.{Skeleton, AreaSkeleton, ConnectorS
 import scala.math._
 
 /**
- * Define how the graph is viewed.
+ * Define a view of the graph or a part of the graph.
  * 
- * The camera is in charge of projecting the graph elements in graph units (GU) into
- * user spaces (often in pixels). It defines the transformation (an affine matrix) to pass
- * from the first to the second (in fact its the back-end that does it). It also contains
- * the graph metrics, a set of values that
- * give the overall dimensions of the graph in graph units, as well as the view port, the
- * area on the screen (or any rendering surface) that will receive the results in pixels
- * (or rendering units). The two mains methods for this operation are
- * {@link #pushView(Graphics2D,GraphicGraph)} and {@link #popView()}.
+ * The camera can be seen as an element in charge of projecting the graph elements in graph units
+ * (GU) into rendering space units, often in pixels. It defines the transformation, an affine
+ * matrix, to pass from the first to the second (in fact its the back-end that does it).
+ * 
+ * It also contains the graph metrics. This is a set of values that give the overall dimensions of
+ * the graph in graph units, as well as the view port, the area on the screen (or any rendering
+ * surface) that will receive the results in pixels (or any rendering units). The two mains methods
+ * for this operation are [[Camera.pushView(Graphics2D,GraphicGraph)]] and [[Camera.popView()]].
  * 
  * The user of the camera must set both the view port and the graph bounds in order for the
- * camera to correctly project the graph view. The camera also defines a center at which it
- * always points. It can zoom on the graph, pan in any direction and rotate along two axes.
+ * camera to correctly project the graph view (the Renderer does that before using the Camera,
+ * at each frame). The camera model is as follows: the camera defines a center at which it
+ * always points. It can zoom on the graph (as if the camera angle of view was changing), pan in any
+ * direction by moving its center of view and rotate along the axe going from the center to the
+ * camera position (camera can rotate around two axes in 3D, but this is a 2D camera).
  * 
- * There are two modes: an "auto-fit" mode where the camera always show the whole graph even
- * if it changes in size, and a "user" mode where the camera center (looked-at point), zoom and
- * panning are specified.
+ * There are two modes:
+ * - an "auto-fit" mode where the camera always show the whole graph even if it changes in size, by
+ *   automatically changing the center and zoom values,
+ * - and a "user" mode where the camera center (looked-at point), zoom and panning are specified and
+ *   will not be modified in the bounds of the graph change.
  * 
- * Knowing the transformation also allows to provide services like "what element is
- * visible ?" (in the camera view) or "on what element is the mouse cursor actually ?".
+ * The camera is also able to answer questions like: "what element is visible actually?", or "on
+ * what element is the mouse cursor actually?".
  * 
  * The camera is also able to compute sprite positions according to their attachment, as well as
  * maintaining a list of all elements out of the view, so that it is not needed to render them.
@@ -94,7 +99,7 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   	/** The camera zoom. */
   	protected var zoom:Double = 1
   	
-  	/** The rotation angle. */
+  	/** The rotation angle (along an axis perpendicular to the view). */
   	protected var rotation:Double = 0
 	
   	/** Padding around the graph. */
@@ -118,8 +123,7 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   	
   	def getMetrics() = metrics
 	
-  	/** The view center (a point in graph units).
-  	  * @return The view center. */
+  	/** The view center (a point in graph units). */
   	def viewCenter:Point3 = center
 
   	def getViewCenter:Point3 = viewCenter
@@ -152,19 +156,25 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   		builder.toString
   	}
 	
-  	/** True if the element would be visible on screen. The method used is to transform the centre
-  	 * of the element (which is always in graph units) using the camera actual transformation to
-  	 * put it in pixel units. Then to look in the style sheet the size of the element and to test
-  	 * if its enclosing rectangle intersects the view port. For edges, its two nodes are used. 
+  	/** True if the element is be visible by the camera view (not out of view). The method used is
+  	 * to transform the center  of the element (which is always in graph units) using the camera
+  	 * actual transformation to put it in pixel units. Then to look in the style sheet the size of
+  	 * the element and to test if its enclosing rectangle intersects the view port. For edges, its
+  	 * two nodes are used. If auto fitting is on, all elements are necessarily visible, this
+  	 * method takes this in consideration.
   	 * @param element The element to test.
   	 * @return True if the element is visible and therefore must be rendered. */
   	def isVisible(element:GraphicElement):Boolean = {
-  		if( styleVisible( element ) ) element.getSelectorType match {
-  			case NODE   => ! nodeInvisible.contains(element.getId)
-  			case EDGE   => isEdgeVisible(element.asInstanceOf[GraphicEdge])
-  			case SPRITE => isSpriteVisible(element.asInstanceOf[GraphicSprite])
-  			case _      => false
-  		} else false
+  	    if(autoFit) {
+  	        true
+  	    } else {
+  	    	if(styleVisible(element)) element.getSelectorType match {
+  				case NODE   => ! nodeInvisible.contains(element.getId)
+  				case EDGE   => isEdgeVisible(element.asInstanceOf[GraphicEdge])
+  				case SPRITE => isSpriteVisible(element.asInstanceOf[GraphicSprite])
+  				case _      => false
+  	    	} else false
+  		}
     }
 
   	/** Return the given point in pixels converted in graph units (GU) using the inverse
@@ -252,7 +262,6 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   	
   	def removeGraphViewport() { gviewport = null }
 
-  	
   	def resetView() {
 		setAutoFitView(true)
 		setViewRotation(0)
@@ -334,10 +343,7 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   		val padYpx = paddingYpx * 2
   		val gw     = if(gviewport ne null) gviewport(2)-gviewport(0) else metrics.size.data(0)
   		val gh     = if(gviewport ne null) gviewport(3)-gviewport(1) else metrics.size.data(1)
-//		val diag   = Math.max( metrics.size.data(0)+padXgu, metrics.size.data(1)+padYgu ) * zoom 
-//		
-//		sx = (metrics.viewport(0) - padXpx) / diag 
-//		sy = (metrics.viewport(1) - padYpx) / diag
+		
   		sx = (metrics.viewport.data(0) - padXpx) / ((gw + padXgu) * zoom) 
 		sy = (metrics.viewport.data(1) - padYpx) / ((gh + padYgu) * zoom)
   		
@@ -372,7 +378,7 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
       * @param on If true, automatic adjustment is enabled. */
     def setAutoFitView(on:Boolean) {
   		if(autoFit && (! on)) {
-  			// We go from autoFit to user view, ensure the current centre is at the
+  			// We go from autoFit to user view, ensure the current center is at the
   			// middle of the graph, and the zoom is at one.
 			
   			zoom = 1
@@ -416,12 +422,10 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   	  * @param maxz Highest depth. */
   	def setBounds(minx:Double, miny:Double, minz:Double, maxx:Double, maxy:Double, maxz:Double) = metrics.setBounds(minx, miny, minz, maxx, maxy, maxz)
 
-  
   	/** Set the graphic graph bounds from the graphic graph. */
   	def setBounds(graph:GraphicGraph) {
   	    setBounds(graph.getMinPos.x, graph.getMinPos.y, 0, graph.getMaxPos.x, graph.getMaxPos.y, 0)
   	}
-
    
 // Utility
 	
@@ -433,19 +437,25 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   	  * method allows for fast node, sprite and edge visibility checking when drawing. This must be
   	  * called before each rendering (if the view port changed). Called in pushView.
   	  * A node is not visible if it is out of the view port, if it is deliberately hidden (its hidden
-  	  * flag is set) or if it has not yet been positioned (has not yet received a (x,y,z) position). */
+  	  * flag is set) or if it has not yet been positioned (has not yet received a (x,y,z) position).
+  	  * If the auto fitting feature is activate the whole graph is always visible. */
   	protected def checkVisibility(graph:GraphicGraph) {
-  		val W:Double = metrics.viewport.data(0)
-  		val H:Double = metrics.viewport.data(1)
-		
   		nodeInvisible.clear
 	
-  		graph.getEachNode.foreach { node:Node =>
-  		    val n:GraphicNode = node.asInstanceOf[GraphicNode]
-  			val visible = isNodeIn(n, 0, 0, W, H) && (!n.hidden) && n.positionned;
-			
-  			if(! visible)
-  				nodeInvisible += node.getId
+  		if(! autoFit) {
+  			// If autoFit is on, we know the whole graph is visible anyway.
+  			
+  		    val W:Double = metrics.viewport.data(0)
+  			val H:Double = metrics.viewport.data(1)
+  		
+	  		graph.getEachNode.foreach { node:Node =>
+	  		    val n:GraphicNode = node.asInstanceOf[GraphicNode]
+	  			val visible = isNodeIn(n, 0, 0, W, H) && (!n.hidden) && n.positionned;
+				
+	  			if(! visible) {
+	  				nodeInvisible += node.getId
+	  			}
+	  		}
   		}
   	}
 

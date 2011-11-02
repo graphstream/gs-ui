@@ -23,7 +23,11 @@ In addition to the Scala library, this renderer only depends on the `gs-core` mo
 
 I you plan to build the Scala renderer by yourself, you can have a look at the `compile.sh` script (for a Bash shell). It needs to be edited and is really basic, but should give you an idea of what is needed. An easier solution could probably be to install the Scala IDE plug-in for Eclipse or the one for NetBeans. The `gs-ui-bin.jardesc` allows to build a jar of the renderer under eclipse provided you have the Scala plugin. This is how the `gs-ui-bin.jar` is created. The `gs-ui.jar` file is created using the ProGuard tool that allows to put in a jar only the classes that are really needed.
 
+If you are seting up an IDE to work on the `gs-ui` module, ensure the following dependencies are available to be able to build it: `gs-core.jar`, `pherd.jar` and `mbox2.jar`. The two last jars are available in the `lib` directory of the `gs-core` module.
+
 If you are more fluent with Scala, the `sbt` tool may also be a good approach.
+
+The documentation is in the ScalaDoc format, very close to JavaDoc. However comments are written using a Wiki syntax and it is considered a bad habit to add HTML tags in such comments. You can generate the documentation using the `compileDoc.sh` script. It needs editing to work with you configuration, but should show you what is needed to create the doc. A pre-made documentation archive should be available in the `lib/gs-ui-scaladoc.zip` file.
 
 Authors
 -------

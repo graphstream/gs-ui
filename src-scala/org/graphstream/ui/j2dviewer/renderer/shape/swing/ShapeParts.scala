@@ -33,7 +33,6 @@ package org.graphstream.ui.j2dviewer.renderer.shape.swing
 
 import java.awt._
 import java.awt.geom._
-
 import org.graphstream.ui.j2dviewer.renderer.shape._
 import org.graphstream.ui.j2dviewer._
 import org.graphstream.ui.j2dviewer.renderer._
@@ -42,6 +41,7 @@ import org.graphstream.ui.geom._
 import org.graphstream.ui.graphicGraph._
 import org.graphstream.ui.graphicGraph.stylesheet._
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
+import org.graphstream.ui.j2dviewer.renderer.shape.swing.ShapePaint.ShapePlainColorPaint
 
 /** Trait for shapes that can be filled. 
   * 
@@ -55,17 +55,23 @@ trait Fillable {
 	var theFillPercent = 0.0
 	
 	var theFillColor:Color = null
+	
+	var plainFast = false
 
     /** Fill the shape.
       * @param g The Java2D graphics.
       * @param dynColor The value between 0 and 1 allowing to know the dynamic plain color, if any.
       * @param shape The awt shape to fill. */
 	def fill(g:Graphics2D, dynColor:Double, optColor:Color, shape:java.awt.Shape, camera:Camera) {
-		fillPaint match {
-		  case p:ShapeAreaPaint  => g.setPaint( p.paint( shape, camera.metrics.ratioPx2Gu ) );    g.fill( shape )
-		  case p:ShapeColorPaint => g.setPaint( p.paint( dynColor, optColor ) ); g.fill( shape )
-		  case _                 => null; // No fill. // printf( "no fill !!!%n" ) 
-		}
+	    if(plainFast) {
+	        g.fill(shape)
+	    } else {
+			fillPaint match {
+				case p:ShapeAreaPaint  => g.setPaint(p.paint(shape, camera.metrics.ratioPx2Gu));    g.fill(shape)
+				case p:ShapeColorPaint => g.setPaint(p.paint(dynColor, optColor));					g.fill(shape)
+				case _                 => null; // No fill.
+			}
+	    }
 	}
  
     /** Fill the shape.
@@ -74,8 +80,17 @@ trait Fillable {
  	def fill(g:Graphics2D, shape:java.awt.Shape, camera:Camera) { fill( g, theFillPercent, theFillColor, shape, camera ) }
 
     /** Configure all static parts needed to fill the shape. */
- 	protected def configureFillableForGroup( style:Style, camera:Camera ) {
- 		fillPaint = ShapePaint( style )
+ 	protected def configureFillableForGroup(bck:Backend, style:Style, camera:Camera ) {
+ 		fillPaint = ShapePaint(style)
+ 
+ 		if(fillPaint.isInstanceOf[ShapePlainColorPaint]) {
+ 		    plainFast = true
+ 		    bck.graphics2D.setColor(theFillColor)
+ 		    // We prepare to accelerate the filling process if we know the color is not dynamic
+ 		    // and is plain: no need to change the paint at each new position for the shape.
+ 		} else {
+ 		    plainFast = false
+ 		}
  	}
  	
     /** Configure the dynamic parts needed to fill the shape. */
@@ -113,30 +128,36 @@ trait FillableMulticolored {
  * Works for Swing only.
  */
 trait FillableLine {
-	//var fillColors:Array[Color] = null
 	var fillStroke:ShapeStroke = null
 	var theFillPercent = 0.0
 	var theFillColor:Color = null
+	var plainFast = false
   
-	def fill( g:Graphics2D, width:Double, dynColor:Double, shape:java.awt.Shape ) {
-		if( fillStroke != null ) {
-			val stroke = fillStroke.stroke( width )
+	def fill(g:Graphics2D, width:Double, dynColor:Double, shape:java.awt.Shape) {
+		if(fillStroke != null) {
+		    if(plainFast) {
+		        g.draw(shape)
+		    } else {
+				val stroke = fillStroke.stroke(width)
    
-//			g.setColor( fillColors(0) )
-			g.setColor( theFillColor )
-			g.setStroke( stroke )
-			g.draw( shape )
+				g.setColor(theFillColor)
+				g.setStroke(stroke)
+				g.draw(shape)
+			}
 		}
 	}
  
-	def fill( g:Graphics2D, width:Double, shape:java.awt.Shape ) { fill( g, width, theFillPercent, shape ) }
+	def fill(g:Graphics2D, width:Double, shape:java.awt.Shape) { fill(g, width, theFillPercent, shape) }
  
-	protected def configureFillableLineForGroup( style:Style, camera:Camera ) {
+	protected def configureFillableLineForGroup(bck:Backend, style:Style, camera:Camera, theSize:Double) {
 		fillStroke = ShapeStroke.strokeForConnectorFill( style )
+  	  	plainFast = (style.getSizeMode == StyleConstants.SizeMode.NORMAL) 
+		theFillColor = style.getFillColor(0)
+		bck.graphics2D.setColor(theFillColor)
+		bck.graphics2D.setStroke(fillStroke.stroke(theSize))
 	}
 
 	protected def configureFillableLineForElement( style:Style, camera:Camera, element:GraphicElement ) {
-  	  	// TODO look at this and try to create the fillColors at the in ForGroup configuration !!!
 		theFillPercent = 0
   	  	if( style.getFillMode == StyleConstants.FillMode.DYN_PLAIN && element != null ) {
   	  		element.getAttribute[AnyRef]( "ui.color" ) match {
@@ -145,17 +166,8 @@ trait FillableLine {
   	  			case _ => theFillPercent = 0f; theFillColor = style.getFillColor(0)
   	  		}
        
-  	  		//fillColors = ShapePaint.createColors( style, style.getFillColorCount, style.getFillColors )
-  	  		//fillColors(0) = if(theFillColor != null) theFillColor else ShapePaint.interpolateColor( fillColors, theFillPercent )
+  	  		plainFast = false
   	  	}
-  	  	else
-        {
-//  	  		if( fillColors == null || fillColors.length < 1 )
-//  	  			fillColors = new Array[Color]( 1 )
-       
-//  	  		fillColors(0) = style.getFillColor( 0 )
-  	  	    theFillColor = style.getFillColor(0)
-        }
 	}
 }
 
@@ -174,7 +186,7 @@ trait Strokable {
 
  	/** Paint the stroke of the shape. */
 	def stroke( g:Graphics2D, shape:java.awt.Shape ) {
-		if( theStroke != null ) {
+		if(theStroke ne null) {
 			g.setStroke( theStroke.stroke( theStrokeWidth ) )
 			g.setColor( strokeColor )
 			g.draw( shape )

@@ -30,7 +30,16 @@ class AreaSkeleton extends Skeleton {
 
 /** Skeleton for edges.
   * Data stored on the edge to retrieve the edge basic geometry and various shared data between
-  * parts of the renderer. */
+  * parts of the renderer.
+  * 
+  * XXX TODO
+  * This part needs much work. The skeleton geometry of an edge can be various things:
+  *  - An automatically computed shape (for multi-graphs and loop edges).
+  *  - An user specified shape:
+  *     - A polyline (points are in absolute coordinates).
+  *     - A polycurve (in absolute coordinates).
+  *     - A vector representation (points are relative to an origin and the whole may be rotated).  
+  */
 class ConnectorSkeleton extends Skeleton with AttributeUtils {
     object EdgeShapeKind extends Enumeration {
         type EdgeShapeKind = Value

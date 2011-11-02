@@ -96,7 +96,7 @@ private class TestIcons extends ViewerListener {
 			
 			if( i > 26 ) i = 1
 			
-			if( A.getAttribute("ui.icon") == icon1 )
+			if( A.getAttribute[AnyRef]("ui.icon") eq icon1 )
 			     A.setAttribute("ui.icon", icon2)
 			else A.setAttribute("ui.icon", icon1)
 			

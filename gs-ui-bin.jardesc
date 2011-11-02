@@ -11,19 +11,13 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.j2dviewer.renderer.test{TestFreePlane.scala"/>
-        <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.j2dviewer.renderer"/>
-        <file path="/gs-ui/Roadmap"/>
-        <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.j2dviewer.renderer.test{TestSize.scala"/>
-        <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.util"/>
+        <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.util.swing"/>
         <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.j2dviewer.renderer.shape"/>
-        <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.j2dviewer.renderer.test{TestStars.scala"/>
-        <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.j2dviewer.renderer.test{TestShapeDecor.scala"/>
-        <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.j2dviewer.renderer.test{LayoutTest.scala"/>
-        <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.j2dviewer.renderer.test{TestArrows.scala"/>
-        <file path="/gs-ui/README"/>
-        <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.j2dviewer.renderer.test{TestManySprites.scala"/>
+        <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.j2dviewer.renderer"/>
+        <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.j2dviewer.renderer.test"/>
+        <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.j2dviewer.renderer.shape.opengl"/>
+        <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.util"/>
         <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.j2dviewer"/>
-        <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.j2dviewer.renderer.test{TestSprites.scala"/>
+        <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.j2dviewer.renderer.shape.swing"/>
     </selectedElements>
 </jardesc>

@@ -30,21 +30,16 @@
  */
 package org.graphstream.ui.j2dviewer.renderer
 
-//import java.awt.Graphics2D
-
 import org.graphstream.graph.Element
 import org.graphstream.ui.graphicGraph.{GraphicElement, GraphicNode, GraphicEdge, GraphicSprite, GraphicGraph, StyleGroup}
 import org.graphstream.ui.graphicGraph.GraphicElement.SwingElementRenderer
 import org.graphstream.ui.graphicGraph.StyleGroup.ElementEvents
 
 import org.graphstream.ui.j2dviewer.{Backend, Camera, J2DGraphRenderer}
-//import org.graphstream.ScalaGS._
 
 import scala.collection.JavaConversions._
 
-/**
- * Style renderer companion object, acts as a factory for renderers. 
- */
+/** Style renderer companion object, acts as a factory for renderers.  */
 object StyleRenderer {
 	import org.graphstream.ui.graphicGraph.stylesheet.Selector.Type._
 	def apply(style:StyleGroup, mainRenderer:J2DGraphRenderer):StyleRenderer = {
@@ -58,9 +53,10 @@ object StyleRenderer {
 	}
 }
 
-/**
- * Base class for style renderers.
- */
+/** Base class for style renderers. 
+  * 
+  * The main rendering loop is defined here.
+  */
 abstract class StyleRenderer(val group:StyleGroup) extends GraphicElement.SwingElementRenderer {
 // Attribute
 	
@@ -75,34 +71,28 @@ abstract class StyleRenderer(val group:StyleGroup) extends GraphicElement.SwingE
 	/** Render all the (visible) elements of the group. */
 	def render(bck:Backend, camera:Camera) { render(bck, camera, false, renderElement _) }
  
-	/**
-     * Main rendering method.
-     * 
-     * <p>
-     * This works in three phases:
-     * <ol>
-     * 		<li>draw all "bulk" elements using renderElement()</li>
-     * 		<li>draw all "dynamic" elements using renderElement().</li>
-     * 		<li>draw all "event" elements using renderElement().</li>
-     * </ol>
-     * Before drawing, the setupRenderingPass() and pushStyle() methods are called. The phase 1 is
-     * run. Then for each dynamic element in phase 2, before calling renderElement, for each element
-     * the pushDynStyle() method is called.
-     * Then for each element modified by an event, in phase 3, the before drawing the element, the
-     * event is enabled, then pushStyle() is called, then the element is drawn, and finally the
-     * event is disabled.
-     * </p>
-     * 
-     * <p>
-     * This rendering pass is made both for shadows and for regular drawing. The shadow and render
-     * arguments allow to specify that we are rendering for shadow, and what element rendering
-     * method to use (renderElement() or renderShadow()).
-     * </p>
-	 */
+	/** Main rendering method.
+      * 
+      * This works in three phases:
+      * - draw all "bulk" elements using renderElement()
+      * - draw all "dynamic" elements using renderElement().
+      * - draw all "event" elements using renderElement().
+      * 
+      * Before drawing, the setupRenderingPass() and pushStyle() methods are called. The phase 1 is
+      * run. Then for each dynamic element in phase 2, before calling renderElement, for each element
+      * the pushDynStyle() method is called.
+      * Then for each element modified by an event, in phase 3, the before drawing the element, the
+      * event is enabled, then pushStyle() is called, then the element is drawn, and finally the
+      * event is disabled.
+      * 
+      * This rendering pass is made both for shadows and for regular drawing. The shadow and render
+      * arguments allow to specify that we are rendering for shadow, and what element rendering
+      * method to use (renderElement() or renderShadow()). */
 	protected def render(bck:Backend, camera:Camera, shadow:Boolean, render:(Backend,Camera,GraphicElement)=>Unit ) {
 		setupRenderingPass(bck, camera, shadow)
 		pushStyle(bck, camera, shadow)
 
+//var T1 = System.currentTimeMillis
 		group.bulkElements.foreach { e =>
 			val ge = e.asInstanceOf[GraphicElement]
 	
@@ -110,6 +100,7 @@ abstract class StyleRenderer(val group:StyleGroup) extends GraphicElement.SwingE
 			     render(bck, camera, ge)
 			else elementInvisible(bck, camera, ge);
 		}
+//var T2 = System.currentTimeMillis
 			
 		if(group.hasDynamicElements) {
 			group.dynamicElements.foreach { e =>
@@ -125,7 +116,7 @@ abstract class StyleRenderer(val group:StyleGroup) extends GraphicElement.SwingE
 				}
 			}
 		}
-			
+
 		if(group.hasEventElements) {
 			group.elementsEvents.foreach { event =>
 				val ge = event.getElement.asInstanceOf[GraphicElement]
@@ -148,68 +139,55 @@ abstract class StyleRenderer(val group:StyleGroup) extends GraphicElement.SwingE
 		}
   
 		endRenderingPass(bck, camera, shadow)
+//System.err.println("[%s] %d".format(group.getId, (T2-T1)));
     }
 
 // Methods to implement in each renderer
  
-	/**
-	 * Called before the whole rendering pass for all elements.
-	 * @param bck The rendering back-end.
-	 * @param camera The camera.
-	 * @param forShadow true if we are in the shadow rendering pass.
-	 */
+	/** Called before the whole rendering pass for all elements.
+	  * @param bck The rendering back-end.
+	  * @param camera The camera.
+	  * @param forShadow true if we are in the shadow rendering pass. */
 	protected def setupRenderingPass(bck:Backend, camera:Camera, forShadow:Boolean)
 	
-	/**
-	 * Called before the rendering of bulk and event elements.
-	 * @param bck The rendering back-end.
-	 * @param camera The camera.
-	 * @param forShadow true if we are in the shadow rendering pass.
-	 */
+	/** Called before the rendering of bulk and event elements.
+	  * @param bck The rendering back-end.
+	  * @param camera The camera.
+	  * @param forShadow true if we are in the shadow rendering pass. */
 	protected def pushStyle(bck:Backend, camera:Camera, forShadow:Boolean)
 	
-	/**
-	 * Called before the rendering of elements on dynamic styles. This must only change the style
-	 * properties that can change dynamically.
-	 * @param bck The rendering back-end.
-	 * @param camera The camera.
-	 * @param element The graphic element concerned by the dynamic style change.
-	 */
+	/** Called before the rendering of elements on dynamic styles. This must only change the style
+	  * properties that can change dynamically.
+	  * @param bck The rendering back-end.
+	  * @param camera The camera.
+	  * @param element The graphic element concerned by the dynamic style change. */
 	protected def pushDynStyle(bck:Backend, camera:Camera, element:GraphicElement)
 	
-	/**
-	 * Render a single element knowing the style is already prepared. Elements that are not visible
-	 * are not drawn.
-	 * @param bck The rendering back-end.
-	 * @param camera The camera.
-	 * @param element The element to render.
-	 */
+	/** Render a single element knowing the style is already prepared. Elements that are not visible
+	  * are not drawn.
+	  * @param bck The rendering back-end.
+	  * @param camera The camera.
+	  * @param element The element to render. */
 	protected def renderElement(bck:Backend, camera:Camera, element:GraphicElement)
 	
- 	/**
-     * Render the shadow of the element. 
-	 * @param bck The rendering back-end.
-	 * @param camera The camera.
-	 * @param element The element to render.
-     */
+ 	/** Render the shadow of the element.
+	  * @param bck The rendering back-end.
+	  * @param camera The camera.
+	  * @param element The element to render. */
 	protected def renderShadow(bck:Backend, camera:Camera, element:GraphicElement)
  
-	/**
-	 * Called during rendering in place of {@link #renderElement(Graphics2D, Camera, GraphicElement)}
-	 * to signal that the given element is not inside the view. The renderElement() method will be
-	 * called as soon as the element becomes visible anew.
-	 * @param bck The rendering back-end.
-	 * @param camera The camera.
-	 * @param element The element to render.
-	 */
+	/** Called during rendering in place of {@link #renderElement(Graphics2D, Camera, GraphicElement)}
+	  * to signal that the given element is not inside the view. The renderElement() method will be
+	  * called as soon as the element becomes visible anew.
+	  * @param bck The rendering back-end.
+	  * @param camera The camera.
+	  * @param element The element to render. */
 	protected def elementInvisible(bck:Backend, camera:Camera, element:GraphicElement)
  
-	/**
-	 * Called at the end of the rendering pass. 
-	 * @param bck The rendering back-end.
-	 * @param camera The camera.
-	 * @param forShadow true if we are in the shadow rendering pass.
-     */
+	/** Called at the end of the rendering pass. 
+	  * @param bck The rendering back-end.
+	  * @param camera The camera.
+	  * @param forShadow true if we are in the shadow rendering pass. */
 	protected def endRenderingPass(bck:Backend, camera:Camera, forShadow:Boolean) {
 		// NOP by default.
 	}

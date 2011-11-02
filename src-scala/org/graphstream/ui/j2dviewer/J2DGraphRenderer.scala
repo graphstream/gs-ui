@@ -30,26 +30,20 @@
  */
 package org.graphstream.ui.j2dviewer
   
-import java.awt.{Container, Graphics2D}//, RenderingHints}
+import java.awt.{Container, Graphics2D}
 import java.util.ArrayList
 import java.io.{File, IOException}
 import java.awt.image.BufferedImage
-
 import scala.collection.JavaConversions._
-
 import org.graphstream.ui.geom.Point3
-
 import org.graphstream.graph.Element
-
 import org.graphstream.ui.swingViewer.{GraphRenderer, LayerRenderer}
-import org.graphstream.ui.graphicGraph.{GraphicGraph, GraphicElement, StyleGroup, StyleGroupListener}
+import org.graphstream.ui.graphicGraph.{GraphicGraph, GraphicElement, GraphicNode, GraphicEdge, GraphicSprite, StyleGroup, StyleGroupListener}
 import org.graphstream.ui.graphicGraph.stylesheet.Selector
-
 import org.graphstream.ui.util.Selection
 import org.graphstream.ui.j2dviewer.renderer._
-//import org.graphstream.ScalaGS._
-
 import javax.imageio.ImageIO
+import org.graphstream.ui.util.FPSLogger
 
 object J2DGraphRenderer {
 	val DEFAULT_RENDERER = "j2d_def_rndr";
@@ -99,6 +93,8 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 	/** The rendering backend. */
 	protected var backend:Backend = null
 	
+	protected var fpsLogger:FPSLogger = null
+	
 // Construction
   
   	def open(graph:GraphicGraph, drawingSurface:Container) {
@@ -114,7 +110,13 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 	
   	def close() {
   		if(graph != null) {
-  		    backend.close()
+  		    if(fpsLogger ne null) {
+  		        fpsLogger.close
+  		        fpsLogger = null
+  		    }
+  		    
+  		    removeRenderers  		    
+  		    backend.close
   			graph.getStyleGroups.removeListener(this)
   			graph   = null
   			backend = null
@@ -154,6 +156,14 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   		getStyleRenderer(element.getStyle)
     }
     
+    /** Remove all the registered renderers from the graphic graph. */
+    protected def removeRenderers() {
+        graph.getStyle.removeRenderer("dr")
+        graph.getNodeIterator.foreach { node:GraphicNode => node.getStyle.removeRenderer("dr") }
+        graph.getEdgeIterator.foreach { edge:GraphicEdge => edge.getStyle.removeRenderer("dr") }
+        graph.getSpriteIterator.foreach { sprite:GraphicSprite => sprite.getStyle.removeRenderer("dr") }
+    }
+    
 // Command
 
   	def beginSelectionAt(x:Double, y:Double) {
@@ -179,11 +189,10 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   
   	def render(g:Graphics2D, width:Int, height:Int) {
   	    if(graph != null) {
-// 	        val T1 = System.currentTimeMillis
+  	        startFrame
   	        
   		    // Verify this view is not closed, the Swing repaint mechanism may trigger 1 or 2
   		    // calls to this after being closed.
-
   		    if(backend eq null)
   		        backend = new BackendJ2D // TODO choose it according to some setting ...
   		    
@@ -217,9 +226,22 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   			if( selection.renderer == null ) selection.renderer = new SelectionRenderer( selection, graph )
   			selection.renderer.render(backend, camera, width, height )
   			
-//  		val T = (System.currentTimeMillis - T1)
-//  		println("%d ms".format(T))
-  		}
+  	    	endFrame
+  	    }
+  	}
+  	
+  	protected def startFrame() {
+  	    if((fpsLogger eq null) && graph.hasLabel("ui.log")) {
+  	        fpsLogger = new FPSLogger(graph.getLabel("ui.log").toString)
+  	    }
+  	    
+  	    if(! (fpsLogger eq null))
+  	    	fpsLogger.beginFrame
+  	}
+  	
+  	protected def endFrame() {
+  	    if(! (fpsLogger eq null))
+  	        fpsLogger.endFrame
   	}
    	
 	protected def renderBackLayer() { if(backRenderer ne null) renderLayer(backRenderer) }
@@ -244,7 +266,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
        backend.setAntialias(graph.hasAttribute("ui.antialias"))
        backend.setQuality(graph.hasAttribute("ui.quality"))
 	}
-
+	
 	def screenshot(filename:String, width:Int, height:Int) {
 	   	if(filename.toLowerCase.endsWith("png")) {
 			val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)

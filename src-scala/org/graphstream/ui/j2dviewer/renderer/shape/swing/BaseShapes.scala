@@ -56,7 +56,7 @@ trait AreaShape
 	with Decorable {
  	
 	def configureForGroup(bck:Backend, style:Style, camera:Camera) {
- 	  	configureFillableForGroup(style, camera)
+ 	  	configureFillableForGroup(bck, style, camera)
  	  	configureStrokableForGroup(style, camera)
  	  	configureShadowableForGroup(style, camera)
  	  	configureDecorableForGroup(style, camera)
@@ -78,7 +78,7 @@ trait AreaOnConnectorShape
 	with Shadowable {
 	
 	def configureForGroup(bck:Backend, style:Style, camera:Camera) {
-		configureFillableForGroup(style, camera)
+		configureFillableForGroup(bck, style, camera)
 		configureStrokableForGroup(style, camera)
 		configureShadowableForGroup(style, camera)
 		configureAreaOnConnectorForGroup(style, camera)
@@ -116,10 +116,10 @@ trait LineConnectorShape
 	with ShadowableLine {
 	
 	override def configureForGroup(bck:Backend, style:Style, camera:Camera) {
-		configureFillableLineForGroup(style, camera)
+		super.configureForGroup(bck, style, camera)
+		configureFillableLineForGroup(bck, style, camera, theSize)
 		configureStrokableLineForGroup(style, camera)
 		configureShadowableLineForGroup(style, camera)
-		super.configureForGroup(bck, style, camera)
 	}
 	
 	override def configureForElement(bck:Backend, element:GraphicElement, skel:Skeleton, camera:Camera) {
@@ -135,7 +135,7 @@ trait AreaConnectorShape
 	with Shadowable {
 	
 	override def configureForGroup(bck:Backend, style:Style, camera:Camera) {
-		configureFillableForGroup(style, camera)
+		configureFillableForGroup(bck, style, camera)
 		configureStrokableForGroup(style, camera)
 		configureShadowableForGroup(style, camera)
 		super.configureForGroup(bck, style, camera)
@@ -167,7 +167,7 @@ trait RectangularAreaShape extends AreaShape {
  	}
   
  	def renderShadow(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton) {
- 		makeShadow(bck, camera)
+		makeShadow(bck, camera)
  		cast(bck.graphics2D, theShape)
  	}
   
@@ -295,7 +295,9 @@ abstract class PolygonalShape extends AreaShape {
 }
 
 class LineShape extends LineConnectorShape {
-	protected var theShape:java.awt.Shape = new java.awt.geom.Line2D.Double 
+	protected var theShapeL = new java.awt.geom.Line2D.Double
+	protected var theShapeC = new java.awt.geom.CubicCurve2D.Double
+	protected var theShape:java.awt.Shape = null
 // Command
   
 	protected def make(bck:Backend, camera:Camera) {
@@ -304,13 +306,11 @@ class LineShape extends LineConnectorShape {
 		if( skel.isCurve ) {
 			val ctrl1 = skel(1)
 			val ctrl2 = skel(2)
-			val curve = new java.awt.geom.CubicCurve2D.Double
-			theShape = curve
-			curve.setCurve( from.x, from.y, ctrl1.x, ctrl1.y, ctrl2.x, ctrl2.y, to.x, to.y )
+			theShapeC.setCurve( from.x, from.y, ctrl1.x, ctrl1.y, ctrl2.x, ctrl2.y, to.x, to.y )
+			theShape = theShapeC
 		} else {
-			val line = new java.awt.geom.Line2D.Double
-			theShape = line
-			line.setLine( from.x, from.y, to.x, to.y )
+			theShapeL.setLine( from.x, from.y, to.x, to.y )
+			theShape = theShapeL
 		} 
 	}
 	protected def makeShadow(bck:Backend, camera:Camera) {
@@ -325,13 +325,11 @@ class LineShape extends LineConnectorShape {
 			var ctrlx1 = skel(2).x + theShadowOff.x
 			var ctrly1 = skel(2).y + theShadowOff.y
 			
-			val curve = new java.awt.geom.CubicCurve2D.Double
-			theShape = curve
-			curve.setCurve( x0, y0, ctrlx0, ctrly0, ctrlx1, ctrly1, x1, y1 )
+			theShapeC.setCurve( x0, y0, ctrlx0, ctrly0, ctrlx1, ctrly1, x1, y1 )
+			theShape = theShapeC
 		} else {
-			val line = new java.awt.geom.Line2D.Double
-			theShape = line
-			line.setLine( x0, y0, x1, y1 )
+			theShapeL.setLine( x0, y0, x1, y1 )
+			theShape = theShapeL
 		} 
 	}
  
@@ -343,9 +341,9 @@ class LineShape extends LineConnectorShape {
 	def render(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton) {
 	    val g = bck.graphics2D
  		make(bck, camera)
- 		stroke(g, theShape )
+// 		stroke(g, theShape )
  		fill(g, theSize, theShape)
- 		decorConnector(bck, camera, skel.iconAndText, element, theShape)
+// 		decorConnector(bck, camera, skel.iconAndText, element, theShape)
 	}
 }
 

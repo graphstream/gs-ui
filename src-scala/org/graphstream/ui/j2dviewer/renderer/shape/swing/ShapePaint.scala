@@ -43,17 +43,17 @@ abstract class ShapePaint {
 }
 
 abstract class ShapeAreaPaint extends ShapePaint with Area {
-	def paint( xFrom:Double, yFrom:Double, xTo:Double, yTo:Double, px2gu:Double ):Paint
-	def paint( shape:java.awt.Shape, px2gu:Double ):Paint = {
+	def paint(xFrom:Double, yFrom:Double, xTo:Double, yTo:Double, px2gu:Double ):Paint
+	def paint(shape:java.awt.Shape, px2gu:Double):Paint = {
 		val s = shape.getBounds2D
 		
-		paint( s.getMinX, s.getMinY,
-		       s.getMaxX, s.getMaxY, px2gu )
+		paint(s.getMinX, s.getMinY,
+		      s.getMaxX, s.getMaxY, px2gu)
 	}
 }
 
 abstract class ShapeColorPaint extends ShapePaint {
-	def paint( value:Double, optColor:Color ):Paint
+	def paint(value:Double, optColor:Color):Paint
 }
 
 object ShapePaint {

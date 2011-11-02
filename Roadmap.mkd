@@ -4,6 +4,9 @@ Roadmap
 Actually in the works
 ---------------------
 
+- setup the elements Skeletons in a pre-rendering pass.
+  - this would allow to setup the visibility much more precisely.
+  - this would allow to avoid recomputing the size of elements in the visibility test.
 - Polygonal and vectorial shapes for nodes.
 - Polygonal/multi-point-curves and vectorial shapes for edges.
 - A new OpenGL backend.  
