@@ -64,6 +64,7 @@ trait Fillable {
       * @param shape The awt shape to fill. */
 	def fill(g:Graphics2D, dynColor:Double, optColor:Color, shape:java.awt.Shape, camera:Camera) {
 	    if(plainFast) {
+	        g.setColor(theFillColor)
 	        g.fill(shape)
 	    } else {
 			fillPaint match {
