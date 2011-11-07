@@ -84,7 +84,9 @@ trait Fillable {
  		fillPaint = ShapePaint(style)
  
  		if(fillPaint.isInstanceOf[ShapePlainColorPaint]) {
+ 		    val paint = fillPaint.asInstanceOf[ShapePlainColorPaint]
  		    plainFast = true
+ 		    theFillColor = paint.color
  		    bck.graphics2D.setColor(theFillColor)
  		    // We prepare to accelerate the filling process if we know the color is not dynamic
  		    // and is plain: no need to change the paint at each new position for the shape.
