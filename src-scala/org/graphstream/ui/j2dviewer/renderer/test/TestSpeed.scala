@@ -8,7 +8,7 @@ object TestSpeed {
 
 class TestSpeed {
     def test() {
-        System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer")
+        //System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer")
     
         for(i <- 1 until 60) {
             Console.err.println("%d".format(i))
