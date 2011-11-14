@@ -395,13 +395,19 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   	  * not required.
   	  * @param x The new position abscissa.
   	  * @param y The new position ordinate. */
-    def setViewCenter(x:Double, y:Double, z:Double) { center.set(x, y, z) }
+    def setViewCenter(x:Double, y:Double, z:Double) {
+    	setAutoFitView(false)
+    	center.set(x, y, z)
+    }
 	
   	/** Set the zoom (or percent of the graph visible), 1 means the graph is fully visible.
       * @param z The zoom. */
     def viewPercent_=(z:Double) { zoom = z }
 
-    def setViewPercent(z:Double) { zoom = z }
+    def setViewPercent(z:Double) {
+    	setAutoFitView(false)
+    	zoom = z
+    }
 	
   	/** Set the rotation angle around the center.
   	  * @param angle The rotation angle in degrees. */
