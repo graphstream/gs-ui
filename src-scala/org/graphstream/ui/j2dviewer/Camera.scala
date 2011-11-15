@@ -80,7 +80,7 @@ import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
  * The camera is also able to compute sprite positions according to their attachment, as well as
  * maintaining a list of all elements out of the view, so that it is not needed to render them.
  */
-class Camera extends org.graphstream.ui.swingViewer.util.Camera {
+class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingViewer.util.Camera {
 // Attribute
 	
   	/** Information on the graph overall dimension and position. */
@@ -393,22 +393,24 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
     def setViewCenter(x:Double, y:Double, z:Double) {
     	setAutoFitView(false)
     	center.set(x, y, z)
+    	graph.graphChanged = true
     }
 	
   	/** Set the zoom (or percent of the graph visible), 1 means the graph is fully visible.
       * @param z The zoom. */
-    def viewPercent_=(z:Double) { zoom = z }
+    def viewPercent_=(z:Double) { zoom = z; graph.graphChanged = true }
 
     def setViewPercent(z:Double) {
     	setAutoFitView(false)
     	zoom = z
+    	graph.graphChanged = true
     }
 	
   	/** Set the rotation angle around the center.
   	  * @param angle The rotation angle in degrees. */
-  	def viewRotation_=(angle:Double) { rotation = angle }
+  	def viewRotation_=(angle:Double) { rotation = angle; graph.graphChanged = true }
 
-  	def setViewRotation(angle:Double) { rotation = angle }
+  	def setViewRotation(angle:Double) { rotation = angle; graph.graphChanged = true }
 
   	/** Set the output view port size in pixels.
   	  * @param viewportWidth The width in pixels of the view port.

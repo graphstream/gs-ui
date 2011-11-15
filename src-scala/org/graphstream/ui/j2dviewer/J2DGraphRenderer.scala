@@ -77,7 +77,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 // Attribute	
  
 	/** Set the view on the view port defined by the metrics. */
-	protected val camera = new Camera
+	protected var camera:Camera = null
 
 	/** The graph to render. */
 	protected var graph:GraphicGraph = null
@@ -102,6 +102,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 	  	if( this.graph == null ) {
 		  	this.graph   = graph
 		  	this.backend = new BackendJ2D		// choose it according to some setting
+		  	this.camera  = new Camera(graph)
 		  	graph.getStyleGroups.addListener(this)
 		  	backend.open(drawingSurface)
 	  	} else {
@@ -121,6 +122,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   			graph.getStyleGroups.removeListener(this)
   			graph   = null
   			backend = null
+  			camera  = null
   		}
   	}
 	
