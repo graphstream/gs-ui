@@ -132,7 +132,8 @@
 						<configuration>
 							<options>
 								<option>-dontwarn scala.**</option>
-								<option>-keep public class org.graphstream.ui.j2dviewer.J2DGraphRenderer</option>
+								<option>-keep public class
+									org.graphstream.ui.j2dviewer.J2DGraphRenderer</option>
 							</options>
 							<libs>
 								<lib>${java.home}/lib/rt.jar</lib>
@@ -283,6 +284,22 @@
 				</executions>
 				<configuration>
 					<scalaVersion>2.9</scalaVersion>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>bin/</directory>
+							<includes>
+								<include>classes.timestamp</include>
+							</includes>
+							<followSymlinks>false</followSymlinks>
+						</fileset>
+					</filesets>
 				</configuration>
 			</plugin>
 		</plugins>
