@@ -32,27 +32,22 @@
 package org.graphstream.ui.j2dviewer
 
 import org.graphstream.ui.geom.Point3
-
 import java.util.ArrayList
-
 import scala.collection.mutable.HashSet
 import scala.collection.JavaConversions._
 import scala.math._
-
 import org.graphstream.graph.Node
 import org.graphstream.ui.graphicGraph.stylesheet.Selector.Type._
-
 import org.graphstream.ui.graphicGraph.{GraphicEdge, GraphicElement, GraphicGraph, GraphicNode, GraphicSprite}
 import org.graphstream.ui.graphicGraph.stylesheet.{Style, Values}
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
-
 import org.graphstream.ui.util.CubicCurve
 import org.graphstream.ui.swingViewer.util.GraphMetrics
 import org.graphstream.ui.geom.Point2
 import org.graphstream.ui.geom.Vector2
 import org.graphstream.ui.j2dviewer.renderer.{Skeleton, AreaSkeleton, ConnectorSkeleton}
-
 import scala.math._
+import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
 
 /**
  * Define a view of the graph or a part of the graph.
@@ -167,7 +162,7 @@ class Camera extends org.graphstream.ui.swingViewer.util.Camera {
   	 * @return True if the element is visible and therefore must be rendered. */
   	def isVisible(element:GraphicElement):Boolean = {
   	    if(autoFit) {
-  	        true
+  	        ((! element.hidden) && (element.style.getVisibilityMode() != StyleConstants.VisibilityMode.HIDDEN))
   	    } else {
   	    	if(styleVisible(element)) element.getSelectorType match {
   				case NODE   => ! nodeInvisible.contains(element.getId)
