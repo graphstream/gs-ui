@@ -132,8 +132,7 @@
 						<configuration>
 							<options>
 								<option>-dontwarn scala.**</option>
-								<option>-keep public class
-									org.graphstream.ui.j2dviewer.J2DGraphRenderer</option>
+								<option>-keep public class org.graphstream.ui.j2dviewer.J2DGraphRenderer</option>
 							</options>
 							<libs>
 								<lib>${java.home}/lib/rt.jar</lib>
