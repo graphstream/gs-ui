@@ -50,7 +50,7 @@ object TestSize {
 	} 
 }
 
-class TestSize extends ViewerListener {
+class TestSize extends ViewerPipeListener {
 	var loop = true
 	
 	def run() = {

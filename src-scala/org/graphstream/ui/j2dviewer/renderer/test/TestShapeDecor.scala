@@ -47,7 +47,7 @@ object TestShapeDecor {
 	def main( args:Array[String] ) { (new TestShapeDecor).run } 
 }
 
-class TestShapeDecor extends ViewerListener {
+class TestShapeDecor extends ViewerPipeListener {
 	var loop = true
 	
 	def run() = {

@@ -44,7 +44,7 @@ object TestFillImage {
 	def main( args:Array[String] ) { (new TestFillImage).run( args ) }
 }
 
-private class TestFillImage extends ViewerListener {
+private class TestFillImage extends ViewerPipeListener {
 	private[this] var loop = true
   
 	def run( args:Array[String] ) = {

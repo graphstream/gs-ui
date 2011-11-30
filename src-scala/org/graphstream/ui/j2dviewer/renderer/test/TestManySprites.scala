@@ -55,7 +55,7 @@ object TestManySprites {
 	}
 }
 
-class TestManySprites extends ViewerListener {
+class TestManySprites extends ViewerPipeListener {
 	
 	/** The application runs while this is true. */
 	var loop = true

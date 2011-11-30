@@ -44,7 +44,7 @@ object TestIcons {
 	def main( args:Array[String] ) { (new TestIcons).run( args ) }
 }
 
-private class TestIcons extends ViewerListener {
+private class TestIcons extends ViewerPipeListener {
 	private[this] var loop = true
   
 	val icon1 = "data/surprise1.png"

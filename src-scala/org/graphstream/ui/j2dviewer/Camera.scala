@@ -79,7 +79,7 @@ import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
  * The camera is also able to compute sprite positions according to their attachment, as well as
  * maintaining a list of all elements out of the view, so that it is not needed to render them.
  */
-class Camera extends org.graphstream.ui.swingViewer.util.Camera {
+class Camera extends org.graphstream.ui.swingViewer.Camera {
 // Attribute
 	
   	/** Information on the graph overall dimension and position. */

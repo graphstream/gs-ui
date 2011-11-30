@@ -50,7 +50,7 @@ object LayoutTest {
 		test.run( args )
 	}
 	
-private class ATest extends ViewerListener {
+private class ATest extends ViewerPipeListener {
 	private[this] var loop = true
   
 	def run( args:Array[String] ) {

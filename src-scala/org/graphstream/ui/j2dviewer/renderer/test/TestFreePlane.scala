@@ -47,7 +47,7 @@ object TestFreePlane {
 	}
 }
 
-private class TestFreePlane extends ViewerListener {
+private class TestFreePlane extends ViewerPipeListener {
 	private[this] var loop = true
   
 	def run( args:Array[String] ) = {

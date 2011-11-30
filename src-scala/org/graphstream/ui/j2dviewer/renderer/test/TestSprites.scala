@@ -51,7 +51,7 @@ object TestSprites {
 	}
 }
 
-class TestSprites extends ViewerListener {
+class TestSprites extends ViewerPipeListener {
 	var loop = true
 	
 	def run() = {

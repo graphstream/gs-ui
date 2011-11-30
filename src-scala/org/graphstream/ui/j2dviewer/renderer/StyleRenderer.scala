@@ -88,7 +88,7 @@ abstract class StyleRenderer(val group:StyleGroup) extends GraphicElement.SwingE
       * This rendering pass is made both for shadows and for regular drawing. The shadow and render
       * arguments allow to specify that we are rendering for shadow, and what element rendering
       * method to use (renderElement() or renderShadow()). */
-	protected def render(bck:Backend, camera:Camera, shadow:Boolean, render:(Backend,Camera,GraphicElement)=>Unit ) {
+	protected def render(bck:Backend, camera:Camera, shadow:Boolean, render:org.graphstream.ui.swingViewer.Unit ) {
 		setupRenderingPass(bck, camera, shadow)
 		pushStyle(bck, camera, shadow)
 

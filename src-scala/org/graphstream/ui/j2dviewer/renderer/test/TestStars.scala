@@ -45,7 +45,7 @@ import org.graphstream.ui.j2dviewer._
 
 object TestStars { def main( args:Array[String] ) { (new TestStars).run } }
 
-class TestStars extends ViewerListener {
+class TestStars extends ViewerPipeListener {
 	var loop = true
 	
 	def run() = {

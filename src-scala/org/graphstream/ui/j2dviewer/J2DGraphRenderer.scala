@@ -125,7 +125,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 	
 // Access
   	
-  	def getCamera():org.graphstream.ui.swingViewer.util.Camera = camera
+  	def getCamera():org.graphstream.ui.swingViewer.Camera = camera
 
   	def findNodeOrSpriteAt(x:Double, y:Double):GraphicElement = camera.findNodeOrSpriteAt(graph, x, y)
  

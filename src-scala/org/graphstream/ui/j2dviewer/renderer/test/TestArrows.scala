@@ -47,7 +47,7 @@ object TestArrows {
 	def main( args:Array[String] ) { (new TestArrows).run } 
 }
 
-class TestArrows extends ViewerListener {
+class TestArrows extends ViewerPipeListener {
 	var loop = true
 	
 	def run() = {
