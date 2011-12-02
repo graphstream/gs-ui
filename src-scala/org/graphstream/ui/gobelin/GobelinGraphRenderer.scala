@@ -43,15 +43,15 @@ import org.graphstream.ui.graphicGraph.stylesheet.Selector
 import org.graphstream.ui.util.Selection
 import org.graphstream.ui.j2dviewer.renderer._
 import javax.imageio.ImageIO
-import org.graphstream.ui.util.FPSLogger
 import org.graphstream.ui.swingViewer.GraphRendererBase
+import org.graphstream.ui.swingViewer.util.FPSLogger
 
-object J2DGraphRenderer {
-	val DEFAULT_RENDERER = "j2d_def_rndr";
+object GobelinGraphRenderer {
+	val DEFAULT_RENDERER = "gobelin_rndr";
 }
 
 /**	
- * 2D renderer.
+ * Gobelin renderer.
  * 
  * The role of this class is to equip each style group with a specific renderer and
  * to call these renderer to redraw the graph when needed. The renderers then equip
@@ -68,12 +68,12 @@ object J2DGraphRenderer {
  * This class also handles a "selection" object that represents the current selection
  * and renders it.
  * 
- * The renderer uses a backend so that it can adapt to multiple rendering
+ * The renderer uses a back end so that it can adapt to multiple rendering
  * targets (here Swing and OpenGL). As the skin are finally responsible
- * for drawing the graph, the backend is also responsible for the skin
+ * for drawing the graph, the back end is also responsible for the skin
  * creation.
  */
-class J2DGraphRenderer extends GraphRendererBase {
+class GobelinGraphRenderer extends GraphRendererBase {
 	/** Set the view on the view port defined by the metrics. */
 	protected val camera = new Camera
 
@@ -89,25 +89,28 @@ class J2DGraphRenderer extends GraphRendererBase {
 	/** Optional output for frame-per-second statistics. */
 	protected var fpsLogger:FPSLogger = null
 	
+// Construction
+	
   	def open(graph:GraphicGraph, drawingSurface:Container) {
-	    super.open(graph, drawingSurface)
-
 		this.backend = new BackendJ2D		// XXX choose it according to some setting
 		
 		backend.open(drawingSurface)
+	    super.open(graph, backend.drawingSurface)
+		graph.setSkeletonFactory(backend.getSkeletonFactory)
   	}
 	
   	def close() {
   		if(graph != null) {
+  		    super.close
+  		    
   		    if(fpsLogger ne null) {
   		        fpsLogger.close
   		        fpsLogger = null
   		    }
   		    
+  		    graph.setSkeletonFactory(null)
   		    removeRenderers  		    
   		    backend.close
-  			graph.getStyleGroups.removeListener(this)
-  			graph   = null
   			backend = null
   		}
   	}
@@ -153,38 +156,12 @@ class J2DGraphRenderer extends GraphRendererBase {
         graph.getSpriteIterator.foreach { sprite:GraphicSprite => sprite.getStyle.removeRenderer("dr") }
     }
     
-// Command
-
-  	def beginSelectionAt(x:Double, y:Double) {
-  		selection.active = true
-  		selection.begins(x, y)
-  	}
-
-  	def selectionGrowsAt(x:Double, y:Double) {
-  		selection.grows(x, y)
-  	}
-
-  	def endSelectionAt(x:Double, y:Double) {
-  		selection.grows(x, y)
-  		selection.active = false
-  	}
-
-  	def moveElementAtPx(element:GraphicElement, x:Double, y:Double) {
-  		val p = camera.transformPxToGu(x, y)
-  		element.move(p.x, p.y, element.getZ)
-  	}
-
 // Commands -- Rendering
   
   	def render(g:Graphics2D, width:Int, height:Int) {
   	    if(graph != null) {
   	        startFrame
   	        
-  		    // Verify this view is not closed, the Swing repaint mechanism may trigger 1 or 2
-  		    // calls to this after being closed.
-  		    if(backend eq null)
-  		        backend = new BackendJ2D // TODO choose it according to some setting ...
-  		    
   		    backend.prepareNewFrame(g)
   		    camera.setBackend(backend)
   		        
