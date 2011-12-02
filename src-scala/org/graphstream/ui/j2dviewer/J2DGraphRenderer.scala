@@ -292,7 +292,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 		    try {
 				val plugin = "org.graphstream.ui.batik.BatikGraphics2D"
 				val c = Class.forName(plugin)
-				val o = c.newInstance
+				val o = c.newInstance.asInstanceOf[Object]
 				if(o.isInstanceOf[Graphics2DOutput]) {
 					val out = o.asInstanceOf[Graphics2DOutput]
 					val g2 = out.getGraphics();
