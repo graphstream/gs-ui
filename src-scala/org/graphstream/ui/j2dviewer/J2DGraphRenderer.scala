@@ -288,22 +288,22 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 			render(img.createGraphics, width, height)
 			val file = new File(filename)
 			ImageIO.write(img, "jpg", file)
-		} else if(filename.toLowerCase.endsWith("svg")) {
-		    try {
-				val plugin = "org.graphstream.ui.batik.BatikGraphics2D"
-				val c = Class.forName(plugin)
-				val o = c.newInstance.asInstanceOf[Object]
-				if(o.isInstanceOf[Graphics2DOutput]) {
-					val out = o.asInstanceOf[Graphics2DOutput]
-					val g2 = out.getGraphics();
-					render(g2, camera.metrics.viewport.x.toInt, camera.metrics.viewport.y.toInt)
-					out.outputTo(filename)
-				} else {
-					Console.err.printf("plugin %s is not an instance of Graphics2DOutput (%s)%n", plugin, o.getClass.getName)
-				}
-			} catch {
-			    case e:Exception => e.printStackTrace
-			}
+//		} else if(filename.toLowerCase.endsWith("svg")) {
+//		    try {
+//				val plugin = "org.graphstream.ui.batik.BatikGraphics2D"
+//				val c = Class.forName(plugin)
+//				val o = c.newInstance.asInstanceOf[Object]
+//				if(o.isInstanceOf[Graphics2DOutput]) {
+//					val out = o.asInstanceOf[Graphics2DOutput]
+//					val g2 = out.getGraphics();
+//					render(g2, camera.metrics.viewport.x.toInt, camera.metrics.viewport.y.toInt)
+//					out.outputTo(filename)
+//				} else {
+//					Console.err.printf("plugin %s is not an instance of Graphics2DOutput (%s)%n", plugin, o.getClass.getName)
+//				}
+//			} catch {
+//			    case e:Exception => e.printStackTrace
+//			}
 		} else {
 		    System.err.println("unknown screenshot filename extension %s, saving to jpeg".format(filename))
 		    val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
