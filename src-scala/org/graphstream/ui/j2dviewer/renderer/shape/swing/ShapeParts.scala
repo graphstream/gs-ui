@@ -228,7 +228,7 @@ trait Shadowable {
 	/** Offset of the shadow according to the shape center. */
 	protected val theShadowOff = new Point2
 
-	/** Sety the shadow width added to the shape width. */
+	/** Set the shadow width added to the shape width. */
 	def shadowWidth( width:Double, height:Double ) { theShadowWidth.set( width, height ) }
  
  	/** Set the shadow offset according to the shape. */ 

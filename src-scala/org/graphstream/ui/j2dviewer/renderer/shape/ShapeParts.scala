@@ -467,6 +467,7 @@ trait Decorable {
   	/** Configure all the static parts needed to decor the shape. */
   	protected def configureDecorableForGroup( style:Style, camera:Camera ) {
 		/*if( theDecor == null )*/ theDecor = ShapeDecor( style )
+		Console.err.println("recreating the decor...")
   	}
   	
   	/** Setup the parts of the decor specific to each element. */
@@ -476,7 +477,7 @@ trait Decorable {
   		if( skel != null ) {
   			val style = element.getStyle
   			
-  			if( skel.iconAndText == null )
+  			//if( skel.iconAndText == null )
   				skel.iconAndText = ShapeDecor.iconAndText( style, camera, element )
 
   			if( style.getIcon != null && style.getIcon.equals( "dynamic" ) && element.hasAttribute( "ui.icon" ) ) {
