@@ -342,9 +342,9 @@ class LineShape extends LineConnectorShape {
 	def render(bck:Backend, camera:Camera, element:GraphicElement, skel:Skeleton) {
 	    val g = bck.graphics2D
  		make(bck, camera)
-// 		stroke(g, theShape )
+ 		stroke(g, theShape )
  		fill(g, theSize, theShape)
-// 		decorConnector(bck, camera, skel.iconAndText, element, theShape)
+ 		decorConnector(bck, camera, skel.iconAndText, element, theShape)
 	}
 }
 
