@@ -467,7 +467,6 @@ trait Decorable {
   	/** Configure all the static parts needed to decor the shape. */
   	protected def configureDecorableForGroup( style:Style, camera:Camera ) {
 		/*if( theDecor == null )*/ theDecor = ShapeDecor( style )
-		Console.err.println("recreating the decor...")
   	}
   	
   	/** Setup the parts of the decor specific to each element. */
