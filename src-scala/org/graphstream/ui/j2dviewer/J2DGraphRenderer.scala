@@ -45,7 +45,7 @@ import org.graphstream.ui.util.Selection
 import org.graphstream.ui.j2dviewer.renderer._
 import javax.imageio.ImageIO
 import org.graphstream.ui.util.FPSLogger
-import org.graphstream.ui.swingViewer.util.Graphics2DOutput
+//import org.graphstream.ui.swingViewer.util.Graphics2DOutput
 
 object J2DGraphRenderer {
 	val DEFAULT_RENDERER = "j2d_def_rndr";
