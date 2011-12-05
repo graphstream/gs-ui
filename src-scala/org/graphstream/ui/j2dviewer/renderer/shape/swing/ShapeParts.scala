@@ -139,6 +139,7 @@ trait FillableLine {
 	def fill(g:Graphics2D, width:Double, dynColor:Double, shape:java.awt.Shape) {
 		if(fillStroke != null) {
 		    if(plainFast) {
+				g.setColor(theFillColor)
 		        g.draw(shape)
 		    } else {
 				val stroke = fillStroke.stroke(width)
