@@ -33,7 +33,6 @@ package org.graphstream.ui.util
 import org.graphstream.ui.geom._
 import org.graphstream.ui.graphicGraph._
 import org.graphstream.ui.j2dviewer._
-import org.graphstream.ui.j2dviewer.renderer._
 import org.graphstream.ui.j2dviewer.renderer.shape._
 
 import java.awt.geom._

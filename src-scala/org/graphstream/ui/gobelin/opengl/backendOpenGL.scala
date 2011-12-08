@@ -1,5 +1,6 @@
 /*
  * Copyright 2006 - 2011 
+ *     Stefan Balev 	<stefan.balev@graphstream-project.org>
  *     Julien Baudry	<julien.baudry@graphstream-project.org>
  *     Antoine Dutot	<antoine.dutot@graphstream-project.org>
  *     Yoann Pigné		<yoann.pigne@graphstream-project.org>
@@ -28,35 +29,12 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
  */
-package org.graphstream.ui.util
+package org.graphstream.ui.gobelin.opengl
 
-import org.graphstream.ui.geom.Point3
+import org.graphstream.ui.gobelin.Backend
 
-/** A representation of the current selection. */
-class Selection {
-	var active = false
-	
-	var renderer:org.graphstream.ui.j2dviewer.renderer.SelectionRenderer = null
+/** A full OpenGL rendering back-end. */
+class backendOpenGL extends Backend {
 
-	private[this] val lo:Point3 = new Point3
-	private[this] val hi:Point3 = new Point3
-	
-	def begins( x:Double, y:Double ) {
-		lo.x = x
-		lo.y = y
-		hi.x = x
-		hi.y = y
-	}
- 
- 	def grows( x:Double, y:Double ) {
- 		hi.x = x
- 		hi.y = y
- 	}
-  
- 	def x1:Double = lo.x
- 	def y1:Double = lo.y
- 	def z1:Double = lo.z
- 	def x2:Double = hi.x
- 	def y2:Double = hi.y
- 	def z2:Double = hi.z
+    // XXX TODO XXX
 }
