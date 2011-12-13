@@ -35,6 +35,8 @@ import java.awt.Container
 import org.graphstream.ui.graphicGraph.GraphicGraph.SkeletonFactory
 import org.graphstream.ui.geom.Point3
 import java.awt.Graphics2D
+import org.graphstream.ui.graphicGraph.StyleGroup
+import org.graphstream.ui.graphicGraph.GraphicGraph
 
 /**
  * The graphic driver.
@@ -121,4 +123,10 @@ abstract class Backend extends SkeletonFactory {
     
     /** Create a selection renderer appropriate for this back-end. */
     def chooseSelectionRenderer():SelectionRenderer
+    
+    /** Choose an appropriate style renderer for the graph. */
+    def chooseGraphStyleRenderer(graph:GraphicGraph):GraphStyleRenderer
+    
+    /** Choose an appropriate style renderer for the group. */
+    def chooseStyleRenderer(style:StyleGroup):StyleRenderer
 }

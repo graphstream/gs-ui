@@ -139,7 +139,7 @@ class GobelinGraphRenderer extends GraphRendererBase {
    	/** Get (and assign if needed) a style renderer to the graphic graph. The renderer will be reused then. */
     protected def styleRenderer(graph:GraphicGraph):GraphStyleRenderer = {
   		if(graph.getStyle.getRenderer("dr") eq null)
-  			graph.getStyle.addRenderer("dr", new GraphStyleRenderer(graph))
+  			graph.getStyle.addRenderer("dr", backend.chooseGraphStyleRenderer(graph))
   		
   		graph.getStyle.getRenderer("dr").asInstanceOf[GraphStyleRenderer]
     }
@@ -147,7 +147,7 @@ class GobelinGraphRenderer extends GraphRendererBase {
   	/** Get (and assign if needed) a style renderer to a style group. The renderer will be reused then. */
     protected def styleRenderer(style:StyleGroup):StyleRenderer = {
   		if( style.getRenderer("dr") eq null)
-  			style.addRenderer("dr", new StyleRenderer(style))
+  			style.addRenderer("dr", backend.chooseStyleRenderer(style))
     
   		style.getRenderer("dr").asInstanceOf[StyleRenderer]
     }
