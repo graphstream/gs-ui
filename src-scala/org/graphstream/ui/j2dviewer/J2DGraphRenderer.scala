@@ -191,7 +191,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 
 // Commands -- Rendering
   
-  	def render(g:Graphics2D, width:Int, height:Int) {
+  	def render(g:Graphics2D, x:Int, y:Int, width:Int, height:Int) {
   	    if(graph != null) {
   	        startFrame
   	        
