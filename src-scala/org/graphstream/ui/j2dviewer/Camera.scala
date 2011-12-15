@@ -297,8 +297,8 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
   		val padXpx = paddingXpx * 2
   		val padYpx = paddingYpx * 2
 		
-  		sx = (metrics.viewport.data(0) - padXpx) / (metrics.size.data(0) + padXgu)	// Ratio along X
-  		sy = (metrics.viewport.data(1) - padYpx) / (metrics.size.data(1) + padYgu)	// Ratio along Y
+  		sx = (metrics.viewport(2) - padXpx) / (metrics.size.data(0) + padXgu)	// Ratio along X
+  		sy = (metrics.viewport(3) - padYpx) / (metrics.size.data(1) + padYgu)	// Ratio along Y
   		tx = metrics.lo.x + (metrics.size.data(0) / 2)								// Center of graph in X
   		ty = metrics.lo.y + (metrics.size.data(1) / 2)								// Center of graph in Y
 		
@@ -308,8 +308,8 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
 		
   		bck.beginTransform
   		bck.setIdentity
-  		bck.translate(metrics.viewport.data(0)/2,
-  		              metrics.viewport.data(1)/2, 0)	// 4. Place the whole result at the center of the view port.
+  		bck.translate(metrics.viewport(2)/2,
+  		              metrics.viewport(3)/2, 0)	// 4. Place the whole result at the center of the view port.
   		if(rotation != 0)
   		    bck.rotate(rotation/(180.0/Pi), 0, 0, 1)	// 3. Eventually apply a Z axis rotation.
   		bck.scale(sx, -sy, 0)							// 2. Scale the graph to pixels. Scale -y since we reverse the view (top-left to bottom-left).
@@ -340,8 +340,8 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
   		val gw     = if(gviewport ne null) gviewport(2)-gviewport(0) else metrics.size.data(0)
   		val gh     = if(gviewport ne null) gviewport(3)-gviewport(1) else metrics.size.data(1)
 		
-  		sx = (metrics.viewport.data(0) - padXpx) / ((gw + padXgu) * zoom) 
-		sy = (metrics.viewport.data(1) - padYpx) / ((gh + padYgu) * zoom)
+  		sx = (metrics.viewport(2) - padXpx) / ((gw + padXgu) * zoom) 
+		sy = (metrics.viewport(3) - padYpx) / ((gh + padYgu) * zoom)
   		
 		tx = center.x
 		ty = center.y
@@ -352,8 +352,8 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
 	
   		bck.beginTransform
   		bck.setIdentity
-  		bck.translate(metrics.viewport.data(0)/2,
-  		              metrics.viewport.data(1)/2, 0)	// 4. Place the whole result at the center of the view port.
+  		bck.translate(metrics.viewport(2)/2,
+  		              metrics.viewport(3)/2, 0)	// 4. Place the whole result at the center of the view port.
   		if(rotation != 0)
   		    bck.rotate(rotation/(180.0/Pi), 0, 0, 1)	// 3. Eventually apply a rotation.
   		bck.scale(sx, -sy, 0)							// 2. Scale the graph to pixels. Scale -y since we reverse the view (top-left to bottom-left).
@@ -362,8 +362,8 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
 		
 		metrics.ratioPx2Gu = sx
 
-		val w2 = (metrics.viewport.data(0) / sx) / 2f
-		val h2 = (metrics.viewport.data(1) / sx) / 2f
+		val w2 = (metrics.viewport(2) / sx) / 2f
+		val h2 = (metrics.viewport(3) / sx) / 2f
 		
 		metrics.loVisible.set(center.x-w2, center.y-h2)
 		metrics.hiVisible.set(center.x+w2, center.y+h2)
@@ -415,7 +415,7 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
   	/** Set the output view port size in pixels.
   	  * @param viewportWidth The width in pixels of the view port.
   	  * @param viewportHeight The width in pixels of the view port. */
-  	def setViewport(viewportWidth:Double, viewportHeight:Double) { metrics.setViewport(viewportWidth, viewportHeight) }
+  	def setViewport(x:Double, y:Double, viewportWidth:Double, viewportHeight:Double) { metrics.setViewport(x, y, viewportWidth, viewportHeight) }
 	
   	/** Set the graphic graph bounds (the lowest and highest points).
   	  * @param minx Lowest abscissa.
@@ -449,8 +449,8 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
   		if(! autoFit) {
   			// If autoFit is on, we know the whole graph is visible anyway.
   			
-  		    val W:Double = metrics.viewport.data(0)
-  			val H:Double = metrics.viewport.data(1)
+  		    val W:Double = metrics.viewport(2)
+  			val H:Double = metrics.viewport(3)
   		
 	  		graph.getEachNode.foreach { node:Node =>
 	  		    val n:GraphicNode = node.asInstanceOf[GraphicNode]
@@ -472,7 +472,7 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
   	/** Check if a sprite is visible in the current view port.
   	  * @param sprite The sprite to check.
   	  * @return True if visible. */
-  	protected def isSpriteVisible(sprite:GraphicSprite):Boolean = isSpriteIn(sprite, 0, 0, metrics.viewport.data(0), metrics.viewport.data(1))
+  	protected def isSpriteVisible(sprite:GraphicSprite):Boolean = isSpriteIn(sprite, 0, 0, metrics.viewport(2), metrics.viewport(3))
 
 
   	/** Check if an edge is visible in the current view port.
@@ -674,8 +674,8 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
   			pos.x = metrics.lo.x + (sprite.getX/100f) * metrics.graphWidthGU
   			pos.y = metrics.lo.y + (sprite.getY/100f) * metrics.graphHeightGU
   		} else if(units == Units.PX && sprite.getUnits == Units.PERCENTS) {
-  			pos.x = (sprite.getX/100f) * metrics.viewport.data(0)
-  			pos.y = (sprite.getY/100f) * metrics.viewport.data(1)
+  			pos.x = (sprite.getX/100f) * metrics.viewport(2)
+  			pos.y = (sprite.getY/100f) * metrics.viewport(3)
   		} else {
   			throw new RuntimeException("Unhandled yet sprite positioning convertion %s to %s.".format(sprite.getUnits, units))
   		}

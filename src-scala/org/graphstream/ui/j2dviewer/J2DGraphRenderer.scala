@@ -208,7 +208,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   			setupGraphics
   			graph.computeBounds
   			camera.setBounds(graph)
-  			camera.setViewport(width, height)
+  			camera.setViewport(x, y, width, height)
   			getStyleRenderer(graph).render(backend, camera, width, height)
   			renderBackLayer
   
@@ -257,8 +257,8 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 		val metrics = camera.metrics
 		
 		renderer.render(backend.graphics2D, graph, metrics.ratioPx2Gu,
-			metrics.viewport.data(0).toInt,
-			metrics.viewport.data(1).toInt,
+			metrics.viewport(2).toInt,
+			metrics.viewport(3).toInt,
 			metrics.loVisible.x,
 			metrics.loVisible.y,
 			metrics.hiVisible.x,
@@ -274,18 +274,18 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 	def screenshot(filename:String, width:Int, height:Int) {
 	   	if(filename.toLowerCase.endsWith("png")) {
 			val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
-			render(img.createGraphics, width, height)
+			render(img.createGraphics, 0, 0, width, height)
 			val file = new File(filename)
 			ImageIO.write(img, "png", file)
 	   	} else if(filename.toLowerCase.endsWith("bmp")) {
 			// Who, in the world, is still using BMP ???
 	   	    val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
-			render(img.createGraphics, width, height)
+			render(img.createGraphics, 0, 0, width, height)
 			val file = new File(filename)
 			ImageIO.write(img, "bmp", file)
 		} else if(filename.toLowerCase.endsWith("jpg") || filename.toLowerCase.endsWith("jpeg")) {
 		    val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
-			render(img.createGraphics, width, height)
+			render(img.createGraphics, 0, 0, width, height)
 			val file = new File(filename)
 			ImageIO.write(img, "jpg", file)
 		} else if(filename.toLowerCase.endsWith("svg")) {
@@ -296,7 +296,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 				if(o.isInstanceOf[Graphics2DOutput]) {
 					val out = o.asInstanceOf[Graphics2DOutput]
 					val g2 = out.getGraphics();
-					render(g2, camera.metrics.viewport.x.toInt, camera.metrics.viewport.y.toInt)
+					render(g2, 0, 0, width, height)
 					out.outputTo(filename)
 				} else {
 					Console.err.printf("plugin %s is not an instance of Graphics2DOutput (%s)%n", plugin, o.getClass.getName)
@@ -307,7 +307,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 		} else {
 		    System.err.println("unknown screenshot filename extension %s, saving to jpeg".format(filename))
 		    val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
-			render(img.createGraphics, width, height)
+			render(img.createGraphics, 0, 0, width, height)
 			val file = new File(filename+".jpg")
 			ImageIO.write(img, "jpg", file)
 		}

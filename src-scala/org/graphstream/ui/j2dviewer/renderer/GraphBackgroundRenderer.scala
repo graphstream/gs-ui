@@ -114,8 +114,8 @@ class GraphBackgroundRenderer(val graph:GraphicGraph, val style:StyleGroup)
 
 		g.setColor( style.getFillColor( 0 ) )
 		g.fillRect( 0, 0,
-			metrics.viewport.data(0).toInt,
-			metrics.viewport.data(1).toInt )
+			metrics.viewport(2).toInt,
+			metrics.viewport(3).toInt )
 	}
 	
 	protected def fillCanvasBackground(g:Graphics2D, camera:Camera) {
@@ -123,8 +123,8 @@ class GraphBackgroundRenderer(val graph:GraphicGraph, val style:StyleGroup)
 
 		g.setColor( style.getCanvasColor( 0 ) )
 		g.fillRect( 0, 0,
-			metrics.viewport.data(0).toInt,
-			metrics.viewport.data(1).toInt )
+			metrics.viewport(2).toInt,
+			metrics.viewport(3).toInt )
 	}
 	
 	protected def fillImageTiled(g:Graphics2D, camera:Camera) {
@@ -144,10 +144,10 @@ class GraphBackgroundRenderer(val graph:GraphicGraph, val style:StyleGroup)
 //		val pady  = metrics.lengthToPx( style.getPadding, 1 ) 
 		val gw    = ( metrics.graphWidthGU  * px2gu )// + ( padx * 2 )	// consider the padding ???
 		val gh    = ( metrics.graphHeightGU * px2gu )// + ( pady * 2 )	// probably not.
-		val x     = ( metrics.viewport.data(0) / 2 ) - ( gw / 2 )
-		val y     = metrics.viewport.data(1) - ( metrics.viewport.data(1) / 2 ) - ( gh / 2 )
+		val x     = ( metrics.viewport(2) / 2 ) - ( gw / 2 )
+		val y     = metrics.viewport(3) - ( metrics.viewport(3) / 2 ) - ( gh / 2 )
 		val paint = new TexturePaint( img, new Rectangle2D.Double( x, y, img.getWidth, img.getHeight) )
-		val rect  = new Rectangle2D.Double( 0, 0, metrics.viewport.data(0), metrics.viewport.data(1) );
+		val rect  = new Rectangle2D.Double( 0, 0, metrics.viewport(2), metrics.viewport(3) );
 		
 		g.setPaint( paint )
 		g.fill( rect );
@@ -168,8 +168,8 @@ class GraphBackgroundRenderer(val graph:GraphicGraph, val style:StyleGroup)
 
 		val gw = ( metrics.graphWidthGU  * px2gu )
 		val gh = ( metrics.graphHeightGU * px2gu )
-		val x  = ( metrics.viewport.data(0) / 2 ) - ( gw / 2 )
-		val y  = metrics.viewport.data(1) - ( metrics.viewport.data(1) / 2 ) - ( gh / 2 )
+		val x  = ( metrics.viewport(2) / 2 ) - ( gw / 2 )
+		val y  = metrics.viewport(3) - ( metrics.viewport(3) / 2 ) - ( gh / 2 )
 
 		mode match {
 			case 0 => {	// Ratio
@@ -227,8 +227,8 @@ class GraphBackgroundRenderer(val graph:GraphicGraph, val style:StyleGroup)
 			val padx = metrics.lengthToPx( style.getPadding, 0 ).toInt
 			val pady = if( style.getPadding.size > 1 ) metrics.lengthToPx( style.getPadding, 1 ).toInt else padx
 			g.drawRect( padx, pady,
-				metrics.viewport.data(0).toInt - padx*2,
-				metrics.viewport.data(1).toInt - pady*2 )
+				metrics.viewport(2).toInt - padx*2,
+				metrics.viewport(3).toInt - pady*2 )
 		}
 	}
 
@@ -240,8 +240,8 @@ class GraphBackgroundRenderer(val graph:GraphicGraph, val style:StyleGroup)
 		if( style.getFillColors.size < 2 ) {
 			fillBackground( g, camera )
 		} else {
-			val w = metrics.viewport.data(0).toInt 
-			val h = metrics.viewport.data(1).toInt
+			val w = metrics.viewport(2).toInt 
+			val h = metrics.viewport(3).toInt
 //   printf( "viewport = %s%n", metrics.viewport )
 			
 			g.setPaint( GradientFactory.gradientInArea( 0, 0, w, h, style ) )
