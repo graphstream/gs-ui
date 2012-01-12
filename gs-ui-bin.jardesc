@@ -19,5 +19,6 @@
         <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.util"/>
         <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.j2dviewer"/>
         <javaElement handleIdentifier="=gs-ui/src-scala&lt;org.graphstream.ui.j2dviewer.renderer.shape.swing"/>
+        <file path="/gs-ui/README.mkd"/>
     </selectedElements>
 </jardesc>
