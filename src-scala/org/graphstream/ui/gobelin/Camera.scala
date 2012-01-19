@@ -49,15 +49,6 @@ object Camera {
   * It is also in charge of the node and sprite visibility, and uses their skeletons to test it.
   */
 abstract class Camera(val backend:Backend) extends org.graphstream.ui.swingViewer.BaseCamera {
-    /** The graph metrics. */
-    def metrics():GraphMetrics = super.metrics
-    
-    /** The view center. */
-    def center():Point3 = super.center
-    
-    /** Inform the camera of the graph bounds. This must be done at each frame. */
-    def setBounds(graph:GraphicGraph) { setBounds(graph.getMinPos.x, graph.getMinPos.y, 0, graph.getMaxPos.x, graph.getMaxPos.y, 0) }
-    
     /** Save the state of the rendering back-end. */
     def pushView(graph:GraphicGraph)
     

@@ -32,11 +32,12 @@
 package org.graphstream.ui.gobelin
 
 import java.awt.Container
-import org.graphstream.ui.graphicGraph.GraphicGraph.SkeletonFactory
 import org.graphstream.ui.geom.Point3
 import java.awt.Graphics2D
 import org.graphstream.ui.graphicGraph.StyleGroup
 import org.graphstream.ui.graphicGraph.GraphicGraph
+import org.graphstream.ui.graphicGraph.GraphicGraph.SkeletonFactory
+import org.graphstream.ui.graphicGraph.GraphicElement.Skeleton
 
 /**
  * The graphic driver.
@@ -129,4 +130,10 @@ abstract class Backend extends SkeletonFactory {
     
     /** Choose an appropriate style renderer for the group. */
     def chooseStyleRenderer(style:StyleGroup):StyleRenderer
+    
+    def newNodeSkeleton():Skeleton
+    
+	def newEdgeSkeleton():Skeleton
+	
+	def newSpriteSkeleton():Skeleton
 }

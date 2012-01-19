@@ -51,31 +51,29 @@ import org.graphstream.ui.gobelin.java2d.BackendJava2D
 
 import scala.collection.JavaConversions._
 
-/**	
- * Gobelin renderer.
- * 
- * The role of this class is to equip each style group with a specific renderer and to call these
- * renderer to redraw the graph when needed. At the contrary of the basic renderer where it exists
- * only three style renderers (one for nodes, one for edges and one for sprites), the Gobelin
- * renderer assigns a style to each group. This allows to configure the style renderer once for each
- * style.
- * 
- * The renderers then provides a skeleton factory for each node, edge and sprite, that defines
- * skeletons giving the main geometry of elements and register changes in the element, then selects
- * a skin according to the group style. The skin will be "applied" to each element to draw in the
- * group. The skin will be moved and scaled according to the skeleton.
- * 
- * A render pass begins by using the camera instance to set up the projection (allows to pass from
- * graph units to pixels, make a rotation a zoom or a translation) and render each style group once
- * for the shadows, and once for the real rendering in Z order.
- * 
- * This class also handles a "selection" object that represents the current selection and renders
- * it.
- * 
- * The renderer uses a back end so that it can adapt to multiple rendering targets (here Swing and
- * OpenGL). As the skin are finally responsible for drawing the graph, the back end is also
- * responsible for the skin creation.
- */
+/** Gobelin renderer.
+  * 
+  * The role of this class is to equip each style group with a specific renderer and to call these
+  * renderers to redraw the graph when needed. At the contrary of the basic renderer where it exists
+  * only three style renderers (one for nodes, one for edges and one for sprites), the Gobelin
+  * renderer assigns a style to each group. This allows to configure the style renderer once for
+  * each style.
+  * 
+  * The renderers then provides a skeleton factory for each node, edge and sprite, that defines
+  * skeletons giving the main geometry of elements and register changes in the element, then selects
+  * a skin according to the group style. The skin will be "applied" to each element to draw in the
+  * group. The skin will be moved and scaled according to the skeleton.
+  * 
+  * A render pass begins by using the camera instance to set up the projection (allows to pass from
+  * graph units to pixels, make a rotation a zoom or a translation) and render each style group once
+  * for the shadows, and once for the real rendering in Z order.
+  * 
+  * This class also handles a "selection" object that represents the current selection and renders
+  * it.
+  * 
+  * The renderer uses a back end so that it can adapt to multiple rendering targets (here Swing and
+  * OpenGL). As the skin are finally responsible for drawing the graph, the back end is also
+  * responsible for the skin creation. */
 class GobelinGraphRenderer extends GraphRendererBase {
 	/** Set the view on the view port defined by the metrics. */
 	protected var camera:Camera = null
@@ -128,9 +126,9 @@ class GobelinGraphRenderer extends GraphRendererBase {
   	
   	def getCamera() = camera
 
-  	def findNodeOrSpriteAt(x:Double, y:Double):GraphicElement = camera.findNodeOrSpriteAt(graph, x, y)
+//  	def findNodeOrSpriteAt(x:Double, y:Double):GraphicElement = camera.findNodeOrSpriteAt(graph, x, y)
  
-  	def allNodesOrSpritesIn(x1:Double, y1:Double, x2:Double, y2:Double):ArrayList[GraphicElement] = camera.allNodesOrSpritesIn(graph, x1, y1, x2, y2)
+//  	def allNodesOrSpritesIn(x1:Double, y1:Double, x2:Double, y2:Double):ArrayList[GraphicElement] = camera.allNodesOrSpritesIn(graph, x1, y1, x2, y2)
   
    	def renderingSurface:Container = backend.drawingSurface
 	
