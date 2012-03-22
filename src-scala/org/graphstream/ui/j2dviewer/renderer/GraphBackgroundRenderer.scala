@@ -79,7 +79,7 @@ class GraphBackgroundRenderer(val graph:GraphicGraph, val style:StyleGroup)
      * Render the graph background. 
      */
 	def render(bck:Backend, camera:Camera, w:Int, h:Int) {
-		if((camera.graphViewport eq null) && camera.metrics.diagonal == 0
+	    if((camera.graphViewport eq null) && camera.metrics.diagonal == 0
 		&& (graph.getNodeCount == 0 && graph.getSpriteCount == 0)) {
 			displayNothingToDo(bck, w, h)
 		} else {

@@ -173,6 +173,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   	def beginSelectionAt(x:Double, y:Double) {
   		selection.active = true
   		selection.begins(x, y)
+  		Console.err.println("Selection begins at %f %f".format(x, y))
   	}
 
   	def selectionGrowsAt(x:Double, y:Double) {
@@ -185,7 +186,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   	}
 
   	def moveElementAtPx(element:GraphicElement, x:Double, y:Double) {
-  		val p = camera.transformPxToGu(x, y)
+  		val p = camera.transformPxToGu(camera.metrics.viewport(0)+x, camera.metrics.viewport(1)+y)
   		element.move(p.x, p.y, element.getZ)
   	}
 
@@ -211,7 +212,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   			camera.setViewport(x, y, width, height)
   			getStyleRenderer(graph).render(backend, camera, width, height)
   			renderBackLayer
-  
+
   			camera.pushView(graph)
   			sgs.shadows.foreach {
 		  		getStyleRenderer(_).renderShadow(backend, camera)

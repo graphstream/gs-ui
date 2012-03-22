@@ -160,14 +160,15 @@ class BackendJ2D extends Backend {
 	    this.g2 = g2
         Tx = g2.getTransform
         matrixStack.clear
-        matrixStack.push(Tx)
+        //matrixStack.push(Tx)
     }
 
 	def beginTransform() {
 	}
 	
     def endTransform() {
-        g2.setTransform(Tx)
+        //g2.setTransform(Tx)
+        Tx = g2.getTransform
         computeInverse
     }
 
@@ -209,10 +210,10 @@ class BackendJ2D extends Backend {
     /** Push the actual transformation on the matrix stack, installing
       * a copy of it on the top of the stack. */
     def pushTransform() {
-        val newTx = new AffineTransform(Tx)
-        matrixStack.push(newTx)
-        g2.setTransform(newTx)
-        Tx = newTx
+        //val newTx = new AffineTransform(Tx)
+        matrixStack.push(g2.getTransform)
+        //g2.setTransform(newTx)
+        //Tx = newTx
         // xT not changed, since newTx is a copy of Tx
     }
     
@@ -220,19 +221,19 @@ class BackendJ2D extends Backend {
       * the previous one in the stack. */
     def popTransform() {
         assert(!matrixStack.isEmpty)
+        g2.setTransform(matrixStack.top)
         matrixStack.pop
         //Tx = matrixStack.top
-        g2.setTransform(matrixStack.top)
         //computeInverse
     }
     
     def setIdentity() = Tx.setToIdentity
     
-    def translate(tx:Double, ty:Double, tz:Double) = Tx.translate(tx, ty)
+    def translate(tx:Double, ty:Double, tz:Double) = g2.translate(tx, ty)
     
-    def rotate(angle:Double, ax:Double, ay:Double, az:Double) = Tx.rotate(angle)
+    def rotate(angle:Double, ax:Double, ay:Double, az:Double) = g2.rotate(angle)
     
-    def scale(sx:Double, sy:Double, sz:Double) = Tx.scale(sx, sy)
+    def scale(sx:Double, sy:Double, sz:Double) = g2.scale(sx, sy)
     
     def setAntialias(on:Boolean) {
        import RenderingHints._

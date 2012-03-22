@@ -449,12 +449,15 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
   		if(! autoFit) {
   			// If autoFit is on, we know the whole graph is visible anyway.
   			
+  		    val X:Double = metrics.viewport(0)
+  		    val Y:Double = metrics.viewport(1)
   		    val W:Double = metrics.viewport(2)
   			val H:Double = metrics.viewport(3)
   		
 	  		graph.getEachNode.foreach { node:Node =>
 	  		    val n:GraphicNode = node.asInstanceOf[GraphicNode]
-	  			val visible = isNodeIn(n, 0, 0, W, H) && (!n.hidden) && n.positionned;
+	  			val visible = isNodeIn(n, X, Y, X+W, Y+H) && (!n.hidden) && n.positionned;
+//	  			val visible = isNodeIn(n, 0, 0, W, H) && (!n.hidden) && n.positionned;
 				
 	  			if(! visible) {
 	  				nodeInvisible += node.getId
@@ -564,10 +567,13 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
   		val h2   = if(size.size() > 1) metrics.lengthToPx(size, 1)/2 else w2
   		val dst  = bck.transform(elt.getX, elt.getY, 0)
 		
-  		val x1 = dst.x - w2
-  		val x2 = dst.x + w2
-  		val y1 = dst.y - h2
-  		val y2 = dst.y + h2
+  		dst.x -= metrics.viewport(0)
+  		dst.y -= metrics.viewport(1)
+  		
+  		val x1 = (dst.x) - w2
+  		val x2 = (dst.x) + w2
+  		val y1 = (dst.y) - h2
+  		val y2 = (dst.y) + h2
 		
   		if(     x < x1) false
   		else if(y < y1) false
@@ -590,6 +596,9 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
 //  		val dst    = new Point2D.Double
 //	
 //  		Tx.transform( src, dst )
+		
+  		dst.x -= metrics.viewport(0)
+  		dst.y -= metrics.viewport(1)
 
   		val x1 = dst.x - w2
   		val x2 = dst.x + w2
