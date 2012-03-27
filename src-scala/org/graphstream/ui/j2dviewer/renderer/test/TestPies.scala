@@ -35,6 +35,7 @@ import org.graphstream.ui.spriteManager.Sprite
 import org.graphstream.ui.spriteManager.SpriteManager
 import scala.collection.JavaConversions._
 import org.graphstream.graph.Edge
+import org.graphstream.graph.Node
 
 object TestPies {
 	def main(args:Array[String]):Unit = (new TestPie).test
@@ -45,8 +46,8 @@ class TestPie {
 		System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer")
 
 		val g = new SingleGraph("test")
-		g.addNode("A")
-		g.addNode("B")
+		val A:Node = g.addNode("A")
+		val B:Node = g.addNode("B")
 		g.addEdge("AB", "A", "B")
 
 		val sm = new SpriteManager(g)
@@ -77,10 +78,14 @@ class TestPie {
 		        values(0) = 0.1
 		        values(1) = 0.3
 		        values(2) = 0.6
+		        A.addAttribute("ui.pie-values", Array[Any](1.0))
+		        A.setAttribute("ui.style", "shape:pie-chart; fill-color:red;")
 		    } else {
 		        values(0) = 0.3
 		        values(1) = 0.3
 		        values(2) = 0.3
+		        A.addAttribute("ui.pie-values", Array[Any](1.0))
+		        A.setAttribute("ui.style", "shape:pie-chart; fill-color:blue;")
 		    }
 		    pie.addAttribute("ui.pie-values", values)
 		    

@@ -116,10 +116,9 @@ trait FillableMulticolored {
 		
 		if(fillColors == null || fillColors.length != count) {
 			fillColors = new Array[Color](count)
-			
+		}	
 			for( i <- 0 until count )
 				fillColors(i) = style.getFillColor(i)
-		}
 	}
 }
 
