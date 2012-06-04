@@ -43,6 +43,18 @@ class TestTwoViewersInOneFrame extends JFrame {
 
 		gen.removeSink(graph1)
 		gen.removeSink(graph2)
+//		graph1.addNode("A")
+//		graph1.addNode("B")
+//		graph1.addNode("C")
+//		graph1.addEdge("AB", "A", "B", true)
+//		graph1.addEdge("BC", "B", "C", true)
+//		graph1.addEdge("CA", "C", "A", true)
+//		graph2.addNode("A")
+//		graph2.addNode("B")
+//		graph2.addNode("C")
+//		graph2.addEdge("AB", "A", "B", true)
+//		graph2.addEdge("BC", "B", "C", true)
+//		graph2.addEdge("CA", "C", "A", true)
 		
 		setLayout(new GridLayout(1, 2))
 		//add(new JButton("Button"))

@@ -43,6 +43,7 @@ object ShapeStroke {
 			case PLAIN  => new PlainShapeStroke
 			case DOTS   => new DotsShapeStroke
 			case DASHES => new DashesShapeStroke
+			case DOUBLE => new DoubleShapeStroke
 			case _      => null
 		}
 	}
@@ -115,5 +116,27 @@ object ShapeStroke {
 				oldStroke
 			}
 		}
+	}
+	
+	class DoubleShapeStroke extends ShapeStroke {
+	    private[this] var oldWidth = 0.0
+	    private[this] var oldStroke:Stroke = null
+	    
+	    def stroke(width:Double):Stroke = {
+	        if(width == oldWidth) {
+	            if(oldStroke eq null) oldStroke = new CompositeStroke(new BasicStroke(width.toFloat*3), new BasicStroke(width.toFloat))
+	            oldStroke
+	        } else {
+	            oldWidth = width
+	            oldStroke = new CompositeStroke(new BasicStroke(width.toFloat*2), new BasicStroke(width.toFloat))
+	            oldStroke
+	        }
+	    }
+	    
+	    class CompositeStroke(var stroke1:Stroke, stroke2:Stroke) extends Stroke {
+	    	def createStrokedShape(shape:java.awt.Shape):java.awt.Shape = {
+	    			stroke2.createStrokedShape(stroke1.createStrokedShape(shape));
+	    	}
+	    }
 	}
 }

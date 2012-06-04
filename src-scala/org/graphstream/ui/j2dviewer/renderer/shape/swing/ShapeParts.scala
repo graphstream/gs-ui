@@ -155,7 +155,8 @@ trait FillableLine {
   	  	plainFast = (style.getSizeMode == StyleConstants.SizeMode.NORMAL) 
 		theFillColor = style.getFillColor(0)
 		bck.graphics2D.setColor(theFillColor)
-		bck.graphics2D.setStroke(fillStroke.stroke(theSize))
+		if(fillStroke ne null)
+			bck.graphics2D.setStroke(fillStroke.stroke(theSize))
 	}
 
 	protected def configureFillableLineForElement( style:Style, camera:Camera, element:GraphicElement ) {

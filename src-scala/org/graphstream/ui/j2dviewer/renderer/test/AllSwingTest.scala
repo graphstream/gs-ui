@@ -32,9 +32,9 @@ package org.graphstream.ui.j2dviewer.renderer.test
 import org.graphstream.graph._
 import org.graphstream.graph.implementations.MultiGraph
 import org.graphstream.ui.swingViewer.Viewer
-//import org.graphstream.ScalaGS._
 import javax.swing._
 import java.awt._
+import org.graphstream.algorithm.generator.DorogovtsevMendesGenerator
 
 object AllSwingTest {
 	def main( args:Array[String] ):Unit = {
@@ -45,32 +45,22 @@ object AllSwingTest {
 
 class AllSwingTest extends JFrame {
 	def run {
-		val graph  = new MultiGraph( "mg" )
-		val viewer = new Viewer( graph, Viewer.ThreadingModel.GRAPH_IN_SWING_THREAD )
+		val g = new MultiGraph("mg")
+		val v = new Viewer(g, Viewer.ThreadingModel.GRAPH_IN_SWING_THREAD)
+		val gen = new DorogovtsevMendesGenerator()
+
+		g.addAttribute("ui.antialias")
+		g.addAttribute("ui.quality")
+		g.addAttribute("ui.stylesheet", styleSheet)
+
+		v.enableAutoLayout
+		add(v.addDefaultView(false), BorderLayout.CENTER)
 		
-		graph.addNode("A")
-		graph.addNode("B")
-		graph.addNode("C")
-		graph.addEdge("AB", "A", "B")
-		graph.addEdge("BC", "B", "C")
-		graph.addEdge("CA", "C", "A")
-//		graph.addNodes( "A", "B", "C" )
-//		graph.addEdges( "A", "B", "C", "A" )
-		graph.addAttribute( "ui.antialias" )
-		graph.addAttribute( "ui.quality" )
-		graph.addAttribute( "ui.default.title", "All In Swing Test" )
-		graph.addAttribute( "ui.stylesheet", styleSheet )
-   
-		graph.getNode[Node]("A").setAttribute("xyz", Array[Double]( -1, 0, 0 ))
-		graph.getNode[Node]("B").setAttribute("xyz", Array[Double](  1, 0, 0 ))
-  		graph.getNode[Node]("C").setAttribute("xyz", Array[Double](  0, 1, 0 ))
-   
-		val view = viewer.addDefaultView(false)
-		
-		add( view, BorderLayout.CENTER )
-		
-		view.getCamera.setViewPercent(0.5)
-		view.getCamera.setViewCenter(-1, 0, 0)
+		gen.addSink(g)
+		gen.begin
+		for(i <- 0 until 100) gen.nextEvents
+		gen.end
+		gen.removeSink(g)
 		
 		setSize( 800, 600 )
 		setVisible( true )

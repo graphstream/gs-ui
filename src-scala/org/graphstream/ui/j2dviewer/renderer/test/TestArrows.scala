@@ -36,6 +36,7 @@ import org.graphstream.algorithm.Toolkit._
 
 import org.graphstream.ui.graphicGraph.stylesheet.{Values, StyleConstants}
 import org.graphstream.ui.swingViewer.{Viewer, DefaultView, ViewerPipe, ViewerListener}
+import org.graphstream.ui.swingViewer.basicRenderer.SwingBasicGraphRenderer
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
 import org.graphstream.ui.spriteManager._
 import org.graphstream.ui.j2dviewer._
@@ -53,7 +54,8 @@ class TestArrows extends ViewerListener {
 		val graph  = new MultiGraph( "TestSize" )
 		val viewer = new Viewer( graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD )
 		val pipeIn = viewer.newViewerPipe
-		val view   = viewer.addView( "view1", new J2DGraphRenderer )
+//		val view   = viewer.addView("view1", new SwingBasicGraphRenderer)
+		val view   = viewer.addView("view1", new J2DGraphRenderer )
 //		val view   = viewer.addDefaultView( true )
   
 		pipeIn.addAttributeSink( graph )

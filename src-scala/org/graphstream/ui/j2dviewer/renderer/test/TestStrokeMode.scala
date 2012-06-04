@@ -48,6 +48,9 @@ object TestStrokeMode {
     			stroke-color: red;
     			size: 20px;
     		}
+    		node#C {
+    			stroke-mode: double;
+    		}
     		edge {
     			fill-mode: none;
     			size: 0px;
