@@ -1023,7 +1023,7 @@ class PieChartShape
             var col = 0
             var sum = 0.0
 
-            theValues.foreach { value ⇒
+            theValues.foreach { value =>
                 end = beg + value
                 arc.setArcByCenter(theCenter.x, theCenter.y, theSize.x / 2, beg * 360, value * 360, Arc2D.PIE)
                 g.setColor(fillColors(col % fillColors.length))
