@@ -48,7 +48,7 @@ object Camera {
   * 
   * It is also in charge of the node and sprite visibility, and uses their skeletons to test it.
   */
-abstract class Camera(val backend:Backend) extends org.graphstream.ui.swingViewer.BaseCamera {
+abstract class Camera(val backend:Backend, graph:GraphicGraph) extends org.graphstream.ui.swingViewer.BaseCamera(graph) {
     /** Save the state of the rendering back-end. */
     def pushView(graph:GraphicGraph)
     

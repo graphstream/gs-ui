@@ -34,7 +34,7 @@ package org.graphstream.ui.gobelin.opengl
 import org.graphstream.ui.gobelin.Backend
 
 /** A full OpenGL rendering back-end. */
-class backendOpenGL extends Backend {
-
-    // XXX TODO XXX
-}
+//class backendOpenGL extends Backend {
+//
+//    // XXX TODO XXX
+//}
