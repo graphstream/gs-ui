@@ -10,12 +10,12 @@ object TestBasic {
 
 class TestBasic {
 	def test {
-		System.getProperties.setProperty("ui.viewer.view", "org.graphstream.ui.hobgobelin.JoglView")
-		System.getProperties.setProperty("ui.viewer.renderer", "org.graphstream.ui.hobgobelin.HobgobelinRenderer")
+		sys.props += "gs.ui.view" -> "org.graphstream.ui.hobgobelin.JoglView"
+		sys.props += "gs.ui.renderer" -> "org.graphstream.ui.hobgobelin.HobgobelinGraphRenderer"
 		
 		val graph = new SingleGraph("test")
 		
-		graph.display
+		graph.display(false)
 		graph.addNode("A")
 		graph.addNode("B")
 		graph.addEdge("AB", "A", "B")
