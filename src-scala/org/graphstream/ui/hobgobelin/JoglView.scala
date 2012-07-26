@@ -133,23 +133,19 @@ class JoglView extends BaseView with GLEventListener with WindowListener {
 	protected var glInited = false
 	
 	def reshape(drawable:GLAutoDrawable, x:Int, y:Int, width:Int, height:Int) {
-Console.err.printf("gl reshape")
 		renderer.asInstanceOf[JoglGraphRenderer].reshape(x, y, width, height)
 	}
 
 	def init(drawable:GLAutoDrawable) {
-Console.err.printf("gl init")
 		glInited = true
 		renderer.asInstanceOf[JoglGraphRenderer].init(drawable)
 	}
 
 	def dispose(drawable:GLAutoDrawable) {
-Console.err.printf("gl dispose")
 		glInited = false
 	}
 
 	def display(drawable:GLAutoDrawable) {
-Console.err.printf("gl display%n")
 		if(glInited && (!isIconified)) {
 			renderer.render(null, canvas.getX, canvas.getY, canvas.getWidth, canvas.getHeight)
 			drawable.swapBuffers

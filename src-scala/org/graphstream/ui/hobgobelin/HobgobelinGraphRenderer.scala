@@ -12,9 +12,12 @@ import org.graphstream.ui.graphicGraph.GraphicElement
 import org.graphstream.graph.Element
 import org.graphstream.ui.graphicGraph.StyleGroup
 import javax.media.opengl.GLAutoDrawable
-
 import javax.media.opengl.GL._
 import javax.media.opengl.GL3._
+import org.sofa.opengl.SGL
+import javax.media.opengl.glu.GLU
+import scala.collection.JavaConversions._
+import java.awt.Graphics2D
 
 /** A thing that has some OpenGL properties. */
 trait JoglGraphRenderer {
@@ -86,31 +89,28 @@ class HobgobelinGraphRenderer extends GraphRendererBase with JoglGraphRenderer {
 	override def getCamera():Camera = camera
 	
 	//------------------------------------------------------------------
-	// Command
+	// GLEventListener
 	
 	var canvas:GLAutoDrawable = null
 	
+	var sgl:SGL = null
+	
 	override def init(canvas:GLAutoDrawable) {
-Console.err.printf("HobGobelin init%n")
 		this.canvas = canvas
 		val gl = canvas.getGL.getGL2ES2; import gl._;
+		sgl = new org.sofa.opengl.backend.SGLJogl2ES2(gl.getGL2ES2, GLU.createGLU)
 		
-		glClearColor(1f, 0f, 0f, 0f)
-		glClearDepth(1f)
-		glEnable(GL_DEPTH_TEST)
+		sgl.clearColor(0f, 0f, 0f, 0f)
+		sgl.clearDepth(1f)
+		sgl.enable(GL_DEPTH_TEST)
 	}
 	
 	override def reshape(x:Int, y:Int, width:Int, height:Int) {
-Console.err.printf("HobGobelin reshape%n")
-		val gl = canvas.getGL.getGL2ES2; import gl._;
-		glViewport(0, 0, width, height)
+		sgl.viewport(0, 0, width, height)
 	}
-	
-	override def render(g:java.awt.Graphics2D, x:Int, y:Int, width:Int, height:Int) {
-Console.err.printf("HobGobelin render%n");
-		val gl = canvas.getGL.getGL2ES2; import gl._;
-		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
-	}
+
+	//--------------------------------------------------------------------
+	// Command
 	
 	override def moveElementAtPx(element:GraphicElement, x:Double, y:Double) {
 		val p = camera.transformPxToGu(x, y)
@@ -130,6 +130,54 @@ Console.err.printf("HobGobelin render%n");
 	}
 	
 	override def elementStyleChanged(element:Element, oldStyle:StyleGroup, newStyle:StyleGroup) {
+	}
+	
+	//------------------------------------------------------------------
+	// Rendering
+	
+	override def render(g:java.awt.Graphics2D, x:Int, y:Int, width:Int, height:Int) {
+		renderGraphBackground
+		renderLayer(g, backRenderer, true)
+		camera.pushView(g, x, y, width, height)
+		renderLayer(g, backRenderer, false)
+		renderGraphElements
+		renderGraphForeground
+		renderLayer(g, foreRenderer, false)
+		camera.popView(g)
+		renderLayer(g, foreRenderer, true)
+	}
+	
+	protected def renderGraphBackground() {
+		sgl.clearColor(graph.getStyle.getFillColor(0))
+		sgl.clear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)		
+	}
+
+	protected def renderGraphElements() {
+		val sgs = graph.getStyleGroups
+		
+		// Render in Z-index order.
+		
+		if(sgs ne null) {
+			sgs.zIndex.foreach { groups =>
+				groups.foreach { group =>
+					renderGroup(group)
+				}
+			}
+		}
+	}
+	
+	protected def renderGraphForeground() {
+		
+	}
+	
+	protected def renderGroup(group:StyleGroup) {
+		
+	}
+	
+	protected def renderLayer(g:Graphics2D, renderer:LayerRenderer, inPixels:Boolean) {
+		if (renderer != null && renderer.rendersInPX == inPixels) {
+			renderer.render(g, graph, camera)
+		}
 	}
 }
 
