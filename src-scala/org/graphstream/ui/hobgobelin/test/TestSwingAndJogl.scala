@@ -14,7 +14,7 @@ object TestSwingAndJogl {
 	def main(args:Array[String]):Unit = (new TestSwingAndJogl).test
 }
 
-class TestSwingAndJogl extends JPanel with GLEventListener {
+class TestSwingAndJogl extends JFrame with GLEventListener {
 	def test {
 		val prof = GLProfile.getGL2ES2
 		val caps = new GLCapabilities(prof)
@@ -23,13 +23,10 @@ class TestSwingAndJogl extends JPanel with GLEventListener {
 		
 		val canvas = new GLCanvas(caps)
 		
-		val frame = new JFrame()
 		canvas.addGLEventListener(this)
-		setLayout(new BorderLayout)
 		add(canvas, BorderLayout.CENTER)
-		frame.add(this, BorderLayout.CENTER)
-		frame.setSize(800, 600)
-		frame.setVisible(true)
+		setSize(800, 600)
+		setVisible(true)
 	}
 	
 	def init(win:GLAutoDrawable) {
@@ -42,6 +39,7 @@ class TestSwingAndJogl extends JPanel with GLEventListener {
     }
     
     def reshape(win:GLAutoDrawable, x:Int, y:Int, width:Int, height:Int) {
+    	Console.err.printf("Reshape begins !%n")
         val gl = win.getGL.getGL2ES2; import gl._;
         
         glViewport(0, 0, width, height)
@@ -49,13 +47,14 @@ class TestSwingAndJogl extends JPanel with GLEventListener {
     }
     
     def display(win:GLAutoDrawable) {
+        Console.err.printf("Display begins!%n")
         val gl = win.getGL.getGL2ES2; import gl._;
     
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
         // Your drawing code here.
         
-        win.swapBuffers
+        //win.swapBuffers
         Console.err.printf("Display%n")
     }
     
