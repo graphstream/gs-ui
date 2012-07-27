@@ -54,11 +54,20 @@ class HobgobelinCamera(graph:GraphicGraph) extends BaseCamera(graph) {
 	//------------------------------------------------------------------------
 	// Commands
 	
-	override def pushView(g2:java.awt.Graphics2D, x:Double, y:Double, width:Double, height:Double) {
-		// TODO
+	def pushPXView(x:Double, y:Double, width:Double, height:Double) {
+		setBounds
+		setPadding
+		
+		Tx.setIdentity
+		xT.setIdentity
 	}
 	
-	override def popView(g2:java.awt.Graphics2D) {
-		// TODO
+	def popPXView() {
+	}
+	
+	def pushGUView(x:Double, y:Double, width:Double, height:Double) {
+	}
+	
+	def popGUView() {
 	}
 }

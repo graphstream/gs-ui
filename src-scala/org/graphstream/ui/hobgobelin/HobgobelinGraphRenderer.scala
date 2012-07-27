@@ -136,15 +136,18 @@ class HobgobelinGraphRenderer extends GraphRendererBase with JoglGraphRenderer {
 	// Rendering
 	
 	override def render(g:java.awt.Graphics2D, x:Int, y:Int, width:Int, height:Int) {
+		val camera = this.camera.asInstanceOf[HobgobelinCamera]
 		renderGraphBackground
+		camera.pushPXView(x, y, width, height)
 		renderLayer(g, backRenderer, true)
-		camera.pushView(g, x, y, width, height)
+		camera.pushGUView(x, y, width, height)
 		renderLayer(g, backRenderer, false)
 		renderGraphElements
 		renderGraphForeground
 		renderLayer(g, foreRenderer, false)
-		camera.popView(g)
+		camera.popGUView
 		renderLayer(g, foreRenderer, true)
+		camera.popPXView
 	}
 	
 	protected def renderGraphBackground() {
