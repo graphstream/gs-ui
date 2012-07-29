@@ -9,27 +9,28 @@ import org.sofa.math.Vector3
 import org.graphstream.ui.graphicGraph.GraphicNode
 import org.graphstream.ui.graphicGraph.GraphicSprite
 import org.graphstream.ui.graphicGraph.GraphicElement
+import org.sofa.opengl.MatrixStack
 
 class HobgobelinCamera(graph:GraphicGraph) extends BaseCamera(graph) {
 	//------------------------------------------------------------------------
 	// Attributes
 
 	/** The graph-space -> pixel-space transformation. */
-	protected val Tx:Matrix4 = Matrix4()
+	val Tx:MatrixStack[Matrix4] = new MatrixStack[Matrix4](Matrix4())
 	
 	/** The inverse transform of Tx. */
-	protected val xT:Matrix4 = null
+	val xT:MatrixStack[Matrix4] = new MatrixStack[Matrix4](Matrix4())
 
 	//------------------------------------------------------------------------
 	// Access
 	
-	override def transformPxToGu(x:Double, y:Double):GSPoint3 = xT.fastMult(new GSPoint3(x, y, 0))
+	override def transformPxToGu(x:Double, y:Double):GSPoint3 = xT.top.fastMult(new GSPoint3(x, y, 0))
 	
-	override def transformGuToPx(x:Double, y:Double, z:Double):GSPoint3 = Tx.fastMult(new GSPoint3(x, y, z))
+	override def transformGuToPx(x:Double, y:Double, z:Double):GSPoint3 = Tx.top.fastMult(new GSPoint3(x, y, z))
 	
-	override def transformPxToGu(p:GSPoint3):GSPoint3 = xT.fastMult(p)
+	override def transformPxToGu(p:GSPoint3):GSPoint3 = xT.top.fastMult(p)
 	
-	override def transformGuToPx(p:GSPoint3):GSPoint3 = Tx.fastMult(p)
+	override def transformGuToPx(p:GSPoint3):GSPoint3 = Tx.top.fastMult(p)
 
 	override def isNodeVisibleIn(node:GraphicNode, X1:Double, Y1:Double, X2:Double, Y2:Double):Boolean = {
 		// TODO
@@ -55,19 +56,27 @@ class HobgobelinCamera(graph:GraphicGraph) extends BaseCamera(graph) {
 	// Commands
 	
 	def pushPXView(x:Double, y:Double, width:Double, height:Double) {
-		setBounds
-		setPadding
-		
-		Tx.setIdentity
-		xT.setIdentity
+		Tx.push
+		Tx.push
+		Tx.top.orthographic(0, width, 0, height, -10000, 10000)
+		xT.top.inverseOrthographic(0, width, 0, height, -10000, 10000)
 	}
 	
 	def popPXView() {
+		Tx.pop
+		xT.pop
 	}
 	
 	def pushGUView(x:Double, y:Double, width:Double, height:Double) {
+		Tx.push
+		xT.push
+		setBounds
+		setPadding
+		
 	}
 	
 	def popGUView() {
+		Tx.pop
+		xT.pop
 	}
 }

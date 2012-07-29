@@ -18,6 +18,9 @@ import org.sofa.opengl.SGL
 import javax.media.opengl.glu.GLU
 import scala.collection.JavaConversions._
 import java.awt.Graphics2D
+import org.sofa.opengl.ShaderProgram
+import org.sofa.opengl.mesh.Plane
+import org.sofa.opengl.VertexArray
 
 /** A thing that has some OpenGL properties. */
 trait JoglGraphRenderer {
@@ -93,20 +96,27 @@ class HobgobelinGraphRenderer extends GraphRendererBase with JoglGraphRenderer {
 	
 	var canvas:GLAutoDrawable = null
 	
-	var sgl:SGL = null
+	var gl:SGL = null
+	
+	var inited:Boolean = false
 	
 	override def init(canvas:GLAutoDrawable) {
 		this.canvas = canvas
-		val gl = canvas.getGL.getGL2ES2; import gl._;
-		sgl = new org.sofa.opengl.backend.SGLJogl2ES2(gl.getGL2ES2, GLU.createGLU)
+		val ogl = canvas.getGL.getGL2ES2; import ogl._;
+		gl = new org.sofa.opengl.backend.SGLJogl2ES2(ogl.getGL2ES2, GLU.createGLU)
 		
-		sgl.clearColor(0f, 0f, 0f, 0f)
-		sgl.clearDepth(1f)
-		sgl.enable(GL_DEPTH_TEST)
+		gl.clearColor(0f, 0f, 0f, 0f)
+		gl.clearDepth(1f)
+		gl.enable(GL_DEPTH_TEST)
+		
+		initShaders
+		initMeshes
+		
+		inited = true
 	}
 	
 	override def reshape(x:Int, y:Int, width:Int, height:Int) {
-		sgl.viewport(0, 0, width, height)
+		gl.viewport(0, 0, width, height)
 	}
 
 	//--------------------------------------------------------------------
@@ -133,26 +143,60 @@ class HobgobelinGraphRenderer extends GraphRendererBase with JoglGraphRenderer {
 	}
 	
 	//------------------------------------------------------------------
+	// Shading
+
+	protected var plainShader:ShaderProgram = null
+	
+	protected def initShaders() {
+		plainShader = ShaderProgram(gl, "plain",
+				"src-scala/org/graphstream/ui/hobgobelin/shaders/plain.vsh",
+				"src-scala/org/graphstream/ui/hobgobelin/shaders/plain.fsh")
+	}
+	
+	//------------------------------------------------------------------
+	// Mesh
+	
+	protected var backgroundMesh:Plane = null
+	protected var background:VertexArray = null
+	
+	protected def initMeshes() {
+		backgroundMesh = new Plane(2, 2, 100f, 100f)
+		
+		val p = plainShader.getAttribLocation("P")
+		
+		background = new VertexArray(gl, backgroundMesh.indices, (p, 3, backgroundMesh.vertices))
+	}
+	
+	//------------------------------------------------------------------
 	// Rendering
 	
 	override def render(g:java.awt.Graphics2D, x:Int, y:Int, width:Int, height:Int) {
-		val camera = this.camera.asInstanceOf[HobgobelinCamera]
-		renderGraphBackground
-		camera.pushPXView(x, y, width, height)
-		renderLayer(g, backRenderer, true)
-		camera.pushGUView(x, y, width, height)
-		renderLayer(g, backRenderer, false)
-		renderGraphElements
-		renderGraphForeground
-		renderLayer(g, foreRenderer, false)
-		camera.popGUView
-		renderLayer(g, foreRenderer, true)
-		camera.popPXView
+		if(inited) {
+			val camera = this.camera.asInstanceOf[HobgobelinCamera]
+			camera.pushPXView(x, y, width, height)
+			renderGraphBackground
+			renderLayer(g, backRenderer, true)
+			camera.pushGUView(x, y, width, height)
+			renderLayer(g, backRenderer, false)
+			renderGraphElements
+			renderGraphForeground
+			renderLayer(g, foreRenderer, false)
+			camera.popGUView
+			renderLayer(g, foreRenderer, true)
+			camera.popPXView
+		}
 	}
 	
 	protected def renderGraphBackground() {
-		sgl.clearColor(graph.getStyle.getFillColor(0))
-		sgl.clear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)		
+		gl.clearColor(graph.getStyle.getFillColor(0))
+		gl.clear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+		
+		plainShader.use
+		plainShader.uniform("C", 1, 0, 0, 0.5f)
+		camera.Tx.rotate(90, 1, 0, 0)
+		plainShader.uniformMatrix("MVP", camera.Tx.top)			
+		
+		background.draw(backgroundMesh.drawAs)
 	}
 
 	protected def renderGraphElements() {
