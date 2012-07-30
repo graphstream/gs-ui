@@ -193,6 +193,7 @@ class HobgobelinGraphRenderer extends GraphRendererBase with JoglGraphRenderer {
 		
 		plainShader.use
 		plainShader.uniform("C", 1, 0, 0, 0.5f)
+		camera.Tx.translate(camera.getMetrics.surfaceViewport(2)/2, camera.getMetrics.surfaceViewport(3)/2, 0)
 		camera.Tx.rotate(90, 1, 0, 0)
 		plainShader.uniformMatrix("MVP", camera.Tx.top)			
 		
