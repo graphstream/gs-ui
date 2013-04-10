@@ -605,13 +605,14 @@ class FreePlaneEdgeShape extends LineConnectorShape {
         make(camera, 0, 0, 0, 0)
     }
 
-    protected def make(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+    protected def make(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {    	
         if (skel.multi > 1 || skel.isLoop) // is a loop or a multi edge
             makeMultiOrLoop(camera, sox, soy, swx, swy)
         else makeSingle(camera, sox, soy, swx, swy) // is a single edge.
     }
 
     protected def makeSingle(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
+try {
         var fromx = skel.from.x + sox
         val fromy = skel.from.y + soy - theSourceSize.y / 2
         var tox = skel.to.x + sox
@@ -653,6 +654,9 @@ class FreePlaneEdgeShape extends LineConnectorShape {
                 c2x, c2y, 0,
                 tox, toy, 0)
         }
+} catch {
+	case e:Exception => { Console.err.println("FOUND") }
+}
     }
 
     protected def makeMultiOrLoop(camera: Camera, sox: Double, soy: Double, swx: Double, swy: Double) {
