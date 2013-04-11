@@ -90,6 +90,16 @@ class ConnectorSkeleton extends Skeleton with AttributeUtils {
 	private[this] var isALoop = false
 	private[this] var ptsRef:AnyRef = null	// used to avoid recomputing the point set
 	
+	override def toString():String = "CtorSkel(%s, {%s})".format(kindString, points.toString)
+	
+	def kindString():String = {
+    	kind match {
+    		case EdgeShapeKind.POLYLINE => "polyline"
+    		case EdgeShapeKind.CURVE => "curve"
+    		case _ => "line"
+    	}
+    }
+	
 	/** If true the edge shape is a polyline made of size points. */
 	def isPoly = kind == EdgeShapeKind.POLYLINE
 	

@@ -55,4 +55,6 @@ class EdgePoints(n:Int) {
 	def apply(i:Int):Point3 = points(i)
 	
 	def update(i:Int, coos:Point3) = points(i) = new Point3(coos.x, coos.y, coos.z) 
+	
+	override def toString():String = "pts(%s):%d".format(points.mkString(","), points.size)
 }

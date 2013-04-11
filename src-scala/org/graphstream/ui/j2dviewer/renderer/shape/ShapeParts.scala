@@ -196,8 +196,8 @@ trait Connector {
 		if(element.hasAttribute("ui.points")) {
 		    skel.setPoly(element.getAttribute[AnyRef]("ui.points"))
 		} else {
-			positionForLinesAndCurves( skel, element.from.getStyle, element.from.getX, element.from.getY,
-				element.to.getX, element.to.getY, element.multi, element.getGroup )
+			positionForLinesAndCurves( skel, element.from.getStyle, element.from, 
+				element.to, element.multi, element.getGroup )
 		}
 	}
 	
@@ -252,8 +252,8 @@ trait Connector {
 	}
 	
 	/** Give the position of the origin and destination points. */
-	private[this] def positionForLinesAndCurves( skel:ConnectorSkeleton, style:Style, xFrom:Double, yFrom:Double, xTo:Double, yTo:Double ) {
-	    positionForLinesAndCurves( skel, style, xFrom, yFrom, xTo, yTo, 0, null ) }
+	private[this] def positionForLinesAndCurves( skel:ConnectorSkeleton, style:Style, from:GraphicNode, to:GraphicNode) {
+	    positionForLinesAndCurves( skel, style, from, to, 0, null ) }
 	
 	/**
 	 * Give the position of the origin and destination points, for multi edges.
@@ -263,25 +263,24 @@ trait Connector {
 	 * since we do not know the curves). This is important since arrows and sprites can be attached to edges.
 	 * </p>
 	 */
-	private[this] def positionForLinesAndCurves( skel:ConnectorSkeleton, style:Style, xFrom:Double, yFrom:Double, xTo:Double, yTo:Double, multi:Int, group:GraphicEdge#EdgeGroup ) {
+	private[this] def positionForLinesAndCurves( skel:ConnectorSkeleton, style:Style, from:GraphicNode, to:GraphicNode, multi:Int, group:GraphicEdge#EdgeGroup ) {
 	    
 		//skel.points(0).set( xFrom, yFrom )
 		//skel.points(3).set( xTo, yTo )
 		if( group != null ) {
-			if( xFrom == xTo && yFrom == yTo ) {
-				positionEdgeLoop(skel, xFrom, yFrom, multi)
+			if( from == to ) {
+				positionEdgeLoop(skel, from.getX, from.getY, multi)
 			} else {
-				positionMultiEdge(skel, xFrom, yFrom, xTo, yTo, multi, group)
+				positionMultiEdge(skel, from.getX, from.getY, to.getX, to.getY, multi, group)
 			}
 		} else {
-			if( xFrom == xTo && yFrom == yTo ) {
-				positionEdgeLoop(skel, xFrom, yFrom, 0)
+			if( from == to) {
+				positionEdgeLoop(skel, from.getX, from.getY, 0)
 			} else {
 				// This does not mean the edge is not a curve, this means
 				// that with what we know actually it is not a curve.
 				// The style mays indicate a curve.
-			    skel.setLine(xFrom, yFrom, 0, xTo, yTo, 0)
-			    
+			    skel.setLine(from.getX, from.getY, 0, to.getX, to.getY, 0)
 			    // XXX we will have to mutate the skel into a curve later.
 			}		  
 		}

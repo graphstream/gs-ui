@@ -17,9 +17,13 @@ We are interested in any suggestion to improve this renderer, and your use cases
 Building and jars
 -----------------
 
-Building the Scala renderer requires to install the Scala compiler and library. The process of creating a jar maybe fastidious, therefore pre-made jars are available in the `lib/` directory. The `gs-ui-bin.jar` contains only the set of classes of the renderer. It requires the Scala library in the class-path to work. If you work with Scala, and have it installed an available in your class-path you can use this jar. The `gs-ui.jar` is a standalone jar that contains the `gs-ui-bin.jar` plus the parts of the Scala Library used by the Scala viewer (and only these parts, this does not include the complete Scala library). 
+Building the Scala renderer requires to install the Scala compiler and library, but this can be made easier with the help of maven.
 
-In addition to the Scala library, this renderer only depends on the `gs-core` module.
+To compile gs-ui, enter this directory and simply enter :
+
+  mvn package
+
+If all went well, you will find a gs-ui-X.Y.jar or a gs-ui-X.Y-git.jar in the "target" directory. This jar is a stand-alone jar that will include the scala clases needed to work.
 
 I you plan to build the Scala renderer by yourself, you can have a look at the `compile.sh` script (for a Bash shell). It needs to be edited and is really basic, but should give you an idea of what is needed. An easier solution could probably be to install the Scala IDE plug-in for Eclipse or the one for NetBeans. The `gs-ui-bin.jardesc` allows to build a jar of the renderer under eclipse provided you have the Scala plugin. This is how the `gs-ui-bin.jar` is created. The `gs-ui.jar` file is created using the ProGuard tool that allows to put in a jar only the classes that are really needed.
 

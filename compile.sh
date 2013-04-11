@@ -1,5 +1,5 @@
 #!/bin/bash
-DIR=/home/antoine/Documents/Programs/
+DIR=/Users/antoine/Documents/Programs/
 UIDIR=$DIR/gs-ui/
 FILES=`find $UIDIR -iname "*.scala"`
 
