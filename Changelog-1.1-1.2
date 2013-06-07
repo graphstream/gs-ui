@@ -1,0 +1,464 @@
+commit cfeb36c
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2013-06-04
+
+    Change POM to use Scala 2.10
+
+pom.xml
+
+commit 6e32a65
+Merge: 1e0ec86 73f94f7
+Author: Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+Date:   2013-04-11
+
+    Merge branch 'master' of github.com:graphstream/gs-ui
+
+commit 1e0ec86
+Author: Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+Date:   2013-04-11
+
+    Update POM
+
+pom.xml
+
+commit 73f94f7
+Author: Antoine <antoine.dutot@gmail.com>
+Date:   2013-04-10
+
+    Updated the gs-ui README.
+
+README.mkd
+compile.sh
+
+commit 5aeab66
+Merge: 3689d96 0c4f7ea
+Author: Antoine <antoine.dutot@gmail.com>
+Date:   2013-04-10
+
+    Merge branch 'master' of github.com:graphstream/gs-ui
+
+commit 3689d96
+Author: Antoine <antoine.dutot@gmail.com>
+Date:   2013-04-10
+
+    Bug on skeletons.
+
+src-scala/org/graphstream/ui/j2dviewer/renderer/Skeletons.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/ShapeParts.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/AdvancedShapes.scala
+src-scala/org/graphstream/ui/util/EdgePoints.scala
+
+commit 06ebf10
+Author: Antoine <antoine.dutot@gmail.com>
+Date:   2013-04-10
+
+    Bug on the skeletons.
+
+lib/gs-ui-bin.jar
+lib/gs-ui-scaladoc.zip
+lib/gs-ui.jar
+
+commit 0c4f7ea
+Author: Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+Date:   2013-03-28
+
+    Update licence preamble
+
+src-scala/org/graphstream/ui/j2dviewer/Backend.scala
+src-scala/org/graphstream/ui/j2dviewer/Camera.scala
+src-scala/org/graphstream/ui/j2dviewer/J2DGraphRenderer.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/EdgeRenderer.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/GraphBackgroundRenderer.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/JComponentRenderer.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/NodeRenderer.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/SelectionRenderer.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/Skeletons.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/SpriteRenderer.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/StyleRenderer.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/Shape.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/ShapeParts.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/AdvancedShapes.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/ArrowShapes.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/BaseShapes.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/BasicShapes.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/ShapeDecor.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/ShapePaint.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/ShapeParts.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/ShapeStroke.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/SpriteShape.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/AllSwingTest.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/LayoutTest.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestArrows.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestDynColor.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestFillImage.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestFreePlane.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestGenerator.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestIcons.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestManySprites.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestPies.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestPolys.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestRandomWalk.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestShapeDecor.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestSize.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestSpeed.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestSprites.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestStars.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestStars2.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestStrokeMode.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestTwoViewersInOneFrame.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TutorialDiagrams.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/tutorial/CSSReference.scala
+src-scala/org/graphstream/ui/util/AttributeUtils.scala
+src-scala/org/graphstream/ui/util/CubicCurve.scala
+src-scala/org/graphstream/ui/util/EdgePoints.scala
+src-scala/org/graphstream/ui/util/FPSLogger.scala
+src-scala/org/graphstream/ui/util/Selection.scala
+src-scala/org/graphstream/ui/util/ShapeUtil.scala
+src-scala/org/graphstream/ui/util/swing/FontCache.scala
+src-scala/org/graphstream/ui/util/swing/GradientFactory.scala
+src-scala/org/graphstream/ui/util/swing/ImageCache.scala
+
+commit 772864a
+Author: Antoine <antoine.dutot@gmail.com>
+Date:   2012-07-19
+
+    OK
+
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/AdvancedShapes.scala
+
+commit 91daeee
+Author: Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+Date:   2012-07-02
+
+    Fix import
+
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/LayoutTest.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestManySprites.scala
+
+commit e922178
+Author: Antoine <antoine.dutot@gmail.com>
+Date:   2012-06-04
+
+    Added a "double" stroke mode.
+    
+    This mode doubles the stroke around any object.
+
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/ShapeParts.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/ShapeStroke.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/AllSwingTest.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestArrows.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestStrokeMode.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestTwoViewersInOneFrame.scala
+
+commit e70a811
+Merge: 75d0c4c 6c3b7e8
+Author: Antoine <antoine.dutot@gmail.com>
+Date:   2012-05-23
+
+    Merge branch 'master' of github.com:graphstream/gs-ui
+
+commit 75d0c4c
+Author: Antoine <antoine.dutot@gmail.com>
+Date:   2012-05-23
+
+    OK.
+
+pom.xml
+
+commit 6c3b7e8
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-04-10
+
+    Fix POM
+
+pom.xml
+
+commit 984a536
+Author: Ant01n3 <antoine.dutot@gmail.com>
+Date:   2012-03-27
+
+    Corrected a bug in the way pie-charts update their color when changed.
+
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/ShapeParts.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestPies.scala
+
+commit 45ca069
+Merge: bae7f07 f093955
+Author: Ant01n3 <antoine.dutot@gmail.com>
+Date:   2012-03-22
+
+    Merge branch 'master' of github.com:graphstream/gs-ui
+
+commit bae7f07
+Author: Ant01n3 <antoine.dutot@gmail.com>
+Date:   2012-03-22
+
+    Bug correction when a view is not at (0,0).
+
+lib/gs-ui-bin.jar
+lib/gs-ui.jar
+src-scala/org/graphstream/ui/j2dviewer/Backend.scala
+src-scala/org/graphstream/ui/j2dviewer/Camera.scala
+src-scala/org/graphstream/ui/j2dviewer/J2DGraphRenderer.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/GraphBackgroundRenderer.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestTwoViewersInOneFrame.scala
+
+commit f093955
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-01-13
+
+    Update licence preamble.
+
+COPYING
+src-scala/org/graphstream/ui/j2dviewer/Backend.scala
+src-scala/org/graphstream/ui/j2dviewer/Camera.scala
+src-scala/org/graphstream/ui/j2dviewer/J2DGraphRenderer.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/EdgeRenderer.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/GraphBackgroundRenderer.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/JComponentRenderer.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/NodeRenderer.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/SelectionRenderer.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/Skeletons.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/SpriteRenderer.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/StyleRenderer.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/Shape.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/ShapeParts.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/AdvancedShapes.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/ArrowShapes.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/BaseShapes.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/BasicShapes.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/ShapeDecor.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/ShapePaint.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/ShapeParts.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/ShapeStroke.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/SpriteShape.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/AllSwingTest.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/LayoutTest.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestArrows.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestDynColor.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestFillImage.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestFreePlane.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestGenerator.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestIcons.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestManySprites.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestPies.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestPolys.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestRandomWalk.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestShapeDecor.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestSize.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestSpeed.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestSprites.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestStars.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestStars2.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TestStrokeMode.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/TutorialDiagrams.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/test/tutorial/CSSReference.scala
+src-scala/org/graphstream/ui/util/AttributeUtils.scala
+src-scala/org/graphstream/ui/util/CubicCurve.scala
+src-scala/org/graphstream/ui/util/EdgePoints.scala
+src-scala/org/graphstream/ui/util/FPSLogger.scala
+src-scala/org/graphstream/ui/util/Selection.scala
+src-scala/org/graphstream/ui/util/ShapeUtil.scala
+src-scala/org/graphstream/ui/util/swing/FontCache.scala
+src-scala/org/graphstream/ui/util/swing/GradientFactory.scala
+src-scala/org/graphstream/ui/util/swing/ImageCache.scala
+
+commit 65413e3
+Author: Ant01n3 <antoine.dutot@gmail.com>
+Date:   2012-01-12
+
+    Ok
+
+gs-ui-bin.jardesc
+
+commit 0243806
+Author: Guilhelm Savin <guilhelm.savin@litislab.fr>
+Date:   2011-12-24
+
+    Update pom.xml
+
+pom.xml
+
+commit 8c2d016
+Merge: 2505ccf a099d81
+Author: Ant01n3 <antoine.dutot@gmail.com>
+Date:   2011-12-15
+
+    Merge branch 'master' of github.com:graphstream/gs-ui
+
+commit 2505ccf
+Author: Ant01n3 <antoine.dutot@gmail.com>
+Date:   2011-12-15
+
+    Adapted for the changes in gs-core.
+
+src-scala/org/graphstream/ui/j2dviewer/Camera.scala
+src-scala/org/graphstream/ui/j2dviewer/J2DGraphRenderer.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/GraphBackgroundRenderer.scala
+
+commit f51ba97
+Author: Ant01n3 <antoine.dutot@gmail.com>
+Date:   2011-12-15
+
+    Ok.
+
+src-scala/org/graphstream/ui/j2dviewer/J2DGraphRenderer.scala
+
+commit a099d81
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2011-12-15
+
+    Update deps in POM.
+
+pom.xml
+
+commit c8fc88c
+Author: Ant01n3 <antoine.dutot@gmail.com>
+Date:   2011-12-06
+
+    Ok
+
+src-scala/org/graphstream/ui/j2dviewer/J2DGraphRenderer.scala
+
+commit b00984d
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2011-12-05
+
+    Comment Graphics2DOutput import.
+
+src-scala/org/graphstream/ui/j2dviewer/J2DGraphRenderer.scala
+
+commit 3c5518b
+Author: Ant01n3 <antoine.dutot@gmail.com>
+Date:   2011-12-05
+
+    Ok
+
+src-scala/org/graphstream/ui/j2dviewer/J2DGraphRenderer.scala
+
+commit 638cf71
+Author: Ant01n3 <antoine.dutot@gmail.com>
+Date:   2011-12-05
+
+    Removed some debuging output.
+
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/ShapeParts.scala
+
+commit 5c51b43
+Author: Ant01n3 <antoine.dutot@gmail.com>
+Date:   2011-12-05
+
+    Another bug with labels.
+
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/ShapeParts.scala
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/ShapeParts.scala
+
+commit 375f8e3
+Author: Ant01n3 <antoine.dutot@gmail.com>
+Date:   2011-12-05
+
+    Another bug with colors on edges.
+
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/ShapeParts.scala
+
+commit af5ba39
+Author: Ant01n3 <antoine.dutot@gmail.com>
+Date:   2011-12-05
+
+    The text decor on edges was disabled!!!!
+
+src-scala/org/graphstream/ui/j2dviewer/renderer/shape/swing/BaseShapes.scala
+
+commit de95cdd
+Author: Ant01n3 <antoine.dutot@gmail.com>
+Date:   2011-12-02
+
+    Minor bug that prevented maven to build gs-ui.
+
+src-scala/org/graphstream/ui/j2dviewer/J2DGraphRenderer.scala
+
+commit cf6da71
+Merge: 9be2c68 ae9d8aa
+Author: Ant01n3 <antoine.dutot@gmail.com>
+Date:   2011-11-30
+
+    Merge branch 'master' of github.com:graphstream/gs-ui
+
+commit 9be2c68
+Author: Ant01n3 <antoine.dutot@gmail.com>
+Date:   2011-11-30
+
+    Added a plugin mechanism for Graphics2D renderers.
+
+src-scala/org/graphstream/ui/j2dviewer/J2DGraphRenderer.scala
+
+commit ae9d8aa
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2011-11-15
+
+    Update POM to delete classes.timestamp when running clean goal.
+
+pom.xml
+
+commit 9fcdcbf
+Merge: 051cc9a 0cd83fa
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2011-11-15
+
+    Merge branch 'master' of github.com:graphstream/gs-ui
+
+commit 051cc9a
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2011-11-15
+
+    Minor fix in POM.
+
+pom.xml
+
+commit 0cd83fa
+Author: Ant01n3 <antoine.dutot@gmail.com>
+Date:   2011-11-15
+
+    Changing the camera view now triggers a repaint.
+
+src-scala/org/graphstream/ui/j2dviewer/Camera.scala
+src-scala/org/graphstream/ui/j2dviewer/J2DGraphRenderer.scala
+
+commit 99f7515
+Merge: 31f6e09 4963b5b
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2011-11-15
+
+    Merge branch 'master' of github.com:graphstream/gs-ui
+
+commit 31f6e09
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2011-11-15
+
+    Add profiles to POM. First is 'proguard' that enable the proguard plugin on the output jar to only keep J2DRenderer. Second is 'nodeps' that includes classes of scalalib. And last is 'release' that enables the sign phase. It can be usefull to use 'nodeps' an 'proguard' together since scalalib is really heavy, with proguard enabled, jar size comes from 9Mo to 400ko.
+
+pom.xml
+
+commit 4963b5b
+Author: Ant01n3 <antoine.dutot@gmail.com>
+Date:   2011-11-15
+
+    Bug correction on the visibility test.
+
+src-scala/org/graphstream/ui/j2dviewer/Camera.scala
+
+commit ce3840d
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2011-11-14
+
+    Fix #41
+
+src-scala/org/graphstream/ui/j2dviewer/Camera.scala
+
+commit 0d89dab
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2011-11-11
+
+    Add Changelog between 1.0 and 1.1
+
+Changelog-1.0-1.1
