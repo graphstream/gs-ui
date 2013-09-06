@@ -674,7 +674,7 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
   		} else if(units == Units.GU && sprite.getUnits == Units.PX) {
   			pos.x = sprite.getX
   			pos.y = sprite.getY
-  			bck.transform(pos)
+  			bck.inverseTransform(pos)
   		} else if(units == Units.PX && sprite.getUnits == Units.GU) {
   			pos.x = sprite.getX
   			pos.y = sprite.getY
