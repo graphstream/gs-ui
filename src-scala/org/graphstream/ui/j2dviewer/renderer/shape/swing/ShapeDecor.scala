@@ -43,6 +43,7 @@ import org.graphstream.ui.geom._
 import org.graphstream.ui.graphicGraph.GraphicElement
 import org.graphstream.ui.graphicGraph.stylesheet.Style
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
+import org.graphstream.ui.j2dviewer.renderer.ConnectorSkeleton
 import java.awt.font.FontRenderContext
 import org.graphstream.ui.j2dviewer.Backend
 
@@ -60,6 +61,7 @@ abstract class ShapeDecor {
 	  * to render the `iconAndText` icon and text. The coordinates (`x0`, `y0`) and (`x1`, `y1`)
 	  * indicates the start and end points of the line to draw the text on. */
 	def renderAlong(b:Backend, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double  )
+	def renderAlong(b:Backend, camera:Camera, iconAndText:IconAndText, skel:ConnectorSkeleton)
 	
 	/** Overall size (width and height) of the decoration, taking into account the `iconAndText` as
 	 *  well as the various metrics specified by the style. */
@@ -99,7 +101,8 @@ object ShapeDecor {
 	/** A decor that does nothing. */
 	class EmptyShapeDecor extends ShapeDecor {
 		def renderInside(backend:Backend, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {}
-		def renderAlong(backend:Backend, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {}
+		def renderAlong(backend:Backend, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double) {}
+		def renderAlong(backend:Backend, camera:Camera, iconAndText:IconAndText, skel:ConnectorSkeleton) {}
 		def size(backend:Backend, camera:Camera, iconAndText:IconAndText ):(Double,Double) = ( 0, 0 )
     }
  
@@ -138,6 +141,10 @@ object ShapeDecor {
 			
 			renderGu2Px(backend, camera, iconAndText, x0 + dir.x, y0 + dir.y, 0, positionTextAndIconPx)
 		}
+		def renderAlong(backend:Backend, camera:Camera, iconAndText:IconAndText, skel:ConnectorSkeleton) {
+			var p = skel.pointOnShape(0.5)
+			renderGu2Px(backend, camera, iconAndText, p.x, p.y, 0, positionTextAndIconPx)
+		}
 		protected def positionTextAndIconPx(backend:Backend, p:Point3, iconAndText:IconAndText, angle:Double ):Point3 = {
 			p.x = p.x - ( iconAndText.width / 2 + 1 ) + iconAndText.padx
 			p.y = p.y + ( iconAndText.height / 2 ) - iconAndText.pady*2
@@ -162,6 +169,9 @@ object ShapeDecor {
 			
 			renderGu2Px(backend, camera, iconAndText, cx, cy, 0, positionTextAndIconPx )
 		}
+		def renderAlong(backend:Backend, camera:Camera, iconAndText:IconAndText, skel:ConnectorSkeleton) {
+			renderAlong(backend, camera, iconAndText, skel.from.x, skel.from.y, skel.to.x, skel.to.y)
+		}
 		def size(backend:Backend, camera:Camera, iconAndText:IconAndText ):(Double,Double) = ( 0, 0 )
 		protected def positionTextAndIconPx(backend:Backend, p:Point3, iconAndText:IconAndText, angle:Double ):Point3 = {
 			p.x = p.x - ( iconAndText.width + 2 ) + iconAndText.padx
@@ -183,6 +193,9 @@ object ShapeDecor {
 			
 			renderGu2Px(backend, camera, iconAndText, cx, cy, 0, positionTextAndIconPx )
 		}
+		def renderAlong(backend:Backend, camera:Camera, iconAndText:IconAndText, skel:ConnectorSkeleton) {
+			renderAlong(backend, camera, iconAndText, skel.from.x, skel.from.y, skel.to.x, skel.to.y)
+		}
 		protected def positionTextAndIconPx(backend:Backend, p:Point3, iconAndText:IconAndText, angle:Double ):Point3 = {
 			p.x = p.x + iconAndText.padx
 			p.y = p.y + ( iconAndText.height / 2 ) - iconAndText.pady
@@ -200,6 +213,9 @@ object ShapeDecor {
 		}
 		def renderAlong(backend:Backend, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
 			renderGu2Px(backend, camera, iconAndText, x0, y0,  0, positionTextAndIconAlongPx )
+		}
+		def renderAlong(backend:Backend, camera:Camera, iconAndText:IconAndText, skel:ConnectorSkeleton) {
+			renderAlong(backend, camera, iconAndText, skel.from.x, skel.from.y, skel.to.x, skel.to.y)
 		}
 		protected def positionTextAndIconAreaPx(backend:Backend, p:Point3, iconAndText:IconAndText, angle:Double ):Point3 = {
 			p.x = p.x - ( iconAndText.width + 2 ) + iconAndText.padx
@@ -223,6 +239,9 @@ object ShapeDecor {
 		}
 		def renderAlong(backend:Backend, camera:Camera, iconAndText:IconAndText, x0:Double, y0:Double, x1:Double, y1:Double ) {
 			renderGu2Px(backend:Backend, camera, iconAndText, x1, y1, 0, positionTextAndIconAlongPx )
+		}
+		def renderAlong(backend:Backend, camera:Camera, iconAndText:IconAndText, skel:ConnectorSkeleton) {
+			renderAlong(backend, camera, iconAndText, skel.from.x, skel.from.y, skel.to.x, skel.to.y)
 		}
 		protected def positionTextAndIconAreaPx(backend:Backend, p:Point3, iconAndText:IconAndText, angle:Double ):Point3 = {
 			p.x = p.x + iconAndText.padx
@@ -250,6 +269,9 @@ object ShapeDecor {
 
 			renderGu2Px(backend, camera, iconAndText, x0+dir.x, y0+dir.y, 0, positionTextAndIconPx )
 		}
+		def renderAlong(backend:Backend, camera:Camera, iconAndText:IconAndText, skel:ConnectorSkeleton) {
+			renderAlong(backend, camera, iconAndText, skel.from.x, skel.from.y, skel.to.x, skel.to.y)
+		}
 		protected def positionTextAndIconPx(backend:Backend, p:Point3, iconAndText:IconAndText, angle:Double ):Point3 = {
 			p.x = p.x - ( iconAndText.width / 2 + 1 ) + iconAndText.padx
 			p.y = p.y + ( iconAndText.height ) - iconAndText.pady
@@ -270,6 +292,9 @@ object ShapeDecor {
 			dir.scalarMult( 0.5f )
 
 			renderGu2Px(backend, camera, iconAndText, x0+dir.x, y0+dir.y, 0, positionTextAndIconPx )
+		}
+		def renderAlong(backend:Backend, camera:Camera, iconAndText:IconAndText, skel:ConnectorSkeleton) {
+			renderAlong(backend, camera, iconAndText, skel.from.x, skel.from.y, skel.to.x, skel.to.y)
 		}
 		protected def positionTextAndIconPx(backend:Backend, p:Point3, iconAndText:IconAndText, angle:Double ):Point3 = {
 			p.x = p.x - ( iconAndText.width / 2 + 1 ) + iconAndText.padx
@@ -295,6 +320,9 @@ object ShapeDecor {
 			if( angle > Pi/2 ) angle = ( Pi + angle )
 				
 			renderGu2Px(backend, camera, iconAndText, cx, cy, angle, positionTextAndIconPx )
+		}
+		def renderAlong(backend:Backend, camera:Camera, iconAndText:IconAndText, skel:ConnectorSkeleton) {
+			renderAlong(backend, camera, iconAndText, skel.from.x, skel.from.y, skel.to.x, skel.to.y)
 		}
 		protected def positionTextAndIconPx(backend:Backend, p:Point3, iconAndText:IconAndText, angle:Double ):Point3 = {
 		    val g = backend.graphics2D

@@ -145,8 +145,8 @@ trait AreaConnectorShape
 	override def configureForElement(bck:Backend, element:GraphicElement, skel:Skeleton, camera:Camera) {
 		configureFillableForElement(element.getStyle, camera, element)
 		super.configureForElement(bck, element, skel, camera)
-	}}
-
+	}
+}
 	
 trait RectangularAreaShape extends AreaShape {
 	val theShape:java.awt.geom.RectangularShape

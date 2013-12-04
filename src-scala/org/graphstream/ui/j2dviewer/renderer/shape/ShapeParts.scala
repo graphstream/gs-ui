@@ -129,6 +129,15 @@ trait Area {
 	}
 }
 
+
+/** Thing that links to the skeleton of a connector. Allows several traits to have the same
+  * field (Connector and Decorable for example). */
+trait HasSkel {
+	/** We will use it often, better store it. */
+	var skel:ConnectorSkeleton = null
+}
+
+
 /**
  * Trait for elements painted between two points.
  * 
@@ -139,10 +148,8 @@ trait Area {
  * element  since several parts of the rendering need to access it (for example, sprites retrieve it
  * to follow the correct path when attached to this edge).
  */
-trait Connector {
+trait Connector extends HasSkel {
 // Attribute
-	/** We will use it often, better store it. */
-	var skel:ConnectorSkeleton = null
 
 	/** The edge, we will also need it often. */
 	var theEdge:GraphicEdge = null
@@ -354,16 +361,20 @@ trait Connector {
 	}
 }
 
-/** Some areas are attached to a connector (sprites). */
-trait AreaOnConnector extends Area {
+
+trait OnConnector {
     /** The connector we are attached to. */
 	protected var theConnector:Connector = null
-	/** The edge represented by the connector.. */
-	protected var theEdge:GraphicEdge = null
 
 	/** XXX must call this method explicitly in the renderer !!! bad !!! XXX */
 	def theConnectorYoureAttachedTo(connector:Connector) { theConnector = connector }
-	
+}
+
+/** Some areas are attached to a connector (sprites). */
+trait AreaOnConnector extends Area with OnConnector {
+	/** The edge represented by the connector.. */
+	protected var theEdge:GraphicEdge = null
+
 	protected def configureAreaOnConnectorForGroup(style:Style, camera:Camera) {
 		sizeForEdgeArrow(style, camera)
 	}
@@ -429,8 +440,9 @@ trait Orientable {
 		target.set(ge.from.getX + dir.x, ge.from.getY + dir.y)
 	}
 }
+
 /** Trait for shapes that can be decorated by an icon and/or a text. */
-trait Decorable {
+trait Decorable extends HasSkel {
     /** The string of text of the contents. */
 	var text:String = null
  
@@ -453,7 +465,11 @@ trait Decorable {
  	  	if( theDecor != null && visible ) {
  	  		element match {
  	  			case edge:GraphicEdge => {
- 	  				theDecor.renderAlong(backend, camera, iconAndText, edge.from.x, edge.from.y, edge.to.x, edge.to.y )
+ 	  				if((skel ne null) && (skel.isCurve)) {
+ 	  					theDecor.renderAlong(backend, camera, iconAndText, skel)
+ 	  				} else {
+ 	  					theDecor.renderAlong(backend, camera, iconAndText, edge.from.x, edge.from.y, edge.to.x, edge.to.y)
+ 	  				}
  	  			}
  	  			case _ => {
  	  				val bounds = shape.getBounds2D
