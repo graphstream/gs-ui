@@ -3,7 +3,7 @@
  *     Stefan Balev     <stefan.balev@graphstream-project.org>
  *     Julien Baudry    <julien.baudry@graphstream-project.org>
  *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
+ *     Yoann Pign��      <yoann.pigne@graphstream-project.org>
  *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
  * 
  * This file is part of GraphStream <http://graphstream-project.org>.
@@ -186,7 +186,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   	}
 
   	def moveElementAtPx(element:GraphicElement, x:Double, y:Double) {
-  		val p = camera.transformPxToGu(camera.metrics.viewport(0)+x, camera.metrics.viewport(1)+y)
+  		val p = camera.transformPxToGu(x, y)
   		element.move(p.x, p.y, element.getZ)
   	}
 

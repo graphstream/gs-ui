@@ -3,7 +3,7 @@
  *     Stefan Balev     <stefan.balev@graphstream-project.org>
  *     Julien Baudry    <julien.baudry@graphstream-project.org>
  *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
+ *     Yoann Pign��      <yoann.pigne@graphstream-project.org>
  *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
  * 
  * This file is part of GraphStream <http://graphstream-project.org>.
@@ -566,9 +566,6 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
   		val w2   = metrics.lengthToPx(size, 0) / 2
   		val h2   = if(size.size() > 1) metrics.lengthToPx(size, 1)/2 else w2
   		val dst  = bck.transform(elt.getX, elt.getY, 0)
-		
-  		dst.x -= metrics.viewport(0)
-  		dst.y -= metrics.viewport(1)
   		
   		val x1 = (dst.x) - w2
   		val x2 = (dst.x) + w2
@@ -596,9 +593,6 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
 //  		val dst    = new Point2D.Double
 //	
 //  		Tx.transform( src, dst )
-		
-  		dst.x -= metrics.viewport(0)
-  		dst.y -= metrics.viewport(1)
 
   		val x1 = dst.x - w2
   		val x2 = dst.x + w2
