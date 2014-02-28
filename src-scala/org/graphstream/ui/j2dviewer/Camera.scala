@@ -294,9 +294,12 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
   		var tx = 0.0; var ty = 0.0
   		val padXgu = paddingXgu * 2
   		val padYgu = paddingYgu * 2
-  		val padXpx = paddingXpx * 2
-  		val padYpx = paddingYpx * 2
-		
+  		var padXpx = paddingXpx * 2
+  		var padYpx = paddingYpx * 2
+
+		if(padXpx > metrics.viewport(2)) padXpx = metrics.viewport(2) / 10.0
+		if(padYpx > metrics.viewport(3)) padYpx = metrics.viewport(3) / 10.0
+
   		sx = (metrics.viewport(2) - padXpx) / (metrics.size.data(0) + padXgu)	// Ratio along X
   		sy = (metrics.viewport(3) - padYpx) / (metrics.size.data(1) + padYgu)	// Ratio along Y
   		tx = metrics.lo.x + (metrics.size.data(0) / 2)								// Center of graph in X
@@ -305,7 +308,7 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
   		if(sx > sy)	// The least ratio.
   		     sx = sy
   		else sy = sx
-		
+
   		bck.beginTransform
   		bck.setIdentity
   		bck.translate(metrics.viewport(2)/2,
@@ -335,10 +338,13 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
   		var tx = 0.0; var ty = 0.0
   		val padXgu = paddingXgu * 2
   		val padYgu = paddingYgu * 2
-  		val padXpx = paddingXpx * 2
-  		val padYpx = paddingYpx * 2
+  		var padXpx = paddingXpx * 2
+  		var padYpx = paddingYpx * 2
   		val gw     = if(gviewport ne null) gviewport(2)-gviewport(0) else metrics.size.data(0)
   		val gh     = if(gviewport ne null) gviewport(3)-gviewport(1) else metrics.size.data(1)
+
+		if(padXpx > metrics.viewport(2)) padXpx = metrics.viewport(2) / 10.0
+		if(padYpx > metrics.viewport(3)) padYpx = metrics.viewport(3) / 10.0
 		
   		sx = (metrics.viewport(2) - padXpx) / ((gw + padXgu) * zoom) 
 		sy = (metrics.viewport(3) - padYpx) / ((gh + padYgu) * zoom)

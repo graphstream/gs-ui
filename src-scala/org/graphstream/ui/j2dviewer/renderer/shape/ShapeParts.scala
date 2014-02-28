@@ -209,7 +209,9 @@ trait Connector extends HasSkel {
 	}
 	
 	/** Set the size of the connector using the predefined style. */
-	private[this] def sizeForGroup(style:Style, camera:Camera) { theSize = camera.metrics.lengthToGu( style.getSize, 0 ) }
+	private[this] def sizeForGroup(style:Style, camera:Camera) {
+		theSize = camera.metrics.lengthToGu( style.getSize, 0 ) 
+	}
 	
 	/** Set the size of the connector for this particular `element`. */
 	private[this] def sizeForElement(style:Style, camera:Camera, element:GraphicElement) {
