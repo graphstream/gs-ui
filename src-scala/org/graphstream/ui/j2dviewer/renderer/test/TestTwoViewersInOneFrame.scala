@@ -56,6 +56,10 @@ class TestTwoViewersInOneFrame extends JFrame {
 		val viewer1 = new Viewer(new ThreadProxyPipe(graph1))
 		val viewer2 = new Viewer(new ThreadProxyPipe(graph2))
 
+        graph1.addAttribute("ui.quality")
+        graph2.addAttribute("ui.quality")
+        graph1.addAttribute("ui.antialias")
+        graph2.addAttribute("ui.antialias")
 		graph1.addAttribute("ui.stylesheet", styleSheet1)
 		graph2.addAttribute("ui.stylesheet", styleSheet2)
 		viewer1.addView(new DefaultView(viewer1, "view1", Viewer.newGraphRenderer))

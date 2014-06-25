@@ -572,6 +572,7 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
   		val w2   = metrics.lengthToPx(size, 0) / 2
   		val h2   = if(size.size() > 1) metrics.lengthToPx(size, 1)/2 else w2
   		val dst  = bck.transform(elt.getX, elt.getY, 0)
+//println(s"nodeContains(${elt.getId}, ${x}, ${y}) -> (${dst.x}, ${dst.y})")
   		
   		val x1 = (dst.x) - w2
   		val x2 = (dst.x) + w2

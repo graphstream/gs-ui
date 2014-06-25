@@ -50,12 +50,16 @@ object ShapeUtil {
 	  * @return The radius. */
  	def evalTargetRadius2D(edge:GraphicEdge, camera:Camera):Double = {
  	    val eskel = edge.getAttribute(Skeleton.attributeName).asInstanceOf[ConnectorSkeleton]
- 	    evalTargetRadius2D(
+ 	    if(eskel ne null) {
+ 	    	evalTargetRadius2D(
  	    		edge.to.getStyle,
  	    		edge.to.getAttribute(Skeleton.attributeName).asInstanceOf[AreaSkeleton],
  	    		new Point3(eskel.from.x, eskel.from.y, eskel.from.z),
  	    		new Point3(eskel.to.x, eskel.to.y, eskel.to.z),
- 	    		camera)
+ 	   	 		camera)
+ 		} else {
+ 			throw new RuntimeException("no skeleton on edge ??")
+ 		}
  	}
  	
  	/** Try to evaluate the "radius" of the given node considering an edge between points `from` and `to`.

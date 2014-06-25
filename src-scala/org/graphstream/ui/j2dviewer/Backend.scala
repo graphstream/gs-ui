@@ -34,6 +34,7 @@ package org.graphstream.ui.j2dviewer
 import java.awt.RenderingHints
 import java.awt.geom.Point2D
 import java.awt.geom.AffineTransform
+import java.awt.geom.NoninvertibleTransformException
 import scala.collection.mutable.ArrayStack
 import java.awt.Graphics2D
 import org.graphstream.ui.geom.Point3
@@ -177,7 +178,7 @@ class BackendJ2D extends Backend {
         	xT = new AffineTransform(Tx)
         	xT.invert
         } catch {
-            case _ => Console.err.println("Cannot inverse matrix")
+            case e:NoninvertibleTransformException => Console.err.println("Cannot inverse matrix")
         }
     }
     

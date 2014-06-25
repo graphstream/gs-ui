@@ -43,7 +43,7 @@ import org.graphstream.ui.j2dviewer.renderer.shape.swing.IconAndText
 import org.graphstream.ui.util.EdgePoints
 
 object Skeleton {
-	def attributeName = "j2dsk"
+	def attributeName = "ui.j2dsk"
 }
 
 /** Elements of rendering that, contrary to the shapes, are specific to the element, not the style

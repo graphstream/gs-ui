@@ -96,7 +96,7 @@ object ImageCache {
 					try {
 						image = ImageIO.read( url )
 						imageCache.put( fileNameOrUrl, image )
-					} catch { case e => e.printStackTrace() }
+					} catch { case e:Throwable => e.printStackTrace() }
 				} else {					// The image is in a file or on the network.
 					try {
 						val url = new URL( fileNameOrUrl )
@@ -104,12 +104,12 @@ object ImageCache {
 						image = ImageIO.read( url )	// Try the network.
 						imageCache.put( fileNameOrUrl, image )
 					} catch {
-						case _ => {
+						case _:Throwable => {
 							try {
 								image = ImageIO.read( new File( fileNameOrUrl ) )	// Try the file.
 								imageCache.put( fileNameOrUrl, image )
 							} catch {
-								case _ => {
+								case _:Throwable => {
 									image = dummy
 									imageCache.put( fileNameOrUrl, image )
 									System.err.printf( "Cannot read image '%s'%n", fileNameOrUrl )

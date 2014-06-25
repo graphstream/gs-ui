@@ -70,7 +70,7 @@ trait Fillable {
 			fillPaint match {
 				case p:ShapeAreaPaint  => g.setPaint(p.paint(shape, camera.metrics.ratioPx2Gu));    g.fill(shape)
 				case p:ShapeColorPaint => g.setPaint(p.paint(dynColor, optColor));					g.fill(shape)
-				case _                 => null; // No fill.
+				case _                 => {} // No fill.
 			}
 	    }
 	}
@@ -241,8 +241,8 @@ trait Shadowable {
    	def cast( g:Graphics2D, shape:java.awt.Shape ) {
    		shadowPaint match {
    			case p:ShapeAreaPaint  => g.setPaint( p.paint( shape, 1 ) ); g.fill( shape )
-   			case p:ShapeColorPaint => g.setPaint( p.paint( 0, null ) );     g.fill( shape )
-   			case _                 => null; printf( "no shadow !!!%n" )
+   			case p:ShapeColorPaint => g.setPaint( p.paint( 0, null ) ); g.fill( shape )
+   			case _                 => printf( "no shadow !!!%n" )
    		}
    	}
  

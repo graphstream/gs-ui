@@ -416,6 +416,7 @@ trait Orientable {
 					case SpriteOrientation.FROM       => { target.set(gn.getX, gn.getY) }
 					case SpriteOrientation.TO         => { target.set(gn.getX, gn.getY) }
 					case SpriteOrientation.PROJECTION => { target.set(gn.getX, gn.getY) }
+					case _ => {}
 				}
 			}
 			case ge:GraphicEdge => {
@@ -430,6 +431,7 @@ trait Orientable {
 						     ei.pointOnShape(sprite.getX, target)
 						else setTargetOnLineEdge(camera, sprite, ge) 
 					}
+					case _ => {}
 				}
 			}
 			case _ => { orientation = SpriteOrientation.NONE }
