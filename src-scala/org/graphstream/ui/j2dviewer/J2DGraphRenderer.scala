@@ -129,7 +129,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 	
 // Access
   	
-  	def getCamera():org.graphstream.ui.swingViewer.util.Camera = camera
+  	def getCamera():org.graphstream.ui.view.Camera = camera
 
   	def findNodeOrSpriteAt(x:Double, y:Double):GraphicElement = camera.findNodeOrSpriteAt(graph, x, y)
  
@@ -237,7 +237,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   	
   	protected def startFrame() {
   	    if((fpsLogger eq null) && graph.hasLabel("ui.log")) {
-  	        fpsLogger = new FPSLogger(graph.getLabel("ui.log").toString)
+  	        fpsLogger = new FPSLogger(graph.getLabel("ui.log"))
   	    }
   	    
   	    if(! (fpsLogger eq null))

@@ -37,8 +37,9 @@ import javax.swing.JFrame
 import _root_.org.graphstream.graph._
 import _root_.org.graphstream.graph.implementations._
 import _root_.org.graphstream.stream.thread._
-import _root_.org.graphstream.ui.swingViewer._
-import _root_.org.graphstream.ui.swingViewer.Viewer.ThreadingModel
+import org.graphstream.ui.view.{Viewer, ViewerPipe, ViewerListener}
+import org.graphstream.ui.swingViewer.DefaultView;
+import _root_.org.graphstream.ui.view.Viewer.ThreadingModel;
 import _root_.org.graphstream.algorithm.generator._
 
 object TestTwoViewersInOneFrame {
@@ -56,14 +57,17 @@ class TestTwoViewersInOneFrame extends JFrame {
 		val viewer1 = new Viewer(new ThreadProxyPipe(graph1))
 		val viewer2 = new Viewer(new ThreadProxyPipe(graph2))
 
-        graph1.addAttribute("ui.quality")
-        graph2.addAttribute("ui.quality")
-        graph1.addAttribute("ui.antialias")
-        graph2.addAttribute("ui.antialias")
+    graph1.addAttribute("ui.quality")
+    graph2.addAttribute("ui.quality")
+    graph1.addAttribute("ui.antialias")
+    graph2.addAttribute("ui.antialias")
 		graph1.addAttribute("ui.stylesheet", styleSheet1)
 		graph2.addAttribute("ui.stylesheet", styleSheet2)
-		viewer1.addView(new DefaultView(viewer1, "view1", Viewer.newGraphRenderer))
-		viewer2.addView(new DefaultView(viewer2, "view2", Viewer.newGraphRenderer))
+
+    val view1 = new DefaultView(viewer1, "view1", Viewer.newGraphRenderer)
+    val view2 = new DefaultView(viewer1, "view2", Viewer.newGraphRenderer)
+		viewer1.addView(view1)
+		viewer2.addView(view2)
 		viewer1.enableAutoLayout
 		viewer2.enableAutoLayout
 
@@ -93,8 +97,8 @@ class TestTwoViewersInOneFrame extends JFrame {
 		
 		setLayout(new GridLayout(1, 2))
 		//add(new JButton("Button"))
-		add(viewer1.getView("view1"))
-		add(viewer2.getView("view2"))
+		add(view1)
+		add(view2)
 		setSize(800, 600)
 		setVisible(true)
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)

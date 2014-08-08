@@ -38,7 +38,8 @@ import org.graphstream.graph.implementations.MultiGraph
 import org.graphstream.algorithm.Toolkit._
 
 import org.graphstream.ui.graphicGraph.stylesheet._
-import org.graphstream.ui.swingViewer._
+import org.graphstream.ui.view.{Viewer, ViewerPipe, ViewerListener}
+import org.graphstream.ui.swingViewer.DefaultView;
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants._
 import org.graphstream.ui.spriteManager._
