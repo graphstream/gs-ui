@@ -36,7 +36,8 @@ import scala.collection.JavaConversions._
 import org.graphstream.graph.Graph
 import org.graphstream.graph.implementations.MultiGraph
 
-import org.graphstream.ui.swingViewer.{Viewer, DefaultView, ViewerPipe, ViewerListener}
+import org.graphstream.ui.view.{Viewer, ViewerPipe, ViewerListener}
+import org.graphstream.ui.swingViewer.DefaultView;
 import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 

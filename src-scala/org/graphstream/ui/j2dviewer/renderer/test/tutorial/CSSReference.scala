@@ -37,9 +37,8 @@ import org.graphstream.graph.Edge
 import java.io.PrintStream
 import org.graphstream.graph._
 import org.graphstream.graph.implementations._
-import org.graphstream.ui.swingViewer.{Viewer, View}
-//import org.graphstream.ScalaGS._
-//import org.graphstream.scalags.graph._
+import org.graphstream.ui.view.{Viewer, View}
+import org.graphstream.ui.swingViewer.ViewPanel
 import scala.collection.JavaConversions._
 
 object CSSReference {
@@ -159,7 +158,7 @@ class CSSReference {
 	     g.getNode[Node]("C").setAttribute("ui.label", "C")
 	}
 	
-	def enlarge(g:Graph, vv:Viewer, v:View) {
+	def enlarge(g:Graph, vv:Viewer, v:ViewPanel) {
 	    v.resizeFrame(300, 250)
 	    Thread.sleep(200)
 	}
@@ -264,7 +263,7 @@ class CSSReference {
 	def genericTest(title:String, stylesheet:String, more:MoreActions*) {
 	    val graph = new MultiGraph("ui")
 	    val viewer = graph.display(false)
-	    val view = viewer.getView(Viewer.DEFAULT_VIEW_ID)
+	    val view = viewer.getDefaultView
 	    view.resizeFrame(200, 150)
 	    Thread.sleep(200)
 	    graph.addAttribute("ui.title", title)

@@ -37,7 +37,7 @@ import org.graphstream.ui.geom.Point3
 trait AttributeUtils {
     /** Try to extract an array of 3D points from various sources. It actually works only for
       * arrays of Point3, or arrays of floats, doubles and integers.
-      * @param an object.
+      * @param values object.
       * @return An array of 3D points. */
  	protected def getPoints(values:AnyRef):Array[Point3] = {
  	    values match {
@@ -121,7 +121,7 @@ trait AttributeUtils {
  	}
 
  	/** Compute the bounding box of the given set of points.
- 	  * @param The set of points.
+ 	  * @param points The set of points.
  	  * @return A 2-tuple with the minimum and maximum 3D points. */
     protected def boundingBoxOfPoints(points:Array[Point3]):(Point3, Point3) = {
         var minx = Double.MaxValue

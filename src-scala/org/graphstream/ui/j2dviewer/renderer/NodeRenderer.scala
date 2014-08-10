@@ -33,7 +33,7 @@ package org.graphstream.ui.j2dviewer.renderer
 
 import org.graphstream.ui.util.AttributeUtils
 import org.graphstream.ui.geom.Vector3
-import org.graphstream.ui.swingViewer.util.CubicCurve
+import org.graphstream.ui.view.util.CubicCurve
 import org.graphstream.ui.geom.Point3
 import java.awt.Graphics2D
 import org.graphstream.ui.geom.Point2

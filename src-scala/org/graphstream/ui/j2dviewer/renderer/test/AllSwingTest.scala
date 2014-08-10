@@ -33,7 +33,7 @@ package org.graphstream.ui.j2dviewer.renderer.test
 
 import org.graphstream.graph._
 import org.graphstream.graph.implementations.MultiGraph
-import org.graphstream.ui.swingViewer.Viewer
+import org.graphstream.ui.view.Viewer
 import javax.swing._
 import java.awt._
 import org.graphstream.algorithm.generator.DorogovtsevMendesGenerator
@@ -48,7 +48,7 @@ object AllSwingTest {
 class AllSwingTest extends JFrame {
 	def run {
 		val g = new MultiGraph("mg")
-		val v = new Viewer(g, Viewer.ThreadingModel.GRAPH_IN_SWING_THREAD)
+		val v = new Viewer(g, Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD)
 		val gen = new DorogovtsevMendesGenerator()
 
 		g.addAttribute("ui.antialias")

@@ -80,7 +80,7 @@ import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
  * The camera is also able to compute sprite positions according to their attachment, as well as
  * maintaining a list of all elements out of the view, so that it is not needed to render them.
  */
-class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingViewer.util.Camera {
+class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.view.Camera {
 // Attribute
 	
   	/** Information on the graph overall dimension and position. */
@@ -266,7 +266,6 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
   	/** Set the camera view in the given graphics and backup the previous transform of the graphics.
   	  * Call {@link #popView(Graphics2D)} to restore the saved transform. You can only push one time
   	  * the view.
-  	  * @param g2 The Swing graphics to change.
   	  * @param graph The graphic graph (used to check element visibility). */
   	def pushView(graph:GraphicGraph) {
   		bck.pushTransform
@@ -280,14 +279,11 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
   	}
 
 	
-  	/** Restore the transform that was used before {@link #pushView(Graphics2D)} is used.
-      * @param g2 The Swing graphics to restore. */
+  	/** Restore the transform that was used before {@link #pushView(Graphics2D)} is used. */
     def popView() { bck.popTransform }
 	
   	/** Compute a transformation matrix that pass from graph units (user space) to pixel units
   	  * (device space) so that the whole graph is visible.
-  	  * @param g2 The Swing graphics.
-  	  * @param Tx The transformation to modify.
   	  * @return The transformation modified. */
   	protected def autoFitView() {
   		var sx = 0.0; var sy = 0.0
@@ -330,8 +326,6 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
 
   	/** Compute a transformation that pass from graph units (user space) to a pixel units (device
   	  * space) so that the view (zoom and center) requested by the user is produced.
-  	  * @param g2 The Swing graphics.
-  	  * @param Tx The transformation to modify.
   	  * @return The transformation modified. */
   	protected def userView() {
   		var sx = 0.0; var sy = 0.0
@@ -695,7 +689,7 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
 
   	/** Compute the position of a sprite if attached to a node.
       * @param sprite The sprite.
-      * @param pos Where to stored the computed position, if null, the position is created.
+      * @param position Where to stored the computed position, if null, the position is created.
       * @param units The units the computed position must be given into. 
       * @return The same instance as pos, or a new one if pos was null. */
     protected def getSpritePositionNode(sprite:GraphicSprite, position:Point3, units:Units):Point3 = {
@@ -719,7 +713,7 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.swingV
 	
   	/** Compute the position of a sprite if attached to an edge.
   	  * @param sprite The sprite.
-  	  * @param pos Where to store the computed position, if null, the position is created.
+  	  * @param position Where to store the computed position, if null, the position is created.
   	  * @param units The units the computed position must be given into. 
   	  * @return The same instance as pos, or a new one if pos was null. */
   	protected def getSpritePositionEdge(sprite:GraphicSprite, position:Point3, units:Units):Point3 = {

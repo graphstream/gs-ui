@@ -35,7 +35,8 @@ import org.graphstream.graph._
 import org.graphstream.graph.implementations.MultiGraph
 
 import org.graphstream.ui.j2dviewer.J2DGraphRenderer
-import org.graphstream.ui.swingViewer.{Viewer, DefaultView, ViewerPipe, ViewerListener}
+import org.graphstream.ui.view.{Viewer, ViewerPipe, ViewerListener}
+import org.graphstream.ui.swingViewer.DefaultView;
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants
 import org.graphstream.ui.spriteManager._
 
