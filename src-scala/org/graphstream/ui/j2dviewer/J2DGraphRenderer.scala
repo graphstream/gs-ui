@@ -35,6 +35,7 @@ import java.awt.{Container, Graphics2D}
 import java.util.ArrayList
 import java.io.{File, IOException}
 import java.awt.image.BufferedImage
+import java.util.logging.Logger
 import scala.collection.JavaConversions._
 import org.graphstream.ui.geom.Point3
 import org.graphstream.graph.Element
@@ -306,7 +307,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 			    case e:Exception => e.printStackTrace
 			}
 		} else {
-		    System.err.println("unknown screenshot filename extension %s, saving to jpeg".format(filename))
+		    Logger.getLogger(this.getClass.getSimpleName).warning("Unknown screenshot filename extension %s, saving to jpeg.".format(filename))
 		    val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
 			render(img.createGraphics, 0, 0, width, height)
 			val file = new File(filename+".jpg")

@@ -31,6 +31,8 @@
  */
 package org.graphstream.ui.util
 
+import java.util.logging.Logger
+
 import scala.collection.mutable.WrappedArray
 import org.graphstream.ui.geom.Point3
 
@@ -116,7 +118,7 @@ trait AttributeUtils {
  			case b:Array[Float]   => { b.map { _.toDouble } }
  			case b:Array[Int]     => { b.map { _.toDouble } }
  			case c:String         => { c.split(',').map { _.toDouble } }
- 			case x                => { System.err.println("cannot extract double values from array %s".format(x.getClass.getName)); Array[Double]( 0 ) }
+ 			case x                => { Logger.getLogger(this.getClass.getSimpleName).warning("Cannot extract double values from array %s.".format(x.getClass.getName)); Array[Double]( 0 ) }
  		}
  	}
 

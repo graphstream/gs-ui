@@ -35,6 +35,7 @@ import java.awt.{Color, Graphics2D, Image}
 import java.awt.image.BufferedImage
 import java.io.{File, IOException}
 import java.net.URL
+import java.util.logging.{Level, Logger}
 import scala.collection.mutable.HashMap
 
 import javax.imageio.ImageIO;
@@ -109,10 +110,10 @@ object ImageCache {
 								image = ImageIO.read( new File( fileNameOrUrl ) )	// Try the file.
 								imageCache.put( fileNameOrUrl, image )
 							} catch {
-								case _:Throwable => {
+								case e:Throwable => {
 									image = dummy
 									imageCache.put( fileNameOrUrl, image )
-									System.err.printf( "Cannot read image '%s'%n", fileNameOrUrl )
+									Logger.getLogger(this.getClass.getSimpleName).log(Level.WARNING, "Cannot read image '%s'.".format(fileNameOrUrl), e)
 								}
 							}
 						}
