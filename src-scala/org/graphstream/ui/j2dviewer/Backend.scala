@@ -35,6 +35,7 @@ import java.awt.RenderingHints
 import java.awt.geom.Point2D
 import java.awt.geom.AffineTransform
 import java.awt.geom.NoninvertibleTransformException
+import java.util.logging.{Level, Logger}
 import scala.collection.mutable.ArrayStack
 import java.awt.Graphics2D
 import org.graphstream.ui.geom.Point3
@@ -178,7 +179,7 @@ class BackendJ2D extends Backend {
         	xT = new AffineTransform(Tx)
         	xT.invert
         } catch {
-            case e:NoninvertibleTransformException => Console.err.println("Cannot inverse matrix")
+            case e:NoninvertibleTransformException => Logger.getLogger(this.getClass().getSimpleName).log(Level.WARNING, "Cannot inverse matrix.", e)
         }
     }
     
@@ -278,12 +279,12 @@ class BackendJ2D extends Backend {
 		    case PIE_CHART      => if(oldShape.isInstanceOf[PieChartShape])       oldShape else new PieChartShape
 		  	case POLYGON        => if(oldShape.isInstanceOf[PolygonShape])        oldShape else new PolygonShape
 		  	// ------------------------------------------
-		    case TEXT_BOX       => Console.err.printf( "** SORRY text-box shape not yet implemented **%n" );     new SquareShape
-		    case TEXT_PARAGRAPH => Console.err.printf( "** SORRY text-para shape not yet implemented **%n" );    new SquareShape
-		    case TEXT_CIRCLE    => Console.err.printf( "** SORRY text-circle shape not yet implemented **%n" );  new CircleShape
-		    case TEXT_DIAMOND   => Console.err.printf( "** SORRY text-diamond shape not yet implemented **%n" ); new CircleShape
-		    case ARROW          => Console.err.printf( "** SORRY arrow shape not yet implemented **%n" );        new CircleShape
-		    case IMAGES         => Console.err.printf( "** SORRY images shape not yet implemented **%n" );       new SquareShape 
+		    case TEXT_BOX       => Logger.getLogger(this.getClass.getSimpleName).warning("** SORRY text-box shape not yet implemented **");     new SquareShape
+		    case TEXT_PARAGRAPH => Logger.getLogger(this.getClass.getSimpleName).warning("** SORRY text-para shape not yet implemented **");    new SquareShape
+		    case TEXT_CIRCLE    => Logger.getLogger(this.getClass.getSimpleName).warning("** SORRY text-circle shape not yet implemented **");  new CircleShape
+		    case TEXT_DIAMOND   => Logger.getLogger(this.getClass.getSimpleName).warning("** SORRY text-diamond shape not yet implemented **"); new CircleShape
+		    case ARROW          => Logger.getLogger(this.getClass.getSimpleName).warning("** SORRY arrow shape not yet implemented **");        new CircleShape
+		    case IMAGES         => Logger.getLogger(this.getClass.getSimpleName).warning("** SORRY images shape not yet implemented **");       new SquareShape
 		  	// ------------------------------------------
 		    case JCOMPONENT     => throw new RuntimeException("WTF, jcomponent should have its own renderer")
 		    case x              => throw new RuntimeException("%s shape cannot be set for nodes".format(x.toString))
@@ -300,10 +301,10 @@ class BackendJ2D extends Backend {
 		  	case CUBIC_CURVE => if(oldShape.isInstanceOf[CubicCurveShape])           oldShape else new CubicCurveShape
 		  	case FREEPLANE   => if(oldShape.isInstanceOf[FreePlaneEdgeShape])        oldShape else new FreePlaneEdgeShape
     		case POLYLINE    => if(oldShape.isInstanceOf[PolylineEdgeShape])         oldShape else new PolylineEdgeShape
-    		case SQUARELINE  => Console.err.printf("** SORRY square-line shape not yet implemented **"); new HorizontalSquareEdgeShape 
+    		case SQUARELINE  => Logger.getLogger(this.getClass.getSimpleName).warning("** SORRY square-line shape not yet implemented **"); new HorizontalSquareEdgeShape
     		case LSQUARELINE => if(oldShape.isInstanceOf[HorizontalSquareEdgeShape]) oldShape else new LSquareEdgeShape 
     		case HSQUARELINE => if(oldShape.isInstanceOf[HorizontalSquareEdgeShape]) oldShape else new HorizontalSquareEdgeShape 
-    		case VSQUARELINE => Console.err.printf("** SORRY square-line shape not yet implemented **"); new HorizontalSquareEdgeShape 
+    		case VSQUARELINE => Logger.getLogger(this.getClass.getSimpleName).warning("** SORRY square-line shape not yet implemented **"); new HorizontalSquareEdgeShape
 		    case x           => throw new RuntimeException("%s shape cannot be set for edges".format(x.toString))
 		}
 
@@ -337,11 +338,11 @@ class BackendJ2D extends Backend {
 		    case PIE_CHART      => if(oldShape.isInstanceOf[PieChartShape])         oldShape else new PieChartShape
 		  	case POLYGON        => if(oldShape.isInstanceOf[PolygonShape])          oldShape else new PolygonShape
 		  	// ------------------------------------------
-		    case TEXT_BOX       => Console.err.printf( "** SORRY text-box shape not yet implemented **%n" );     new SquareShape
-		    case TEXT_PARAGRAPH => Console.err.printf( "** SORRY text-para shape not yet implemented **%n" );    new SquareShape
-		    case TEXT_CIRCLE    => Console.err.printf( "** SORRY text-circle shape not yet implemented **%n" );  new CircleShape
-		    case TEXT_DIAMOND   => Console.err.printf( "** SORRY text-diamond shape not yet implemented **%n" ); new CircleShape
-		    case IMAGES         => Console.err.printf( "** SORRY images shape not yet implemented **%n" );       new SquareShape 
+		    case TEXT_BOX       => Logger.getLogger(this.getClass.getSimpleName).warning("** SORRY text-box shape not yet implemented **");     new SquareShape
+		    case TEXT_PARAGRAPH => Logger.getLogger(this.getClass.getSimpleName).warning("** SORRY text-para shape not yet implemented **");    new SquareShape
+		    case TEXT_CIRCLE    => Logger.getLogger(this.getClass.getSimpleName).warning("** SORRY text-circle shape not yet implemented **");  new CircleShape
+		    case TEXT_DIAMOND   => Logger.getLogger(this.getClass.getSimpleName).warning("** SORRY text-diamond shape not yet implemented **"); new CircleShape
+		    case IMAGES         => Logger.getLogger(this.getClass.getSimpleName).warning("** SORRY images shape not yet implemented **");       new SquareShape
 		  	// ------------------------------------------
 		    case JCOMPONENT     => throw new RuntimeException("WTF, jcomponent should have its own renderer")
 		    case x              => throw new RuntimeException("%s shape cannot be set for sprites".format(x.toString))

@@ -494,17 +494,11 @@ trait Decorable extends HasSkel {
  
   		if( skel != null ) {
   			val style = element.getStyle
-  			
-  			//if( skel.iconAndText == null )
-  				skel.iconAndText = ShapeDecor.iconAndText( style, camera, element )
-
+  			skel.iconAndText = ShapeDecor.iconAndText( style, camera, element )
   			if( style.getIcon != null && style.getIcon.equals( "dynamic" ) && element.hasAttribute( "ui.icon" ) ) {
   				val url = element.getLabel("ui.icon").toString
   				skel.iconAndText.setIcon(backend, url)
-// Console.err.printf( "changing icon %s%n", url )
   			}
-// else Console.err.print( "NOT changing icon... %b %s %b%n".format( style.getIcon != null, style.getIcon, element.hasAttribute( "ui.icon" ) ) )
-  			
   			skel.iconAndText.setText(backend, element.label)
   		}
   	}

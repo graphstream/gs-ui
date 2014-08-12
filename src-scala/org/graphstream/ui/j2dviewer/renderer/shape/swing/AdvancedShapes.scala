@@ -33,6 +33,7 @@ package org.graphstream.ui.j2dviewer.renderer.shape.swing
 
 import java.awt._
 import java.awt.geom._
+import java.util.logging.{Level, Logger}
 
 import org.graphstream.ui.j2dviewer.renderer._
 import org.graphstream.ui.geom.Point2
@@ -657,7 +658,7 @@ try {
                 tox, toy, 0)
         }
 } catch {
-	case e:Exception => { Console.err.println("FOUND") }
+	case e:Exception => { Logger.getLogger(this.getClass.getSimpleName).log(Level.WARNING, "FOUND!", e) }
 }
     }
 
@@ -982,7 +983,6 @@ class PieChartShape
     }
 
     override def make(bck: Backend, camera: Camera) {
-        //Console.err.println("drawing pie %s [%f %f]".format(theCenter, theCenter.x+theSize.x/2, theCenter.y+theSize.y/2));
         theShape.setFrameFromCenter(theCenter.x, theCenter.y, theCenter.x + theSize.x / 2, theCenter.y + theSize.y / 2)
     }
 
@@ -1040,7 +1040,7 @@ class PieChartShape
             }
 
             if (sum > 1.01f)
-                Console.err.print("[Sprite %s] The sum of values for ui.pie-value should eval to 1 at max (actually %f)%n".format(element.getId, sum))
+                Logger.getLogger(this.getClass.getSimpleName).warning("[Sprite %s] The sum of values for ui.pie-value should eval to 1 at max (actually %f).".format(element.getId, sum))
         } else {
             // Draw a red empty circle to indicate "no value".
             g.setColor(Color.red)
