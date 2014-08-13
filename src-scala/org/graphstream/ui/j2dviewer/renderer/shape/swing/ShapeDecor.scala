@@ -479,15 +479,14 @@ class SwingTextBox(val font:Font, val textColor:Color, val bgColor:Color, val ro
 	def setText(text:String, backend:Backend) {
 	  	if((text ne null) && (text.length > 0)) {
 	  		if( (textData ne text) || (textData != text) ) {
-//Console.err.printf( "recomputing text '%s' != '%s' length%n", text, textData )
-	  		    // As the text is not rendered using the default affine transform, but using
-	  		    // the identity transform, and as the FontRenderContext uses the current
-	  		    // transform, we use a predefined default font render context initialized
-	  		    // with an identity transform here.
-				textData    = text
+          // As the text is not rendered using the default affine transform, but using
+          // the identity transform, and as the FontRenderContext uses the current
+          // transform, we use a predefined default font render context initialized
+          // with an identity transform here.
+				  textData    = text
 	  			this.text   = new TextLayout(text, font, TextBox.defaultFontRenderContext)
 	  			this.bounds = this.text.getBounds
-	  	  	}
+	  	  }
 	  	} else {
 	  		this.textData = null
 	  		this.text     = null

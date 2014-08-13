@@ -31,6 +31,8 @@
  */
 package org.graphstream.ui.util
 
+import java.util.logging.Logger
+
 import scala.collection.mutable.WrappedArray
 import org.graphstream.ui.geom.Point3
 
@@ -41,7 +43,7 @@ trait AttributeUtils {
       * @return An array of 3D points. */
  	protected def getPoints(values:AnyRef):Array[Point3] = {
  	    values match {
- 			case b:Array[Point3]  => if(b.size==0) Console.err.println("0 ui.point"); b
+ 			case b:Array[Point3]  => if(b.size==0) Logger.getLogger(this.getClass.getSimpleName).info("0 ui.points"); b
  			case b:WrappedArray[AnyRef] => getPoints(b.toArray)
  			case b:Array[AnyRef] => {
  			    if(b.size>0) {
@@ -63,11 +65,11 @@ trait AttributeUtils {
  			        	}
  			        	res
  			        } else {
- 			            Console.err.println("Cannot interpret ui.points elements type %s".format(b(0).getClass.getName))
+                  Logger.getLogger(this.getClass.getSimpleName).warning("Cannot interpret ui.points elements type %s".format(b(0).getClass.getName))
  			            new Array[Point3](0)
  			        }
  			    } else {
- 			        Console.err.println("ui.points array size is zero !!")
+              Logger.getLogger(this.getClass.getSimpleName).warning("ui.points array size is zero !!")
  			        new Array[Point3](0)
  			    }
  			}
@@ -78,7 +80,7 @@ trait AttributeUtils {
 		        	for(i <- 0 until size) { res(i) = new Point3(b(i*3), b(i*3+1), b(i*3+2)) }
 		        	res
  			    } else {
- 			        Console.err.println("ui.points array size is zero !!")
+              Logger.getLogger(this.getClass.getSimpleName).warning("ui.points array size is zero !!")
  			        new Array[Point3](0)
  			    }
  			}
@@ -89,12 +91,12 @@ trait AttributeUtils {
 		        	for(i <- 0 until size) { res(i) = new Point3(b(i*3), b(i*3+1), b(i*3+2)) }
 		        	res
  			    } else {
- 			        Console.err.println("ui.points array size is zero !!")
+              Logger.getLogger(this.getClass.getSimpleName).warning("ui.points array size is zero !!")
  			        new Array[Point3](0)
  			    } 			    
  			}
  			case x => {
- 			    Console.err.println("Cannot interpret ui.points contents (%s)".format(x.getClass.getName))
+          Logger.getLogger(this.getClass.getSimpleName).warning("Cannot interpret ui.points contents (%s)".format(x.getClass.getName))
  			    new Array[Point3](0)
  			}
  		}
@@ -116,7 +118,7 @@ trait AttributeUtils {
  			case b:Array[Float]   => { b.map { _.toDouble } }
  			case b:Array[Int]     => { b.map { _.toDouble } }
  			case c:String         => { c.split(',').map { _.toDouble } }
- 			case x                => { System.err.println("cannot extract double values from array %s".format(x.getClass.getName)); Array[Double]( 0 ) }
+ 			case x                => { Logger.getLogger(this.getClass.getSimpleName).warning("Cannot extract double values from array %s.".format(x.getClass.getName)); Array[Double]( 0 ) }
  		}
  	}
 

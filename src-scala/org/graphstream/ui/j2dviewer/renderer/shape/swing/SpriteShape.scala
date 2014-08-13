@@ -188,9 +188,9 @@ class SpriteFlowShape
 				per.normalize
 				per.scalarMult(offset)
 				
-	            theShape.reset
+        theShape.reset
+
 				if(reverse) {
-Console.err.println("reverse")
 				    val n = connectorSkel.size
 	                sum = connectorSkel.length - sum
 	                ps  = 1-ps

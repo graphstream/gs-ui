@@ -140,7 +140,6 @@ abstract class StyleRenderer(val group:StyleGroup) extends GraphicElement.SwingE
 		}
   
 		endRenderingPass(bck, camera, shadow)
-//System.err.println("[%s] %d".format(group.getId, (T2-T1)));
     }
 
 // Methods to implement in each renderer

@@ -35,6 +35,7 @@ import java.awt.{Container, Graphics2D}
 import java.util.ArrayList
 import java.io.{File, IOException}
 import java.awt.image.BufferedImage
+import java.util.logging.Logger
 import scala.collection.JavaConversions._
 import org.graphstream.ui.geom.Point3
 import org.graphstream.graph.Element
@@ -173,7 +174,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
   	def beginSelectionAt(x:Double, y:Double) {
   		selection.active = true
   		selection.begins(x, y)
-  		Console.err.println("Selection begins at %f %f".format(x, y))
+  		Logger.getLogger(this.getClass.getSimpleName).fine("Selection begins at %f %f.".format(x, y))
   	}
 
   	def selectionGrowsAt(x:Double, y:Double) {
@@ -300,13 +301,13 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 					render(g2, 0, 0, width, height)
 					out.outputTo(filename)
 				} else {
-					Console.err.printf("plugin %s is not an instance of Graphics2DOutput (%s)%n", plugin, o.getClass.getName)
+					Logger.getLogger(this.getClass.getSimpleName).warning("Plugin %s is not an instance of Graphics2DOutput (%s).".format(plugin, o.getClass.getName))
 				}
 			} catch {
 			    case e:Exception => e.printStackTrace
 			}
 		} else {
-		    System.err.println("unknown screenshot filename extension %s, saving to jpeg".format(filename))
+		    Logger.getLogger(this.getClass.getSimpleName).warning("Unknown screenshot filename extension %s, saving to jpeg.".format(filename))
 		    val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
 			render(img.createGraphics, 0, 0, width, height)
 			val file = new File(filename+".jpg")
