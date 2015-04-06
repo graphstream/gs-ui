@@ -225,6 +225,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.3</version>
 				<configuration>
 					<source>1.5</source>
 					<target>1.5</target>
@@ -234,6 +235,7 @@
 			<plugin>
 				<artifactId>maven-eclipse-plugin</artifactId>
 				<groupId>org.apache.maven.plugins</groupId>
+				<version>2.9</version>
 				<configuration>
 					<sourceIncludes>
 						<include>**</include>
@@ -244,6 +246,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.6</version>
 				<configuration>
 					<excludes>
 						<exclude>org/graphstream/ui/j2dviewer/renderer/test</exclude>
@@ -263,6 +266,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.2</version>
 				<configuration>
 					<tags>
 						<tag>
@@ -297,11 +301,13 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.18.1</version>
 			</plugin>
 
 			<plugin>
 				<groupId>org.scala-tools</groupId>
 				<artifactId>maven-scala-plugin</artifactId>
+				<version>2.15.2</version>
 				<executions>
 					<execution>
 						<goals>
@@ -318,6 +324,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-clean-plugin</artifactId>
+				<version>2.6.1</version>
 				<configuration>
 					<filesets>
 						<fileset>
@@ -337,7 +344,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.3.1</version>
+			<version>4.12</version>
 			<optional>false</optional>
 		</dependency>
 		<dependency>
@@ -349,7 +356,7 @@
 		<dependency>
 			<groupId>org.graphstream</groupId>
 			<artifactId>gs-algo</artifactId>
-      <version>${project.version}</version>
+			<version>${project.version}</version>
 			<optional>false</optional>
 		</dependency>
 		<dependency>
