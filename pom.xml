@@ -147,6 +147,12 @@
 							<libs>
 								<lib>${java.home}/lib/rt.jar</lib>
 							</libs>
+							<exclusions>
+								<exclusion>
+									<groupId>org.scala-lang</groupId>
+									<artifactId>scala-library</artifactId>
+								</exclusion>
+							</exclusions>
 						</configuration>
 					</plugin>
 				</plugins>
