@@ -5,12 +5,12 @@
  *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
  *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
  *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
+ *
  * This file is part of GraphStream <http://graphstream-project.org>.
- * 
+ *
  * GraphStream is a library whose purpose is to handle static or dynamic
  * graph, create them from scratch, file or any source and display them.
- * 
+ *
  * This program is free software distributed under the terms of two licenses, the
  * CeCILL-C license that fits European law, and the GNU Lesser General Public
  * License. You can  use, modify and/ or redistribute the software under the terms
@@ -18,14 +18,14 @@
  * URL <http://www.cecill.info> or under the terms of the GNU LGPL as published by
  * the Free Software Foundation, either version 3 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
  */
@@ -46,21 +46,21 @@ import org.graphstream.ui.j2dviewer._
 //import org.graphstream.ScalaGS._
 
 object TestShapeDecor {
-	def main( args:Array[String] ) { (new TestShapeDecor).run } 
+	def main( args:Array[String] ) { (new TestShapeDecor).run }
 }
 
 class TestShapeDecor extends ViewerListener {
 	var loop = true
-	
+
 	def run() = {
 		val graph  = new MultiGraph( "TestSize" )
 		val viewer = new Viewer( graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD )
 		val pipeIn = viewer.newViewerPipe
 		val view   = viewer.addView( "view1", new J2DGraphRenderer )
 //		val view   = viewer.addDefaultView( true )
-  
+
 		view.resizeFrame(500, 430)
-		
+
 		pipeIn.addAttributeSink( graph )
 		pipeIn.addViewerListener( this )
 		pipeIn.pump
@@ -68,7 +68,7 @@ class TestShapeDecor extends ViewerListener {
 		graph.addAttribute( "ui.stylesheet", styleSheet )
 		graph.addAttribute( "ui.antialias" )
 		graph.addAttribute( "ui.quality" )
-		
+
 		val A:Node = graph.addNode( "A" )
 		val B:Node = graph.addNode( "B" )
 		val C:Node = graph.addNode( "C" )
@@ -76,7 +76,7 @@ class TestShapeDecor extends ViewerListener {
 		val E:Node = graph.addNode( "E" )
 		val F:Node = graph.addNode( "F" )
 		val G:Node = graph.addNode( "G" )
-		
+
 		val U:Node = graph.addNode( "U" )
 		val V:Node = graph.addNode( "V" )
 		val W:Node = graph.addNode( "W" )
@@ -113,7 +113,7 @@ class TestShapeDecor extends ViewerListener {
 		val fz:Edge = graph.addEdge( "fz", "f", "z" )
 		val gt:Edge = graph.addEdge( "gt", "g", "t" )
 		val ij:Edge = graph.addEdge( "ij", "i", "j" )
-		
+
 		val AU:Edge = graph.addEdge( "AU", "A", "U" )
 		val BV:Edge = graph.addEdge( "BV", "B", "V" )
 		val CW:Edge = graph.addEdge( "CW", "C", "W" )
@@ -121,7 +121,7 @@ class TestShapeDecor extends ViewerListener {
 		val EY:Edge = graph.addEdge( "EY", "E", "Y" )
 		val FZ:Edge = graph.addEdge( "FZ", "F", "Z" )
 		val GT:Edge = graph.addEdge( "GT", "G", "T" )
-		
+
 		A.setAttribute("xyz", Array[Double]( 0, 6, 0 ))
 		B.setAttribute("xyz", Array[Double]( 0, 5, 0 ))
 		C.setAttribute("xyz", Array[Double]( 0, 4, 0 ))
@@ -129,7 +129,7 @@ class TestShapeDecor extends ViewerListener {
 		E.setAttribute("xyz", Array[Double]( 0, 2, 0 ))
 		F.setAttribute("xyz", Array[Double]( 0, 1, 0 ))
 		G.setAttribute("xyz", Array[Double]( 0, 0, 0 ))
-		
+
 		U.setAttribute("xyz", Array[Double]( 3, 5, 0 ))
 		V.setAttribute("xyz", Array[Double]( 3, 4, 0 ))
 		W.setAttribute("xyz", Array[Double]( 3, 3, 0 ))
@@ -137,7 +137,7 @@ class TestShapeDecor extends ViewerListener {
 		Y.setAttribute("xyz", Array[Double]( 3, 1, 0 ))
 		Z.setAttribute("xyz", Array[Double]( 3, 0, 0 ))
 		T.setAttribute("xyz", Array[Double]( 3,-1, 0 ))
-		
+
 		graph.getNode[Node]("a").setAttribute("xyz", Array[Double]( 6, 5, 0 ))
 		graph.getNode[Node]("b").setAttribute("xyz", Array[Double]( 6, 4, 0 ))
 		graph.getNode[Node]("c").setAttribute("xyz", Array[Double]( 6, 3, 0 ))
@@ -145,7 +145,7 @@ class TestShapeDecor extends ViewerListener {
 		graph.getNode[Node]("e").setAttribute("xyz", Array[Double]( 6, 1, 0 ))
 		graph.getNode[Node]("f").setAttribute("xyz", Array[Double]( 6, 0, 0 ))
 		graph.getNode[Node]("g").setAttribute("xyz", Array[Double]( 6,-1, 0 ))
-		
+
 		graph.getNode[Node]("u").setAttribute("xyz", Array[Double]( 9, 6, 0 ))
 		graph.getNode[Node]("v").setAttribute("xyz", Array[Double]( 9, 5, 0 ))
 		graph.getNode[Node]("w").setAttribute("xyz", Array[Double]( 9, 4, 0 ))
@@ -153,10 +153,10 @@ class TestShapeDecor extends ViewerListener {
 		graph.getNode[Node]("y").setAttribute("xyz", Array[Double]( 9, 2, 0 ))
 		graph.getNode[Node]("z").setAttribute("xyz", Array[Double]( 9, 1, 0 ))
 		graph.getNode[Node]("t").setAttribute("xyz", Array[Double]( 9, 0, 0 ))
-		
+
 		graph.getNode[Node]("i").setAttribute("xyz", Array[Double]( 3, 7, 0 ))
 		graph.getNode[Node]("j").setAttribute("xyz", Array[Double]( 6, 8, 0 ))
-		
+
 		A.setAttribute("label", "Center")
 		B.setAttribute("label", "AtLeft")
 		C.setAttribute("label", "AtRight")
@@ -164,7 +164,7 @@ class TestShapeDecor extends ViewerListener {
 		E.setAttribute("label", "Right")
 		F.setAttribute("label", "Under")
 		G.setAttribute("label", "Above")
-		
+
 		U.setAttribute("label", "Center")
 		V.setAttribute("label", "AtLeft")
 		W.setAttribute("label", "AtRight")
@@ -172,7 +172,7 @@ class TestShapeDecor extends ViewerListener {
 		Y.setAttribute("label", "Right")
 		Z.setAttribute("label", "Under")
 		T.setAttribute("label", "Above")
-		
+
 		au.setAttribute("label", "Center")
 		bv.setAttribute("label", "AtLeft")
 		cw.setAttribute("label", "AtRight")
@@ -183,40 +183,40 @@ class TestShapeDecor extends ViewerListener {
 		ij.setAttribute("label", "Along")
 
 		graph.addAttribute("ui.screenshot", "text_align.png")
-		    
+
 		while( loop ) {
 			pipeIn.pump
 			sleep( 40 )
 		}
-		
+
 		printf( "bye bye" )
-		exit
+		sys.exit
 	}
-	
+
 	protected def sleep( ms:Long ) { Thread.sleep( ms ) }
 
 // Viewer Listener Interface
- 
+
 	def viewClosed( id:String ) { loop = false }
- 
+
  	def buttonPushed( id:String ) {
  		if( id == "quit" )
  			loop = false
  		else if( id == "A" )
  			print( "Button A pushed%n".format() )
  	}
-  
- 	def buttonReleased( id:String ) {} 
- 
+
+ 	def buttonReleased( id:String ) {}
+
 // Data
- 	
+
 	val styleSheet = """
 			graph {
 				canvas-color: white;
  				fill-mode: plain;
  				fill-color: white;
  				padding: 30px;
- 			} 
+ 			}
 			node {
 				shape: circle;
 				size: 10px;

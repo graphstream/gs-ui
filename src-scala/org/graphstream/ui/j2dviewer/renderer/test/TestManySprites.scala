@@ -5,12 +5,12 @@
  *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
  *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
  *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
+ *
  * This file is part of GraphStream <http://graphstream-project.org>.
- * 
+ *
  * GraphStream is a library whose purpose is to handle static or dynamic
  * graph, create them from scratch, file or any source and display them.
- * 
+ *
  * This program is free software distributed under the terms of two licenses, the
  * CeCILL-C license that fits European law, and the GNU Lesser General Public
  * License. You can  use, modify and/ or redistribute the software under the terms
@@ -18,14 +18,14 @@
  * URL <http://www.cecill.info> or under the terms of the GNU LGPL as published by
  * the Free Software Foundation, either version 3 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
  */
@@ -58,82 +58,82 @@ object TestManySprites {
 }
 
 class TestManySprites extends ViewerListener {
-	
+
 	/** The application runs while this is true. */
 	var loop = true
-	
+
 	/** The graph at hand. */
 	var graph:Graph = null
-	
+
 	/** The set of sprites. */
-	var sprites:SpriteManager = null 
-	
+	var sprites:SpriteManager = null
+
 	val NODE_COUNT = 1000
 	val SPRITE_COUNT = 500
-	
+
 	/** Main application loop. */
 	def run( args:Array[String] ) = {
 		graph  = new MultiGraph( "TestSprites" )
 		val viewer = graph.display( true )
 		val pipeIn = viewer.newViewerPipe
 		val gen    = new DorogovtsevMendesGenerator
-  
+
 		pipeIn.addAttributeSink( graph )
 		pipeIn.addViewerListener( this )
 		pipeIn.pump
-		
+
 		printf( "%d nodes, %d sprites%n", NODE_COUNT, SPRITE_COUNT )
-  
+
 		graph.addAttribute( "ui.default.title", "Layout Test" );
 		graph.addAttribute( "ui.antialias" )
 		graph.addAttribute( "ui.stylesheet", styleSheet )
-		
+
 		gen.addSink( graph )
 //		gen.setDirectedEdges( true, true )
 		gen.begin
 		var i = 0
 		while ( i < NODE_COUNT ) { gen.nextEvents; i += 1 }
 		gen.end
-  
+
 		sleep( 1000 )
 		addSprites
-		
+
 		while( loop ) {
 			pipeIn.pump
 			moveSprites
 			sleep( 10 )
 		}
-		
+
 		printf( "bye bye" )
-		exit
+		sys.exit
 	}
-	
+
 	protected def sleep( ms:Long ) = Thread.sleep( ms )
-	
+
 	protected def addSprites() {
 		sprites = new SpriteManager( graph )
-		
+
 		sprites.setSpriteFactory( new TestSpriteFactory )
-		
+
 		for( i <- 1 to SPRITE_COUNT ) {
 			sprites.addSprite( i.toString )
 		}
-		
+
 		sprites.foreach { s:Sprite =>
 			s.attachToEdge( randomEdge( graph ).getId )
 		}
 	}
-	
+
 	protected def moveSprites() { sprites.foreach { s:Sprite => s.asInstanceOf[TestSprite].move } }
 
 // Viewer Listener Interface
- 
+
 	def viewClosed( id:String ) { loop = false }
- 
+
  	def buttonPushed( id:String ) {}
-  
- 	def buttonReleased( id:String ) {} 
- 
+
+ 	def buttonReleased( id:String ) {}
+
 // Data
 
 	private val styleSheet = """
@@ -141,13 +141,13 @@ class TestManySprites extends ViewerListener {
  				fill-mode: plain;
  				fill-color: white, gray;
  				padding: 60px;
- 			} 
+ 			}
 			node {
 				shape: circle;
 				size: 4px;
 				fill-mode: plain;
 				fill-color: grey;
-				stroke-mode: none; 
+				stroke-mode: none;
 				text-visibility-mode: zoom-range;
 				text-visibility: 0, 0.9;
 			}
@@ -179,24 +179,24 @@ protected class TestSprite( identifier:String, manager:SpriteManager ) extends S
 
 	def move() {
 		var p = getX
-		
+
 		p += dir
-			
+
 		if( p < 0 || p > 1 )
 		     chooseNextEdge
 		else setPosition( p )
 	}
-	
+
 	def chooseNextEdge() {
 		val edge = getAttachment.asInstanceOf[Edge]
 		val node:Node = if( dir > 0 ) edge.getTargetNode[Node] else edge.getSourceNode[Node]
 		val next:Edge = randomEdge( node )
 		var pos  = 0
-		
+
 		if( node == next.getSourceNode )
-			 { dir =  0.01f; pos = 0; } 
+			 { dir =  0.01f; pos = 0; }
 		else { dir = -0.01f; pos = 1; }
-		
+
 		attachToEdge( next.getId )
 		setPosition( pos )
 	}
