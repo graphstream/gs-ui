@@ -209,4 +209,8 @@ class TestStars extends ViewerListener {
 			}
 		}
 	}
+
+	override def mouseOver(id: String){}
+
+	override def mouseLeft(id: String){}
 }

@@ -300,6 +300,10 @@ class TestSprites extends ViewerListener {
 				shadow-offset: 3px, -3px;
 			}
 			"""
+
+	override def mouseOver(id: String){}
+
+	override def mouseLeft(id: String){}
 }
 
 class MovingEdgeSprite extends Sprite {

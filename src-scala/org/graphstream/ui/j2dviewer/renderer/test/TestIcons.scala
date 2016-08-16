@@ -171,4 +171,8 @@ private class TestIcons extends ViewerListener {
 				arrow-size: 20px, 6px;
 			}
 			"""
+
+	override def mouseOver(id: String){}
+
+	override def mouseLeft(id: String){}
 }

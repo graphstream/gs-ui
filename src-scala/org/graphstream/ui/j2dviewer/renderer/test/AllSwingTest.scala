@@ -36,7 +36,9 @@ import org.graphstream.graph.implementations.MultiGraph
 import org.graphstream.ui.view.Viewer
 import javax.swing._
 import java.awt._
+
 import org.graphstream.algorithm.generator.DorogovtsevMendesGenerator
+import org.graphstream.ui.swingViewer.DefaultView
 
 object AllSwingTest {
 	def main( args:Array[String] ):Unit = {
@@ -56,7 +58,7 @@ class AllSwingTest extends JFrame {
 		g.addAttribute("ui.stylesheet", styleSheet)
 
 		v.enableAutoLayout
-		add(v.addDefaultView(false), BorderLayout.CENTER)
+		add(v.addDefaultView(false).asInstanceOf[DefaultView], BorderLayout.CENTER)
 		
 		gen.addSink(g)
 		gen.begin

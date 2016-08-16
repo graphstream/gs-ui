@@ -211,4 +211,8 @@ class TestArrows extends ViewerListener {
 				arrow-image: url('file:///home/antoine/Documents/Perso/Art/Icons/GSLogo11d24.png');
 			}
 			"""
+
+	override def mouseOver(id: String){}
+
+	override def mouseLeft(id: String){}
 }

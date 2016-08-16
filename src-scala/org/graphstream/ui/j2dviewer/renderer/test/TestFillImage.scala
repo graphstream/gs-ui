@@ -253,4 +253,8 @@ private class TestFillImage extends ViewerListener {
 				size: 80px, 30px;
 			}
 		""";
+
+	override def mouseOver(id: String){}
+
+	override def mouseLeft(id: String){}
 }

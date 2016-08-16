@@ -36,15 +36,18 @@ import java.util.ArrayList
 import java.io.{File, IOException}
 import java.awt.image.BufferedImage
 import java.util.logging.Logger
+
 import scala.collection.JavaConversions._
 import org.graphstream.ui.geom.Point3
 import org.graphstream.graph.Element
-import org.graphstream.ui.swingViewer.{GraphRenderer, LayerRenderer}
-import org.graphstream.ui.graphicGraph.{GraphicGraph, GraphicElement, GraphicNode, GraphicEdge, GraphicSprite, StyleGroup, StyleGroupListener}
+import org.graphstream.ui.view.{GraphRenderer, LayerRenderer, View, Viewer}
+import org.graphstream.ui.graphicGraph.{GraphicEdge, GraphicElement, GraphicGraph, GraphicNode, GraphicSprite, StyleGroup, StyleGroupListener}
 import org.graphstream.ui.graphicGraph.stylesheet.Selector
 import org.graphstream.ui.util.Selection
 import org.graphstream.ui.j2dviewer.renderer._
 import javax.imageio.ImageIO
+
+import org.graphstream.ui.swingViewer.DefaultView
 import org.graphstream.ui.util.FPSLogger
 import org.graphstream.ui.swingViewer.util.Graphics2DOutput
 
@@ -75,7 +78,7 @@ object J2DGraphRenderer {
  * for drawing the graph, the backend is also responsible for the shape
  * creation.
  */
-class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
+class J2DGraphRenderer extends GraphRenderer[Container,Graphics2D] with StyleGroupListener {
 // Attribute	
  
 	/** Set the view on the view port defined by the metrics. */
@@ -88,10 +91,10 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 	protected val selection = new Selection
  
 	/** The layer renderer for the background (under the graph), can be null. */
-	protected var backRenderer:LayerRenderer = null
+	protected var backRenderer:LayerRenderer[Graphics2D] = null
 	
 	/** The layer renderer for the foreground (above the graph), can be null. */
-	protected var foreRenderer:LayerRenderer = null
+	protected var foreRenderer:LayerRenderer[Graphics2D] = null
 	
 	/** The rendering backend. */
 	protected var backend:Backend = null
@@ -255,7 +258,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 	protected def renderForeLayer() { if(foreRenderer ne null) renderLayer(foreRenderer) }
 	
 	/** Render a back or from layer. */ 
-	protected def renderLayer(renderer:LayerRenderer) {
+	protected def renderLayer(renderer:LayerRenderer[Graphics2D]) {
 		val metrics = camera.metrics
 		
 		renderer.render(backend.graphics2D, graph, metrics.ratioPx2Gu,
@@ -315,9 +318,9 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 		}
 	}
    
-	def setBackLayerRenderer(renderer:LayerRenderer) { backRenderer = renderer }
+	def setBackLayerRenderer(renderer:LayerRenderer[Graphics2D]) { backRenderer = renderer }
 
-	def setForeLayoutRenderer(renderer:LayerRenderer) { foreRenderer = renderer }
+	def setForeLayoutRenderer(renderer:LayerRenderer[Graphics2D]) { foreRenderer = renderer }
    
 // Commands -- Style group listener
   
@@ -333,4 +336,7 @@ class J2DGraphRenderer extends GraphRenderer with StyleGroupListener {
 	    		renderer.asInstanceOf[JComponentRenderer].unequipElement(element.asInstanceOf[GraphicElement])
     	}
     }
-}
+
+	override def createDefaultView(viewer: Viewer, id: String): View = {
+		new DefaultView(viewer, id, this)}
+	}

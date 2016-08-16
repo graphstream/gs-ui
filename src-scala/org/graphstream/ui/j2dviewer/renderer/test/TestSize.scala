@@ -201,4 +201,8 @@ class TestSize extends ViewerListener {
 				size-mode: dyn-size;
 			}
 			"""
+
+	override def mouseOver(id: String){}
+
+	override def mouseLeft(id: String){}
 }

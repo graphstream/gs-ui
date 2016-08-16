@@ -56,7 +56,7 @@ class TestShapeDecor extends ViewerListener {
 		val graph  = new MultiGraph( "TestSize" )
 		val viewer = new Viewer( graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD )
 		val pipeIn = viewer.newViewerPipe
-		val view   = viewer.addView( "view1", new J2DGraphRenderer )
+		val view   = viewer.addView( "view1", new J2DGraphRenderer ).asInstanceOf[DefaultView];
 //		val view   = viewer.addDefaultView( true )
 
 		view.resizeFrame(500, 430)
@@ -311,4 +311,8 @@ class TestShapeDecor extends ViewerListener {
 			edge#gt { text-alignment: above; }
 			edge#ij { text-alignment: along; }
 			"""
+
+	override def mouseOver(id: String){}
+
+	override def mouseLeft(id: String){}
 }

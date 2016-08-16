@@ -166,6 +166,10 @@ class TestManySprites extends ViewerListener {
 				stroke-mode: none;
 			}
 		""";
+
+	override def mouseOver(id: String){}
+
+	override def mouseLeft(id: String){}
 }
 
 protected class TestSpriteFactory extends SpriteFactory {

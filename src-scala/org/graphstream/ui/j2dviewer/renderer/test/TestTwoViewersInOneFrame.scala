@@ -37,9 +37,9 @@ import javax.swing.JFrame
 import _root_.org.graphstream.graph._
 import _root_.org.graphstream.graph.implementations._
 import _root_.org.graphstream.stream.thread._
-import org.graphstream.ui.view.{Viewer, ViewerPipe, ViewerListener}
-import org.graphstream.ui.swingViewer.DefaultView;
-import _root_.org.graphstream.ui.view.Viewer.ThreadingModel;
+import org.graphstream.ui.view.{Viewer, ViewerListener, ViewerPipe}
+import org.graphstream.ui.swingViewer.{DefaultView, SwingGraphRenderer}
+import _root_.org.graphstream.ui.view.Viewer.ThreadingModel
 import _root_.org.graphstream.algorithm.generator._
 
 object TestTwoViewersInOneFrame {
@@ -64,8 +64,8 @@ class TestTwoViewersInOneFrame extends JFrame {
 		graph1.addAttribute("ui.stylesheet", styleSheet1)
 		graph2.addAttribute("ui.stylesheet", styleSheet2)
 
-    val view1 = new DefaultView(viewer1, "view1", Viewer.newGraphRenderer)
-    val view2 = new DefaultView(viewer1, "view2", Viewer.newGraphRenderer)
+    val view1 = new DefaultView(viewer1, "view1", Viewer.newGraphRenderer.asInstanceOf[SwingGraphRenderer])
+    val view2 = new DefaultView(viewer1, "view2", Viewer.newGraphRenderer.asInstanceOf[SwingGraphRenderer])
 		viewer1.addView(view1)
 		viewer2.addView(view2)
 		viewer1.enableAutoLayout
