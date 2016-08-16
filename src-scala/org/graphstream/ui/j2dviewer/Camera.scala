@@ -699,11 +699,9 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.view.C
     		pos = new Point3
 		
     	val node   = sprite.getNodeAttachment
-			val radius = metrics.lengthToGu( sprite.getX, sprite.getUnits )
-			val z      = sprite.getZ * (Pi / 180.0)
+			pos.x = node.x + sprite.getX
+			pos.y = node.y + sprite.getY
 
-			pos.x = node.x + (cos(z) * radius)
-			pos.y = node.y + (sin(z) * radius)
 
     	if(units == Units.PX)
     		bck.transform(pos)
