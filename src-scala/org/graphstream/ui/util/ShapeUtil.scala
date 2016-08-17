@@ -135,6 +135,7 @@ object ShapeUtil {
 			case TRIANGLE     => evalEllipseRadius2D(p0, p1, p2, p3, w, h, s)
 			case TEXT_CIRCLE  => evalEllipseRadius2D(p0, p1, p2, p3, w, h, s)
 			case TEXT_DIAMOND => evalEllipseRadius2D(p0, p1, p2, p3, w, h, s)
+			case PIE_CHART		=> evalEllipseRadius2D(p0, p1, p2, p3, w, h, s)
 			case BOX          => evalBoxRadius2D(p0, p1, p2, p3, w/2+s, h/2+s)
 			case ROUNDED_BOX  => evalBoxRadius2D(p0, p1, p2, p3, w/2+s, h/2+s)
 			case TEXT_BOX     => evalBoxRadius2D(p0, p1, p2, p3, w/2+s, h/2+s)
