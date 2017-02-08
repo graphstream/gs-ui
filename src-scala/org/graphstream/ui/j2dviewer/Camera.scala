@@ -192,21 +192,22 @@ class Camera(protected val graph:GraphicGraph) extends org.graphstream.ui.view.C
   	  * @param y The point ordinate.
   	  * @return The first node or sprite at the given coordinates or null if nothing found. */
   	def findNodeOrSpriteAt(graph:GraphicGraph, x:Double, y:Double):GraphicElement = {
-  		var ge:GraphicElement = null
-  		
-  		graph.getEachNode.foreach { n =>	
-  			val node = n.asInstanceOf[GraphicNode]
-			
-  			if( nodeContains( node, x, y ) )
-  				ge = node
-  		}
-	
-  		graph.spriteSet.foreach { sprite =>
-  			if( spriteContains( sprite, x, y ) )
-  				ge = sprite
-  		}
-  		
- 		ge
+			graph.getEachNode.find { n =>
+				val node = n.asInstanceOf[GraphicNode]
+				nodeContains(node, x, y)
+			} match {
+				case Some(n) => {
+					n.asInstanceOf[GraphicNode]
+				}
+				case None => {
+					graph.spriteSet.find { sprite =>
+						spriteContains(sprite, x, y)
+					} match {
+						case Some(sprite) => sprite.asInstanceOf[GraphicSprite]
+						case None => null
+					}
+				}
+			}
   	}
 
   	/** Search for all the nodes and sprites contained inside the rectangle (x1,y1)-(x2,y2).
